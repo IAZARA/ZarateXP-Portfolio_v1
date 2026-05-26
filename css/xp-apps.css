@@ -552,15 +552,686 @@ body.xp-no-animations *::after {
     transition-duration: 0.01ms !important;
 }
 
+.xp-api-center,
+.xp-pdf-studio,
+.xp-pinball-app {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-api-center {
+    grid-template-columns: 220px 1fr;
+    background: #f4f6fb;
+}
+
+.xp-api-sidebar,
+.xp-pdf-sidebar,
+.xp-pinball-panel {
+    padding: 14px;
+    background: linear-gradient(#ffffff, #dce9ff);
+    border-right: 1px solid #8aa9d8;
+    overflow: auto;
+}
+
+.xp-api-sidebar h2,
+.xp-pdf-sidebar h2,
+.xp-pinball-panel h2,
+.xp-winamp-eq h3,
+.xp-winamp-playlist h3 {
+    margin: 0 0 8px;
+    color: #0b3d91;
+    font: 700 15px Tahoma, sans-serif;
+}
+
+.xp-api-sidebar p,
+.xp-pdf-sidebar p,
+.xp-pinball-panel p {
+    margin: 0 0 12px;
+    color: #1f2937;
+    line-height: 1.35;
+}
+
+.xp-api-sidebar button,
+.xp-pdf-sidebar button,
+.xp-file-button,
+.xp-solitaire-toolbar button,
+.xp-pinball-panel button,
+.xp-winamp-controls button {
+    min-height: 23px;
+    border: 1px solid #003c74;
+    border-radius: 3px;
+    background: linear-gradient(#fff, #ece9d8);
+    color: #000;
+    font: 11px Tahoma, sans-serif;
+    padding: 3px 9px;
+    cursor: default;
+}
+
+.xp-api-sidebar button,
+.xp-pdf-sidebar button,
+.xp-file-button,
+.xp-pinball-panel button {
+    width: 100%;
+    margin: 4px 0;
+    text-align: left;
+}
+
+.xp-api-sidebar button:hover,
+.xp-api-sidebar button.active,
+.xp-pdf-sidebar button:hover,
+.xp-file-button:hover,
+.xp-solitaire-toolbar button:hover,
+.xp-pinball-panel button:hover,
+.xp-winamp-controls button:hover,
+.xp-winamp-controls button.active {
+    background: linear-gradient(#fff, #dce7fb);
+}
+
+.xp-api-main {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
+}
+
+.xp-api-panel {
+    display: none;
+    min-height: 0;
+    overflow: auto;
+}
+
+.xp-api-panel.active {
+    display: block;
+}
+
+.xp-api-toolbar,
+.xp-pdf-toolbar,
+.xp-solitaire-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 5px 8px;
+    background: #ece9d8;
+    border-bottom: 1px solid #aca899;
+}
+
+.xp-api-toolbar input {
+    width: min(240px, 42vw);
+    height: 22px;
+    border: 1px inset #fff;
+    padding: 2px 5px;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-api-result {
+    padding: 14px;
+}
+
+.xp-weather-card,
+.xp-country-card,
+.xp-api-summary,
+.xp-api-error,
+.xp-github-list article {
+    border: 1px solid #8aa9d8;
+    background: #fff;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.09);
+}
+
+.xp-weather-card {
+    display: grid;
+    grid-template-columns: minmax(190px, 0.8fr) 1fr;
+    gap: 14px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+
+.xp-weather-card h3,
+.xp-country-card h3,
+.xp-github-list h3 {
+    margin: 2px 0 8px;
+    font: 700 15px Tahoma, sans-serif;
+}
+
+.xp-weather-card strong {
+    display: block;
+    font: 700 42px Tahoma, sans-serif;
+    color: #0b54ba;
+}
+
+.xp-weather-card dl,
+.xp-country-card dl,
+.xp-pinball-panel dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 7px 12px;
+    margin: 0;
+}
+
+.xp-weather-card dt,
+.xp-country-card dt,
+.xp-pinball-panel dt {
+    color: #445;
+}
+
+.xp-weather-card dd,
+.xp-country-card dd,
+.xp-pinball-panel dd {
+    margin: 0;
+    font-weight: 700;
+}
+
+.xp-api-cards {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(96px, 1fr));
+    gap: 8px;
+}
+
+.xp-api-cards article {
+    border: 1px solid #b7c9ee;
+    background: linear-gradient(#fff, #edf4ff);
+    padding: 9px;
+}
+
+.xp-api-cards strong,
+.xp-api-cards span,
+.xp-api-cards small {
+    display: block;
+}
+
+.xp-github-list {
+    display: grid;
+    gap: 10px;
+}
+
+.xp-github-list article {
+    padding: 12px;
+}
+
+.xp-github-list p {
+    min-height: 32px;
+    margin: 0 0 8px;
+    color: #333;
+    line-height: 1.35;
+}
+
+.xp-github-list footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.xp-github-list footer span,
+.xp-api-summary span {
+    border: 1px solid #b7c9ee;
+    background: #edf4ff;
+    padding: 2px 6px;
+}
+
+.xp-country-card {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    padding: 16px;
+}
+
+.xp-country-card img {
+    width: 100%;
+    border: 1px solid #8a8a8a;
+}
+
+.xp-api-summary,
+.xp-api-error,
+.xp-api-loading {
+    margin-bottom: 12px;
+    padding: 10px;
+}
+
+.xp-api-error {
+    border-color: #bd3f2f;
+    background: #fff2ed;
+}
+
+.xp-api-loading span {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    margin-right: 7px;
+    border: 2px solid #7aa1d8;
+    border-top-color: #164ba1;
+    border-radius: 50%;
+    animation: xp-spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+.xp-api-log {
+    min-height: 28px;
+    border-top: 1px solid #aca899;
+    background: #ffffe1;
+    padding: 7px 10px;
+}
+
+.xp-pdf-studio {
+    grid-template-columns: 230px 1fr;
+    background: #ece9d8;
+}
+
+.xp-file-button {
+    display: block;
+}
+
+.xp-file-button input {
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.xp-pdf-notes {
+    margin-top: 12px;
+}
+
+.xp-pdf-notes h3 {
+    margin: 0 0 6px;
+    font: 700 12px Tahoma, sans-serif;
+}
+
+.xp-pdf-notes textarea {
+    width: 100%;
+    min-height: 72px;
+    resize: vertical;
+    border: 1px inset #fff;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-pdf-notes ul {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+}
+
+.xp-pdf-notes li {
+    position: relative;
+    margin-bottom: 7px;
+    border: 1px solid #b7c9ee;
+    background: #fff;
+    padding: 7px 7px 7px 24px;
+}
+
+.xp-pdf-notes li.empty {
+    padding-left: 7px;
+    color: #555;
+}
+
+.xp-pdf-notes li button {
+    position: absolute;
+    left: 4px;
+    top: 5px;
+    width: 16px;
+    min-height: 16px;
+    padding: 0;
+    text-align: center;
+}
+
+.xp-pdf-notes li strong,
+.xp-pdf-notes li span,
+.xp-pdf-notes li small {
+    display: block;
+}
+
+.xp-pdf-viewer {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.xp-pdf-frame-wrap {
+    min-height: 0;
+    overflow: auto;
+    background: #777;
+    padding: 14px;
+}
+
+.xp-pdf-frame-wrap iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 720px;
+    border: 1px solid #222;
+    background: #fff;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.28);
+}
+
+.xp-winamp-pro {
+    height: 100%;
+    display: grid;
+    grid-template-columns: minmax(360px, 1fr) 170px 210px;
+    gap: 10px;
+    padding: 12px;
+    background: #1d1d1d;
+    color: #c8ffc8;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-winamp-main,
+.xp-winamp-eq,
+.xp-winamp-playlist {
+    border: 1px solid #4e4e4e;
+    background: linear-gradient(#313131, #111);
+    box-shadow: inset 1px 1px 0 #6b6b6b;
+    min-height: 0;
+}
+
+.xp-winamp-main {
+    padding: 12px;
+}
+
+.xp-winamp-screen {
+    position: relative;
+    border: 1px solid #000;
+    background: #050708;
+    overflow: hidden;
+}
+
+.xp-winamp-screen canvas {
+    width: 100%;
+    height: 128px;
+    display: block;
+    image-rendering: pixelated;
+}
+
+.xp-winamp-readout {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    top: 8px;
+    pointer-events: none;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.xp-winamp-readout strong,
+.xp-winamp-readout span,
+.xp-winamp-readout small {
+    display: block;
+}
+
+.xp-winamp-readout strong {
+    color: #e7ff63;
+    font-size: 13px;
+}
+
+.xp-winamp-seek {
+    width: 100%;
+    margin: 12px 0;
+}
+
+.xp-winamp-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.xp-winamp-controls button {
+    width: 48px;
+    min-height: 26px;
+    padding: 2px;
+}
+
+.xp-winamp-mixers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.xp-winamp-mixers label,
+.xp-eq-sliders label {
+    display: grid;
+    gap: 5px;
+}
+
+.xp-winamp-eq {
+    padding: 12px;
+}
+
+.xp-eq-sliders {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    height: 210px;
+    align-items: center;
+}
+
+.xp-eq-sliders input {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 28px;
+    height: 150px;
+}
+
+.xp-winamp-eq p {
+    color: #e7ff63;
+    line-height: 1.35;
+}
+
+.xp-winamp-playlist {
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+    min-width: 0;
+}
+
+.xp-winamp-playlist ol {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.xp-winamp-playlist button {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    border: 0;
+    border-bottom: 1px solid #293329;
+    background: transparent;
+    color: #c8ffc8;
+    text-align: left;
+    padding: 7px 2px;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-winamp-playlist button:hover,
+.xp-winamp-playlist button.active {
+    background: #103d20;
+    color: #fff;
+}
+
+.xp-solitaire-app {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    background: #16803c;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-solitaire-toolbar {
+    justify-content: flex-start;
+}
+
+.xp-solitaire-toolbar [data-solitaire-status] {
+    flex: 1;
+}
+
+.xp-solitaire-board {
+    min-height: 0;
+    overflow: auto;
+    padding: 16px;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 20%),
+        #16803c;
+}
+
+.xp-solitaire-top {
+    display: grid;
+    grid-template-columns: 78px 78px 1fr;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 20px;
+}
+
+.xp-foundations {
+    display: grid;
+    grid-template-columns: repeat(4, 78px);
+    gap: 12px;
+    justify-content: end;
+}
+
+.xp-tableau {
+    display: grid;
+    grid-template-columns: repeat(7, 78px);
+    gap: 12px;
+    align-items: start;
+}
+
+.xp-tableau-column {
+    min-height: 310px;
+    border-radius: 5px;
+}
+
+.xp-card-pile,
+.xp-playing-card {
+    width: 78px;
+    height: 108px;
+    border-radius: 7px;
+    border: 1px solid rgba(0, 0, 0, 0.48);
+    font: 700 14px Tahoma, sans-serif;
+}
+
+.xp-card-pile {
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.12);
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.xp-playing-card {
+    position: relative;
+    display: block;
+    margin-bottom: -72px;
+    background: #fff;
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.24);
+    padding: 5px;
+}
+
+.xp-card-pile > .xp-playing-card {
+    margin-bottom: 0;
+}
+
+.xp-playing-card.selected {
+    outline: 3px solid #ffdf4d;
+    transform: translateY(-4px);
+}
+
+.xp-playing-card.back,
+.xp-card-back {
+    display: grid;
+    place-items: center;
+    background:
+        linear-gradient(45deg, rgba(255,255,255,0.18) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.18) 75%),
+        linear-gradient(45deg, rgba(255,255,255,0.18) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.18) 75%),
+        #194ea8;
+    background-size: 14px 14px;
+    background-position: 0 0, 7px 7px;
+    color: #fff;
+}
+
+.xp-playing-card strong {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 32px;
+}
+
+.xp-playing-card small {
+    position: absolute;
+    right: 6px;
+    bottom: 5px;
+    transform: rotate(180deg);
+}
+
+.xp-playing-card.red,
+.xp-foundation-suit.red {
+    color: #c91515;
+}
+
+.xp-playing-card.black,
+.xp-foundation-suit.black {
+    color: #111;
+}
+
+.xp-card-empty {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.xp-foundation-suit {
+    font-size: 30px;
+    opacity: 0.5;
+}
+
+.xp-pinball-app {
+    grid-template-columns: 220px 1fr;
+    background: #101828;
+}
+
+.xp-pinball-table-wrap {
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: auto;
+    padding: 12px;
+}
+
+.xp-pinball-table-wrap canvas {
+    width: min(100%, 520px);
+    height: auto;
+    max-height: 100%;
+    border: 5px solid #dfe7ff;
+    border-radius: 12px;
+    background: #15245c;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes xp-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 @media (max-width: 760px) {
     .xp-documents-layout,
     .xp-control-panel-app,
-    .xp-n8n-app {
+    .xp-n8n-app,
+    .xp-api-center,
+    .xp-pdf-studio,
+    .xp-pinball-app {
         grid-template-columns: 1fr;
     }
 
     .xp-task-pane,
-    .xp-n8n-sidebar {
+    .xp-n8n-sidebar,
+    .xp-api-sidebar,
+    .xp-pdf-sidebar,
+    .xp-pinball-panel {
         display: none;
     }
 
@@ -569,6 +1240,13 @@ body.xp-no-animations *::after {
     }
 
     .xp-settings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .xp-api-cards,
+    .xp-country-card,
+    .xp-weather-card,
+    .xp-winamp-pro {
         grid-template-columns: 1fr;
     }
 }

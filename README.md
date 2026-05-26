@@ -8,7 +8,7 @@
 [![Portfolio](https://img.shields.io/badge/Portfolio-Windows_XP-2D7DD2?style=for-the-badge)](#)
 [![Status](https://img.shields.io/badge/status-active-2EA44F?style=for-the-badge)](#)
 
-Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Windows XP. El sitio funciona como escritorio navegable: ventanas arrastrables, menu de inicio, visor de CV actualizado, proyectos embebidos, automatizaciones n8n y aplicaciones retro funcionales.
+Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Windows XP. El sitio funciona como escritorio navegable: ventanas arrastrables, menu de inicio, visor de CV actualizado, proyectos embebidos, automatizaciones n8n, integraciones con APIs publicas y aplicaciones retro funcionales.
 
 ## Demo
 
@@ -19,7 +19,7 @@ Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Wi
 
 ## Etiquetas
 
-`portfolio` `windows-xp` `vanilla-javascript` `frontend` `full-stack` `automation` `n8n` `interactive-ui` `minesweeper` `paint` `github-pages`
+`portfolio` `windows-xp` `vanilla-javascript` `frontend` `full-stack` `automation` `n8n` `rest-api` `web-audio` `canvas-games` `pdf-viewer` `interactive-ui` `minesweeper` `paint` `github-pages`
 
 ## Que incluye
 
@@ -30,7 +30,9 @@ Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Wi
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.
 - Proyectos destacados: ZarateXP, OSINTArgy, ForzaTech, Estudio Luttini, WJPC Capitulo Argentino, automatizaciones n8n y sistemas full-stack.
-- Apps retro: Winamp, Paint mejorado, Buscaminas robusto, Bloc de notas y WordPad.
+- API Center con Open-Meteo, wttr.in, GitHub REST y REST Countries, cache local, loading/error states y fallback.
+- Apps retro: Winamp Pro, Paint mejorado, Buscaminas robusto, Solitario, Pinball, Bloc de notas y WordPad.
+- PDF Studio para abrir PDFs locales, revisar el CV, anotar observaciones y usar File/Blob APIs.
 - Panel de control para personalizar fondo, tema, iconos, efecto CRT y taskbar.
 - Flujos n8n visuales con simulacion funcional de ejecucion.
 - Assets visuales actualizados para perfil full-stack, automatizacion y productos de datos.
@@ -40,14 +42,19 @@ Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Wi
 - HTML5
 - CSS3 modular
 - JavaScript ES modules
+- Fetch API, Web Audio API, Canvas 2D, File API y localStorage
 - XP.css para componentes visuales base
 - EmailJS para formulario de contacto
 - Assets estaticos listos para GitHub Pages
 
 ## Apps destacadas
 
+- **API Center:** consumo REST real de clima, repositorios y datos publicos con cache, proveedor secundario y manejo de errores.
+- **Winamp XP Pro:** reproductor con playlist, visualizador Canvas, ecualizador y loops generados con Web Audio.
+- **PDF Studio:** visor de CV/PDF local con zoom, rotacion, descarga, impresion y notas persistentes.
 - **Buscaminas XP:** primer clic seguro, banderas, dudas, timer, dificultades y deteccion de victoria/derrota.
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
+- **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
 - **Flujos n8n:** canvas visual con nodos, estado de ejecucion y log funcional.
 - **Panel de control:** personalizacion persistente del escritorio.
@@ -79,8 +86,7 @@ Tambien se puede abrir `index.html` directamente, aunque el servidor local evita
 ├── assets/
 │   ├── images/
 │   ├── readme/
-│   ├── sounds/
-│   └── winamp/
+│   └── sounds/
 ├── images/
 │   ├── icons/
 │   └── sobremi/

@@ -6,6 +6,7 @@ export class AppManager {
     constructor() {
         this.apps = new Map();
         this.runningApps = new Map();
+        this.scriptPromises = new Map();
         this.windowManager = null; // Se asignará en init()
         
         // Register built-in applications
@@ -24,10 +25,7 @@ export class AppManager {
     }
     
     loadAppScripts() {
-        const winampScript = document.createElement('script');
-        winampScript.type = 'module';
-        winampScript.src = 'js/winamp.js';
-        document.head.appendChild(winampScript);
+        // Las apps pesadas se cargan bajo demanda para mantener rapido el boot.
     }
     
     registerBuiltInApps() {
@@ -151,6 +149,42 @@ export class AppManager {
             category: 'system',
             description: 'Personalizacion de ZarateXP',
             handler: () => this._openControlPanel()
+        });
+
+        this.registerApp({
+            id: 'api-center',
+            name: 'API Center',
+            icon: './images/icons/network.png',
+            category: 'development',
+            description: 'Integraciones en vivo con APIs publicas',
+            handler: () => this._openApiCenter()
+        });
+
+        this.registerApp({
+            id: 'pdf-studio',
+            name: 'PDF Studio',
+            icon: './images/icons/pdf.png',
+            category: 'documents',
+            description: 'Abrir, revisar y anotar PDFs',
+            handler: () => this._openPdfStudio()
+        });
+
+        this.registerApp({
+            id: 'solitaire',
+            name: 'Solitario',
+            icon: './images/icons/solitaire.png',
+            category: 'games',
+            description: 'Klondike estilo Windows XP',
+            handler: () => this._openSolitaire()
+        });
+
+        this.registerApp({
+            id: 'pinball',
+            name: 'Pinball XP',
+            icon: './images/icons/pinball.png',
+            category: 'games',
+            description: 'Mesa de pinball canvas inspirada en XP',
+            handler: () => this._openPinball()
         });
     }
     
@@ -311,297 +345,62 @@ export class AppManager {
     }
     
     async _openWinamp() {
-        try {
-            // 1. Prevenir múltiples instancias
-            if (this.runningApps.has('winamp')) {
-                console.log('Winamp is already running');
-                return;
-            }
+        const content = `
+            <div class="xp-winamp-pro" data-winamp-root>
+                <section class="xp-winamp-main">
+                    <div class="xp-winamp-screen">
+                        <canvas width="360" height="104" data-winamp-visualizer></canvas>
+                        <div class="xp-winamp-readout">
+                            <strong data-winamp-title>01. API Weather Groove</strong>
+                            <span data-winamp-meta>44 kHz stereo - Web Audio API</span>
+                            <small data-winamp-time>00:00 / 00:00</small>
+                        </div>
+                    </div>
+                    <input class="xp-winamp-seek" type="range" min="0" max="100" value="0" data-winamp-seek aria-label="Progreso">
+                    <div class="xp-winamp-controls">
+                        <button type="button" data-winamp-action="prev">|&lt;</button>
+                        <button type="button" data-winamp-action="play">&gt;</button>
+                        <button type="button" data-winamp-action="pause">||</button>
+                        <button type="button" data-winamp-action="stop">[]</button>
+                        <button type="button" data-winamp-action="next">&gt;|</button>
+                        <button type="button" data-winamp-action="shuffle">SHUF</button>
+                        <button type="button" data-winamp-action="repeat">REP</button>
+                    </div>
+                    <div class="xp-winamp-mixers">
+                        <label>Vol <input type="range" min="0" max="100" value="70" data-winamp-volume></label>
+                        <label>Bal <input type="range" min="-100" max="100" value="0" data-winamp-balance></label>
+                    </div>
+                </section>
+                <section class="xp-winamp-eq">
+                    <h3>Ecualizador</h3>
+                    <div class="xp-eq-sliders">
+                        <label>60<input type="range" min="-12" max="12" value="2" data-eq-band="bass"></label>
+                        <label>1K<input type="range" min="-12" max="12" value="0" data-eq-band="mid"></label>
+                        <label>14K<input type="range" min="-12" max="12" value="3" data-eq-band="treble"></label>
+                    </div>
+                    <p data-winamp-status>Listo para reproducir loops generados en navegador.</p>
+                </section>
+                <section class="xp-winamp-playlist">
+                    <h3>Playlist</h3>
+                    <ol data-winamp-playlist></ol>
+                </section>
+            </div>
+        `;
 
-            // 2. Verificar que WindowManager esté disponible
-            if (!this.windowManager) {
-                throw new Error('WindowManager no está disponible');
-            }
-
-            // 3. Crear una ventana "frameless" especial para Winamp
-            const winampContainer = this._createFramelessWinampWindow();
-
-            // 4. Marcar como aplicación en ejecución
-            this.runningApps.set('winamp', 'winamp');
-
-            // 5. Configurar cleanup cuando se cierre la ventana
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.removedNodes.length > 0) {
-                        mutation.removedNodes.forEach((node) => {
-                            if (node === winampContainer) {
-                                console.log('Winamp window removed, cleaning up...');
-                                this.closeApp('winamp');
-                                observer.disconnect();
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Observar cambios en el contenedor de ventanas
-            if (winampContainer.parentNode) {
-                observer.observe(winampContainer.parentNode, { childList: true });
-            }
-
-            // 6. Esperar a que el componente se renderice y configurar funcionalidades
-            setTimeout(() => {
-                this._setupWinampControls(winampContainer);
-            }, 500);
-
-            console.log('Frameless Winamp created successfully');
-            return { windowId: 'winamp', element: winampContainer };
-
-        } catch (error) {
-            console.error('Error al abrir Winamp:', error);
-            this.showError(`Error al abrir Winamp: ${error.message}`);
-        }
-    }
-
-    _createFramelessWinampWindow() {
-        // Crear contenedor principal sin marco de ventana
-        const winampContainer = document.createElement('div');
-        winampContainer.className = 'winamp-frameless-container';
-        winampContainer.setAttribute('data-window-id', 'winamp');
-        
-        // Posicionar la ventana en el centro-derecha del escritorio
-        winampContainer.style.position = 'absolute';
-        winampContainer.style.width = '275px';
-        winampContainer.style.height = '116px';
-        winampContainer.style.left = 'calc(100vw - 300px)';
-        winampContainer.style.top = '100px';
-        winampContainer.style.zIndex = '1000';
-        winampContainer.style.cursor = 'move';
-
-        // Crear el Web Component de Winamp
-        const winampApp = document.createElement('winamp-main');
-        winampApp.setAttribute('src', 'assets/winamp/track.mp3');
-        
-        // Insertar Winamp en el contenedor
-        winampContainer.appendChild(winampApp);
-
-        // Hacer la ventana arrastrable usando la barra de título del propio Winamp
-        this._makeWinampDraggable(winampContainer);
-
-        // Agregar al contenedor de ventanas del sistema
-        const windowsContainer = document.getElementById('windows-container');
-        windowsContainer.appendChild(winampContainer);
-
-        // Agregar a la taskbar
-        const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
-        if (taskbarManager) {
-            taskbarManager.addProgram('winamp', 'Winamp', './images/winamp.png');
-        }
-
-        // Reproducir sonido de apertura
-        const soundManager = this.soundManager || window.zarateXP?.soundManager;
-        if (soundManager) {
-            soundManager.play('maximize');
-        }
-
-        return winampContainer;
-    }
-
-    _makeWinampDraggable(container) {
-        let isDragging = false;
-        let startX = 0;
-        let startY = 0;
-        let initialX = 0;
-        let initialY = 0;
-
-        const handleMouseDown = (e) => {
-            // Solo permitir arrastrar desde la barra de título de Winamp (parte superior)
-            const rect = container.getBoundingClientRect();
-            const clickY = e.clientY - rect.top;
-            
-            // Solo si se hace clic en los primeros 14px (barra de título de Winamp)
-            if (clickY <= 14) {
-                isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                
-                const containerRect = container.getBoundingClientRect();
-                initialX = containerRect.left;
-                initialY = containerRect.top;
-                
-                container.style.cursor = 'grabbing';
-                e.preventDefault();
-            }
-        };
-
-        const handleMouseMove = (e) => {
-            if (!isDragging) return;
-            
-            e.preventDefault();
-            
-            const deltaX = e.clientX - startX;
-            const deltaY = e.clientY - startY;
-            
-            container.style.left = (initialX + deltaX) + 'px';
-            container.style.top = (initialY + deltaY) + 'px';
-        };
-
-        const handleMouseUp = () => {
-            if (!isDragging) return;
-            
-            isDragging = false;
-            container.style.cursor = 'move';
-        };
-
-        // Eventos de arrastre
-        container.addEventListener('mousedown', handleMouseDown);
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-
-        // Almacenar referencias para cleanup
-        container._dragHandlers = {
-            mousedown: handleMouseDown,
-            mousemove: handleMouseMove,
-            mouseup: handleMouseUp
-        };
-    }
-
-    _setupWinampControls(winampContainer) {
-        try {
-            // Buscar el elemento winamp-main dentro del contenedor
-            const winampElement = winampContainer.querySelector('winamp-main');
-            if (!winampElement) {
-                console.error('No se encontró el elemento winamp-main');
-                return;
-            }
-
-            // Crear elemento de audio global para la reproducción
-            const audio = document.createElement('audio');
-            audio.src = 'assets/winamp/track.mp3';
-            audio.preload = 'auto';
-            
-            // Almacenar referencia del audio en el contenedor para acceso global
-            winampContainer._audioElement = audio;
-
-            // Esperar a que el Shadow DOM esté listo
-            setTimeout(() => {
-                this._configureShadowDOMControls(winampElement, audio);
-            }, 100);
-
-            console.log('Winamp audio system configured successfully');
-
-        } catch (error) {
-            console.error('Error configurando controles de Winamp:', error);
-        }
-    }
-
-    _configureShadowDOMControls(winampElement, audio) {
-        try {
-            const shadowRoot = winampElement.shadowRoot;
-            if (!shadowRoot) {
-                console.log('Shadow DOM no disponible para Winamp');
-                return;
-            }
-
-            // Navegar por la estructura del Shadow DOM para encontrar los controles
-            const winampBody = shadowRoot.querySelector('winamp-body');
-            if (winampBody && winampBody.shadowRoot) {
-                const winampControls = winampBody.shadowRoot.querySelector('winamp-controls');
-                if (winampControls && winampControls.shadowRoot) {
-                    this._setupPlaybackControls(winampControls.shadowRoot, audio);
-                }
-
-                const winampDisplay = winampBody.shadowRoot.querySelector('winamp-display');
-                if (winampDisplay && winampDisplay.shadowRoot) {
-                    this._setupDisplayControls(winampDisplay.shadowRoot, audio);
-                }
-            }
-
-        } catch (error) {
-            console.error('Error configurando Shadow DOM de Winamp:', error);
-        }
-    }
-
-    _setupPlaybackControls(controlsShadowRoot, audio) {
-        // Buscar botones de control
-        const playButton = controlsShadowRoot.querySelector('winamp-button[type="play"]');
-        const stopButton = controlsShadowRoot.querySelector('winamp-button[type="stop"]');
-        const pauseButton = controlsShadowRoot.querySelector('winamp-button[type="pause"]');
-
-        if (playButton && playButton.shadowRoot) {
-            const playButtonElement = playButton.shadowRoot.querySelector('.button');
-            if (playButtonElement) {
-                playButtonElement.addEventListener('click', () => {
-                    audio.play();
-                    console.log('Playing: Paint It Black');
-                });
-            }
-        }
-
-        if (stopButton && stopButton.shadowRoot) {
-            const stopButtonElement = stopButton.shadowRoot.querySelector('.button');
-            if (stopButtonElement) {
-                stopButtonElement.addEventListener('click', () => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                    console.log('Stopped playback');
-                });
-            }
-        }
-
-        if (pauseButton && pauseButton.shadowRoot) {
-            const pauseButtonElement = pauseButton.shadowRoot.querySelector('.button');
-            if (pauseButtonElement) {
-                pauseButtonElement.addEventListener('click', () => {
-                    if (audio.paused) {
-                        audio.play();
-                    } else {
-                        audio.pause();
-                    }
-                });
-            }
-        }
-    }
-
-    _setupDisplayControls(displayShadowRoot, audio) {
-        // Buscar el área de texto donde se muestra el título
-        const audioDataElement = displayShadowRoot.querySelector('.audio-data span');
-        
-        if (audioDataElement) {
-            // Configurar el título de la canción
-            audioDataElement.textContent = 'Paint It Black - The Rolling Stones';
-            
-            // Cambiar el título cuando se reproduce
-            audio.addEventListener('play', () => {
-                audioDataElement.textContent = 'Paint It Black - The Rolling Stones';
-            });
-            
-            audio.addEventListener('pause', () => {
-                audioDataElement.textContent = 'Paint It Black - The Rolling Stones [PAUSED]';
-            });
-        }
-    }
-
-    _setupDirectControls(winampElement) {
-        // Fallback para cuando no se puede acceder al Shadow DOM
-        try {
-            // Intentar configurar controles mediante atributos o eventos personalizados
-            winampElement.setAttribute('title', 'Paint It Black - Rolling Stones');
-            winampElement.setAttribute('artist', 'Rolling Stones');
-            
-            // Disparar evento personalizado para configurar la canción
-            const setupEvent = new CustomEvent('setup-song', {
-                detail: {
-                    title: 'Paint It Black',
-                    artist: 'Rolling Stones',
-                    src: 'assets/winamp/track.mp3'
-                }
-            });
-            winampElement.dispatchEvent(setupEvent);
-
-        } catch (error) {
-            console.error('Error en configuración directa de Winamp:', error);
-        }
+        return this._createSingleInstanceWindow({
+            id: 'winamp',
+            title: 'Winamp XP Pro - Web Audio Lab',
+            icon: './images/winamp.png',
+            content,
+            width: 720,
+            height: 500,
+            onReady: (appWindow) => {
+                this._loadScriptOnce('js/winamp-pro.js', 'initWinampProApp')
+                    .then(() => window.initWinampProApp?.(appWindow))
+                    .catch((error) => this.showError(`No se pudo iniciar Winamp: ${error.message}`));
+            },
+            onClose: (appWindow) => window.destroyWinampProApp?.(appWindow)
+        });
     }
 
     async _openAboutMe() {
@@ -1869,7 +1668,7 @@ export class AppManager {
         return true;
     }
 
-    _createSingleInstanceWindow({ id, title, icon, content, width = 600, height = 400, resizable = true, maximizable = true, onReady = null }) {
+    _createSingleInstanceWindow({ id, title, icon, content, width = 600, height = 400, resizable = true, maximizable = true, onReady = null, onClose = null }) {
         if (this._focusIfRunning(id)) return null;
         if (!this.windowManager) {
             throw new Error('WindowManager no está disponible');
@@ -1887,13 +1686,48 @@ export class AppManager {
         });
 
         this.runningApps.set(id, id);
-        this._observeWindowClose(appWindow, id);
+        this._observeWindowClose(appWindow, id, onClose);
 
         if (typeof onReady === 'function') {
             window.setTimeout(() => onReady(appWindow), 0);
         }
 
         return appWindow;
+    }
+
+    _loadScriptOnce(src, readyGlobal = null) {
+        if (readyGlobal && window[readyGlobal]) return Promise.resolve();
+        if (this.scriptPromises.has(src)) return this.scriptPromises.get(src);
+
+        const existingScript = document.querySelector(`script[src="${src}"]`);
+        if (existingScript && readyGlobal && !window[readyGlobal]) {
+            const waitForReady = new Promise((resolve, reject) => {
+                const startedAt = Date.now();
+                const timer = window.setInterval(() => {
+                    if (window[readyGlobal]) {
+                        window.clearInterval(timer);
+                        resolve();
+                    } else if (Date.now() - startedAt > 5000) {
+                        window.clearInterval(timer);
+                        reject(new Error(`Timeout cargando ${src}`));
+                    }
+                }, 50);
+            });
+            this.scriptPromises.set(src, waitForReady);
+            return waitForReady;
+        }
+
+        const promise = new Promise((resolve, reject) => {
+            const script = existingScript || document.createElement('script');
+            script.src = src;
+            script.defer = true;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error(`No se pudo cargar ${src}`));
+            if (!existingScript) document.head.appendChild(script);
+        });
+
+        this.scriptPromises.set(src, promise);
+        return promise;
     }
 
     _observeWindowClose(appWindow, appId, onClose = null) {
@@ -2045,7 +1879,9 @@ export class AppManager {
                         <section>
                             <h3>Tareas de documento</h3>
                             <button type="button" data-doc-open="resume">Abrir CV actualizado</button>
+                            <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
                             <button type="button" data-doc-open="projects">Ver proyectos web</button>
+                            <button type="button" data-doc-open="api-center">Abrir API Center</button>
                             <button type="button" data-doc-open="n8n-flows">Ver automatizaciones n8n</button>
                         </section>
                         <section>
@@ -2063,6 +1899,16 @@ export class AppManager {
                             <img src="${iconBase}/Folder Opened.png" alt="">
                             <span>Proyectos destacados</span>
                             <small>ForzaTech, WJPC, Luttini, ZarateXP</small>
+                        </button>
+                        <button type="button" class="xp-folder-item important" data-doc-open="api-center">
+                            <img src="./images/icons/network.png" alt="">
+                            <span>API Center.lnk</span>
+                            <small>Clima, GitHub y datos publicos en vivo</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="pdf-studio">
+                            <img src="./images/icons/pdf.png" alt="">
+                            <span>PDF Studio.exe</span>
+                            <small>File API, Blob URL y anotaciones</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="about-me">
                             <img src="${iconBase}/User Accounts.png" alt="">
@@ -2083,6 +1929,16 @@ export class AppManager {
                             <img src="./assets/images/document.png" alt="">
                             <span>Carta de presentacion.rtf</span>
                             <small>Editor enriquecido</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="solitaire">
+                            <img src="./images/icons/solitaire.png" alt="">
+                            <span>Solitario XP</span>
+                            <small>Logica Klondike propia</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="pinball">
+                            <img src="./images/icons/pinball.png" alt="">
+                            <span>Pinball XP Lab</span>
+                            <small>Canvas, fisica y teclado</small>
                         </button>
                     </main>
                 </div>
@@ -2404,6 +2260,181 @@ export class AppManager {
                     button.addEventListener('click', () => this.openApp(button.dataset.cpOpen));
                 });
             }
+        });
+    }
+
+    _openApiCenter() {
+        const content = `
+            <div class="xp-api-center" data-api-root>
+                <aside class="xp-api-sidebar">
+                    <h2>API Center</h2>
+                    <p>Integraciones reales sin API key para mostrar consumo REST, estados de carga, errores y cache local.</p>
+                    <button type="button" class="active" data-api-tab="weather">Clima</button>
+                    <button type="button" data-api-tab="github">GitHub</button>
+                    <button type="button" data-api-tab="countries">Datos publicos</button>
+                    <button type="button" data-api-run-all>Ejecutar todo</button>
+                </aside>
+                <main class="xp-api-main">
+                    <section class="xp-api-panel active" data-api-panel="weather">
+                        <div class="xp-api-toolbar">
+                            <label>Ciudad <input type="search" value="Buenos Aires" data-weather-city></label>
+                            <button type="button" data-weather-run>Consultar clima</button>
+                        </div>
+                        <div class="xp-api-result xp-weather-result" data-weather-result></div>
+                    </section>
+                    <section class="xp-api-panel" data-api-panel="github">
+                        <div class="xp-api-toolbar">
+                            <label>Usuario <input type="search" value="IAZARA" data-github-user></label>
+                            <button type="button" data-github-run>Traer repos</button>
+                        </div>
+                        <div class="xp-api-result" data-github-result></div>
+                    </section>
+                    <section class="xp-api-panel" data-api-panel="countries">
+                        <div class="xp-api-toolbar">
+                            <label>Pais <input type="search" value="Argentina" data-country-name></label>
+                            <button type="button" data-country-run>Buscar pais</button>
+                        </div>
+                        <div class="xp-api-result" data-country-result></div>
+                    </section>
+                    <footer class="xp-api-log" data-api-log>Listo. Las consultas usan Open-Meteo, GitHub REST y REST Countries.</footer>
+                </main>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'api-center',
+            title: 'API Center - Integraciones REST',
+            icon: './images/icons/network.png',
+            content,
+            width: 820,
+            height: 540,
+            onReady: (appWindow) => {
+                this._loadScriptOnce('js/api-center.js', 'initApiCenterApp')
+                    .then(() => window.initApiCenterApp?.(appWindow))
+                    .catch((error) => this.showError(`No se pudo iniciar API Center: ${error.message}`));
+            }
+        });
+    }
+
+    _openPdfStudio() {
+        const content = `
+            <div class="xp-pdf-studio" data-pdf-root>
+                <aside class="xp-pdf-sidebar">
+                    <h2>PDF Studio</h2>
+                    <p>Abre el CV o cualquier PDF local, agrega notas de revision y conserva el historial en el navegador.</p>
+                    <label class="xp-file-button">
+                        Abrir PDF local
+                        <input type="file" accept="application/pdf" data-pdf-file>
+                    </label>
+                    <button type="button" data-pdf-default>CV actualizado</button>
+                    <button type="button" data-pdf-download>Descargar PDF</button>
+                    <button type="button" data-pdf-print>Imprimir</button>
+                    <div class="xp-pdf-notes">
+                        <h3>Notas</h3>
+                        <textarea data-pdf-note-text placeholder="Ej: destacar integraciones, APIs, n8n..."></textarea>
+                        <button type="button" data-pdf-add-note>Agregar nota</button>
+                        <ul data-pdf-note-list></ul>
+                    </div>
+                </aside>
+                <main class="xp-pdf-viewer">
+                    <div class="xp-pdf-toolbar">
+                        <button type="button" data-pdf-zoom="-0.1">-</button>
+                        <span data-pdf-zoom-label>100%</span>
+                        <button type="button" data-pdf-zoom="0.1">+</button>
+                        <button type="button" data-pdf-rotate>Rotar</button>
+                        <span data-pdf-status>Ivan_Zarate_CV.pdf</span>
+                    </div>
+                    <div class="xp-pdf-frame-wrap">
+                        <iframe title="Visor PDF" data-pdf-frame src="./Ivan_Zarate_CV.pdf#view=FitH"></iframe>
+                    </div>
+                </main>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'pdf-studio',
+            title: 'PDF Studio - Ivan_Zarate_CV.pdf',
+            icon: './images/icons/pdf.png',
+            content,
+            width: 900,
+            height: 620,
+            onReady: (appWindow) => {
+                this._loadScriptOnce('js/pdf-studio.js', 'initPdfStudioApp')
+                    .then(() => window.initPdfStudioApp?.(appWindow))
+                    .catch((error) => this.showError(`No se pudo iniciar PDF Studio: ${error.message}`));
+            },
+            onClose: (appWindow) => window.destroyPdfStudioApp?.(appWindow)
+        });
+    }
+
+    _openSolitaire() {
+        const content = `
+            <div class="xp-solitaire-app" data-solitaire-root>
+                <div class="xp-solitaire-toolbar">
+                    <button type="button" data-solitaire-new>Nuevo juego</button>
+                    <button type="button" data-solitaire-undo>Deshacer</button>
+                    <span data-solitaire-status>Solitario listo</span>
+                    <strong data-solitaire-score>0 pts</strong>
+                </div>
+                <div class="xp-solitaire-board">
+                    <div class="xp-solitaire-top">
+                        <button type="button" class="xp-card-pile stock" data-pile="stock" aria-label="Mazo"></button>
+                        <button type="button" class="xp-card-pile waste" data-pile="waste" aria-label="Descarte"></button>
+                        <div class="xp-foundations" data-foundations></div>
+                    </div>
+                    <div class="xp-tableau" data-tableau></div>
+                </div>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'solitaire',
+            title: 'Solitario - Klondike XP',
+            icon: './images/icons/solitaire.png',
+            content,
+            width: 860,
+            height: 610,
+            onReady: (appWindow) => {
+                this._loadScriptOnce('js/solitaire.js', 'initSolitaireApp')
+                    .then(() => window.initSolitaireApp?.(appWindow))
+                    .catch((error) => this.showError(`No se pudo iniciar Solitario: ${error.message}`));
+            }
+        });
+    }
+
+    _openPinball() {
+        const content = `
+            <div class="xp-pinball-app" data-pinball-root>
+                <aside class="xp-pinball-panel">
+                    <h2>Pinball XP Lab</h2>
+                    <p>Canvas 2D, colisiones simples, flippers con teclado y puntuacion en vivo.</p>
+                    <button type="button" data-pinball-start>Iniciar</button>
+                    <button type="button" data-pinball-reset>Reiniciar</button>
+                    <dl>
+                        <dt>Puntos</dt><dd data-pinball-score>0</dd>
+                        <dt>Bolas</dt><dd data-pinball-balls>3</dd>
+                        <dt>Control</dt><dd>Flechas o A/D + Espacio</dd>
+                    </dl>
+                </aside>
+                <main class="xp-pinball-table-wrap">
+                    <canvas width="520" height="700" data-pinball-canvas></canvas>
+                </main>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'pinball',
+            title: 'Pinball XP Lab',
+            icon: './images/icons/pinball.png',
+            content,
+            width: 820,
+            height: 650,
+            onReady: (appWindow) => {
+                this._loadScriptOnce('js/pinball.js', 'initPinballApp')
+                    .then(() => window.initPinballApp?.(appWindow))
+                    .catch((error) => this.showError(`No se pudo iniciar Pinball: ${error.message}`));
+            },
+            onClose: (appWindow) => window.destroyPinballApp?.(appWindow)
         });
     }
 
@@ -2890,30 +2921,9 @@ export class AppManager {
     closeApp(appId) {
         // Cleanup específico para diferentes aplicaciones
         if (appId === 'winamp') {
-            // Limpiar audio del contenedor frameless
-            const winampContainer = document.querySelector('.winamp-frameless-container');
-            if (winampContainer) {
-                // Pausar y limpiar audio
-                if (winampContainer._audioElement) {
-                    winampContainer._audioElement.pause();
-                    winampContainer._audioElement.src = '';
-                    winampContainer._audioElement = null;
-                }
-                
-                // Limpiar event listeners de arrastre
-                if (winampContainer._dragHandlers) {
-                    document.removeEventListener('mousemove', winampContainer._dragHandlers.mousemove);
-                    document.removeEventListener('mouseup', winampContainer._dragHandlers.mouseup);
-                }
-                
-                // Remover del DOM
-                winampContainer.remove();
-            }
-            
-            // Remover de la taskbar
-            const taskbarManager = this.taskbarManager || window.zarateXP?.taskbarManager;
-            if (taskbarManager) {
-                taskbarManager.removeProgram('winamp');
+            const winampWindow = document.querySelector('[data-window-id="winamp"]');
+            if (typeof destroyWinampProApp === 'function' && winampWindow) {
+                destroyWinampProApp(winampWindow);
             }
         } else if (appId === 'minesweeper') {
             console.log('Cleaning up Buscaminas application');
@@ -2926,6 +2936,16 @@ export class AppManager {
             const paintWindow = document.querySelector('[data-window-id="paint"]');
             if (typeof destroyPaintApp === 'function' && paintWindow) {
                 destroyPaintApp(paintWindow);
+            }
+        } else if (appId === 'pdf-studio') {
+            const pdfWindow = document.querySelector('[data-window-id="pdf-studio"]');
+            if (typeof destroyPdfStudioApp === 'function' && pdfWindow) {
+                destroyPdfStudioApp(pdfWindow);
+            }
+        } else if (appId === 'pinball') {
+            const pinballWindow = document.querySelector('[data-window-id="pinball"]');
+            if (typeof destroyPinballApp === 'function' && pinballWindow) {
+                destroyPinballApp(pinballWindow);
             }
         } else if (appId === 'my-computer') {
             console.log('Cleaning up Mi PC application');

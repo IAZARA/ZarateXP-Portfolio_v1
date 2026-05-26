@@ -8,7 +8,10 @@ export class ClippyManager {
         this.tips = [
             '<p class="welcome-text">Hola, soy el asistente de ZarateXP.</p><p class="subtitle">Abre Mis Documentos para ver el CV actualizado y los accesos clave.</p>',
             '<p class="welcome-text">Tip de portfolio</p><p class="subtitle">En Mis Proyectos puedes abrir ForzaTech, Estudio Luttini y WJPC embebidos.</p>',
+            '<p class="welcome-text">APIs en vivo</p><p class="subtitle">API Center consulta clima, GitHub y datos publicos sin API key.</p>',
+            '<p class="welcome-text">PDF Studio</p><p class="subtitle">Puedes abrir el CV, cargar PDFs locales y guardar notas de revision.</p>',
             '<p class="welcome-text">Automatizaciones listas</p><p class="subtitle">El icono Flujos n8n muestra un proceso visual que puedes ejecutar.</p>',
+            '<p class="welcome-text">Juegos XP</p><p class="subtitle">Solitario y Pinball son implementaciones propias para mostrar logica y Canvas.</p>',
             '<p class="welcome-text">Personaliza Windows</p><p class="subtitle">En Panel de control puedes cambiar fondo, tema, iconos, CRT y taskbar.</p>'
         ];
     }
