@@ -2,7 +2,7 @@
 .desktop {
     width: 100vw;
     height: 100vh;
-    background-image: url('../assets/images/bliss.jpg');
+    background-image: url('../assets/images/zaratexp-hd-wallpaper.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -13,41 +13,41 @@
 }
 
 .wallpaper-default {
-    background-image: url('../assets/images/bliss.jpg');
+    background-image: url('../assets/images/zaratexp-hd-wallpaper.png');
 }
 
 /* Desktop Icons Container */
 .desktop-icons {
     padding: 10px;
-    display: grid;
-    grid-template-rows: repeat(auto-fill, 90px);
-    grid-auto-flow: column;
-    gap: 10px;
+    display: block;
     position: absolute;
     top: 0;
     left: 0;
     height: calc(100vh - var(--taskbar-height));
     width: 100%;
+    overflow: hidden;
 }
 
 /* Desktop Icon */
 .desktop-icon {
-    width: calc(75px * var(--icon-scale, 1));
-    height: calc(90px * var(--icon-scale, 1));
+    width: calc(86px * var(--icon-scale, 1));
+    min-height: calc(92px * var(--icon-scale, 1));
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
     cursor: pointer;
-    padding: 5px;
+    padding: 5px 4px;
     border: 1px solid transparent;
     border-radius: 3px;
-    position: relative;
-    transition: all 0.1s ease;
+    position: absolute;
+    transition: background-color 0.1s ease, border-color 0.1s ease, transform 0.08s ease, opacity 0.08s ease;
     -webkit-tap-highlight-color: transparent; /* Eliminar resaltado en Safari */
     -webkit-touch-callout: none; /* Desactivar menú contextual en iOS */
     user-select: none; /* Prevenir selección de texto */
+    touch-action: none;
+    will-change: left, top;
 }
 
 .desktop-icon:hover {
@@ -65,12 +65,12 @@
 }
 
 .desktop-icon img {
-    width: calc(48px * var(--icon-scale, 1));
-    height: calc(48px * var(--icon-scale, 1));
-    margin-bottom: 5px;
-    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.3));
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
+    width: calc(56px * var(--icon-scale, 1));
+    height: calc(56px * var(--icon-scale, 1));
+    margin-bottom: 4px;
+    object-fit: contain;
+    filter: drop-shadow(0 3px 3px rgba(0,0,0,0.35));
+    image-rendering: auto;
 }
 
 .desktop-icon span {
@@ -82,10 +82,8 @@
     word-wrap: break-word;
     line-height: 1.2;
     max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
 }
 
@@ -95,14 +93,9 @@
         --icon-scale: 0.9;
     }
     
-    .desktop-icon {
-        width: calc(75px * var(--icon-scale));
-        height: calc(90px * var(--icon-scale));
-    }
-    
     .desktop-icon img {
-        width: calc(48px * var(--icon-scale));
-        height: calc(48px * var(--icon-scale));
+        width: calc(52px * var(--icon-scale));
+        height: calc(52px * var(--icon-scale));
     }
 }
 
@@ -190,8 +183,10 @@
 
 /* Drag and Drop Styles */
 .desktop-icon.dragging {
-    opacity: 0.5;
-    cursor: move;
+    opacity: 0.9;
+    cursor: grabbing;
+    transform: scale(1.05);
+    z-index: 900 !important;
 }
 
 .desktop-icon.drag-over {
@@ -206,20 +201,19 @@
     }
     
     .desktop-icon {
-        height: 70px;
+        min-height: 76px;
     }
     
     .desktop-icon img {
-        width: 32px;
-        height: 32px;
+        width: 42px;
+        height: 42px;
     }
 }
 
 /* High DPI Support */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     .desktop-icon img {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
+        image-rendering: auto;
     }
 }
 

@@ -26,6 +26,7 @@ Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Wi
 - Escritorio estilo Windows XP con pantalla de arranque y login.
 - Sistema de ventanas con arrastre, foco, minimizar, maximizar, cierre animado y botones activos en taskbar.
 - Menu de inicio con accesos a CV, documentos, proyectos, contacto, redes, juegos y accesorios.
+- Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Visor de CV actualizado en PDF.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.

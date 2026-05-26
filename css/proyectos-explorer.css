@@ -329,7 +329,7 @@
 
 .content-area {
     flex: 1;
-    padding: 8px;
+    padding: 14px 16px;
     overflow: auto;
     background: #FFFFFF;
 }
@@ -353,9 +353,11 @@
 /* Vista de íconos */
 .icons-view {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 16px;
-    padding: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(118px, 128px));
+    gap: 18px 22px;
+    align-content: start;
+    justify-content: start;
+    padding: 2px;
 }
 
 .project-item {
@@ -363,8 +365,9 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    width: 90px;
-    padding: 8px;
+    width: 118px;
+    min-height: 128px;
+    padding: 9px 8px;
     cursor: pointer;
     border: 1px solid transparent;
     border-radius: 3px;
@@ -373,12 +376,13 @@
 
 .project-item:hover {
     background: #E8F0FF;
-    border: 1px solid #316AC5;
+    border: 1px solid #8bb6f0;
 }
 
 .project-item.selected {
-    background: #316AC5;
-    border: 1px solid #316AC5;
+    background: linear-gradient(#3b82e9, #2362bd);
+    border: 1px solid #174ea6;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 .project-item.selected .project-name {
@@ -386,18 +390,20 @@
 }
 
 .project-icon {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 4px;
+    width: 62px;
+    height: 62px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .project-icon img {
-    width: 48px;
-    height: 48px;
+    width: 62px;
+    height: 62px;
     object-fit: contain;
+    image-rendering: auto;
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.22));
 }
 
 
@@ -407,12 +413,14 @@
     word-wrap: break-word;
     line-height: 1.2;
     margin-top: 4px;
+    max-width: 104px;
 }
 
 .project-details {
     font-size: 10px;
     color: #666;
     margin-top: 2px;
+    max-width: 104px;
 }
 
 .project-item.selected .project-details {

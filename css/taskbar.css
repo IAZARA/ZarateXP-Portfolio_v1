@@ -5,7 +5,7 @@
     left: 0;
     right: 0;
     height: var(--taskbar-height);
-    background: linear-gradient(to bottom, #3168D5 0%, #2B5FCD 3%, #2559C6 6%, #1941A5 100%);
+    background: linear-gradient(to bottom, #3b83f4 0%, #286add 7%, #1f54c4 45%, #1740a6 100%);
     border-top: 1px solid #0E3A8E;
     display: flex;
     align-items: center;
@@ -15,26 +15,32 @@
 
 /* Start Button */
 .start-button {
-    height: 100%;
-    padding: 0 15px 0 10px; /* Ajustado para el nuevo diseño */
-    background: linear-gradient(to bottom, #78B33E 0%, #619C32 50%, #518C2A 100%); /* Degradado XP */
-    border-top: 1px solid #C6D79C; /* Borde superior claro */
-    border-left: 1px solid #C6D79C; /* Borde izquierdo claro */
-    border-right: 1px solid #3168D5; /* Borde derecho oscuro */
-    border-bottom: 1px solid #3168D5; /* Borde inferior oscuro */
-    border-radius: 3px; /* Ligeramente redondeado */
+    height: calc(100% - 2px);
+    min-width: 102px;
+    margin: 1px 0 1px 1px;
+    padding: 0 17px 0 8px;
+    background:
+        radial-gradient(circle at 28% 16%, rgba(255, 255, 255, 0.75), transparent 35%),
+        linear-gradient(to bottom, #8ad453 0%, #5fb331 44%, #398823 100%);
+    border: 1px solid #1d7117;
+    border-top-color: #d7f6b5;
+    border-left-color: #d7f6b5;
+    border-radius: 0 13px 13px 0;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 4px; /* Espacio entre icono y texto */
+    gap: 5px;
     color: white;
     font-weight: bold;
-    font-size: 14px; /* Tamaño de fuente más grande */
-    font-family: 'Tahoma', sans-serif; /* Fuente de XP */
+    font-size: 14px;
+    font-family: 'Tahoma', sans-serif;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     position: relative;
     transition: all 0.1s ease;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 1px 2px rgba(0,0,0,0.2); /* Sombra interna y externa */
+    box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,0.45),
+        inset -1px -1px 0 rgba(0,0,0,0.22),
+        1px 0 2px rgba(0,0,0,0.25);
 }
 
 .start-button:hover {
@@ -53,13 +59,15 @@
     border-right: 1px solid #C6D79C;
     border-bottom: 1px solid #C6D79C;
     box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); /* Sombra interna para presionado */
-    padding: 1px 14px 0 11px; /* Efecto de "presionado" */
+    padding: 1px 16px 0 9px;
 }
 
 .start-button img {
-    width: 24px; /* Tamaño del icono más grande */
+    width: 25px;
     height: 24px;
+    object-fit: contain;
     filter: drop-shadow(0 0 1px rgba(0,0,0,0.5));
+    image-rendering: auto;
 }
 
 /* Taskbar Programs Area */
@@ -329,7 +337,6 @@
     .start-button img,
     .taskbar-program img,
     .tray-icon {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
+        image-rendering: auto;
     }
 }

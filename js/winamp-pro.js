@@ -74,6 +74,10 @@
             this.root.querySelector('[data-winamp-action="stop"]').addEventListener('click', () => this.stop());
             this.root.querySelector('[data-winamp-action="prev"]').addEventListener('click', () => this.previous());
             this.root.querySelector('[data-winamp-action="next"]').addEventListener('click', () => this.next());
+            this.root.querySelector('[data-winamp-action="close"]').addEventListener('click', () => {
+                const windowId = this.windowElement.dataset.windowId || 'winamp';
+                window.zarateXP?.windowManager?.closeWindow(windowId);
+            });
             this.root.querySelector('[data-winamp-action="shuffle"]').addEventListener('click', (event) => {
                 this.shuffle = !this.shuffle;
                 event.currentTarget.classList.toggle('active', this.shuffle);

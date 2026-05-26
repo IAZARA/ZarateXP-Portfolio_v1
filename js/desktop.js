@@ -7,16 +7,25 @@ export class DesktopManager {
         this.selectedIcons = new Set();
         this.isDragging = false;
         this.dragStart = { x: 0, y: 0 };
+        this.iconPositionsKey = 'zarateXP.desktopIconPositions';
     }
     
     init() {
         this.setupIconHandlers();
+        if (this.iconsContainer.clientHeight > 0) {
+            this.applyIconPositions();
+        }
         this.setupSelectionBox();
         this.setupContextMenu();
         
         // Listen for desktop ready event
         window.addEventListener('desktopReady', () => {
+            this.applyIconPositions();
             this.animateIcons();
+        });
+
+        window.addEventListener('resize', () => {
+            this.applyIconPositions();
         });
     }
     
@@ -27,6 +36,10 @@ export class DesktopManager {
             // Click handler
             icon.addEventListener('click', (e) => {
                 e.stopPropagation();
+                if (icon.dataset.wasDragged === 'true') {
+                    icon.dataset.wasDragged = 'false';
+                    return;
+                }
                 
                 if (!e.ctrlKey && !e.metaKey) {
                     this.clearSelection();
@@ -38,6 +51,7 @@ export class DesktopManager {
             // Double click handler
             icon.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
+                if (icon.dataset.wasDragged === 'true') return;
                 const programName = icon.getAttribute('data-program-name');
                 
                 if (programName && window.zarateXP?.appManager) {
@@ -82,8 +96,7 @@ export class DesktopManager {
                 }
             });
             
-            // Drag handlers - DISABLED for fixed icons
-            // this.setupIconDrag(icon);
+            this.setupIconDrag(icon);
         });
         
         // Desktop click to clear selection
@@ -94,6 +107,7 @@ export class DesktopManager {
     
     setupIconDrag(icon) {
         let isDragging = false;
+        let isPotentialDrag = false;
         let startX = 0;
         let startY = 0;
         let initialX = 0;
@@ -102,55 +116,120 @@ export class DesktopManager {
         icon.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return; // Only left click
             
-            isDragging = true;
+            isPotentialDrag = true;
             startX = e.clientX;
             startY = e.clientY;
-            
-            const rect = icon.getBoundingClientRect();
-            initialX = rect.left;
-            initialY = rect.top;
-            
-            icon.style.position = 'fixed';
-            icon.style.left = initialX + 'px';
-            icon.style.top = initialY + 'px';
-            icon.style.zIndex = '1000';
-            icon.classList.add('dragging');
+            initialX = parseFloat(icon.style.left) || 0;
+            initialY = parseFloat(icon.style.top) || 0;
         });
         
         document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            
-            e.preventDefault();
-            
+            if (!isPotentialDrag && !isDragging) return;
+
             const deltaX = e.clientX - startX;
             const deltaY = e.clientY - startY;
-            
-            icon.style.left = (initialX + deltaX) + 'px';
-            icon.style.top = (initialY + deltaY) + 'px';
+            if (!isDragging && Math.hypot(deltaX, deltaY) < 6) return;
+
+            if (!isDragging) {
+                isDragging = true;
+                icon.classList.add('dragging');
+                icon.style.zIndex = '1000';
+                this.clearSelection();
+                this.selectIcon(icon);
+            }
+
+            e.preventDefault();
+
+            const maxX = this.iconsContainer.clientWidth - icon.offsetWidth - 8;
+            const maxY = this.iconsContainer.clientHeight - icon.offsetHeight - 8;
+            const nextX = Math.min(Math.max(initialX + deltaX, 8), Math.max(8, maxX));
+            const nextY = Math.min(Math.max(initialY + deltaY, 8), Math.max(8, maxY));
+
+            icon.style.left = `${nextX}px`;
+            icon.style.top = `${nextY}px`;
         });
         
         document.addEventListener('mouseup', () => {
+            if (!isPotentialDrag && !isDragging) return;
+            isPotentialDrag = false;
+
             if (!isDragging) return;
-            
             isDragging = false;
             icon.classList.remove('dragging');
             
             // Snap to grid
-            const gridSize = 90;
-            const rect = icon.getBoundingClientRect();
-            const desktopRect = this.desktop.getBoundingClientRect();
-            
-            const relativeX = rect.left - desktopRect.left;
-            const relativeY = rect.top - desktopRect.top;
-            
-            const snappedX = Math.round(relativeX / gridSize) * gridSize;
-            const snappedY = Math.round(relativeY / gridSize) * gridSize;
-            
-            icon.style.position = 'absolute';
-            icon.style.left = snappedX + 'px';
-            icon.style.top = snappedY + 'px';
+            const metrics = this.getIconGridMetrics();
+            const currentX = parseFloat(icon.style.left) || 0;
+            const currentY = parseFloat(icon.style.top) || 0;
+            const snappedX = Math.round((currentX - metrics.padding) / metrics.columnWidth) * metrics.columnWidth + metrics.padding;
+            const snappedY = Math.round((currentY - metrics.padding) / metrics.rowHeight) * metrics.rowHeight + metrics.padding;
+            const maxX = this.iconsContainer.clientWidth - icon.offsetWidth - 8;
+            const maxY = this.iconsContainer.clientHeight - icon.offsetHeight - 8;
+
+            icon.style.left = `${Math.min(Math.max(snappedX, 8), Math.max(8, maxX))}px`;
+            icon.style.top = `${Math.min(Math.max(snappedY, 8), Math.max(8, maxY))}px`;
             icon.style.zIndex = '';
+            icon.dataset.wasDragged = 'true';
+            window.setTimeout(() => {
+                icon.dataset.wasDragged = 'false';
+            }, 0);
+            this.saveIconPositions();
         });
+    }
+
+    getIconGridMetrics() {
+        const scale = parseFloat(getComputedStyle(this.iconsContainer).getPropertyValue('--icon-scale')) || 1;
+        return {
+            padding: 12,
+            columnWidth: Math.round(102 * scale),
+            rowHeight: Math.round(102 * scale)
+        };
+    }
+
+    applyIconPositions() {
+        const icons = Array.from(this.iconsContainer.querySelectorAll('.desktop-icon'));
+        const saved = this.readIconPositions();
+        const metrics = this.getIconGridMetrics();
+        const maxRows = Math.max(1, Math.floor((this.iconsContainer.clientHeight - metrics.padding) / metrics.rowHeight));
+
+        icons.forEach((icon, index) => {
+            const key = icon.dataset.programName;
+            const savedPosition = saved[key];
+            const defaultX = metrics.padding + Math.floor(index / maxRows) * metrics.columnWidth;
+            const defaultY = metrics.padding + (index % maxRows) * metrics.rowHeight;
+            const x = Number.isFinite(savedPosition?.x) ? savedPosition.x : defaultX;
+            const y = Number.isFinite(savedPosition?.y) ? savedPosition.y : defaultY;
+            const maxX = this.iconsContainer.clientWidth - 92;
+            const maxY = this.iconsContainer.clientHeight - 96;
+
+            icon.style.left = `${Math.min(Math.max(x, 8), Math.max(8, maxX))}px`;
+            icon.style.top = `${Math.min(Math.max(y, 8), Math.max(8, maxY))}px`;
+            icon.style.position = 'absolute';
+        });
+    }
+
+    saveIconPositions() {
+        const positions = {};
+        this.iconsContainer.querySelectorAll('.desktop-icon').forEach((icon) => {
+            positions[icon.dataset.programName] = {
+                x: Math.round(parseFloat(icon.style.left) || 0),
+                y: Math.round(parseFloat(icon.style.top) || 0)
+            };
+        });
+
+        try {
+            localStorage.setItem(this.iconPositionsKey, JSON.stringify(positions));
+        } catch (error) {
+            console.warn('No se pudo guardar la posicion de iconos', error);
+        }
+    }
+
+    readIconPositions() {
+        try {
+            return JSON.parse(localStorage.getItem(this.iconPositionsKey) || '{}');
+        } catch (error) {
+            return {};
+        }
     }
     
     setupSelectionBox() {
@@ -261,21 +340,23 @@ export class DesktopManager {
     
     arrangeIcons() {
         const icons = this.iconsContainer.querySelectorAll('.desktop-icon');
-        const gridSize = 90;
+        const metrics = this.getIconGridMetrics();
+        const maxRows = Math.max(1, Math.floor((this.iconsContainer.clientHeight - metrics.padding) / metrics.rowHeight));
         let row = 0;
         let col = 0;
         
         icons.forEach(icon => {
             icon.style.position = 'absolute';
-            icon.style.left = (col * gridSize) + 'px';
-            icon.style.top = (row * gridSize) + 'px';
+            icon.style.left = (metrics.padding + col * metrics.columnWidth) + 'px';
+            icon.style.top = (metrics.padding + row * metrics.rowHeight) + 'px';
             
             row++;
-            if (row * gridSize > window.innerHeight - 100) {
+            if (row >= maxRows) {
                 row = 0;
                 col++;
             }
         });
+        this.saveIconPositions();
     }
 }
 

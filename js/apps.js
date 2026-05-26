@@ -29,11 +29,13 @@ export class AppManager {
     }
     
     registerBuiltInApps() {
+        const hd = './assets/images/hd-icons';
+
         // Registrar Mi PC
         this.registerApp({
             id: 'my-computer',
             name: 'Mi PC',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png',
+            icon: `${hd}/my-computer.svg`,
             category: 'system',
             description: 'Browse computer files and drives',
             handler: () => this._openMyComputer()
@@ -43,7 +45,7 @@ export class AppManager {
         this.registerApp({
             id: 'winamp',
             name: 'Winamp',
-            icon: './images/winamp.png',
+            icon: `${hd}/winamp.svg`,
             category: 'entertainment',
             description: 'It really whips the llama\'s ass!',
             handler: () => this._openWinamp()
@@ -53,7 +55,7 @@ export class AppManager {
         this.registerApp({
             id: 'about-me',
             name: 'Sobre Mí',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/User Accounts.png',
+            icon: `${hd}/about.svg`,
             category: 'system',
             description: 'Conoce más sobre Ivan Zarate',
             handler: () => this._openAboutMe()
@@ -62,7 +64,7 @@ export class AppManager {
         this.registerApp({
             id: 'projects',
             name: 'Mis Proyectos',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png',
+            icon: `${hd}/projects.svg`,
             category: 'documents',
             description: 'Explora mis proyectos de desarrollo',
             handler: () => this._openProjectsExplorer()
@@ -71,7 +73,7 @@ export class AppManager {
         this.registerApp({
             id: 'resume',
             name: 'Mi CV',
-            icon: './images/icons/pdf.png',
+            icon: `${hd}/cv.svg`,
             category: 'documents',
             description: 'Ver CV actualizado',
             handler: () => this._openResume()
@@ -80,7 +82,7 @@ export class AppManager {
         this.registerApp({
             id: 'documents',
             name: 'Mis Documentos',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Documents.png',
+            icon: `${hd}/documents.svg`,
             category: 'documents',
             description: 'CV, proyectos y documentos clave',
             handler: () => this._openDocuments()
@@ -89,7 +91,7 @@ export class AppManager {
         this.registerApp({
             id: 'contact',
             name: 'Mi Contacto',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
+            icon: `${hd}/contact.svg`,
             category: 'internet',
             description: 'Envíame un mensaje',
             handler: () => this._openContact()
@@ -99,7 +101,7 @@ export class AppManager {
         this.registerApp({
             id: 'minesweeper',
             name: 'Buscaminas',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Minesweeper.png',
+            icon: `${hd}/minesweeper.svg`,
             category: 'games',
             description: 'Juego clásico de Buscaminas',
             handler: () => this._openMinesweeper()
@@ -109,7 +111,7 @@ export class AppManager {
         this.registerApp({
             id: 'paint',
             name: 'Paint',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Paint.png',
+            icon: `${hd}/paint.svg`,
             category: 'accessories',
             description: 'Editor de imágenes Paint',
             handler: () => this._openPaint()
@@ -118,7 +120,7 @@ export class AppManager {
         this.registerApp({
             id: 'notepad',
             name: 'Bloc de notas',
-            icon: './assets/images/notepad.png',
+            icon: `${hd}/notepad.svg`,
             category: 'accessories',
             description: 'Notas rapidas con autoguardado local',
             handler: () => this._openNotepad()
@@ -127,7 +129,7 @@ export class AppManager {
         this.registerApp({
             id: 'wordpad',
             name: 'WordPad',
-            icon: './assets/images/document.png',
+            icon: `${hd}/wordpad.svg`,
             category: 'accessories',
             description: 'Editor de texto enriquecido',
             handler: () => this._openWordPad()
@@ -136,7 +138,7 @@ export class AppManager {
         this.registerApp({
             id: 'n8n-flows',
             name: 'Flujos n8n',
-            icon: './N8n-logo-new.svg.png',
+            icon: `${hd}/n8n.svg`,
             category: 'automation',
             description: 'Automatizaciones visuales y funcionales',
             handler: () => this._openN8nFlows()
@@ -145,7 +147,7 @@ export class AppManager {
         this.registerApp({
             id: 'control-panel',
             name: 'Panel de control',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png',
+            icon: `${hd}/control-panel.svg`,
             category: 'system',
             description: 'Personalizacion de ZarateXP',
             handler: () => this._openControlPanel()
@@ -154,7 +156,7 @@ export class AppManager {
         this.registerApp({
             id: 'api-center',
             name: 'API Center',
-            icon: './images/icons/network.png',
+            icon: `${hd}/api.svg`,
             category: 'development',
             description: 'Integraciones en vivo con APIs publicas',
             handler: () => this._openApiCenter()
@@ -163,7 +165,7 @@ export class AppManager {
         this.registerApp({
             id: 'pdf-studio',
             name: 'PDF Studio',
-            icon: './images/icons/pdf.png',
+            icon: `${hd}/pdf-studio.svg`,
             category: 'documents',
             description: 'Abrir, revisar y anotar PDFs',
             handler: () => this._openPdfStudio()
@@ -172,7 +174,7 @@ export class AppManager {
         this.registerApp({
             id: 'solitaire',
             name: 'Solitario',
-            icon: './images/icons/solitaire.png',
+            icon: `${hd}/solitaire.svg`,
             category: 'games',
             description: 'Klondike estilo Windows XP',
             handler: () => this._openSolitaire()
@@ -181,7 +183,7 @@ export class AppManager {
         this.registerApp({
             id: 'pinball',
             name: 'Pinball XP',
-            icon: './images/icons/pinball.png',
+            icon: `${hd}/pinball.svg`,
             category: 'games',
             description: 'Mesa de pinball canvas inspirada en XP',
             handler: () => this._openPinball()
@@ -277,7 +279,7 @@ export class AppManager {
             const window = this.windowManager.createWindow({
                 id: 'my-computer',
                 title: 'Mi PC',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png',
+                icon: './assets/images/hd-icons/my-computer.svg',
                 content: content,
                 width: 660,
                 height: 500
@@ -324,7 +326,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-mipc',
                     title: 'Error',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png',
+                    icon: './assets/images/hd-icons/my-computer.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
@@ -365,6 +367,7 @@ export class AppManager {
                         <button type="button" data-winamp-action="next">&gt;|</button>
                         <button type="button" data-winamp-action="shuffle">SHUF</button>
                         <button type="button" data-winamp-action="repeat">REP</button>
+                        <button type="button" data-winamp-action="close">X</button>
                     </div>
                     <div class="xp-winamp-mixers">
                         <label>Vol <input type="range" min="0" max="100" value="70" data-winamp-volume></label>
@@ -390,7 +393,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'winamp',
             title: 'Winamp XP Pro - Web Audio Lab',
-            icon: './images/winamp.png',
+            icon: './assets/images/hd-icons/winamp.svg',
             content,
             width: 720,
             height: 500,
@@ -485,7 +488,7 @@ export class AppManager {
             const aboutWindow = this.windowManager.createWindow({
                 id: 'about-me',
                 title: 'Sobre Mí - Ivan Agustin Zarate',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/User Accounts.png',
+                icon: './assets/images/hd-icons/about.svg',
                 content: content,
                 width: 700,
                 height: 600,
@@ -527,7 +530,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-aboutme',
                     title: 'Error',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/User Accounts.png',
+                    icon: './assets/images/hd-icons/about.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
@@ -576,7 +579,7 @@ export class AppManager {
             const contactWindow = this.windowManager.createWindow({
                 id: 'contact',
                 title: 'Mi Contacto - Ivan Agustin Zarate',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
+                icon: './assets/images/hd-icons/contact.svg',
                 content: htmlContent,
                 width: 500,
                 height: 650,
@@ -630,7 +633,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-contact',
                     title: 'Error',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
+                    icon: './assets/images/hd-icons/contact.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
@@ -891,7 +894,7 @@ export class AppManager {
             const projectsWindow = this.windowManager.createWindow({
                 id: 'projects',
                 title: 'Mis Proyectos - Explorer',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png',
+                icon: './assets/images/hd-icons/projects.svg',
                 content: htmlContent,
                 width: 800,
                 height: 600,
@@ -938,7 +941,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-projects',
                     title: 'Error',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Internet Explorer 6.png',
+                    icon: './assets/images/hd-icons/projects.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
@@ -1155,7 +1158,7 @@ export class AppManager {
                     id: 'zaratexp',
                     name: 'Zárate XP',
                     type: 'project',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/HTML.png',
+                    icon: './assets/images/hd-icons/my-computer.svg',
                     detailImage: './logo_ivanxp.png',
                     description: 'Portfolio interactivo estilo Windows XP',
                     url: '#',
@@ -1168,7 +1171,7 @@ export class AppManager {
                     id: 'osintargy',
                     name: 'OSINTArgy',
                     type: 'project',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Search.png',
+                    icon: './assets/images/hd-icons/api.svg',
                     detailImage: './osintargy.png',
                     description: 'Plataforma OSINT para la Comunidad Hispana',
                     url: 'https://osintargy.online',
@@ -1195,7 +1198,7 @@ export class AppManager {
                     id: 'forzatech',
                     name: 'ForzaTech',
                     type: 'project',
-                    icon: './images/icons/ie.png',
+                    icon: './assets/images/hd-icons/projects.svg',
                     detailImage: './assets/readme/zaratexp-banner.png',
                     description: 'Marketing, sistemas e IA para PYMEs en Argentina',
                     url: 'https://forzatech.com.ar/',
@@ -1209,8 +1212,8 @@ export class AppManager {
                     id: 'estudio-luttini',
                     name: 'Estudio Luttini',
                     type: 'project',
-                    icon: './assets/images/document.png',
-                    detailImage: './assets/images/document.png',
+                    icon: './assets/images/hd-icons/wordpad.svg',
+                    detailImage: './assets/images/hd-icons/wordpad.svg',
                     description: 'Sitio institucional jurídico-contable para profesionales y empresas',
                     url: 'https://www.estudioluttini.com/',
                     preview: true,
@@ -1236,8 +1239,8 @@ export class AppManager {
                     id: 'sistema-enterprise-java',
                     name: 'Sistema Enterprise Java',
                     type: 'project',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Component Services.png',
-                    detailImage: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Component Services.png',
+                    icon: './assets/images/hd-icons/control-panel.svg',
+                    detailImage: './assets/images/hd-icons/control-panel.svg',
                     description: 'Aplicación empresarial full-stack para gestión de expedientes con arquitectura escalable',
                     url: '#',
                     technologies: ['Java 17', 'Spring Boot 3.2.3', 'React 18.3.1', 'TypeScript', 'Material-UI', 'Oracle Database 21c', 'Docker', 'Nginx'],
@@ -1249,8 +1252,8 @@ export class AppManager {
                     id: 'n8n-workflows-atencion',
                     name: 'Workflows n8n - Atención al Cliente',
                     type: 'project',
-                    icon: './N8n-logo-new.svg.png',
-                    detailImage: './N8n-logo-new.svg.png',
+                    icon: './assets/images/hd-icons/n8n.svg',
+                    detailImage: './assets/images/hd-icons/n8n.svg',
                     description: 'Automatización de procesos de atención al cliente para e-commerce mediante workflows inteligentes',
                     url: '#',
                     technologies: ['n8n', 'Webhook APIs', 'Gmail API', 'Slack API', 'Google Sheets API', 'WhatsApp Business API', 'Telegram Bot API'],
@@ -1268,7 +1271,7 @@ export class AppManager {
                     id: 'forzatech',
                     name: 'ForzaTech',
                     type: 'project',
-                    icon: './images/icons/ie.png',
+                    icon: './assets/images/hd-icons/projects.svg',
                     detailImage: './assets/readme/zaratexp-banner.png',
                     description: 'Marketing, sistemas e IA para PYMEs en Argentina',
                     url: 'https://forzatech.com.ar/',
@@ -1282,8 +1285,8 @@ export class AppManager {
                     id: 'estudio-luttini',
                     name: 'Estudio Luttini',
                     type: 'project',
-                    icon: './assets/images/document.png',
-                    detailImage: './assets/images/document.png',
+                    icon: './assets/images/hd-icons/wordpad.svg',
+                    detailImage: './assets/images/hd-icons/wordpad.svg',
                     description: 'Sitio institucional jurídico-contable',
                     url: 'https://www.estudioluttini.com/',
                     preview: true,
@@ -1310,7 +1313,7 @@ export class AppManager {
                     id: 'osintargy',
                     name: 'OSINTArgy',
                     type: 'project',
-                    icon: '🔍',
+                    icon: './assets/images/hd-icons/api.svg',
                     detailImage: './osintargy.png',
                     description: 'Plataforma OSINT para la Comunidad Hispana',
                     url: 'https://osintargy.online',
@@ -1323,7 +1326,7 @@ export class AppManager {
                     id: 'zaratexp',
                     name: 'ZarateXP Portfolio',
                     type: 'project',
-                    icon: './microsoft-windosXP.png',
+                    icon: './assets/images/hd-icons/my-computer.svg',
                     detailImage: './logo_ivanxp.png',
                     description: 'Portfolio interactivo estilo Windows XP',
                     url: '#',
@@ -1536,7 +1539,7 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: `project-details-${project.id}`,
                 title: `${project.name} - Detalles`,
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Properties.png',
+                icon: './assets/images/hd-icons/projects.svg',
                 content: detailsContent,
                 width: project.preview ? 920 : 500,
                 height: project.preview ? 720 : 400,
@@ -1552,7 +1555,7 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'contact-confirmation',
                 title: 'Mensaje Enviado',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png',
+                icon: './assets/images/hd-icons/contact.svg',
                 content: `
                     <div style="padding: 20px; text-align: center;">
                         <div style="font-size: 48px; color: green; margin-bottom: 10px;">✅</div>
@@ -1891,52 +1894,52 @@ export class AppManager {
                     </aside>
                     <main class="xp-folder-grid">
                         <button type="button" class="xp-folder-item important" data-doc-open="resume">
-                            <img src="${iconBase}/Document Search.png" alt="">
+                            <img src="./assets/images/hd-icons/cv.svg" alt="">
                             <span>Ivan_Zarate_CV.pdf</span>
                             <small>CV actualizado</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="projects">
-                            <img src="${iconBase}/Folder Opened.png" alt="">
+                            <img src="./assets/images/hd-icons/projects.svg" alt="">
                             <span>Proyectos destacados</span>
                             <small>ForzaTech, WJPC, Luttini, ZarateXP</small>
                         </button>
                         <button type="button" class="xp-folder-item important" data-doc-open="api-center">
-                            <img src="./images/icons/network.png" alt="">
+                            <img src="./assets/images/hd-icons/api.svg" alt="">
                             <span>API Center.lnk</span>
                             <small>Clima, GitHub y datos publicos en vivo</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="pdf-studio">
-                            <img src="./images/icons/pdf.png" alt="">
+                            <img src="./assets/images/hd-icons/pdf-studio.svg" alt="">
                             <span>PDF Studio.exe</span>
                             <small>File API, Blob URL y anotaciones</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="about-me">
-                            <img src="${iconBase}/User Accounts.png" alt="">
+                            <img src="./assets/images/hd-icons/about.svg" alt="">
                             <span>Perfil profesional</span>
                             <small>Full Stack + automatizacion</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
-                            <img src="./N8n-logo-new.svg.png" alt="">
+                            <img src="./assets/images/hd-icons/n8n.svg" alt="">
                             <span>Flujos n8n</span>
                             <small>Procesos visuales funcionales</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="notepad">
-                            <img src="./assets/images/notepad.png" alt="">
+                            <img src="./assets/images/hd-icons/notepad.svg" alt="">
                             <span>Notas de entrevista.txt</span>
                             <small>Editable localmente</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="wordpad">
-                            <img src="./assets/images/document.png" alt="">
+                            <img src="./assets/images/hd-icons/wordpad.svg" alt="">
                             <span>Carta de presentacion.rtf</span>
                             <small>Editor enriquecido</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="solitaire">
-                            <img src="./images/icons/solitaire.png" alt="">
+                            <img src="./assets/images/hd-icons/solitaire.svg" alt="">
                             <span>Solitario XP</span>
                             <small>Logica Klondike propia</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="pinball">
-                            <img src="./images/icons/pinball.png" alt="">
+                            <img src="./assets/images/hd-icons/pinball.svg" alt="">
                             <span>Pinball XP Lab</span>
                             <small>Canvas, fisica y teclado</small>
                         </button>
@@ -1948,7 +1951,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'documents',
             title: 'Mis Documentos',
-            icon: `${iconBase}/My Documents.png`,
+            icon: './assets/images/hd-icons/documents.svg',
             content,
             width: 760,
             height: 520,
@@ -1987,7 +1990,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'notepad',
             title: 'Bloc de notas - notas.txt',
-            icon: './assets/images/notepad.png',
+            icon: './assets/images/hd-icons/notepad.svg',
             content,
             width: 560,
             height: 430,
@@ -2062,7 +2065,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'wordpad',
             title: 'WordPad - carta de presentacion.rtf',
-            icon: './assets/images/document.png',
+            icon: './assets/images/hd-icons/wordpad.svg',
             content,
             width: 640,
             height: 500,
@@ -2100,7 +2103,7 @@ export class AppManager {
         const content = `
             <div class="xp-n8n-app">
                 <aside class="xp-n8n-sidebar">
-                    <img src="./N8n-logo-new.svg.png" alt="n8n">
+                    <img src="./assets/images/hd-icons/n8n.svg" alt="n8n">
                     <h2>Automatizaciones</h2>
                     <p>Flujos visuales que conectan formularios, APIs, CRM, correo y dashboards.</p>
                     <button type="button" data-flow-run>Ejecutar demo</button>
@@ -2134,7 +2137,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'n8n-flows',
             title: 'n8n - Flujos de automatizacion',
-            icon: './N8n-logo-new.svg.png',
+            icon: './assets/images/hd-icons/n8n.svg',
             content,
             width: 780,
             height: 500,
@@ -2196,7 +2199,7 @@ export class AppManager {
                 <main class="xp-settings-grid">
                     <fieldset>
                         <legend>Fondo de pantalla</legend>
-                        <label><input type="radio" name="wallpaper" value="default" ${selected(settings.wallpaper, 'default')}> Bliss clasico</label>
+                        <label><input type="radio" name="wallpaper" value="default" ${selected(settings.wallpaper, 'default')}> ZarateXP HD</label>
                         <label><input type="radio" name="wallpaper" value="night" ${selected(settings.wallpaper, 'night')}> Azul nocturno</label>
                         <label><input type="radio" name="wallpaper" value="clean" ${selected(settings.wallpaper, 'clean')}> Limpio profesional</label>
                     </fieldset>
@@ -2228,7 +2231,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'control-panel',
             title: 'Panel de control - Apariencia y temas',
-            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png',
+            icon: './assets/images/hd-icons/control-panel.svg',
             content,
             width: 700,
             height: 470,
@@ -2304,7 +2307,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'api-center',
             title: 'API Center - Integraciones REST',
-            icon: './images/icons/network.png',
+            icon: './assets/images/hd-icons/api.svg',
             content,
             width: 820,
             height: 540,
@@ -2354,7 +2357,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'pdf-studio',
             title: 'PDF Studio - Ivan_Zarate_CV.pdf',
-            icon: './images/icons/pdf.png',
+            icon: './assets/images/hd-icons/pdf-studio.svg',
             content,
             width: 900,
             height: 620,
@@ -2390,7 +2393,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'solitaire',
             title: 'Solitario - Klondike XP',
-            icon: './images/icons/solitaire.png',
+            icon: './assets/images/hd-icons/solitaire.svg',
             content,
             width: 860,
             height: 610,
@@ -2425,7 +2428,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'pinball',
             title: 'Pinball XP Lab',
-            icon: './images/icons/pinball.png',
+            icon: './assets/images/hd-icons/pinball.svg',
             content,
             width: 820,
             height: 650,
@@ -2486,7 +2489,7 @@ export class AppManager {
             const minesweeperWindow = this.windowManager.createWindow({
                 id: 'minesweeper',
                 title: 'Buscaminas',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Minesweeper.png',
+                icon: './assets/images/hd-icons/minesweeper.svg',
                 content: htmlContent,
                 width: 330,
                 height: 430,
@@ -2600,7 +2603,7 @@ export class AppManager {
             const paintWindow = this.windowManager.createWindow({
                 id: 'paint',
                 title: 'Paint',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Paint.png',
+                icon: './assets/images/hd-icons/paint.svg',
                 content: htmlContent,
                 width: 860,
                 height: 620,
@@ -2819,7 +2822,7 @@ export class AppManager {
             const resumeWindow = this.windowManager.createWindow({
                 id: 'resume',
                 title: 'Mi Curriculum Vitae',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Document Search.png',
+                icon: './assets/images/hd-icons/cv.svg',
                 content: content,
                 width: 700,
                 height: 600,
