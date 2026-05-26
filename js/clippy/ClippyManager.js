@@ -5,6 +5,12 @@ export class ClippyManager {
         this.clippy = null;
         this.isVisible = false;
         this.welcomeShown = false;
+        this.tips = [
+            '<p class="welcome-text">Hola, soy el asistente de ZarateXP.</p><p class="subtitle">Abre Mis Documentos para ver el CV actualizado y los accesos clave.</p>',
+            '<p class="welcome-text">Tip de portfolio</p><p class="subtitle">En Mis Proyectos puedes abrir ForzaTech, Estudio Luttini y WJPC embebidos.</p>',
+            '<p class="welcome-text">Automatizaciones listas</p><p class="subtitle">El icono Flujos n8n muestra un proceso visual que puedes ejecutar.</p>',
+            '<p class="welcome-text">Personaliza Windows</p><p class="subtitle">En Panel de control puedes cambiar fondo, tema, iconos, CRT y taskbar.</p>'
+        ];
     }
 
     init() {
@@ -20,6 +26,11 @@ export class ClippyManager {
         
         // Añadir al DOM
         document.body.appendChild(this.clippy);
+        this.clippy.addEventListener('clippy-close', () => {
+            this.isVisible = false;
+            this.clippy = null;
+        }, { once: true });
+        this.changeMessage(this.tips[0]);
         
         // Mostrar con animación
         setTimeout(() => {
@@ -37,6 +48,7 @@ export class ClippyManager {
 
     show() {
         if (!this.clippy) {
+            this.welcomeShown = false;
             this.showWelcome();
             return;
         }
@@ -74,5 +86,12 @@ export class ClippyManager {
         if (this.clippy) {
             this.clippy.setText(message);
         }
+    }
+
+    showTip(index = 0) {
+        this.show();
+        setTimeout(() => {
+            this.changeMessage(this.tips[index % this.tips.length]);
+        }, 0);
     }
 }

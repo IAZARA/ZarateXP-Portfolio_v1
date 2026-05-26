@@ -90,6 +90,7 @@ class ClippyCharacter extends HTMLElement {
   setupCloseButton() {
     const closeButton = this.shadowRoot.querySelector('.close-button');
     closeButton.addEventListener('click', () => {
+      this.dispatchEvent(new CustomEvent('clippy-close', { bubbles: true, composed: true }));
       this.remove();
     });
   }

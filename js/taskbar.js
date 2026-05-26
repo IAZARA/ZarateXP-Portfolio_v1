@@ -46,8 +46,14 @@ export class TaskbarManager {
         const volumeIcon = this.systemTray.querySelector('.tray-network-icon');
         if (volumeIcon) {
             volumeIcon.addEventListener('click', () => {
-                // TODO: Show volume control
-                this.showNotification('Control de volumen no disponible');
+                this.showNotification('Sonidos XP activos. Puedes cambiar efectos desde Panel de control.');
+            });
+        }
+
+        const clippyIcon = this.systemTray.querySelector('.tray-clippy-icon');
+        if (clippyIcon) {
+            clippyIcon.addEventListener('click', () => {
+                window.zarateXP?.clippyManager?.showTip(Math.floor(Math.random() * 4));
             });
         }
         
@@ -83,10 +89,27 @@ export class TaskbarManager {
         const button = document.createElement('div');
         button.className = 'taskbar-program active';
         button.setAttribute('data-window-id', windowId);
+        button.setAttribute('role', 'button');
+        button.setAttribute('tabindex', '0');
+        button.setAttribute('aria-pressed', 'true');
+        button.title = title;
         button.innerHTML = `
             <img src="${icon}" alt="${title}">
             <span>${title}</span>
         `;
+
+        button.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                window.zarateXP?.windowManager?.toggleWindow(windowId);
+            }
+        });
+
+        button.addEventListener('auxclick', (event) => {
+            if (event.button === 1) {
+                window.zarateXP?.windowManager?.closeWindow(windowId);
+            }
+        });
         
         this.programsArea.appendChild(button);
         this.openPrograms.set(windowId, button);
@@ -109,12 +132,15 @@ export class TaskbarManager {
         // Remove active class from all programs
         this.openPrograms.forEach(button => {
             button.classList.remove('active');
+            button.setAttribute('aria-pressed', 'false');
         });
         
         // Add active class to specified program
         const button = this.openPrograms.get(windowId);
         if (button) {
             button.classList.add('active');
+            button.classList.remove('minimized');
+            button.setAttribute('aria-pressed', 'true');
         }
     }
     
@@ -123,6 +149,7 @@ export class TaskbarManager {
         if (button) {
             button.classList.add('minimized');
             button.classList.remove('active');
+            button.setAttribute('aria-pressed', 'false');
         }
     }
     
@@ -131,6 +158,7 @@ export class TaskbarManager {
         if (button) {
             button.classList.remove('minimized');
             button.classList.add('active');
+            button.setAttribute('aria-pressed', 'true');
         }
     }
     

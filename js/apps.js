@@ -1,35 +1,5 @@
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
-// Función para hacer cualquier elemento arrastrable
-function makeDraggable(element) {
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    const titleBar = element.querySelector(".title-bar") || element; // Arrastrar desde la barra de título o el elemento mismo
-
-    titleBar.onmousedown = dragMouseDown;
-
-    function dragMouseDown(e) {
-        e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-    }
-
-    function elementDrag(e) {
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        element.style.top = `${element.offsetTop - pos2}px`;
-        element.style.left = `${element.offsetLeft - pos1}px`;
-    }
-
-    function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
-}
-
 // --- AppManager Class para compatibilidad con el sistema existente ---
 
 export class AppManager {
@@ -48,6 +18,9 @@ export class AppManager {
         
         // Cargar el script principal de Winamp una sola vez cuando se inicializa el sistema
         this.loadAppScripts();
+
+        // Aplicar preferencias del escritorio antes de abrir ventanas
+        this.applyPersonalization();
     }
     
     loadAppScripts() {
@@ -99,11 +72,20 @@ export class AppManager {
         
         this.registerApp({
             id: 'resume',
-            name: 'Resume.pdf',
+            name: 'Mi CV',
             icon: './images/icons/pdf.png',
             category: 'documents',
-            description: 'View my resume',
+            description: 'Ver CV actualizado',
             handler: () => this._openResume()
+        });
+
+        this.registerApp({
+            id: 'documents',
+            name: 'Mis Documentos',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Documents.png',
+            category: 'documents',
+            description: 'CV, proyectos y documentos clave',
+            handler: () => this._openDocuments()
         });
         
         this.registerApp({
@@ -134,6 +116,42 @@ export class AppManager {
             description: 'Editor de imágenes Paint',
             handler: () => this._openPaint()
         });
+
+        this.registerApp({
+            id: 'notepad',
+            name: 'Bloc de notas',
+            icon: './assets/images/notepad.png',
+            category: 'accessories',
+            description: 'Notas rapidas con autoguardado local',
+            handler: () => this._openNotepad()
+        });
+
+        this.registerApp({
+            id: 'wordpad',
+            name: 'WordPad',
+            icon: './assets/images/document.png',
+            category: 'accessories',
+            description: 'Editor de texto enriquecido',
+            handler: () => this._openWordPad()
+        });
+
+        this.registerApp({
+            id: 'n8n-flows',
+            name: 'Flujos n8n',
+            icon: './N8n-logo-new.svg.png',
+            category: 'automation',
+            description: 'Automatizaciones visuales y funcionales',
+            handler: () => this._openN8nFlows()
+        });
+
+        this.registerApp({
+            id: 'control-panel',
+            name: 'Panel de control',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png',
+            category: 'system',
+            description: 'Personalizacion de ZarateXP',
+            handler: () => this._openControlPanel()
+        });
     }
     
     registerApp(appConfig) {
@@ -151,6 +169,9 @@ export class AppManager {
         // Check if app is already running for single-instance apps
         if (this.runningApps.has(appId) && !app.multiInstance) {
             console.log(`App ${appId} is already running`);
+            if (this.windowManager?.focusWindow) {
+                this.windowManager.focusWindow(this.runningApps.get(appId) || appId);
+            }
             return;
         }
         
@@ -230,6 +251,12 @@ export class AppManager {
 
             // 4. Marcar como aplicación en ejecución
             this.runningApps.set('my-computer', 'my-computer');
+
+            window.querySelectorAll('[data-open-program]').forEach((item) => {
+                const openTarget = () => this.openApp(item.dataset.openProgram);
+                item.addEventListener('click', openTarget);
+                item.addEventListener('dblclick', openTarget);
+            });
 
             // 5. Configurar cleanup cuando se cierre la ventana
             // Usar MutationObserver para detectar cuando la ventana se remueve del DOM
@@ -608,55 +635,46 @@ export class AppManager {
                     <div class="about-sections">
                         <div class="about-section">
                             <div class="about-image">
-                                <img src="images/sobremi/sobreMi1.png" alt="Ivan Zarate presentación" />
+                                <img src="images/sobremi/fullstack-developer.png" alt="Ivan trabajando como desarrollador full stack" />
                             </div>
                             <div class="about-text">
-                                <p>¡Hola! Me llamo <strong>Ivan Agustin Zarate</strong>, y quiero compartir un poco de mi historia contigo. Soy Licenciado en Seguridad con Orientación en Investigación Criminal y Analista en Sistemas. Tuve la suerte de estudiar en el IUPFA y en el Instituto Superior ORT, donde no solo aprendí, sino que me rodeé de personas increíbles que se convirtieron en parte de mi familia profesional.</p>
+                                <p>¡Hola! Soy <strong>Ivan Agustin Zarate</strong>, Analista en Sistemas por ORT y desarrollador <strong>Full Stack</strong>. Hoy mi foco está en construir productos web, APIs, automatizaciones y soluciones con IA que reduzcan tareas manuales, mejoren procesos y conviertan ideas en sistemas útiles.</p>
                             </div>
                         </div>
 
                         <div class="about-section">
                             <div class="about-image">
-                                <img src="images/sobremi/sobreMi1Bis.png" alt="Ivan como oficial de policía" />
+                                <img src="images/sobremi/ai-automation.png" alt="Ivan diseñando automatizaciones e integraciones con IA" />
                             </div>
                             <div class="about-text">
-                                <p>Por amor a mi bandera, me recibí de <strong>oficial de policía</strong> en la Policía Federal Argentina, que es una familia que uno aprende a querer. Esta experiencia me enseñó valores fundamentales que llevo a todo lo que hago: compromiso, servicio y trabajo en equipo. Es algo que quiero transmitir a mi audiencia: la importancia de servir con honor.</p>
+                                <p>Me especializo en <strong>automatización, IA e integración de sistemas</strong>: n8n, webhooks, APIs REST, agentes, OCR, extracción estructurada, RAG, embeddings y flujos que conectan herramientas para ahorrar tiempo real en operaciones.</p>
                             </div>
                         </div>
 
                         <div class="about-section">
                             <div class="about-image">
-                                <img src="images/sobremi/sobreMi2.png" alt="Ivan programando" />
+                                <img src="images/sobremi/forzatech-founder.png" alt="Ivan presentando soluciones de software a medida" />
                             </div>
                             <div class="about-text">
-                                <p>La programación es mi pasión, y soy un verdadero entusiasta de la Inteligencia Artificial. Creo firmemente que la IA no viene a reemplazarnos, sino a potenciarnos. Como me gusta compartir con mi audiencia: <em>"el que abraza la tecnología, crece junto con ella"</em>. Actualmente trabajo en el Ministerio de Seguridad Nacional, un lugar que me ha permitido crecer enormemente en bases de datos y desarrollo de SaaS y microservicios.</p>
+                                <p>También soy fundador de <strong>ForzaTech</strong>, una iniciativa orientada a sistemas a medida, automatización, IA, apps móviles y micro-SaaS para PYMEs argentinas. Mi forma de trabajar combina relevamiento claro, prototipos rápidos y foco en impacto operativo.</p>
                             </div>
                         </div>
 
                         <div class="about-section">
                             <div class="about-image">
-                                <img src="images/sobremi/sobreMi3.png" alt="Ivan entrenando" />
+                                <img src="images/sobremi/privacy-data-products.png" alt="Ivan revisando productos de datos con privacidad por diseño" />
                             </div>
                             <div class="about-text">
-                                <p>En mis tiempos libres, me gusta mantenerme activo y entrenar. Antes era muy fanático del running, pero ahora me enfoqué en el levantamiento de pesas. Voy al gimnasio con la eterna esperanza de llegar en forma al próximo verano (que siempre parece lejano, ja!). Como les digo a quienes me siguen: <em>"la constancia supera al talento"</em>. Aunque claro, hay un pequeño obstáculo...</p>
+                                <p>En productos con datos sensibles priorizo <strong>privacidad por diseño</strong>, mínimos privilegios, permisos por rol, validaciones backend, trazabilidad y documentación. Me interesa que cada sistema sea útil, mantenible y responsable desde su arquitectura.</p>
                             </div>
                         </div>
 
                         <div class="about-section">
                             <div class="about-image">
-                                <img src="images/sobremi/sobremi4.png" alt="Ivan cocinando" />
+                                <img src="images/sobremi/shipping-projects.png" alt="Ivan publicando proyectos full stack" />
                             </div>
                             <div class="about-text">
-                                <p>...¡me encanta la comida! No me privo de nada rico, y además disfruto mucho cocinando. Sin ser presumido, pero cada vez que invito a casa, la gente siempre repite. Me gusta pensar que compartir una buena comida es una de las mejores formas de construir vínculos y lazos genuinos. Desde pastas caseras hasta asados dominicales, cocinar me conecta con mis raíces y me permite expresar creatividad fuera del código.</p>
-                            </div>
-                        </div>
-
-                        <div class="about-section">
-                            <div class="about-image">
-                                <img src="images/sobremi/SobreMi5.png" alt="Ivan con su familia" />
-                            </div>
-                            <div class="about-text">
-                                <p>Cuando estoy desocupado, uno de mis hobbies favoritos es pasar tiempo con mi familia. Somos muy unidos y casi no hacemos nada sin estar los tres juntos. Ya sea un asado el domingo, una película en casa, o simplemente charlar en el patio, esos momentos son los que realmente me cargan las pilas. Con mi audiencia siempre hablo de la importancia del equilibrio, y mi familia es mi ancla y mi motivación para seguir creciendo.</p>
+                                <p>Trabajo con stacks como <strong>React, Next.js, TypeScript, Tailwind, Python, FastAPI, Node.js, NestJS, Java/Spring Boot, PostgreSQL, Oracle, MongoDB, Docker y Nginx</strong>. Me gusta cerrar el circuito: diseñar, desarrollar, desplegar, medir y seguir mejorando.</p>
                             </div>
                         </div>
                     </div>
@@ -1367,11 +1385,40 @@ export class AppManager {
                     icon: './icono.png',
                     detailImage: './icono.png',
                     description: 'Sitio web oficial del Capítulo Argentino del Centro de Estudios Hemisféricos de Defensa William J. Perry',
-                    url: 'https://wjpc-capituloargentino.org',
+                    url: 'https://www.wjpc-capituloargentino.org/',
+                    preview: true,
                     technologies: ['React 18', 'Vite', 'Tailwind CSS', 'Node.js', 'Express.js', 'Docker', 'Google Cloud Platform'],
                     category: 'Institucional',
                     status: 'Activo',
                     details: 'Aplicación web completa para una organización profesional dedicada a la integración continental y el fortalecimiento de vínculos fraternales entre las naciones americanas. Incluye un sitio público institucional y un panel administrativo para gestión de contenido. Stack tecnológico: Frontend con React 18 + Vite + Tailwind CSS + React Router, Backend con Node.js + Express.js + JWT Authentication, infraestructura en Google Cloud Platform (Cloud Run, Cloud Build, Cloud Storage), contenedorización con Docker + Nginx. Características principales: Sitio público responsive con información institucional, panel de administración con CRUD para noticias y eventos, autenticación JWT con middleware de seguridad, integración con Google Cloud Storage para imágenes, despliegue serverless en Cloud Run con CI/CD, rate limiting y CSP para seguridad. Arquitectura moderna y escalable con prácticas DevOps, seguridad implementada correctamente y responsive design profesional.'
+                },
+                {
+                    id: 'forzatech',
+                    name: 'ForzaTech',
+                    type: 'project',
+                    icon: './images/icons/ie.png',
+                    detailImage: './assets/readme/zaratexp-banner.png',
+                    description: 'Marketing, sistemas e IA para PYMEs en Argentina',
+                    url: 'https://forzatech.com.ar/',
+                    preview: true,
+                    technologies: ['Landing Page', 'Marketing Digital', 'Automatización', 'IA', 'Sistemas a medida', 'Micro-SaaS'],
+                    category: 'Producto / Agencia',
+                    status: 'Activo',
+                    details: 'Sitio comercial de ForzaTech, iniciativa enfocada en ayudar a PYMEs argentinas con marketing digital, sistemas a medida, automatizaciones, apps móviles, micro-SaaS y soluciones con IA para vender y operar mejor.'
+                },
+                {
+                    id: 'estudio-luttini',
+                    name: 'Estudio Luttini',
+                    type: 'project',
+                    icon: './assets/images/document.png',
+                    detailImage: './assets/images/document.png',
+                    description: 'Sitio institucional jurídico-contable para profesionales y empresas',
+                    url: 'https://www.estudioluttini.com/',
+                    preview: true,
+                    technologies: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design', 'SEO'],
+                    category: 'Institucional',
+                    status: 'Activo',
+                    details: 'Sitio web profesional para un estudio jurídico-contable en Puerto Madero, orientado a comunicar servicios legales, contables, impositivos, societarios y de compliance para personas, profesionales, PYMEs y empresas.'
                 },
                 {
                     id: 'limpia-limpia',
@@ -1418,6 +1465,48 @@ export class AppManager {
         // Mantener el comportamiento original para otras carpetas
         const projectsData = {
             'web': [
+                {
+                    id: 'forzatech',
+                    name: 'ForzaTech',
+                    type: 'project',
+                    icon: './images/icons/ie.png',
+                    detailImage: './assets/readme/zaratexp-banner.png',
+                    description: 'Marketing, sistemas e IA para PYMEs en Argentina',
+                    url: 'https://forzatech.com.ar/',
+                    preview: true,
+                    technologies: ['Landing Page', 'Marketing Digital', 'Automatización', 'IA', 'Sistemas a medida', 'Micro-SaaS'],
+                    category: 'Producto / Agencia',
+                    status: 'Activo',
+                    details: 'ForzaTech ayuda a PYMEs argentinas con marketing digital, sistemas a medida, automatización, apps móviles, micro-SaaS y soporte para vender y operar mejor.'
+                },
+                {
+                    id: 'estudio-luttini',
+                    name: 'Estudio Luttini',
+                    type: 'project',
+                    icon: './assets/images/document.png',
+                    detailImage: './assets/images/document.png',
+                    description: 'Sitio institucional jurídico-contable',
+                    url: 'https://www.estudioluttini.com/',
+                    preview: true,
+                    technologies: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design', 'SEO'],
+                    category: 'Institucional',
+                    status: 'Activo',
+                    details: 'Sitio web profesional para un estudio jurídico-contable en Puerto Madero, con foco en servicios legales, contables, impositivos, societarios y de compliance para personas, profesionales, PYMEs y empresas.'
+                },
+                {
+                    id: 'wjpc-capituloargentino',
+                    name: 'WJPC Capítulo Argentino',
+                    type: 'project',
+                    icon: './icono.png',
+                    detailImage: './icono.png',
+                    description: 'Sitio institucional del Capítulo Argentino William J. Perry',
+                    url: 'https://www.wjpc-capituloargentino.org/',
+                    preview: true,
+                    technologies: ['React 18', 'Vite', 'Tailwind CSS', 'Node.js', 'Express.js', 'Docker', 'Google Cloud Platform'],
+                    category: 'Institucional',
+                    status: 'Activo',
+                    details: 'Sitio público institucional con panel de administración, gestión de noticias y eventos, autenticación, despliegue serverless y arquitectura full stack preparada para operación continua.'
+                },
                 {
                     id: 'osintargy',
                     name: 'OSINTArgy',
@@ -1584,6 +1673,24 @@ export class AppManager {
 
     _showProjectDetails(project) {
         if (this.windowManager) {
+            const previewContent = project.preview && project.url && project.url !== '#'
+                ? `
+                    <div class="project-preview-shell">
+                        <div class="project-preview-header">
+                            <span>Vista previa embebida</span>
+                            <button onclick="window.open('${project.url}', '_blank', 'noopener')" class="project-preview-open">Abrir en navegador</button>
+                        </div>
+                        <iframe
+                            class="project-preview-frame"
+                            src="${project.url}"
+                            title="Vista previa de ${project.name}"
+                            loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade">
+                        </iframe>
+                    </div>
+                `
+                : '';
+
             const detailsContent = `
                 <div style="padding: 20px; font-family: 'Tahoma', sans-serif; font-size: 11px;">
                     <div style="display: flex; align-items: center; margin-bottom: 20px;">
@@ -1607,6 +1714,8 @@ export class AppManager {
                         <div style="margin-bottom: 8px;"><strong>Estado:</strong> ${project.status}</div>
                         ${project.technologies ? `<div style="margin-bottom: 8px;"><strong>Tecnologías:</strong> ${project.technologies.join(', ')}</div>` : ''}
                     </div>
+
+                    ${previewContent}
                     
                     <div style="margin-bottom: 16px;">
                         <strong>Descripción detallada:</strong><br>
@@ -1630,10 +1739,10 @@ export class AppManager {
                 title: `${project.name} - Detalles`,
                 icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Properties.png',
                 content: detailsContent,
-                width: 500,
-                height: 400,
+                width: project.preview ? 920 : 500,
+                height: project.preview ? 720 : 400,
                 resizable: true,
-                maximizable: false
+                maximizable: Boolean(project.preview)
             });
         }
     }
@@ -1702,7 +1811,7 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'email-error',
                 title: 'Error al Enviar',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Error.png',
+                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
                         <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
@@ -1751,6 +1860,123 @@ export class AppManager {
     }
     
     // --- Métodos auxiliares ---
+
+    _focusIfRunning(appId) {
+        if (!this.runningApps.has(appId)) return false;
+        if (this.windowManager?.focusWindow) {
+            this.windowManager.focusWindow(appId);
+        }
+        return true;
+    }
+
+    _createSingleInstanceWindow({ id, title, icon, content, width = 600, height = 400, resizable = true, maximizable = true, onReady = null }) {
+        if (this._focusIfRunning(id)) return null;
+        if (!this.windowManager) {
+            throw new Error('WindowManager no está disponible');
+        }
+
+        const appWindow = this.windowManager.createWindow({
+            id,
+            title,
+            icon,
+            content,
+            width,
+            height,
+            resizable,
+            maximizable
+        });
+
+        this.runningApps.set(id, id);
+        this._observeWindowClose(appWindow, id);
+
+        if (typeof onReady === 'function') {
+            window.setTimeout(() => onReady(appWindow), 0);
+        }
+
+        return appWindow;
+    }
+
+    _observeWindowClose(appWindow, appId, onClose = null) {
+        if (!appWindow?.parentNode) return;
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.removedNodes.forEach((node) => {
+                    if (node === appWindow) {
+                        if (typeof onClose === 'function') onClose(node);
+                        this.closeApp(appId);
+                        observer.disconnect();
+                    }
+                });
+            });
+        });
+
+        observer.observe(appWindow.parentNode, { childList: true });
+    }
+
+    _saveLocal(key, value) {
+        try {
+            localStorage.setItem(key, value);
+        } catch (error) {
+            console.warn(`No se pudo guardar ${key}:`, error);
+        }
+    }
+
+    _readLocal(key, fallback = '') {
+        try {
+            return localStorage.getItem(key) ?? fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    getPersonalizationSettings() {
+        const defaults = {
+            wallpaper: 'default',
+            accent: 'xp',
+            crt: false,
+            animations: true,
+            compactTaskbar: false,
+            iconScale: 1
+        };
+
+        try {
+            return { ...defaults, ...JSON.parse(localStorage.getItem('zarateXP.settings') || '{}') };
+        } catch (error) {
+            return defaults;
+        }
+    }
+
+    savePersonalizationSettings(settings) {
+        this._saveLocal('zarateXP.settings', JSON.stringify(settings));
+        this.applyPersonalization(settings);
+    }
+
+    applyPersonalization(settings = this.getPersonalizationSettings()) {
+        const body = document.body;
+        const desktop = document.querySelector('.desktop');
+        const desktopIcons = document.querySelector('.desktop-icons');
+        const crtLayers = document.querySelectorAll('.crt-effect, .crt-scanline, .crt-vignette, .crt-noise, .crt-flicker, .crt-aberration, .crt-persistence, .flicker');
+
+        body.classList.toggle('xp-accent-olive', settings.accent === 'olive');
+        body.classList.toggle('xp-accent-graphite', settings.accent === 'graphite');
+        body.classList.toggle('xp-no-animations', !settings.animations);
+        body.classList.toggle('xp-compact-taskbar', Boolean(settings.compactTaskbar));
+        body.classList.toggle('xp-crt-enabled', Boolean(settings.crt));
+
+        if (desktop) {
+            desktop.classList.remove('wallpaper-default', 'wallpaper-night', 'wallpaper-clean');
+            desktop.classList.add(`wallpaper-${settings.wallpaper || 'default'}`);
+        }
+
+        if (desktopIcons) {
+            desktopIcons.style.setProperty('--icon-scale', settings.iconScale || 1);
+        }
+
+        crtLayers.forEach((layer) => {
+            layer.style.display = settings.crt ? 'block' : 'none';
+        });
+    }
     
     showPlaceholder(appName) {
         const content = `
@@ -1797,6 +2023,409 @@ export class AppManager {
             alert(message);
         }
     }
+
+    _openDocuments() {
+        const iconBase = './images/Windows XP High Resolution Icon Pack/Windows XP Icons';
+        const content = `
+            <div class="xp-documents-app">
+                <div class="xp-explorer-menubar">
+                    <span><u>A</u>rchivo</span><span><u>E</u>dicion</span><span><u>V</u>er</span><span><u>F</u>avoritos</span><span>A<u>y</u>uda</span>
+                </div>
+                <div class="xp-explorer-toolbar">
+                    <button type="button" data-doc-open="my-computer"><img src="${iconBase}/Back.png" alt=""> Atras</button>
+                    <button type="button" data-doc-open="projects"><img src="${iconBase}/Search.png" alt=""> Buscar proyectos</button>
+                    <button type="button" data-doc-open="control-panel"><img src="${iconBase}/Control Panel.png" alt=""> Configurar</button>
+                </div>
+                <div class="xp-explorer-address">
+                    <span>Direccion</span>
+                    <div><img src="${iconBase}/My Documents.png" alt=""> C:\\Documents and Settings\\Ivan\\Mis documentos</div>
+                </div>
+                <div class="xp-documents-layout">
+                    <aside class="xp-task-pane">
+                        <section>
+                            <h3>Tareas de documento</h3>
+                            <button type="button" data-doc-open="resume">Abrir CV actualizado</button>
+                            <button type="button" data-doc-open="projects">Ver proyectos web</button>
+                            <button type="button" data-doc-open="n8n-flows">Ver automatizaciones n8n</button>
+                        </section>
+                        <section>
+                            <h3>Detalles</h3>
+                            <p>Portfolio orientado a roles Full Stack, automatizacion, integraciones y productos web.</p>
+                        </section>
+                    </aside>
+                    <main class="xp-folder-grid">
+                        <button type="button" class="xp-folder-item important" data-doc-open="resume">
+                            <img src="${iconBase}/Document Search.png" alt="">
+                            <span>Ivan_Zarate_CV.pdf</span>
+                            <small>CV actualizado</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="projects">
+                            <img src="${iconBase}/Folder Opened.png" alt="">
+                            <span>Proyectos destacados</span>
+                            <small>ForzaTech, WJPC, Luttini, ZarateXP</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="about-me">
+                            <img src="${iconBase}/User Accounts.png" alt="">
+                            <span>Perfil profesional</span>
+                            <small>Full Stack + automatizacion</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
+                            <img src="./N8n-logo-new.svg.png" alt="">
+                            <span>Flujos n8n</span>
+                            <small>Procesos visuales funcionales</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="notepad">
+                            <img src="./assets/images/notepad.png" alt="">
+                            <span>Notas de entrevista.txt</span>
+                            <small>Editable localmente</small>
+                        </button>
+                        <button type="button" class="xp-folder-item" data-doc-open="wordpad">
+                            <img src="./assets/images/document.png" alt="">
+                            <span>Carta de presentacion.rtf</span>
+                            <small>Editor enriquecido</small>
+                        </button>
+                    </main>
+                </div>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'documents',
+            title: 'Mis Documentos',
+            icon: `${iconBase}/My Documents.png`,
+            content,
+            width: 760,
+            height: 520,
+            onReady: (appWindow) => {
+                appWindow.querySelectorAll('[data-doc-open]').forEach((item) => {
+                    const openTarget = () => this.openApp(item.dataset.docOpen);
+                    item.addEventListener('click', openTarget);
+                    item.addEventListener('dblclick', openTarget);
+                });
+            }
+        });
+    }
+
+    _openNotepad() {
+        const savedText = this._readLocal('zarateXP.notepad', [
+            'Notas rapidas - Ivan Zarate',
+            '',
+            '- Perfil: Full Stack Developer / Systems Analyst',
+            '- Foco: React, JavaScript, backend, automatizaciones n8n e integraciones',
+            '- Portfolio: abrir Mis Proyectos y CV desde el escritorio'
+        ].join('\n'));
+
+        const content = `
+            <div class="xp-notepad-app">
+                <div class="xp-menu-strip">
+                    <button type="button" data-note-command="new">Archivo</button>
+                    <button type="button" data-note-command="save">Guardar</button>
+                    <button type="button" data-note-command="download">Descargar</button>
+                    <button type="button" data-note-command="clear">Limpiar</button>
+                </div>
+                <textarea class="xp-notepad-textarea" spellcheck="false">${this._escapeHtml(savedText)}</textarea>
+                <div class="xp-statusbar"><span data-note-status>Listo</span><span data-note-count>0 caracteres</span></div>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'notepad',
+            title: 'Bloc de notas - notas.txt',
+            icon: './assets/images/notepad.png',
+            content,
+            width: 560,
+            height: 430,
+            onReady: (appWindow) => {
+                const textarea = appWindow.querySelector('.xp-notepad-textarea');
+                const status = appWindow.querySelector('[data-note-status]');
+                const count = appWindow.querySelector('[data-note-count]');
+                const updateCount = () => {
+                    count.textContent = `${textarea.value.length} caracteres`;
+                };
+                const save = () => {
+                    this._saveLocal('zarateXP.notepad', textarea.value);
+                    status.textContent = `Guardado ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`;
+                };
+
+                textarea.addEventListener('input', () => {
+                    updateCount();
+                    this._saveLocal('zarateXP.notepad', textarea.value);
+                    status.textContent = 'Autoguardado local';
+                });
+
+                appWindow.querySelector('[data-note-command="save"]').addEventListener('click', save);
+                appWindow.querySelector('[data-note-command="new"]').addEventListener('click', () => {
+                    textarea.value = '';
+                    save();
+                    updateCount();
+                });
+                appWindow.querySelector('[data-note-command="clear"]').addEventListener('click', () => {
+                    textarea.value = '';
+                    this._saveLocal('zarateXP.notepad', '');
+                    status.textContent = 'Documento limpio';
+                    updateCount();
+                });
+                appWindow.querySelector('[data-note-command="download"]').addEventListener('click', () => {
+                    this._downloadTextFile('ivan-zarate-notas.txt', textarea.value);
+                    status.textContent = 'Archivo generado';
+                });
+                updateCount();
+                textarea.focus();
+            }
+        });
+    }
+
+    _openWordPad() {
+        const savedHtml = this._readLocal('zarateXP.wordpad', `
+            <h2>Ivan Agustin Zarate</h2>
+            <p><strong>Full Stack Developer</strong> orientado a productos web, automatizaciones e integraciones.</p>
+            <p>Trabajo con frontends interactivos, APIs, dashboards, formularios, despliegues web y flujos n8n para mejorar procesos reales.</p>
+        `);
+
+        const content = `
+            <div class="xp-wordpad-app">
+                <div class="xp-menu-strip">
+                    <button type="button" data-wp-command="save">Guardar</button>
+                    <button type="button" data-wp-command="download">Descargar TXT</button>
+                </div>
+                <div class="xp-wordpad-toolbar">
+                    <button type="button" data-format="bold"><strong>B</strong></button>
+                    <button type="button" data-format="italic"><em>I</em></button>
+                    <button type="button" data-format="underline"><u>U</u></button>
+                    <select data-format-block aria-label="Formato">
+                        <option value="p">Parrafo</option>
+                        <option value="h2">Titulo</option>
+                        <option value="h3">Subtitulo</option>
+                    </select>
+                </div>
+                <div class="xp-wordpad-page" contenteditable="true" spellcheck="true">${savedHtml}</div>
+                <div class="xp-statusbar"><span data-wp-status>Listo</span><span>WordPad XP</span></div>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'wordpad',
+            title: 'WordPad - carta de presentacion.rtf',
+            icon: './assets/images/document.png',
+            content,
+            width: 640,
+            height: 500,
+            onReady: (appWindow) => {
+                const editor = appWindow.querySelector('.xp-wordpad-page');
+                const status = appWindow.querySelector('[data-wp-status]');
+                const save = () => {
+                    this._saveLocal('zarateXP.wordpad', editor.innerHTML);
+                    status.textContent = 'Guardado localmente';
+                };
+
+                editor.addEventListener('input', save);
+                appWindow.querySelectorAll('[data-format]').forEach((button) => {
+                    button.addEventListener('click', () => {
+                        document.execCommand(button.dataset.format, false, null);
+                        editor.focus();
+                        save();
+                    });
+                });
+                appWindow.querySelector('[data-format-block]').addEventListener('change', (event) => {
+                    document.execCommand('formatBlock', false, event.target.value);
+                    editor.focus();
+                    save();
+                });
+                appWindow.querySelector('[data-wp-command="save"]').addEventListener('click', save);
+                appWindow.querySelector('[data-wp-command="download"]').addEventListener('click', () => {
+                    this._downloadTextFile('ivan-zarate-presentacion.txt', editor.innerText.trim());
+                    status.textContent = 'TXT generado';
+                });
+            }
+        });
+    }
+
+    _openN8nFlows() {
+        const content = `
+            <div class="xp-n8n-app">
+                <aside class="xp-n8n-sidebar">
+                    <img src="./N8n-logo-new.svg.png" alt="n8n">
+                    <h2>Automatizaciones</h2>
+                    <p>Flujos visuales que conectan formularios, APIs, CRM, correo y dashboards.</p>
+                    <button type="button" data-flow-run>Ejecutar demo</button>
+                    <button type="button" data-flow-reset>Reiniciar</button>
+                </aside>
+                <main class="xp-flow-canvas" aria-label="Canvas de flujo n8n">
+                    <div class="xp-flow-node" data-node="webhook" style="--x: 4%; --y: 28%;">
+                        <strong>Webhook</strong><span>Formulario portfolio</span>
+                    </div>
+                    <div class="xp-flow-link" style="--x: 22%; --y: 39%; --w: 15%;"></div>
+                    <div class="xp-flow-node" data-node="validate" style="--x: 35%; --y: 18%;">
+                        <strong>Validar lead</strong><span>Datos y origen</span>
+                    </div>
+                    <div class="xp-flow-node" data-node="crm" style="--x: 35%; --y: 52%;">
+                        <strong>CRM</strong><span>Guardar oportunidad</span>
+                    </div>
+                    <div class="xp-flow-link vertical" style="--x: 50%; --y: 39%; --h: 13%;"></div>
+                    <div class="xp-flow-link" style="--x: 54%; --y: 29%; --w: 14%;"></div>
+                    <div class="xp-flow-link" style="--x: 54%; --y: 63%; --w: 14%;"></div>
+                    <div class="xp-flow-node" data-node="email" style="--x: 68%; --y: 18%;">
+                        <strong>Email</strong><span>Respuesta automatica</span>
+                    </div>
+                    <div class="xp-flow-node" data-node="dashboard" style="--x: 68%; --y: 52%;">
+                        <strong>Dashboard</strong><span>Metricas y seguimiento</span>
+                    </div>
+                </main>
+                <footer class="xp-flow-log" data-flow-log>Listo para ejecutar.</footer>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'n8n-flows',
+            title: 'n8n - Flujos de automatizacion',
+            icon: './N8n-logo-new.svg.png',
+            content,
+            width: 780,
+            height: 500,
+            onReady: (appWindow) => {
+                const nodes = Array.from(appWindow.querySelectorAll('.xp-flow-node'));
+                const log = appWindow.querySelector('[data-flow-log]');
+                const reset = () => {
+                    nodes.forEach((node) => node.classList.remove('running', 'done'));
+                    log.textContent = 'Listo para ejecutar.';
+                };
+
+                appWindow.querySelector('[data-flow-reset]').addEventListener('click', reset);
+                appWindow.querySelector('[data-flow-run]').addEventListener('click', () => {
+                    reset();
+                    const messages = [
+                        'Recibiendo lead desde el portfolio...',
+                        'Validando datos y fuente de contacto...',
+                        'Creando oportunidad en CRM...',
+                        'Enviando respuesta automatica...',
+                        'Actualizando dashboard de seguimiento...'
+                    ];
+
+                    nodes.forEach((node, index) => {
+                        window.setTimeout(() => {
+                            nodes.forEach((item) => item.classList.remove('running'));
+                            node.classList.add('running');
+                            log.textContent = messages[index];
+                        }, index * 650);
+
+                        window.setTimeout(() => {
+                            node.classList.remove('running');
+                            node.classList.add('done');
+                            if (index === nodes.length - 1) {
+                                log.textContent = 'Flujo completado: lead clasificado, notificado y medido.';
+                            }
+                        }, index * 650 + 550);
+                    });
+                });
+            }
+        });
+    }
+
+    _openControlPanel() {
+        const settings = this.getPersonalizationSettings();
+        const checked = (value) => value ? 'checked' : '';
+        const selected = (value, expected) => value === expected ? 'checked' : '';
+        const content = `
+            <div class="xp-control-panel-app">
+                <aside class="xp-task-pane">
+                    <section>
+                        <h3>Panel de control</h3>
+                        <p>Personaliza el escritorio, ventanas, efectos y barra de tareas.</p>
+                    </section>
+                    <section>
+                        <button type="button" data-cp-open="documents">Mis Documentos</button>
+                        <button type="button" data-cp-open="projects">Mis Proyectos</button>
+                    </section>
+                </aside>
+                <main class="xp-settings-grid">
+                    <fieldset>
+                        <legend>Fondo de pantalla</legend>
+                        <label><input type="radio" name="wallpaper" value="default" ${selected(settings.wallpaper, 'default')}> Bliss clasico</label>
+                        <label><input type="radio" name="wallpaper" value="night" ${selected(settings.wallpaper, 'night')}> Azul nocturno</label>
+                        <label><input type="radio" name="wallpaper" value="clean" ${selected(settings.wallpaper, 'clean')}> Limpio profesional</label>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Color de sistema</legend>
+                        <label><input type="radio" name="accent" value="xp" ${selected(settings.accent, 'xp')}> XP azul</label>
+                        <label><input type="radio" name="accent" value="olive" ${selected(settings.accent, 'olive')}> Verde oliva</label>
+                        <label><input type="radio" name="accent" value="graphite" ${selected(settings.accent, 'graphite')}> Grafito</label>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Comportamiento</legend>
+                        <label><input type="checkbox" name="crt" ${checked(settings.crt)}> Efecto CRT</label>
+                        <label><input type="checkbox" name="animations" ${checked(settings.animations)}> Animaciones XP</label>
+                        <label><input type="checkbox" name="compactTaskbar" ${checked(settings.compactTaskbar)}> Taskbar compacta</label>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Iconos</legend>
+                        <label class="xp-range-label">Escala <input type="range" name="iconScale" min="0.85" max="1.25" step="0.05" value="${settings.iconScale}"></label>
+                    </fieldset>
+                    <div class="xp-settings-actions">
+                        <button type="button" data-settings-apply>Aplicar</button>
+                        <button type="button" data-settings-reset>Restaurar XP</button>
+                        <span data-settings-status>Configuracion cargada</span>
+                    </div>
+                </main>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'control-panel',
+            title: 'Panel de control - Apariencia y temas',
+            icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png',
+            content,
+            width: 700,
+            height: 470,
+            onReady: (appWindow) => {
+                const status = appWindow.querySelector('[data-settings-status]');
+                const readSettings = () => ({
+                    wallpaper: appWindow.querySelector('input[name="wallpaper"]:checked')?.value || 'default',
+                    accent: appWindow.querySelector('input[name="accent"]:checked')?.value || 'xp',
+                    crt: appWindow.querySelector('input[name="crt"]').checked,
+                    animations: appWindow.querySelector('input[name="animations"]').checked,
+                    compactTaskbar: appWindow.querySelector('input[name="compactTaskbar"]').checked,
+                    iconScale: Number(appWindow.querySelector('input[name="iconScale"]').value)
+                });
+                const apply = () => {
+                    this.savePersonalizationSettings(readSettings());
+                    status.textContent = 'Aplicado y guardado';
+                };
+
+                appWindow.querySelectorAll('input').forEach((input) => {
+                    input.addEventListener('change', apply);
+                });
+                appWindow.querySelector('[data-settings-apply]').addEventListener('click', apply);
+                appWindow.querySelector('[data-settings-reset]').addEventListener('click', () => {
+                    localStorage.removeItem('zarateXP.settings');
+                    this.applyPersonalization();
+                    status.textContent = 'Restaurado. Reabre esta ventana para ver los controles actualizados.';
+                });
+                appWindow.querySelectorAll('[data-cp-open]').forEach((button) => {
+                    button.addEventListener('click', () => this.openApp(button.dataset.cpOpen));
+                });
+            }
+        });
+    }
+
+    _downloadTextFile(fileName, text) {
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        URL.revokeObjectURL(link.href);
+        link.remove();
+    }
+
+    _escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
     
     async _openMinesweeper() {
         // Prevenir que se abra más de una ventana de Buscaminas
@@ -1828,9 +2457,9 @@ export class AppManager {
                 title: 'Buscaminas',
                 icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Minesweeper.png',
                 content: htmlContent,
-                width: 300,
-                height: 380,
-                resizable: false,
+                width: 330,
+                height: 430,
+                resizable: true,
                 maximizable: false
             });
             
@@ -1839,16 +2468,16 @@ export class AppManager {
                 const windowElement = document.querySelector('[data-window-id="minesweeper"]');
                 if (windowElement) {
                     // Verificar si ya se ha cargado el script
-                    if (!document.querySelector('script[src="js/minesweeper-simple.js"]')) {
+                    if (!document.querySelector('script[src="js/minesweeper.js"]')) {
                         const script = document.createElement('script');
-                        script.src = 'js/minesweeper-simple.js';
+                        script.src = 'js/minesweeper.js';
                         script.type = 'text/javascript';
                         
                         script.onload = () => {
                             console.log('Minesweeper script loaded, initializing game...');
                             if (typeof initMinesweeperGame === 'function') {
                                 try {
-                                    initMinesweeperGame();
+                                    initMinesweeperGame(windowElement);
                                     console.log('Minesweeper game initialized successfully');
                                 } catch (error) {
                                     console.error('Error initializing minesweeper game:', error);
@@ -1865,7 +2494,7 @@ export class AppManager {
                         console.log('Minesweeper script already loaded, initializing game...');
                         if (typeof initMinesweeperGame === 'function') {
                             try {
-                                initMinesweeperGame();
+                                initMinesweeperGame(windowElement);
                                 console.log('Minesweeper game initialized successfully');
                             } catch (error) {
                                 console.error('Error initializing minesweeper game:', error);
@@ -1877,9 +2506,6 @@ export class AppManager {
                 }
             }, 300);
             
-            // Hacer la ventana arrastrable
-            makeDraggable(minesweeperWindow);
-            
             // Configurar observer para detectar cuando se cierra la ventana
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -1887,6 +2513,9 @@ export class AppManager {
                         mutation.removedNodes.forEach((node) => {
                             if (node.dataset && node.dataset.windowId === 'minesweeper') {
                                 console.log('Minesweeper window closed');
+                                if (typeof destroyMinesweeperGame === 'function') {
+                                    destroyMinesweeperGame(node);
+                                }
                                 this.closeApp('minesweeper');
                                 observer.disconnect();
                             }
@@ -1942,8 +2571,8 @@ export class AppManager {
                 title: 'Paint',
                 icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Paint.png',
                 content: htmlContent,
-                width: 550,
-                height: 450,
+                width: 860,
+                height: 620,
                 resizable: true,
                 maximizable: true
             });
@@ -1962,7 +2591,7 @@ export class AppManager {
                             console.log('Paint script loaded, initializing app...');
                             if (typeof initPaintApp === 'function') {
                                 try {
-                                    initPaintApp();
+                                    initPaintApp(windowElement);
                                     console.log('Paint app initialized successfully');
                                 } catch (error) {
                                     console.error('Error initializing paint app:', error);
@@ -1979,7 +2608,7 @@ export class AppManager {
                         console.log('Paint script already loaded, initializing app...');
                         if (typeof initPaintApp === 'function') {
                             try {
-                                initPaintApp();
+                                initPaintApp(windowElement);
                                 console.log('Paint app initialized successfully');
                             } catch (error) {
                                 console.error('Error initializing paint app:', error);
@@ -1991,9 +2620,6 @@ export class AppManager {
                 }
             }, 300);
             
-            // Hacer la ventana arrastrable
-            makeDraggable(paintWindow);
-            
             // Configurar observer para detectar cuando se cierra la ventana
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -2001,6 +2627,9 @@ export class AppManager {
                         mutation.removedNodes.forEach((node) => {
                             if (node.dataset && node.dataset.windowId === 'paint') {
                                 console.log('Paint window closed');
+                                if (typeof destroyPaintApp === 'function') {
+                                    destroyPaintApp(node);
+                                }
                                 this.closeApp('paint');
                                 observer.disconnect();
                             }
@@ -2042,7 +2671,7 @@ export class AppManager {
                 throw new Error('WindowManager no está disponible');
             }
 
-            // Mostrar la imagen del CV directamente con barra de herramientas XP
+            // Mostrar el PDF actualizado directamente con barra de herramientas XP
             const content = `
                 <div id="resume-viewer">
                     <div class="resume-toolbar">
@@ -2057,7 +2686,12 @@ export class AppManager {
                         </button>
                     </div>
                     <div class="resume-content">
-                        <img src="./images/MI_CV.jpg" alt="CV Ivan Agustin Zarate" style="width: 100%; height: 100%; object-fit: contain; background: white;">
+                        <object class="resume-pdf" data="./Ivan_Zarate_CV.pdf#view=FitH" type="application/pdf">
+                            <div class="resume-fallback">
+                                <p>No se pudo mostrar el PDF en este navegador.</p>
+                                <a href="./Ivan_Zarate_CV.pdf" target="_blank" rel="noopener">Abrir CV actualizado</a>
+                            </div>
+                        </object>
                     </div>
                 </div>
                 <style>
@@ -2124,6 +2758,28 @@ export class AppManager {
                         display: flex;
                         align-items: center;
                         justify-content: center;
+                    }
+
+                    .resume-pdf {
+                        width: 100%;
+                        height: 100%;
+                        border: 0;
+                        background: white;
+                    }
+
+                    .resume-fallback {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        height: 100%;
+                        color: #1f2937;
+                    }
+
+                    .resume-fallback a {
+                        color: #003399;
+                        font-weight: bold;
                     }
                 </style>
             `;
@@ -2231,166 +2887,6 @@ export class AppManager {
         }
     }
 
-    _setupCVIframe(resumeWindow, bodyContent) {
-        try {
-            const iframe = resumeWindow.querySelector('#cv-iframe');
-            if (!iframe) {
-                console.error('No se encontró el iframe del CV');
-                return;
-            }
-
-            // Crear el documento HTML completo para el iframe
-            const iframeDocument = `
-                <!DOCTYPE html>
-                <html lang="es">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>CV de Iván Zarate</title>
-                    <!-- Carga de Tailwind CSS -->
-                    <script src="https://cdn.tailwindcss.com"></script>
-                    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-                    <style>
-                        body {
-                            font-family: 'Inter', sans-serif;
-                            background-color: #f3f4f6;
-                            margin: 0;
-                            padding: 8px;
-                        }
-                        .section-title {
-                            border-bottom: 2px solid #3b82f6;
-                            padding-bottom: 0.5rem;
-                            margin-bottom: 1rem;
-                        }
-                        .max-w-4xl {
-                            max-width: 100% !important;
-                            margin: 0 !important;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${bodyContent}
-                </body>
-                </html>
-            `;
-
-            // Escribir el contenido al iframe
-            iframe.onload = () => {
-                try {
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    iframeDoc.open();
-                    iframeDoc.write(iframeDocument);
-                    iframeDoc.close();
-                    console.log('CV iframe configurado correctamente');
-                } catch (error) {
-                    console.error('Error configurando iframe:', error);
-                }
-            };
-
-            // Configurar el iframe inmediatamente si ya está cargado
-            if (iframe.contentDocument) {
-                iframe.onload();
-            } else {
-                // Fallback: configurar el src del iframe
-                iframe.src = 'data:text/html;charset=utf-8,' + encodeURIComponent(iframeDocument);
-            }
-
-        } catch (error) {
-            console.error('Error configurando iframe del CV:', error);
-        }
-    }
-
-    _setupResumeButtons(resumeWindow, pdfPath) {
-        try {
-            const openBtn = resumeWindow.querySelector('#open-pdf-btn');
-            const saveBtn = resumeWindow.querySelector('#save-pdf-btn');
-            const printBtn = resumeWindow.querySelector('#print-pdf-btn');
-
-            // Función para descargar el PDF
-            const downloadPDF = () => {
-                const link = document.createElement('a');
-                link.href = pdfPath;
-                link.download = 'Ivan_Zarate_CV.pdf';
-                link.click();
-                
-                // Actualizar status
-                const statusElement = resumeWindow.querySelector('#resume-status');
-                if (statusElement) {
-                    statusElement.textContent = 'Descargando CV...';
-                    setTimeout(() => {
-                        statusElement.textContent = 'Listo';
-                    }, 2000);
-                }
-            };
-
-            // Función para abrir PDF en nueva ventana
-            const openPDFInNewWindow = () => {
-                window.open(pdfPath, '_blank');
-                
-                // Actualizar status
-                const statusElement = resumeWindow.querySelector('#resume-status');
-                if (statusElement) {
-                    statusElement.textContent = 'Abriendo PDF...';
-                    setTimeout(() => {
-                        statusElement.textContent = 'Listo';
-                    }, 2000);
-                }
-            };
-
-            // Configurar eventos de botones
-            if (openBtn) {
-                openBtn.addEventListener('click', openPDFInNewWindow);
-            }
-
-            if (saveBtn) {
-                saveBtn.addEventListener('click', downloadPDF);
-            }
-
-            if (printBtn) {
-                printBtn.addEventListener('click', () => {
-                    // Imprimir la ventana actual (HTML CV)
-                    const printWindow = window.open('', '_blank');
-                    const cvContent = resumeWindow.querySelector('.cv-container').innerHTML;
-                    
-                    printWindow.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <title>CV - Ivan Agustin Zarate</title>
-                            <style>
-                                body { font-family: Arial, sans-serif; margin: 20px; }
-                                @media print {
-                                    body { margin: 0; }
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            ${cvContent}
-                        </body>
-                        </html>
-                    `);
-                    
-                    printWindow.document.close();
-                    printWindow.print();
-                    
-                    // Actualizar status
-                    const statusElement = resumeWindow.querySelector('#resume-status');
-                    if (statusElement) {
-                        statusElement.textContent = 'Preparando impresión...';
-                        setTimeout(() => {
-                            statusElement.textContent = 'Listo';
-                        }, 2000);
-                    }
-                });
-            }
-
-            console.log('Resume buttons configured successfully');
-
-        } catch (error) {
-            console.error('Error configurando botones del CV:', error);
-        }
-    }
-
     closeApp(appId) {
         // Cleanup específico para diferentes aplicaciones
         if (appId === 'winamp') {
@@ -2421,10 +2917,15 @@ export class AppManager {
             }
         } else if (appId === 'minesweeper') {
             console.log('Cleaning up Buscaminas application');
-            // Limpiar timer del buscaminas si existe
-            if (window.timerInterval) {
-                clearInterval(window.timerInterval);
-                window.timerInterval = null;
+            const minesweeperWindow = document.querySelector('[data-window-id="minesweeper"]');
+            if (typeof destroyMinesweeperGame === 'function' && minesweeperWindow) {
+                destroyMinesweeperGame(minesweeperWindow);
+            }
+        } else if (appId === 'paint') {
+            console.log('Cleaning up Paint application');
+            const paintWindow = document.querySelector('[data-window-id="paint"]');
+            if (typeof destroyPaintApp === 'function' && paintWindow) {
+                destroyPaintApp(paintWindow);
             }
         } else if (appId === 'my-computer') {
             console.log('Cleaning up Mi PC application');

@@ -13,6 +13,11 @@ export class WindowManager {
         // Set up global window event handlers
         this.setupGlobalHandlers();
     }
+
+    getTaskbarHeight() {
+        const rawHeight = getComputedStyle(document.documentElement).getPropertyValue('--taskbar-height');
+        return parseInt(rawHeight, 10) || 30;
+    }
     
     setupGlobalHandlers() {
         // Handle window focus on click
@@ -48,24 +53,24 @@ export class WindowManager {
         }
         
         // Create window element
-        const window = document.createElement('div');
-        window.className = 'window';
-        window.setAttribute('data-window-id', id);
-        window.style.width = width + 'px';
-        window.style.height = height + 'px';
+        const windowElement = document.createElement('div');
+        windowElement.className = 'window';
+        windowElement.setAttribute('data-window-id', id);
+        windowElement.style.width = width + 'px';
+        windowElement.style.height = height + 'px';
         
         // Position window
         if (x !== null && y !== null) {
-            window.style.left = x + 'px';
-            window.style.top = y + 'px';
+            windowElement.style.left = x + 'px';
+            windowElement.style.top = y + 'px';
         } else {
             // Center window
-            window.style.left = (window.innerWidth - width) / 2 + 'px';
-            window.style.top = (window.innerHeight - height) / 2 + 'px';
+            windowElement.style.left = Math.max(8, (globalThis.innerWidth - width) / 2) + 'px';
+            windowElement.style.top = Math.max(8, (globalThis.innerHeight - height - this.getTaskbarHeight()) / 2) + 'px';
         }
         
         // Create window HTML
-        window.innerHTML = `
+        windowElement.innerHTML = `
             <div class="title-bar">
                 <div class="title-bar-text">
                     <img src="${icon}" alt="${title}" class="title-bar-icon">
@@ -83,11 +88,11 @@ export class WindowManager {
         `;
         
         // Add to container
-        this.windowsContainer.appendChild(window);
+        this.windowsContainer.appendChild(windowElement);
         
         // Store window data
         this.windows.set(id, {
-            element: window,
+            element: windowElement,
             title,
             icon,
             isMaximized: false,
@@ -125,9 +130,9 @@ export class WindowManager {
         }
         
         // Animate window appearance
-        this.animateWindowOpen(window);
+        this.animateWindowOpen(windowElement);
         
-        return window;
+        return windowElement;
     }
     
     setupWindowControls(windowId) {
@@ -204,9 +209,16 @@ export class WindowManager {
             
             const deltaX = e.clientX - startX;
             const deltaY = e.clientY - startY;
-            
-            windowElement.style.left = (initialX + deltaX) + 'px';
-            windowElement.style.top = (initialY + deltaY) + 'px';
+
+            const rect = windowElement.getBoundingClientRect();
+            const minLeft = -rect.width + 80;
+            const maxLeft = globalThis.innerWidth - 60;
+            const maxTop = globalThis.innerHeight - this.getTaskbarHeight() - 24;
+            const nextLeft = Math.min(Math.max(initialX + deltaX, minLeft), maxLeft);
+            const nextTop = Math.min(Math.max(initialY + deltaY, 0), maxTop);
+
+            windowElement.style.left = nextLeft + 'px';
+            windowElement.style.top = nextTop + 'px';
         });
         
         document.addEventListener('mouseup', () => {
@@ -321,7 +333,13 @@ export class WindowManager {
         if (!windowData || windowData.isMinimized) return;
         
         windowData.isMinimized = true;
-        windowData.element.style.display = 'none';
+        windowData.element.classList.add('minimizing');
+        window.setTimeout(() => {
+            if (windowData.isMinimized) {
+                windowData.element.style.display = 'none';
+                windowData.element.classList.remove('minimizing');
+            }
+        }, 140);
         
         // If this was the active window, focus the next available window
         if (this.activeWindow === windowId) {
@@ -354,6 +372,8 @@ export class WindowManager {
         
         windowData.isMinimized = false;
         windowData.element.style.display = 'flex';
+        windowData.element.classList.add('restoring');
+        window.setTimeout(() => windowData.element.classList.remove('restoring'), 160);
         
         this.focusWindow(windowId);
         
@@ -402,7 +422,7 @@ export class WindowManager {
         windowElement.style.left = '0';
         windowElement.style.top = '0';
         windowElement.style.width = '100%';
-        windowElement.style.height = `calc(100vh - ${getComputedStyle(document.documentElement).getPropertyValue('--taskbar-height')})`;
+        windowElement.style.height = `calc(100vh - ${this.getTaskbarHeight()}px)`;
         
         windowData.isMaximized = true;
         windowElement.classList.add('maximized');
@@ -436,7 +456,8 @@ export class WindowManager {
     
     closeWindow(windowId) {
         const windowData = this.windows.get(windowId);
-        if (!windowData) return;
+        if (!windowData || windowData.isClosing) return;
+        windowData.isClosing = true;
         
         // Animate window close
         this.animateWindowClose(windowData.element).then(() => {
@@ -455,7 +476,17 @@ export class WindowManager {
             // Play sound
             const soundManager = this.soundManager || window.zarateXP?.soundManager;
             if (soundManager) {
-                soundManager.play('error');
+                soundManager.play('minimize');
+            }
+
+            if (this.activeWindow === windowId) {
+                this.activeWindow = null;
+                const nextWindow = Array.from(this.windows.entries())
+                    .reverse()
+                    .find(([, data]) => !data.isMinimized && !data.isClosing);
+                if (nextWindow) {
+                    this.focusWindow(nextWindow[0]);
+                }
             }
         });
     }
@@ -474,7 +505,8 @@ export class WindowManager {
     }
     
     getActiveWindow() {
-        return this.windows.get(this.activeWindow);
+        const data = this.windows.get(this.activeWindow);
+        return data ? { id: this.activeWindow, ...data } : null;
     }
     
     animateWindowOpen(windowElement) {

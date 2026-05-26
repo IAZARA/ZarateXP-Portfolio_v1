@@ -153,6 +153,7 @@
 
 .tray-icon,
 .tray-network-icon,
+.tray-clippy-icon,
 .tray-fullscreen-icon {
     width: 16px;
     height: 16px;
@@ -163,6 +164,7 @@
 
 .tray-icon:hover,
 .tray-network-icon:hover,
+.tray-clippy-icon:hover,
 .tray-fullscreen-icon:hover {
     opacity: 1;
 }

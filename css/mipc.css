@@ -200,6 +200,25 @@
     border: 1px solid #D0E0F0;
     padding: 7px;
 }
+
+#mipc-window [data-open-program] {
+    cursor: default;
+}
+
+#mipc-window .mipc-right-panel .icon.important {
+    background: #fff8df;
+    border: 1px solid #e2c96c;
+    padding: 9px;
+}
+
+#mipc-window .mipc-right-panel .icon.important:hover {
+    padding: 9px;
+}
+
+#mipc-window .mipc-right-panel .icon img[src$="N8n-logo-new.svg.png"],
+#mipc-window .mipc-left-panel img[src$="N8n-logo-new.svg.png"] {
+    object-fit: contain;
+}
 #mipc-window .mipc-right-panel .icon img {
     width: 48px;
     height: 48px;

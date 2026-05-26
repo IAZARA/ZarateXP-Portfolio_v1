@@ -11,6 +11,7 @@ Desktop.ini
 # IDEs
 .idea/
 .vscode/
+.claude/
 *.swp
 *.swo
 *~
@@ -40,3 +41,12 @@ logs
 *.tmp
 *.temp
 .cache/
+tmp/
+
+# Generated/local-only assets
+generated/
+output/
+
+# Local CV drafts
+MI CV*.pdf
+cv-drafts/

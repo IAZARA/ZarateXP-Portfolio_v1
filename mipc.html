@@ -1,91 +1,87 @@
-<!-- Contenedor principal con ID único para encapsular estilos -->
-<div id="mipc-window" class="window">
-    <div class="title-bar">
-        <div class="title-bar-text">Mi PC</div>
-        <div class="title-bar-controls">
-            <button aria-label="Minimize"></button>
-            <button aria-label="Maximize"></button>
-            <button aria-label="Close"></button>
+<div class="window-body">
+    <div class="mipc-menu-bar">
+        <span><u>A</u>rchivo</span>
+        <span><u>E</u>dicion</span>
+        <span><u>V</u>er</span>
+        <span><u>F</u>avoritos</span>
+        <span><u>H</u>erramientas</span>
+        <span>A<u>y</u>uda</span>
+    </div>
+
+    <div class="mipc-function-bar">
+        <button disabled><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Back.png" alt="Atras"> Atras</button>
+        <button disabled><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Forward.png" alt="Adelante"></button>
+        <button data-open-program="documents"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Up.png" alt="Arriba"> Documentos</button>
+        <div class="separator"></div>
+        <button data-open-program="projects"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Search.png" alt="Busqueda"> Buscar</button>
+        <button data-open-program="documents"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png" alt="Carpetas"> Carpetas</button>
+    </div>
+
+    <div class="mipc-address-bar">
+        <span>Direccion</span>
+        <div class="address-input">
+            <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png" alt="Mi PC Icon">
+            <span>Mi PC</span>
         </div>
     </div>
-    <div class="window-body">
-        <div class="mipc-menu-bar">
-            <span><u>A</u>rchivo</span>
-            <span><u>E</u>dición</span>
-            <span><u>V</u>er</span>
-            <span><u>F</u>avoritos</span>
-            <span><u>H</u>erramientas</span>
-            <span>A<u>y</u>uda</span>
-        </div>
 
-        <div class="mipc-function-bar">
-            <button disabled><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Back.png" alt="Atrás"/> Atrás</button>
-            <button disabled><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Forward.png" alt="Adelante"/></button>
-            <button><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Up.png" alt="Arriba"/></button>
-            <div class="separator"></div>
-            <button><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Search.png" alt="Búsqueda"/> Búsqueda</button>
-            <button><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png" alt="Carpetas"/> Carpetas</button>
-        </div>
-
-        <div class="mipc-address-bar">
-            <span>Dirección</span>
-            <div class="address-input">
-                <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Computer.png" alt="Mi PC Icon"/>
-                <span>Mi PC</span>
+    <div class="mipc-main-content">
+        <div class="mipc-left-panel">
+            <div class="panel-section">
+                <div class="panel-header">Tareas del sistema</div>
+                <ul class="panel-content">
+                    <li data-open-program="control-panel"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png" alt=""> Cambiar una configuracion</li>
+                    <li data-open-program="about-me"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/System Information.png" alt=""> Ver perfil profesional</li>
+                    <li data-open-program="n8n-flows"><img src="N8n-logo-new.svg.png" alt=""> Ejecutar flujos n8n</li>
+                </ul>
+            </div>
+            <div class="panel-section">
+                <div class="panel-header">Otros sitios</div>
+                <ul class="panel-content">
+                    <li data-open-program="documents"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Documents.png" alt=""> Mis documentos</li>
+                    <li data-open-program="projects"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png" alt=""> Mis proyectos</li>
+                    <li data-open-program="contact"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png" alt=""> Mi contacto</li>
+                    <li data-open-program="control-panel"><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png" alt=""> Panel de control</li>
+                </ul>
             </div>
         </div>
 
-        <div class="mipc-main-content">
-            <div class="mipc-left-panel">
-                <div class="panel-section">
-                    <div class="panel-header">Tareas del sistema</div>
-                    <ul class="panel-content">
-                        <li><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/System Information.png"/> Ver información del sistema</li>
-                        <li><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Add or Remove Windows Components.png"/> Agregar o quitar programas</li>
-                        <li><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png"/> Cambiar una configuración</li>
-                    </ul>
-                </div>
-                <div class="panel-section">
-                    <div class="panel-header">Otros sitios</div>
-                    <ul class="panel-content">
-                        <li><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Network Places.png"/> Mis sitios de red</li>
-                        <li><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Documents.png"/> Mis documentos</li>
-                        <li><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Shared Folder.png"/> Documentos compartidos</li>
-                        <li><img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png"/> Panel de control</li>
-                    </ul>
+        <div class="mipc-right-panel">
+            <div class="panel-section">
+                <div class="panel-header">Archivos guardados en este equipo</div>
+                <div class="panel-content-icons">
+                    <div class="icon important" data-open-program="resume">
+                        <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Document Search.png" alt="CV">
+                        <span>Ivan_Zarate_CV.pdf</span>
+                    </div>
+                    <div class="icon" data-open-program="documents">
+                        <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Documents.png" alt="Documentos">
+                        <span>Ivan's Documents</span>
+                    </div>
+                    <div class="icon" data-open-program="projects">
+                        <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png" alt="Proyectos">
+                        <span>Portfolio Projects</span>
+                    </div>
+                    <div class="icon" data-open-program="notepad">
+                        <img src="assets/images/notepad.png" alt="Notas">
+                        <span>Notas de entrevista.txt</span>
+                    </div>
                 </div>
             </div>
-
-            <div class="mipc-right-panel">
-                <div class="panel-section">
-                    <div class="panel-header">Files Stored on This Computer</div>
-                    <div class="panel-content-icons">
-                        <div class="icon">
-                            <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Shared Folder.png" alt="Shared Documents"/>
-                            <span>Shared Documents</span>
-                        </div>
-                        <div class="icon">
-                            <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/My Documents.png" alt="User's Documents"/>
-                            <span>User's Documents</span>
-                        </div>
+            <div class="panel-section">
+                <div class="panel-header">Unidades de trabajo</div>
+                <div class="panel-content-icons">
+                    <div class="icon" data-open-program="about-me">
+                        <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Local Disk.png" alt="Perfil">
+                        <span>Full Stack (C:)</span>
                     </div>
-                </div>
-                <div class="panel-section">
-                    <div class="panel-header">Hard Disk Drives</div>
-                    <div class="panel-content-icons">
-                        <div class="icon">
-                            <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Local Disk.png" alt="Local Disk"/>
-                            <span>Local Disk (C:)</span>
-                        </div>
+                    <div class="icon" data-open-program="n8n-flows">
+                        <img src="N8n-logo-new.svg.png" alt="n8n">
+                        <span>Automations (N:)</span>
                     </div>
-                </div>
-                <div class="panel-section">
-                    <div class="panel-header">Devices with Removable Storage</div>
-                    <div class="panel-content-icons">
-                         <div class="icon">
-                            <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/CD-ROM.png" alt="CD Drive"/>
-                            <span>CD Drive (D:)</span>
-                        </div>
+                    <div class="icon" data-open-program="control-panel">
+                        <img src="images/Windows XP High Resolution Icon Pack/Windows XP Icons/Control Panel.png" alt="Config">
+                        <span>Settings (XP:)</span>
                     </div>
                 </div>
             </div>

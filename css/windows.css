@@ -55,6 +55,15 @@
     box-shadow: none;
 }
 
+.window.minimizing {
+    transform: translateY(26px) scale(0.86) !important;
+    opacity: 0 !important;
+}
+
+.window.restoring {
+    animation: window-restore 0.16s ease-out;
+}
+
 /* Title Bar */
 .title-bar {
     background: linear-gradient(
@@ -775,5 +784,16 @@ textarea.form-control {
     
     .control-panel-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@keyframes window-restore {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.94);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
     }
 }
