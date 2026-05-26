@@ -2410,14 +2410,28 @@ export class AppManager {
             <div class="xp-pinball-app" data-pinball-root>
                 <aside class="xp-pinball-panel">
                     <h2>Pinball XP Lab</h2>
-                    <p>Canvas 2D, colisiones simples, flippers con teclado y puntuacion en vivo.</p>
-                    <button type="button" data-pinball-start>Iniciar</button>
-                    <button type="button" data-pinball-reset>Reiniciar</button>
-                    <dl>
+                    <p>Mesa Canvas con assets HD, fisica propia, targets, lanes, high score y efectos de arcade.</p>
+                    <div class="xp-pinball-actions">
+                        <button type="button" data-pinball-start>Iniciar / lanzar</button>
+                        <button type="button" data-pinball-pause>Pausar</button>
+                        <button type="button" data-pinball-reset>Reiniciar</button>
+                    </div>
+                    <dl class="xp-pinball-stats">
                         <dt>Puntos</dt><dd data-pinball-score>0</dd>
+                        <dt>Record</dt><dd data-pinball-highscore>0</dd>
                         <dt>Bolas</dt><dd data-pinball-balls>3</dd>
-                        <dt>Control</dt><dd>Flechas o A/D + Espacio</dd>
+                        <dt>Estado</dt><dd data-pinball-state>Listo</dd>
+                        <dt>Combo</dt><dd data-pinball-combo>x1</dd>
                     </dl>
+                    <div class="xp-pinball-meter" aria-label="Carga del lanzador">
+                        <span data-pinball-charge></span>
+                    </div>
+                    <div class="xp-pinball-pad" aria-label="Controles tactiles">
+                        <button type="button" data-pinball-left>A / Izq</button>
+                        <button type="button" data-pinball-plunger>Espacio</button>
+                        <button type="button" data-pinball-right>D / Der</button>
+                    </div>
+                    <p class="xp-pinball-help">Mantene Espacio o flecha abajo para cargar el lanzador. A/D o flechas mueven los flippers. P pausa, R reinicia.</p>
                 </aside>
                 <main class="xp-pinball-table-wrap">
                     <canvas width="520" height="700" data-pinball-canvas></canvas>
@@ -2430,8 +2444,8 @@ export class AppManager {
             title: 'Pinball XP Lab',
             icon: './assets/images/hd-icons/pinball.svg',
             content,
-            width: 820,
-            height: 650,
+            width: 900,
+            height: 720,
             onReady: (appWindow) => {
                 this._loadScriptOnce('js/pinball.js', 'initPinballApp')
                     .then(() => window.initPinballApp?.(appWindow))

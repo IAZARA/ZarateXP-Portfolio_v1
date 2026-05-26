@@ -1188,8 +1188,76 @@ body.xp-no-animations *::after {
 }
 
 .xp-pinball-app {
-    grid-template-columns: 220px 1fr;
-    background: #101828;
+    grid-template-columns: 250px 1fr;
+    background:
+        radial-gradient(circle at 72% 18%, rgba(108, 240, 145, 0.18), transparent 26%),
+        linear-gradient(145deg, #06132d 0%, #102a67 46%, #061326 100%);
+    color: #fff;
+}
+
+.xp-pinball-panel {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(219, 234, 255, 0.92) 47%, rgba(183, 211, 255, 0.94)),
+        #dce9ff;
+    color: #10233f;
+}
+
+.xp-pinball-actions,
+.xp-pinball-pad {
+    display: grid;
+    gap: 6px;
+}
+
+.xp-pinball-actions {
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 10px;
+}
+
+.xp-pinball-actions button:first-child,
+.xp-pinball-actions button:last-child {
+    grid-column: 1 / -1;
+}
+
+.xp-pinball-stats {
+    border: 1px solid #8aa9d8;
+    background: rgba(255, 255, 255, 0.76);
+    padding: 9px;
+    margin-bottom: 10px;
+}
+
+.xp-pinball-meter {
+    height: 13px;
+    border: 1px inset #fff;
+    background: #fff;
+    margin: 8px 0 12px;
+    padding: 1px;
+}
+
+.xp-pinball-meter span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, #3fa7ff, #73ff68, #ffe45f);
+    box-shadow: 0 0 8px rgba(89, 202, 255, 0.7);
+    transition: width 0.08s linear;
+}
+
+.xp-pinball-pad {
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 10px;
+}
+
+.xp-pinball-pad button,
+.xp-pinball-actions button {
+    text-align: center;
+    touch-action: none;
+}
+
+.xp-pinball-help {
+    border: 1px solid #b7c9ee;
+    background: rgba(255, 255, 255, 0.68);
+    padding: 8px;
+    margin-top: 10px !important;
 }
 
 .xp-pinball-table-wrap {
@@ -1198,17 +1266,22 @@ body.xp-no-animations *::after {
     display: grid;
     place-items: center;
     overflow: auto;
-    padding: 12px;
+    padding: 10px;
 }
 
 .xp-pinball-table-wrap canvas {
     width: min(100%, 520px);
     height: auto;
-    max-height: 100%;
-    border: 5px solid #dfe7ff;
-    border-radius: 12px;
-    background: #15245c;
-    box-shadow: 0 0 24px rgba(0, 0, 0, 0.45);
+    max-height: calc(100vh - 88px);
+    border: 4px solid #d6f2ff;
+    border-radius: 14px;
+    background: #061a52;
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.9),
+        0 0 28px rgba(83, 207, 255, 0.36),
+        0 14px 28px rgba(0, 0, 0, 0.48);
+    image-rendering: auto;
+    touch-action: none;
 }
 
 @keyframes xp-spin {
