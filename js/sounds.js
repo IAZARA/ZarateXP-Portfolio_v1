@@ -6,30 +6,31 @@ export class SoundManager {
         this.volume = 0.5;
         this.soundsPath = './assets/sounds/';
         
-        // Define system sounds
+        // Define system sounds. Only startup/shutdown are shipped as audio files;
+        // the rest use short Web Audio cues so the XP feedback is consistent.
         this.systemSounds = {
-            startup: 'windows-xp-startup.mp3',
-            shutdown: 'shutdown.wav',
-            'shutdown-custom': 'shutdown-custom.mp3',
-            logon: 'logon.wav',
-            logoff: 'logoff.wav',
-            error: 'error.wav',
-            warning: 'warning.wav',
-            information: 'information.wav',
-            question: 'question.wav',
-            maximize: 'maximize.wav',
-            minimize: 'minimize.wav',
-            restore: 'restore.wav',
-            menuOpen: 'menu-open.wav',
-            menuClose: 'menu-close.wav',
-            menuSelect: 'menu-select.wav',
-            click: 'click.wav',
-            hover: 'hover.wav',
-            recycle: 'recycle.wav',
-            empty: 'empty.wav',
-            navigate: 'navigate.wav',
-            print: 'print.wav',
-            screenshot: 'screenshot.wav'
+            startup: { file: 'windows-xp-startup.mp3' },
+            shutdown: { file: 'shutdown-custom.mp3' },
+            'shutdown-custom': { file: 'shutdown-custom.mp3' },
+            logon: { file: 'windows-xp-startup.mp3' },
+            logoff: { file: 'shutdown-custom.mp3' },
+            error: { tone: [196, 146], duration: 0.12, type: 'square' },
+            warning: { tone: [392, 330], duration: 0.1, type: 'triangle' },
+            information: { tone: [523, 659], duration: 0.08, type: 'sine' },
+            question: { tone: [440, 587], duration: 0.09, type: 'sine' },
+            maximize: { tone: [392, 523], duration: 0.075, type: 'triangle' },
+            minimize: { tone: [523, 330], duration: 0.075, type: 'triangle' },
+            restore: { tone: [349, 440], duration: 0.075, type: 'triangle' },
+            menuOpen: { tone: [523], duration: 0.045, type: 'sine' },
+            menuClose: { tone: [392], duration: 0.045, type: 'sine' },
+            menuSelect: { tone: [660], duration: 0.035, type: 'sine' },
+            click: { tone: [880], duration: 0.025, type: 'square' },
+            hover: { tone: [740], duration: 0.018, type: 'sine' },
+            recycle: { tone: [294, 392, 523], duration: 0.055, type: 'triangle' },
+            empty: { tone: [220, 196], duration: 0.08, type: 'sawtooth' },
+            navigate: { tone: [494], duration: 0.04, type: 'sine' },
+            print: { tone: [330, 330], duration: 0.055, type: 'square' },
+            screenshot: { tone: [784, 988], duration: 0.045, type: 'triangle' }
         };
     }
     
@@ -45,22 +46,20 @@ export class SoundManager {
     }
     
     preloadSounds() {
-        Object.entries(this.systemSounds).forEach(([name, filename]) => {
-            const audio = new Audio(this.soundsPath + filename);
-            audio.volume = this.volume;
-            audio.preload = 'auto';
-            
-            // Store in sounds map
-            this.sounds.set(name, audio);
-            
-            // Handle loading errors gracefully
-            audio.addEventListener('error', () => {
-                console.warn(`Failed to load sound: ${filename}`);
-                // Create a silent audio as fallback
-                const silentAudio = new Audio();
-                silentAudio.volume = 0;
-                this.sounds.set(name, silentAudio);
-            });
+        Object.entries(this.systemSounds).forEach(([name, config]) => {
+            if (config.file) {
+                const audio = new Audio(this.soundsPath + config.file);
+                audio.volume = this.volume;
+                audio.preload = 'auto';
+                this.sounds.set(name, audio);
+
+                audio.addEventListener('error', () => {
+                    console.warn(`Failed to load sound: ${config.file}; using generated XP cue.`);
+                    this.sounds.set(name, this.getFallbackTone(name));
+                });
+            } else {
+                this.sounds.set(name, config);
+            }
         });
     }
     
@@ -95,17 +94,17 @@ export class SoundManager {
             const target = e.target;
             
             // Button clicks
-            if (target.matches('button, .button')) {
+            if (target.closest('button, .button')) {
                 this.play('click');
             }
             
             // Menu items
-            if (target.matches('.menu-item, .start-menu-item')) {
+            if (target.closest('.menu-item, .start-menu-item, .all-programs-item, .recently-used-item, .context-menu-item')) {
                 this.play('menuSelect');
             }
             
             // Desktop icons
-            if (target.matches('.desktop-icon')) {
+            if (target.closest('.desktop-icon')) {
                 this.play('click');
             }
         });
@@ -117,7 +116,7 @@ export class SoundManager {
             const target = e.target;
             
             // Menu items hover
-            if (target.matches('.menu-item, .start-menu-item')) {
+            if (target.closest('.menu-item, .start-menu-item, .all-programs-item, .recently-used-item, .context-menu-item')) {
                 this.playQuiet('hover');
             }
         });
@@ -130,6 +129,10 @@ export class SoundManager {
         if (!sound) {
             console.warn(`Sound not found: ${soundName}`);
             return;
+        }
+
+        if (!(sound instanceof HTMLAudioElement)) {
+            return this.playTone(sound, options);
         }
         
         // Clone the audio to allow overlapping sounds
@@ -152,6 +155,47 @@ export class SoundManager {
         });
         
         return audio;
+    }
+
+    getFallbackTone(soundName) {
+        return this.systemSounds[soundName]?.tone
+            ? this.systemSounds[soundName]
+            : { tone: [440], duration: 0.05, type: 'sine' };
+    }
+
+    playTone(config, options = {}) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+
+        if (!this.audioContext) {
+            this.audioContext = new AudioContextClass();
+        }
+
+        const context = this.audioContext;
+        const volume = Math.max(0, Math.min(1, options.volume ?? this.volume));
+        const frequencies = Array.isArray(config.tone) ? config.tone : [config.tone || 440];
+        const step = config.duration || 0.05;
+        const startedAt = context.currentTime + 0.005;
+
+        frequencies.forEach((frequency, index) => {
+            const oscillator = context.createOscillator();
+            const gain = context.createGain();
+            const start = startedAt + index * step;
+            const end = start + step;
+
+            oscillator.type = config.type || 'sine';
+            oscillator.frequency.setValueAtTime(frequency, start);
+            gain.gain.setValueAtTime(0.0001, start);
+            gain.gain.exponentialRampToValueAtTime(Math.max(0.0002, volume * 0.08), start + 0.006);
+            gain.gain.exponentialRampToValueAtTime(0.0001, end);
+
+            oscillator.connect(gain);
+            gain.connect(context.destination);
+            oscillator.start(start);
+            oscillator.stop(end + 0.01);
+        });
+
+        return { generated: true };
     }
     
     playQuiet(soundName) {

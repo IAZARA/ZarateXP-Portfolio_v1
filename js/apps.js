@@ -1,6 +1,9 @@
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
+const debugLog = (...args) => {
+    if (window.ZARATEXP_DEBUG) console.log(...args);
+};
 
 export class AppManager {
     constructor() {
@@ -80,6 +83,15 @@ export class AppManager {
         });
 
         this.registerApp({
+            id: 'recruiter-route',
+            name: 'Ruta Reclutador',
+            icon: `${hd}/cv.svg`,
+            category: 'documents',
+            description: 'CV, proyectos, APIs, automatizaciones y contacto en una sola ruta',
+            handler: () => this._openRecruiterRoute()
+        });
+
+        this.registerApp({
             id: 'documents',
             name: 'Mis Documentos',
             icon: `${hd}/documents.svg`,
@@ -154,6 +166,15 @@ export class AppManager {
         });
 
         this.registerApp({
+            id: 'system-properties',
+            name: 'Propiedades del sistema',
+            icon: `${hd}/control-panel.svg`,
+            category: 'system',
+            description: 'Resumen XP de la plataforma, entorno y accesos clave',
+            handler: () => this._openSystemProperties()
+        });
+
+        this.registerApp({
             id: 'api-center',
             name: 'API Center',
             icon: `${hd}/api.svg`,
@@ -204,7 +225,7 @@ export class AppManager {
         
         // Check if app is already running for single-instance apps
         if (this.runningApps.has(appId) && !app.multiInstance) {
-            console.log(`App ${appId} is already running`);
+            debugLog(`App ${appId} is already running`);
             if (this.windowManager?.focusWindow) {
                 this.windowManager.focusWindow(this.runningApps.get(appId) || appId);
             }
@@ -215,6 +236,8 @@ export class AppManager {
         if (window.zarateXP?.soundManager) {
             window.zarateXP.soundManager.play('click');
         }
+
+        window.zarateXP?.startMenuManager?.addRecentProgram?.(appId);
         
         // Execute app handler
         try {
@@ -233,7 +256,7 @@ export class AppManager {
     async _openMyComputer() {
         // Prevenir que se abra más de una ventana de "Mi PC"
         if (this.runningApps.has('my-computer')) {
-            console.log('Mi PC is already running');
+            debugLog('Mi PC is already running');
             // Intentar enfocar la ventana existente si el WindowManager lo permite
             if (this.windowManager && this.windowManager.focusWindow) {
                 this.windowManager.focusWindow('my-computer');
@@ -243,14 +266,14 @@ export class AppManager {
 
         try {
             // 1. Esperar a que se cargue el contenido del archivo
-            console.log('Loading mipc.html...');
+            debugLog('Loading mipc.html...');
             const response = await fetch('./mipc.html');
             if (!response.ok) {
                 throw new Error(`Error al cargar mipc.html: ${response.statusText} (${response.status})`);
             }
             const htmlContent = await response.text();
             
-            console.log('mipc.html loaded successfully, extracting and adapting content...');
+            debugLog('mipc.html loaded successfully, extracting and adapting content...');
 
             // Extraer el contenido del window-body pero mantener la estructura necesaria para CSS
             const parser = new DOMParser();
@@ -261,11 +284,11 @@ export class AppManager {
             if (windowBody) {
                 // Crear un contenedor con el ID necesario para los estilos CSS
                 content = `<div id="mipc-window">${windowBody.innerHTML}</div>`;
-                console.log('Window body content extracted and wrapped with mipc-window ID');
+                debugLog('Window body content extracted and wrapped with mipc-window ID');
             } else {
                 // Fallback: usar todo el contenido si no se encuentra window-body
                 content = htmlContent;
-                console.log('Window body not found, using full content as fallback');
+                debugLog('Window body not found, using full content as fallback');
             }
 
             // 2. Verificar que WindowManager esté disponible
@@ -274,7 +297,7 @@ export class AppManager {
             }
 
             // 3. Una vez que el contenido está listo, crear la ventana
-            console.log('Creating Mi PC window with WindowManager...');
+            debugLog('Creating Mi PC window with WindowManager...');
             
             const window = this.windowManager.createWindow({
                 id: 'my-computer',
@@ -301,7 +324,7 @@ export class AppManager {
                     if (mutation.removedNodes.length > 0) {
                         mutation.removedNodes.forEach((node) => {
                             if (node === window) {
-                                console.log('Mi PC window removed, cleaning up...');
+                                debugLog('Mi PC window removed, cleaning up...');
                                 this.closeApp('my-computer');
                                 observer.disconnect();
                             }
@@ -315,7 +338,7 @@ export class AppManager {
                 observer.observe(window.parentNode, { childList: true });
             }
 
-            console.log('Mi PC window created successfully with cleanup observer');
+            debugLog('Mi PC window created successfully with cleanup observer');
             return window;
 
         } catch (error) {
@@ -329,7 +352,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/my-computer.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el componente 'Mi PC'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
@@ -409,7 +432,7 @@ export class AppManager {
     async _openAboutMe() {
         // Prevenir que se abra más de una ventana de "Sobre Mí"
         if (this.runningApps.has('about-me')) {
-            console.log('About Me is already running');
+            debugLog('About Me is already running');
             // Intentar enfocar la ventana existente si el WindowManager lo permite
             if (this.windowManager && this.windowManager.focusWindow) {
                 this.windowManager.focusWindow('about-me');
@@ -505,7 +528,7 @@ export class AppManager {
                     if (mutation.removedNodes.length > 0) {
                         mutation.removedNodes.forEach((node) => {
                             if (node === aboutWindow) {
-                                console.log('About Me window removed, cleaning up...');
+                                debugLog('About Me window removed, cleaning up...');
                                 this.closeApp('about-me');
                                 observer.disconnect();
                             }
@@ -519,7 +542,7 @@ export class AppManager {
                 observer.observe(aboutWindow.parentNode, { childList: true });
             }
 
-            console.log('About Me window created successfully');
+            debugLog('About Me window created successfully');
             return aboutWindow;
 
         } catch (error) {
@@ -533,7 +556,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/about.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Sobre Mí'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
@@ -553,7 +576,7 @@ export class AppManager {
     async _openContact() {
         // Prevenir que se abra más de una ventana de "Contacto"
         if (this.runningApps.has('contact')) {
-            console.log('Contact is already running');
+            debugLog('Contact is already running');
             // Intentar enfocar la ventana existente si el WindowManager lo permite
             if (this.windowManager && this.windowManager.focusWindow) {
                 this.windowManager.focusWindow('contact');
@@ -568,7 +591,7 @@ export class AppManager {
             }
 
             // Cargar el contenido del componente de contacto
-            console.log('Loading contacto.html...');
+            debugLog('Loading contacto.html...');
             const response = await fetch('./components/contacto.html');
             if (!response.ok) {
                 throw new Error(`Error al cargar contacto.html: ${response.statusText} (${response.status})`);
@@ -592,10 +615,10 @@ export class AppManager {
 
             // Configurar la funcionalidad del formulario
             setTimeout(() => {
-                console.log('Esperando para configurar formulario de contacto...');
+                debugLog('Esperando para configurar formulario de contacto...');
                 // La ventana de contacto es la que acabamos de crear
                 if (contactWindow) {
-                    console.log('Ventana de contacto encontrada, configurando formulario...');
+                    debugLog('Ventana de contacto encontrada, configurando formulario...');
                     this._setupContactForm(contactWindow);
                 } else {
                     console.error('No se encontró la ventana de contacto después del timeout');
@@ -608,7 +631,7 @@ export class AppManager {
                     if (mutation.removedNodes.length > 0) {
                         mutation.removedNodes.forEach((node) => {
                             if (node === contactWindow) {
-                                console.log('Contact window removed, cleaning up...');
+                                debugLog('Contact window removed, cleaning up...');
                                 this.closeApp('contact');
                                 observer.disconnect();
                             }
@@ -622,7 +645,7 @@ export class AppManager {
                 observer.observe(contactWindow.parentNode, { childList: true });
             }
 
-            console.log('Contact window created successfully');
+            debugLog('Contact window created successfully');
             return contactWindow;
 
         } catch (error) {
@@ -636,7 +659,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/contact.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mi Contacto'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
@@ -654,14 +677,14 @@ export class AppManager {
     }
 
     _setupContactForm(contactWindow) {
-        console.log('Configurando formulario de contacto...');
+        debugLog('Configurando formulario de contacto...');
         try {
             const form = contactWindow.querySelector('#contact-form');
             const sendBtn = contactWindow.querySelector('.toolbar-btn[title*="Send"]') || 
                            contactWindow.querySelector('.toolbar-btn img[src*="Email"]')?.parentElement;
 
-            console.log('Form encontrado:', !!form);
-            console.log('SendBtn encontrado:', !!sendBtn);
+            debugLog('Form encontrado:', !!form);
+            debugLog('SendBtn encontrado:', !!sendBtn);
 
             if (!form) {
                 console.error('No se encontró el formulario de contacto');
@@ -670,7 +693,7 @@ export class AppManager {
 
             // Configurar envío del formulario
             const handleSubmit = async (e) => {
-                console.log('handleSubmit llamado!');
+                debugLog('handleSubmit llamado!');
                 e.preventDefault();
                 
                 const name = form.querySelector('#contact-name').value || "Visitor from ZarateXP";
@@ -678,7 +701,7 @@ export class AppManager {
                 const subject = form.querySelector('#contact-subject').value;
                 const body = form.querySelector('#contact-body').value;
                 
-                console.log('Datos del formulario:', { name, email, subject, body });
+                debugLog('Datos del formulario:', { name, email, subject, body });
 
                 if (!email || !subject || !body) {
                     this._showValidationError('Por favor completa todos los campos requeridos: Email, Asunto y Mensaje');
@@ -713,7 +736,7 @@ export class AppManager {
                     // Enviar email
                     const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
                     
-                    console.log('Email enviado exitosamente:', response);
+                    debugLog('Email enviado exitosamente:', response);
                     
                     // Cerrar ventana de estado de envío
                     const sendingWindow = document.querySelector('[data-window-id="sending-status"]');
@@ -730,15 +753,14 @@ export class AppManager {
                 } catch (error) {
                     console.error('Error al enviar email:', error);
                     
-                    // Si EmailJS no está configurado, usar método alternativo
+                    const fullMessage = `Hola Ivan,\n\nDe: ${email}\nNombre: ${name}\n\n${body}\n\n---\nEnviado desde ZarateXP Portfolio`;
+                    const mailtoLink = `mailto:ivan.agustin.95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
+
                     if (error.message.includes('Service ID') || error.message.includes('Template ID') || error.message.includes('Public Key')) {
-                        // Fallback a mailto
-                        const fullMessage = `Hola Ivan,\n\nDe: ${email}\nNombre: ${name}\n\n${body}\n\n---\nEnviado desde ZarateXP Portfolio`;
-                        const mailtoLink = `mailto:ivan.agustin.95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
-                        window.open(mailtoLink, '_blank');
+                        window.open(mailtoLink, '_blank', 'noopener');
                         this._showMailtoFallback(contactWindow);
                     } else {
-                        this._showEmailError(contactWindow, error.message);
+                        this._showEmailError(contactWindow, error.message, mailtoLink);
                     }
                 }
             };
@@ -763,7 +785,7 @@ export class AppManager {
                 setTimeout(() => firstInput.focus(), 200);
             }
 
-            console.log('Contact form configured successfully');
+            debugLog('Contact form configured successfully');
 
         } catch (error) {
             console.error('Error configurando formulario de contacto:', error);
@@ -851,7 +873,7 @@ export class AppManager {
                 icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <div style="font-size: 32px; color: #0066CC; margin-bottom: 10px;">ℹ️</div>
+                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png" alt="Informacion" width="40" height="40" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 20px; color: #000;">${message}</div>
                         <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
                     </div>
@@ -869,7 +891,7 @@ export class AppManager {
     async _openProjectsExplorer() {
         // Prevenir que se abra más de una ventana de "Mis Proyectos"
         if (this.runningApps.has('projects')) {
-            console.log('Projects Explorer is already running');
+            debugLog('Projects Explorer is already running');
             if (this.windowManager && this.windowManager.focusWindow) {
                 this.windowManager.focusWindow('projects');
             }
@@ -883,7 +905,7 @@ export class AppManager {
             }
 
             // Cargar el contenido del componente de proyectos
-            console.log('Loading proyectos-explorer.html...');
+            debugLog('Loading proyectos-explorer.html...');
             const response = await fetch('./components/proyectos-explorer.html');
             if (!response.ok) {
                 throw new Error(`Error al cargar proyectos-explorer.html: ${response.statusText} (${response.status})`);
@@ -916,7 +938,7 @@ export class AppManager {
                     if (mutation.removedNodes.length > 0) {
                         mutation.removedNodes.forEach((node) => {
                             if (node === projectsWindow) {
-                                console.log('Projects window removed, cleaning up...');
+                                debugLog('Projects window removed, cleaning up...');
                                 this.closeApp('projects');
                                 observer.disconnect();
                             }
@@ -930,7 +952,7 @@ export class AppManager {
                 observer.observe(projectsWindow.parentNode, { childList: true });
             }
 
-            console.log('Projects Explorer window created successfully');
+            debugLog('Projects Explorer window created successfully');
             return projectsWindow;
 
         } catch (error) {
@@ -944,7 +966,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/projects.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mis Proyectos'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
                             <button onclick="this.closest('.window').remove()">Aceptar</button>
@@ -975,7 +997,7 @@ export class AppManager {
             // Cargar contenido inicial
             this._loadFolderContent(projectsWindow, 'root');
 
-            console.log('Projects Explorer configured successfully');
+            debugLog('Projects Explorer configured successfully');
 
         } catch (error) {
             console.error('Error configurando Projects Explorer:', error);
@@ -1473,70 +1495,142 @@ export class AppManager {
         }
     }
 
+    _getProjectImpact(project) {
+        const impacts = {
+            zaratexp: [
+                'Demuestra una experiencia completa tipo sistema operativo con ventanas, estado, taskbar y apps.',
+                'Convierte el CV en una plataforma explorable sin perder accesos rapidos para reclutadores.',
+                'Integra Canvas, Web Audio, File APIs, REST APIs y persistencia local en un sitio estatico.'
+            ],
+            osintargy: [
+                'Acerca herramientas OSINT a usuarios hispanohablantes con una interfaz educativa.',
+                'Combina visualizacion Canvas, busqueda, utilidades y contenido formativo en una sola plataforma.',
+                'Muestra criterio de producto aplicado a seguridad, investigacion y comunidad.'
+            ],
+            'wjpc-capituloargentino': [
+                'Resuelve presencia institucional, gestion de contenido y operacion administrativa.',
+                'Incluye frontend publico, panel admin, autenticacion, almacenamiento de imagenes y despliegue cloud.',
+                'Evidencia manejo de arquitectura full stack, seguridad y CI/CD.'
+            ],
+            forzatech: [
+                'Comunica una oferta comercial concreta para PYMEs con sistemas, IA y automatizacion.',
+                'Ordena servicios tecnicos en una experiencia orientada a conversion.',
+                'Conecta marca personal, producto propio y capacidad de ejecucion.'
+            ],
+            'estudio-luttini': [
+                'Traduce servicios juridico-contables complejos a una presencia web clara.',
+                'Prioriza confianza, lectura rapida, SEO basico y responsive design.',
+                'Muestra capacidad de adaptar tono visual a un rubro profesional.'
+            ],
+            'limpia-limpia': [
+                'Diseña una landing de captacion directa con WhatsApp como canal principal.',
+                'Incluye estructura mobile-first, CTAs, proceso, servicios y antes/despues.',
+                'Evidencia foco en conversion, no solo en estetica.'
+            ],
+            'sistema-enterprise-java': [
+                'Demuestra arquitectura enterprise con backend, frontend, base de datos y despliegue.',
+                'Incluye seguridad por roles, JWT, 2FA, auditoria y controles alineados a OWASP/ISO.',
+                'Muestra criterio para sistemas sensibles, dashboards y APIs de integracion.'
+            ],
+            'n8n-workflows-atencion': [
+                'Reduce trabajo manual en atencion al cliente con flujos omnicanal.',
+                'Integra WhatsApp, email, Slack, Sheets y bots con manejo de errores.',
+                'Expone pensamiento de procesos, trazabilidad y mejora operativa.'
+            ]
+        };
+
+        return impacts[project.id] || [
+            'Evidencia ejecucion full stack con foco en producto, mantenimiento y experiencia de usuario.',
+            'Muestra capacidad de conectar interfaz, datos, integraciones y despliegue.',
+            'Sirve como prueba conversable para entrevistas tecnicas o comerciales.'
+        ];
+    }
+
     _showProjectDetails(project) {
         if (this.windowManager) {
-            const previewContent = project.preview && project.url && project.url !== '#'
+            const hasUrl = Boolean(project.url && project.url !== '#');
+            const safeUrl = hasUrl ? this._escapeHtml(project.url) : '';
+            const safeName = this._escapeHtml(project.name);
+            const safeDescription = this._escapeHtml(project.description);
+            const techBadges = (project.technologies || [])
+                .map((technology) => `<span class="xp-project-chip">${this._escapeHtml(technology)}</span>`)
+                .join('');
+            const impactItems = this._getProjectImpact(project)
+                .map((impact) => `<li>${this._escapeHtml(impact)}</li>`)
+                .join('');
+            const previewContent = project.preview && hasUrl
                 ? `
                     <div class="project-preview-shell">
                         <div class="project-preview-header">
                             <span>Vista previa embebida</span>
-                            <button onclick="window.open('${project.url}', '_blank', 'noopener')" class="project-preview-open">Abrir en navegador</button>
+                            <button type="button" class="project-preview-open" data-project-open-url="${safeUrl}">Abrir en navegador</button>
                         </div>
                         <iframe
                             class="project-preview-frame"
-                            src="${project.url}"
-                            title="Vista previa de ${project.name}"
+                            src="${safeUrl}"
+                            title="Vista previa de ${safeName}"
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade">
                         </iframe>
+                        <div class="project-preview-fallback">
+                            Si el sitio bloquea la vista embebida, usa "Abrir en navegador".
+                        </div>
                     </div>
                 `
                 : '';
 
             const detailsContent = `
-                <div style="padding: 20px; font-family: 'Tahoma', sans-serif; font-size: 11px;">
-                    <div style="display: flex; align-items: center; margin-bottom: 20px;">
-                        <div style="margin-right: 16px;">
+                <div class="xp-project-details">
+                    <div class="xp-project-details-header">
+                        <div class="xp-project-details-icon">
                             ${project.detailImage ?
-                                `<img src="${project.detailImage}" width="64" height="64" alt="${project.name}" style="object-fit: contain;" />` :
+                                `<img src="${this._escapeHtml(project.detailImage)}" width="64" height="64" alt="${safeName}" />` :
                                 (project.icon.startsWith('./') || project.icon.includes('.png') || project.icon.includes('.jpg') ?
-                                    `<img src="${project.icon}" width="48" height="48" alt="${project.name}" style="object-fit: contain;" />` :
-                                    `<div style="font-size: 48px;">${project.icon}</div>`
+                                    `<img src="${this._escapeHtml(project.icon)}" width="48" height="48" alt="${safeName}" />` :
+                                    `<div>${this._escapeHtml(project.icon)}</div>`
                                 )
                             }
                         </div>
                         <div>
-                            <h2 style="margin: 0 0 8px 0; font-size: 16px; color: #1E4A8C;">${project.name}</h2>
-                            <p style="margin: 0; color: #666; font-size: 12px;">${project.description}</p>
+                            <h2>${safeName}</h2>
+                            <p>${safeDescription}</p>
                         </div>
                     </div>
                     
-                    <div style="border: 1px solid #ACA899; padding: 12px; background: #F0F0F0; margin-bottom: 16px;">
-                        <div style="margin-bottom: 8px;"><strong>Categoría:</strong> ${project.category}</div>
-                        <div style="margin-bottom: 8px;"><strong>Estado:</strong> ${project.status}</div>
-                        ${project.technologies ? `<div style="margin-bottom: 8px;"><strong>Tecnologías:</strong> ${project.technologies.join(', ')}</div>` : ''}
+                    <div class="xp-project-facts">
+                        <div><strong>Categoría:</strong> ${this._escapeHtml(project.category || 'Proyecto')}</div>
+                        <div><strong>Estado:</strong> ${this._escapeHtml(project.status || 'Documentado')}</div>
+                        <div><strong>Rol visible:</strong> Producto, frontend, backend, integraciones y despliegue según alcance.</div>
+                        ${techBadges ? `<div class="xp-project-chips">${techBadges}</div>` : ''}
                     </div>
 
                     ${previewContent}
+
+                    <div class="xp-project-impact">
+                        <strong>Impacto visible:</strong>
+                        <ul>${impactItems}</ul>
+                    </div>
                     
-                    <div style="margin-bottom: 16px;">
+                    <div class="xp-project-body">
                         <strong>Descripción detallada:</strong><br>
-                        <div style="margin-top: 8px; line-height: 1.4; color: #333;">
-                            ${project.details || project.description}
+                        <div>
+                            ${this._escapeHtml(project.details || project.description)}
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                        ${project.url && project.url !== '#' ? 
-                            `<button onclick="window.open('${project.url}', '_blank')" style="padding: 6px 16px; font-size: 11px;">Visitar Sitio</button>` : 
+                    <div class="xp-project-actions">
+                        ${hasUrl ?
+                            `<button type="button" data-project-open-url="${safeUrl}">Visitar sitio</button>` :
                             ''
                         }
-                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; font-size: 11px;">Cerrar</button>
+                        <button type="button" data-project-open-app="resume">Ver CV</button>
+                        <button type="button" data-project-open-app="contact">Contactar</button>
+                        <button type="button" data-project-close>Cerrar</button>
                     </div>
                 </div>
             `;
 
-            this.windowManager.createWindow({
+            const detailsWindow = this.windowManager.createWindow({
                 id: `project-details-${project.id}`,
                 title: `${project.name} - Detalles`,
                 icon: './assets/images/hd-icons/projects.svg',
@@ -1545,6 +1639,16 @@ export class AppManager {
                 height: project.preview ? 720 : 400,
                 resizable: true,
                 maximizable: Boolean(project.preview)
+            });
+
+            detailsWindow?.querySelectorAll('[data-project-open-url]').forEach((button) => {
+                button.addEventListener('click', () => window.open(button.dataset.projectOpenUrl, '_blank', 'noopener'));
+            });
+            detailsWindow?.querySelectorAll('[data-project-open-app]').forEach((button) => {
+                button.addEventListener('click', () => this.openApp(button.dataset.projectOpenApp));
+            });
+            detailsWindow?.querySelector('[data-project-close]')?.addEventListener('click', () => {
+                this.windowManager.closeWindow(`project-details-${project.id}`);
             });
         }
     }
@@ -1558,7 +1662,7 @@ export class AppManager {
                 icon: './assets/images/hd-icons/contact.svg',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <div style="font-size: 48px; color: green; margin-bottom: 10px;">✅</div>
+                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png" alt="Mensaje enviado" width="48" height="48" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 10px;"><strong>¡Mensaje enviado exitosamente!</strong></div>
                         <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
                             Tu mensaje ha sido enviado a Ivan.<br>
@@ -1604,7 +1708,7 @@ export class AppManager {
         }
     }
 
-    _showEmailError(contactWindow, errorMessage) {
+    _showEmailError(contactWindow, errorMessage, mailtoLink = '') {
         // Cerrar ventana de estado si existe
         const statusWindow = document.querySelector('[data-window-id="sending-status"]');
         if (statusWindow) statusWindow.remove();
@@ -1616,21 +1720,28 @@ export class AppManager {
                 icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 10px;"><strong>Error al enviar el mensaje</strong></div>
-                        <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
-                            ${errorMessage || 'Ocurrió un error al enviar el mensaje. Por favor intenta nuevamente.'}
-                        </div>
-                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Aceptar</button>
-                    </div>
-                `,
+	                        <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
+	                            ${errorMessage || 'Ocurrió un error al enviar el mensaje. Por favor intenta nuevamente.'}
+	                        </div>
+	                        <div style="display: flex; gap: 8px; justify-content: center;">
+	                            ${mailtoLink ? `<button type="button" data-mailto-fallback="${this._escapeHtml(mailtoLink)}" style="padding: 6px 16px;">Abrir email</button>` : ''}
+	                            <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Aceptar</button>
+	                        </div>
+	                    </div>
+	                `,
                 width: 350,
                 height: 200,
                 resizable: false,
-                maximizable: false
-            });
-        }
-    }
+	                maximizable: false
+	            });
+                const errorWindow = document.querySelector('[data-window-id="email-error"]');
+                errorWindow?.querySelector('[data-mailto-fallback]')?.addEventListener('click', (event) => {
+                    window.open(event.currentTarget.dataset.mailtoFallback, '_blank', 'noopener');
+                });
+	        }
+	    }
 
     _showMailtoFallback(contactWindow) {
         // Cerrar ventana de estado si existe
@@ -1644,7 +1755,7 @@ export class AppManager {
                 icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <div style="font-size: 48px; color: #0078d4; margin-bottom: 10px;">ℹ️</div>
+                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png" alt="Informacion" width="48" height="48" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 10px;"><strong>EmailJS no configurado</strong></div>
                         <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
                             Se abrió tu cliente de correo con el mensaje.<br>
@@ -1841,7 +1952,7 @@ export class AppManager {
         if (this.windowManager) {
             const content = `
                 <div style="padding: 20px; text-align: center;">
-                    <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                    <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                     <div style="margin-bottom: 20px;">${message}</div>
                     <button onclick="this.closest('.window').remove()">OK</button>
                 </div>
@@ -1882,6 +1993,7 @@ export class AppManager {
                         <section>
                             <h3>Tareas de documento</h3>
                             <button type="button" data-doc-open="resume">Abrir CV actualizado</button>
+                            <button type="button" data-doc-open="recruiter-route">Ruta reclutador</button>
                             <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
                             <button type="button" data-doc-open="projects">Ver proyectos web</button>
                             <button type="button" data-doc-open="api-center">Abrir API Center</button>
@@ -1897,6 +2009,11 @@ export class AppManager {
                             <img src="./assets/images/hd-icons/cv.svg" alt="">
                             <span>Ivan_Zarate_CV.pdf</span>
                             <small>CV actualizado</small>
+                        </button>
+                        <button type="button" class="xp-folder-item important" data-doc-open="recruiter-route">
+                            <img src="./assets/images/hd-icons/cv.svg" alt="">
+                            <span>Ruta Reclutador.lnk</span>
+                            <small>CV, evidencia y contacto en pocos clicks</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="projects">
                             <img src="./assets/images/hd-icons/projects.svg" alt="">
@@ -1960,6 +2077,136 @@ export class AppManager {
                     const openTarget = () => this.openApp(item.dataset.docOpen);
                     item.addEventListener('click', openTarget);
                     item.addEventListener('dblclick', openTarget);
+                });
+            }
+        });
+    }
+
+    _openRecruiterRoute() {
+        const content = `
+            <div class="xp-recruiter-route">
+                <aside class="xp-task-pane">
+                    <section>
+                        <h3>Ruta Reclutador</h3>
+                        <p>Un recorrido corto para evaluar CV, evidencia técnica, automatizaciones y contacto sin perder tiempo explorando.</p>
+                    </section>
+                    <section>
+                        <button type="button" data-route-open-all>Abrir ruta completa</button>
+                        <button type="button" data-route-app="resume">CV PDF</button>
+                        <button type="button" data-route-app="projects">Proyectos</button>
+                        <button type="button" data-route-app="contact">Contacto</button>
+                    </section>
+                </aside>
+                <main class="xp-route-list">
+                    <button type="button" class="xp-route-step primary" data-route-app="resume">
+                        <img src="./assets/images/hd-icons/cv.svg" alt="">
+                        <span>1. CV actualizado</span>
+                        <small>PDF descargable/imprimible y accesible desde PDF Studio.</small>
+                    </button>
+                    <button type="button" class="xp-route-step" data-route-app="projects">
+                        <img src="./assets/images/hd-icons/projects.svg" alt="">
+                        <span>2. Evidencia en proyectos</span>
+                        <small>Stack, rol, impacto visible, previews y links externos con fallback.</small>
+                    </button>
+                    <button type="button" class="xp-route-step" data-route-app="api-center">
+                        <img src="./assets/images/hd-icons/api.svg" alt="">
+                        <span>3. APIs en vivo</span>
+                        <small>Fetch, cache, loading, error states y proveedores públicos.</small>
+                    </button>
+                    <button type="button" class="xp-route-step" data-route-app="n8n-flows">
+                        <img src="./assets/images/hd-icons/n8n.svg" alt="">
+                        <span>4. Automatizaciones n8n</span>
+                        <small>Flujos visuales, estados y simulación funcional.</small>
+                    </button>
+                    <button type="button" class="xp-route-step" data-route-app="paint">
+                        <img src="./assets/images/hd-icons/paint.svg" alt="">
+                        <span>5. Apps interactivas</span>
+                        <small>Paint, juegos, Canvas, Web Audio y estado local.</small>
+                    </button>
+                    <button type="button" class="xp-route-step primary" data-route-app="contact">
+                        <img src="./assets/images/hd-icons/contact.svg" alt="">
+                        <span>6. Contacto</span>
+                        <small>Formulario estilo Outlook con validación y fallback.</small>
+                    </button>
+                </main>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'recruiter-route',
+            title: 'Ruta Reclutador - Evaluacion rapida',
+            icon: './assets/images/hd-icons/cv.svg',
+            content,
+            width: 760,
+            height: 500,
+            onReady: (appWindow) => {
+                appWindow.querySelectorAll('[data-route-app]').forEach((button) => {
+                    button.addEventListener('click', () => this.openApp(button.dataset.routeApp));
+                });
+                appWindow.querySelector('[data-route-open-all]')?.addEventListener('click', () => {
+                    ['resume', 'projects', 'api-center', 'n8n-flows', 'contact'].forEach((appId, index) => {
+                        window.setTimeout(() => this.openApp(appId), index * 180);
+                    });
+                });
+            }
+        });
+    }
+
+    _openSystemProperties() {
+        const appsCount = this.getAllApps().length;
+        const projectCount = this._getProjectsData('root').filter((item) => item.type === 'project').length;
+        const viewport = `${window.innerWidth} x ${window.innerHeight}`;
+        const sessionState = localStorage.getItem('zarateXP_session') === 'active' ? 'Sesion activa' : 'Login pendiente';
+        const content = `
+            <div class="xp-system-properties">
+                <div class="xp-system-tabs">
+                    <button type="button" class="active">General</button>
+                    <button type="button">Hardware</button>
+                    <button type="button">Avanzado</button>
+                    <button type="button">Remoto</button>
+                </div>
+                <div class="xp-system-page">
+                    <section class="xp-system-hero">
+                        <img src="./assets/images/windows-xp-icon.png" alt="ZarateXP">
+                        <div>
+                            <h2>ZarateXP Professional</h2>
+                            <p>Portfolio Full Stack Edition</p>
+                            <span>Registrado a nombre de Ivan Agustin Zarate</span>
+                        </div>
+                    </section>
+                    <dl class="xp-system-specs">
+                        <dt>Sistema</dt><dd>Windows XP-inspired desktop en HTML, CSS y JavaScript vanilla</dd>
+                        <dt>Version</dt><dd>GitHub Pages / build estatico</dd>
+                        <dt>Procesador</dt><dd>Full Stack Developer + Automation Integrator</dd>
+                        <dt>Memoria</dt><dd>${appsCount} aplicaciones internas, ${projectCount} proyectos destacados</dd>
+                        <dt>Resolucion actual</dt><dd>${viewport}</dd>
+                        <dt>Estado</dt><dd>${sessionState}</dd>
+                    </dl>
+                    <div class="xp-system-actions">
+                        <button type="button" data-system-open="recruiter-route">Ruta Reclutador</button>
+                        <button type="button" data-system-open="control-panel">Panel de control</button>
+                        <button type="button" data-system-open="resume">Ver CV</button>
+                        <button type="button" data-system-close>Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        return this._createSingleInstanceWindow({
+            id: 'system-properties',
+            title: 'Propiedades del sistema',
+            icon: './assets/images/hd-icons/control-panel.svg',
+            content,
+            width: 520,
+            height: 440,
+            resizable: false,
+            maximizable: false,
+            onReady: (appWindow) => {
+                appWindow.querySelectorAll('[data-system-open]').forEach((button) => {
+                    button.addEventListener('click', () => this.openApp(button.dataset.systemOpen));
+                });
+                appWindow.querySelector('[data-system-close]')?.addEventListener('click', () => {
+                    this.windowManager.closeWindow('system-properties');
                 });
             }
         });
@@ -2182,6 +2429,9 @@ export class AppManager {
 
     _openControlPanel() {
         const settings = this.getPersonalizationSettings();
+        const soundManager = window.zarateXP?.soundManager;
+        const soundEnabled = soundManager?.enabled !== false;
+        const soundVolume = Math.round((soundManager?.volume ?? 0.5) * 100);
         const checked = (value) => value ? 'checked' : '';
         const selected = (value, expected) => value === expected ? 'checked' : '';
         const content = `
@@ -2219,6 +2469,11 @@ export class AppManager {
                         <legend>Iconos</legend>
                         <label class="xp-range-label">Escala <input type="range" name="iconScale" min="0.85" max="1.25" step="0.05" value="${settings.iconScale}"></label>
                     </fieldset>
+                    <fieldset>
+                        <legend>Sonidos XP</legend>
+                        <label><input type="checkbox" name="soundEnabled" ${checked(soundEnabled)}> Efectos activos</label>
+                        <label class="xp-range-label">Volumen <input type="range" name="soundVolume" min="0" max="100" step="5" value="${soundVolume}"></label>
+                    </fieldset>
                     <div class="xp-settings-actions">
                         <button type="button" data-settings-apply>Aplicar</button>
                         <button type="button" data-settings-reset>Restaurar XP</button>
@@ -2237,28 +2492,36 @@ export class AppManager {
             height: 470,
             onReady: (appWindow) => {
                 const status = appWindow.querySelector('[data-settings-status]');
-                const readSettings = () => ({
-                    wallpaper: appWindow.querySelector('input[name="wallpaper"]:checked')?.value || 'default',
-                    accent: appWindow.querySelector('input[name="accent"]:checked')?.value || 'xp',
-                    crt: appWindow.querySelector('input[name="crt"]').checked,
-                    animations: appWindow.querySelector('input[name="animations"]').checked,
-                    compactTaskbar: appWindow.querySelector('input[name="compactTaskbar"]').checked,
-                    iconScale: Number(appWindow.querySelector('input[name="iconScale"]').value)
-                });
-                const apply = () => {
-                    this.savePersonalizationSettings(readSettings());
-                    status.textContent = 'Aplicado y guardado';
-                };
+	                const readSettings = () => ({
+	                    wallpaper: appWindow.querySelector('input[name="wallpaper"]:checked')?.value || 'default',
+	                    accent: appWindow.querySelector('input[name="accent"]:checked')?.value || 'xp',
+	                    crt: appWindow.querySelector('input[name="crt"]').checked,
+	                    animations: appWindow.querySelector('input[name="animations"]').checked,
+	                    compactTaskbar: appWindow.querySelector('input[name="compactTaskbar"]').checked,
+	                    iconScale: Number(appWindow.querySelector('input[name="iconScale"]').value),
+	                    soundEnabled: appWindow.querySelector('input[name="soundEnabled"]').checked,
+	                    soundVolume: Number(appWindow.querySelector('input[name="soundVolume"]').value)
+	                });
+	                const apply = () => {
+	                    const { soundEnabled: nextSoundEnabled, soundVolume: nextSoundVolume, ...visualSettings } = readSettings();
+	                    this.savePersonalizationSettings(visualSettings);
+	                    window.zarateXP?.soundManager?.setEnabled(nextSoundEnabled);
+	                    window.zarateXP?.soundManager?.setVolume(nextSoundVolume / 100);
+	                    status.textContent = 'Aplicado y guardado';
+	                };
 
                 appWindow.querySelectorAll('input').forEach((input) => {
                     input.addEventListener('change', apply);
                 });
                 appWindow.querySelector('[data-settings-apply]').addEventListener('click', apply);
-                appWindow.querySelector('[data-settings-reset]').addEventListener('click', () => {
-                    localStorage.removeItem('zarateXP.settings');
-                    this.applyPersonalization();
-                    status.textContent = 'Restaurado. Reabre esta ventana para ver los controles actualizados.';
-                });
+	                appWindow.querySelector('[data-settings-reset]').addEventListener('click', () => {
+	                    localStorage.removeItem('zarateXP.settings');
+	                    localStorage.removeItem('zarateXP_soundPrefs');
+	                    window.zarateXP?.soundManager?.setEnabled(true);
+	                    window.zarateXP?.soundManager?.setVolume(0.5);
+	                    this.applyPersonalization();
+	                    status.textContent = 'Restaurado. Reabre esta ventana para ver los controles actualizados.';
+	                });
                 appWindow.querySelectorAll('[data-cp-open]').forEach((button) => {
                     button.addEventListener('click', () => this.openApp(button.dataset.cpOpen));
                 });
@@ -2478,7 +2741,7 @@ export class AppManager {
     async _openMinesweeper() {
         // Prevenir que se abra más de una ventana de Buscaminas
         if (this.runningApps.has('minesweeper')) {
-            console.log('Minesweeper is already running');
+            debugLog('Minesweeper is already running');
             if (this.windowManager && this.windowManager.focusWindow) {
                 this.windowManager.focusWindow('minesweeper');
             }
@@ -2492,7 +2755,7 @@ export class AppManager {
             }
             
             // Cargar el contenido del buscaminas
-            console.log('Loading minesweeper.html...');
+            debugLog('Loading minesweeper.html...');
             const response = await fetch('./minesweeper.html');
             if (!response.ok) {
                 throw new Error(`Error al cargar minesweeper.html: ${response.statusText} (${response.status})`);
@@ -2522,11 +2785,11 @@ export class AppManager {
                         script.type = 'text/javascript';
                         
                         script.onload = () => {
-                            console.log('Minesweeper script loaded, initializing game...');
+                            debugLog('Minesweeper script loaded, initializing game...');
                             if (typeof initMinesweeperGame === 'function') {
                                 try {
                                     initMinesweeperGame(windowElement);
-                                    console.log('Minesweeper game initialized successfully');
+                                    debugLog('Minesweeper game initialized successfully');
                                 } catch (error) {
                                     console.error('Error initializing minesweeper game:', error);
                                 }
@@ -2539,18 +2802,18 @@ export class AppManager {
                         
                         document.head.appendChild(script);
                     } else {
-                        console.log('Minesweeper script already loaded, initializing game...');
+                        debugLog('Minesweeper script already loaded, initializing game...');
                         if (typeof initMinesweeperGame === 'function') {
                             try {
                                 initMinesweeperGame(windowElement);
-                                console.log('Minesweeper game initialized successfully');
+                                debugLog('Minesweeper game initialized successfully');
                             } catch (error) {
                                 console.error('Error initializing minesweeper game:', error);
                             }
                         }
                     }
                 } else {
-                    console.log('Minesweeper window element not found');
+                    debugLog('Minesweeper window element not found');
                 }
             }, 300);
             
@@ -2560,7 +2823,7 @@ export class AppManager {
                     if (mutation.type === 'childList') {
                         mutation.removedNodes.forEach((node) => {
                             if (node.dataset && node.dataset.windowId === 'minesweeper') {
-                                console.log('Minesweeper window closed');
+                                debugLog('Minesweeper window closed');
                                 if (typeof destroyMinesweeperGame === 'function') {
                                     destroyMinesweeperGame(node);
                                 }
@@ -2580,7 +2843,7 @@ export class AppManager {
             // Marcar como aplicación en ejecución
             this.runningApps.set('minesweeper', 'minesweeper');
             
-            console.log('Minesweeper window created successfully');
+            debugLog('Minesweeper window created successfully');
             return minesweeperWindow;
             
         } catch (error) {
@@ -2592,7 +2855,7 @@ export class AppManager {
     async _openPaint() {
         // Prevenir que se abra más de una ventana de Paint
         if (this.runningApps.has('paint')) {
-            console.log('Paint is already running');
+            debugLog('Paint is already running');
             if (this.windowManager && this.windowManager.focusWindow) {
                 this.windowManager.focusWindow('paint');
             }
@@ -2606,7 +2869,7 @@ export class AppManager {
             }
             
             // Cargar el contenido de Paint
-            console.log('Loading paint.html...');
+            debugLog('Loading paint.html...');
             const response = await fetch('./paint.html');
             if (!response.ok) {
                 throw new Error(`Error al cargar paint.html: ${response.statusText} (${response.status})`);
@@ -2636,11 +2899,11 @@ export class AppManager {
                         script.type = 'text/javascript';
                         
                         script.onload = () => {
-                            console.log('Paint script loaded, initializing app...');
+                            debugLog('Paint script loaded, initializing app...');
                             if (typeof initPaintApp === 'function') {
                                 try {
                                     initPaintApp(windowElement);
-                                    console.log('Paint app initialized successfully');
+                                    debugLog('Paint app initialized successfully');
                                 } catch (error) {
                                     console.error('Error initializing paint app:', error);
                                 }
@@ -2653,18 +2916,18 @@ export class AppManager {
                         
                         document.head.appendChild(script);
                     } else {
-                        console.log('Paint script already loaded, initializing app...');
+                        debugLog('Paint script already loaded, initializing app...');
                         if (typeof initPaintApp === 'function') {
                             try {
                                 initPaintApp(windowElement);
-                                console.log('Paint app initialized successfully');
+                                debugLog('Paint app initialized successfully');
                             } catch (error) {
                                 console.error('Error initializing paint app:', error);
                             }
                         }
                     }
                 } else {
-                    console.log('Paint window element not found');
+                    debugLog('Paint window element not found');
                 }
             }, 300);
             
@@ -2674,7 +2937,7 @@ export class AppManager {
                     if (mutation.type === 'childList') {
                         mutation.removedNodes.forEach((node) => {
                             if (node.dataset && node.dataset.windowId === 'paint') {
-                                console.log('Paint window closed');
+                                debugLog('Paint window closed');
                                 if (typeof destroyPaintApp === 'function') {
                                     destroyPaintApp(node);
                                 }
@@ -2694,7 +2957,7 @@ export class AppManager {
             // Marcar como aplicación en ejecución
             this.runningApps.set('paint', 'paint');
             
-            console.log('Paint window created successfully');
+            debugLog('Paint window created successfully');
             return paintWindow;
             
         } catch (error) {
@@ -2706,7 +2969,7 @@ export class AppManager {
     async _openResume() {
         // Prevenir que se abra más de una ventana de Resume
         if (this.runningApps.has('resume')) {
-            console.log('Resume is already running');
+            debugLog('Resume is already running');
             if (this.windowManager && this.windowManager.focusWindow) {
                 this.windowManager.focusWindow('resume');
             }
@@ -2721,32 +2984,61 @@ export class AppManager {
 
             // Mostrar el PDF actualizado directamente con barra de herramientas XP
             const content = `
-                <div id="resume-viewer">
+                <div id="resume-viewer" class="xp-resume-app">
                     <div class="resume-toolbar">
-                        <button class="toolbar-button" id="save-cv-btn">
+                        <button class="toolbar-button" id="save-cv-btn" type="button">
                             <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Save.png" alt="Guardar">
                             <span>Guardar</span>
                         </button>
-                        <div class="toolbar-separator"></div>
-                        <button class="toolbar-button" id="print-cv-btn">
+                        <button class="toolbar-button" id="print-cv-btn" type="button">
                             <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Print to file.png" alt="Imprimir">
                             <span>Imprimir</span>
                         </button>
+                        <button class="toolbar-button" id="pdf-studio-btn" type="button">
+                            <img src="./assets/images/hd-icons/pdf-studio.svg" alt="PDF Studio">
+                            <span>PDF Studio</span>
+                        </button>
+                        <div class="toolbar-separator"></div>
+                        <button class="toolbar-button" id="resume-projects-btn" type="button">
+                            <img src="./assets/images/hd-icons/projects.svg" alt="Proyectos">
+                            <span>Proyectos</span>
+                        </button>
+                        <button class="toolbar-button" id="resume-contact-btn" type="button">
+                            <img src="./assets/images/hd-icons/contact.svg" alt="Contacto">
+                            <span>Contacto</span>
+                        </button>
                     </div>
-                    <div class="resume-content">
-                        <object class="resume-pdf" data="./Ivan_Zarate_CV.pdf#view=FitH" type="application/pdf">
-                            <div class="resume-fallback">
-                                <p>No se pudo mostrar el PDF en este navegador.</p>
-                                <a href="./Ivan_Zarate_CV.pdf" target="_blank" rel="noopener">Abrir CV actualizado</a>
-                            </div>
-                        </object>
+                    <div class="resume-layout">
+                        <aside class="resume-quick-pane">
+                            <section>
+                                <h3>Ruta rápida</h3>
+                                <button type="button" data-resume-open="projects">Ver evidencia en proyectos</button>
+                                <button type="button" data-resume-open="api-center">Probar APIs en vivo</button>
+                                <button type="button" data-resume-open="n8n-flows">Ver automatizaciones</button>
+                                <button type="button" data-resume-open="contact">Contactar</button>
+                            </section>
+                            <section>
+                                <h3>Lo que demuestra</h3>
+                                <p>Frontend interactivo, estado local, ventanas, Canvas, File APIs, consumo REST, n8n e integración de servicios.</p>
+                            </section>
+                        </aside>
+                        <div class="resume-content">
+                            <object class="resume-pdf" data="./Ivan_Zarate_CV.pdf#view=FitH" type="application/pdf">
+                                <div class="resume-fallback">
+                                    <p>No se pudo mostrar el PDF en este navegador.</p>
+                                    <a href="./Ivan_Zarate_CV.pdf" target="_blank" rel="noopener">Abrir CV actualizado</a>
+                                </div>
+                            </object>
+                        </div>
                     </div>
+                    <div class="xp-statusbar"><span>Ivan_Zarate_CV.pdf</span><span>PDF actualizado dentro de ZarateXP</span></div>
                 </div>
                 <style>
                     #resume-viewer {
                         display: flex;
                         flex-direction: column;
                         height: 100%;
+                        min-height: 0;
                         font-family: 'Tahoma', sans-serif;
                         font-size: 11px;
                     }
@@ -2798,8 +3090,47 @@ export class AppManager {
                         margin: 0 4px;
                     }
                     
-                    .resume-content {
+                    .resume-layout {
                         flex: 1;
+                        min-height: 0;
+                        display: grid;
+                        grid-template-columns: 190px minmax(0, 1fr);
+                    }
+
+                    .resume-quick-pane {
+                        background: linear-gradient(#7ba0e6, #f7f9ff 42%, #d8e8ff);
+                        border-right: 1px solid #7f9db9;
+                        padding: 10px;
+                        overflow: auto;
+                    }
+
+                    .resume-quick-pane section {
+                        border: 1px solid #b7c9ee;
+                        background: rgba(255,255,255,0.86);
+                        margin-bottom: 10px;
+                        padding: 9px;
+                        border-radius: 4px;
+                    }
+
+                    .resume-quick-pane h3 {
+                        margin: 0 0 8px;
+                        color: #0b3d91;
+                        font-size: 12px;
+                    }
+
+                    .resume-quick-pane p {
+                        margin: 0;
+                        line-height: 1.35;
+                    }
+
+                    .resume-quick-pane button {
+                        width: 100%;
+                        margin: 4px 0;
+                        text-align: left;
+                        font: 11px Tahoma, sans-serif;
+                    }
+
+                    .resume-content {
                         background: #f3f4f6;
                         padding: 0;
                         overflow: hidden;
@@ -2829,6 +3160,15 @@ export class AppManager {
                         color: #003399;
                         font-weight: bold;
                     }
+
+                    @media (max-width: 760px) {
+                        .resume-layout {
+                            grid-template-columns: 1fr;
+                        }
+                        .resume-quick-pane {
+                            display: none;
+                        }
+                    }
                 </style>
             `;
 
@@ -2851,6 +3191,9 @@ export class AppManager {
             setTimeout(() => {
                 const saveBtn = resumeWindow.querySelector('#save-cv-btn');
                 const printBtn = resumeWindow.querySelector('#print-cv-btn');
+                const pdfStudioBtn = resumeWindow.querySelector('#pdf-studio-btn');
+                const projectsBtn = resumeWindow.querySelector('#resume-projects-btn');
+                const contactBtn = resumeWindow.querySelector('#resume-contact-btn');
                 
                 if (saveBtn) {
                     saveBtn.addEventListener('click', () => {
@@ -2883,6 +3226,13 @@ export class AppManager {
                         }
                     });
                 }
+
+                pdfStudioBtn?.addEventListener('click', () => this.openApp('pdf-studio'));
+                projectsBtn?.addEventListener('click', () => this.openApp('projects'));
+                contactBtn?.addEventListener('click', () => this.openApp('contact'));
+                resumeWindow.querySelectorAll('[data-resume-open]').forEach((button) => {
+                    button.addEventListener('click', () => this.openApp(button.dataset.resumeOpen));
+                });
             }, 100);
 
             // Configurar cleanup cuando se cierre la ventana
@@ -2891,7 +3241,7 @@ export class AppManager {
                     if (mutation.removedNodes.length > 0) {
                         mutation.removedNodes.forEach((node) => {
                             if (node === resumeWindow) {
-                                console.log('Resume window removed, cleaning up...');
+                                debugLog('Resume window removed, cleaning up...');
                                 this.closeApp('resume');
                                 observer.disconnect();
                             }
@@ -2905,7 +3255,7 @@ export class AppManager {
                 observer.observe(resumeWindow.parentNode, { childList: true });
             }
 
-            console.log('Resume image viewer window created successfully');
+            debugLog('Resume image viewer window created successfully');
             return resumeWindow;
 
         } catch (error) {
@@ -2919,9 +3269,9 @@ export class AppManager {
                     icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <div style="font-size: 48px; color: red; margin-bottom: 10px;">❌</div>
+                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el CV</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${"$"}{error.message}</div>
+                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
                             <button onclick="this.closest('.window').remove()">Aceptar</button>
                         </div>
                     `,
@@ -2930,7 +3280,7 @@ export class AppManager {
                     resizable: false
                 });
             } else {
-                alert(`Error: No se pudo abrir el CV. ${"$"}{error.message}`);
+                alert(`Error: No se pudo abrir el CV. ${error.message}`);
             }
         }
     }
@@ -2943,13 +3293,13 @@ export class AppManager {
                 destroyWinampProApp(winampWindow);
             }
         } else if (appId === 'minesweeper') {
-            console.log('Cleaning up Buscaminas application');
+            debugLog('Cleaning up Buscaminas application');
             const minesweeperWindow = document.querySelector('[data-window-id="minesweeper"]');
             if (typeof destroyMinesweeperGame === 'function' && minesweeperWindow) {
                 destroyMinesweeperGame(minesweeperWindow);
             }
         } else if (appId === 'paint') {
-            console.log('Cleaning up Paint application');
+            debugLog('Cleaning up Paint application');
             const paintWindow = document.querySelector('[data-window-id="paint"]');
             if (typeof destroyPaintApp === 'function' && paintWindow) {
                 destroyPaintApp(paintWindow);
@@ -2965,15 +3315,15 @@ export class AppManager {
                 destroyPinballApp(pinballWindow);
             }
         } else if (appId === 'my-computer') {
-            console.log('Cleaning up Mi PC application');
+            debugLog('Cleaning up Mi PC application');
             // Aquí se puede añadir cleanup específico para Mi PC si es necesario
         } else if (appId === 'contact') {
-            console.log('Cleaning up Contact application');
+            debugLog('Cleaning up Contact application');
             // Limpiar cualquier event listener específico si es necesario
         }
         
         this.runningApps.delete(appId);
-        console.log(`App ${appId} closed and removed from running apps`);
+        debugLog(`App ${appId} closed and removed from running apps`);
     }
     
     getApp(appId) {

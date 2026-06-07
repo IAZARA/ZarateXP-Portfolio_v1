@@ -8,6 +8,7 @@ export class DesktopManager {
         this.isDragging = false;
         this.dragStart = { x: 0, y: 0 };
         this.iconPositionsKey = 'zarateXP.desktopIconPositions';
+        this.contextMenu = null;
     }
     
     init() {
@@ -33,6 +34,10 @@ export class DesktopManager {
         const icons = this.iconsContainer.querySelectorAll('.desktop-icon');
         
         icons.forEach(icon => {
+            icon.setAttribute('role', 'button');
+            icon.setAttribute('tabindex', '0');
+            icon.setAttribute('aria-label', icon.textContent.trim());
+
             // Click handler
             icon.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -52,10 +57,19 @@ export class DesktopManager {
             icon.addEventListener('dblclick', (e) => {
                 e.stopPropagation();
                 if (icon.dataset.wasDragged === 'true') return;
-                const programName = icon.getAttribute('data-program-name');
-                
-                if (programName && window.zarateXP?.appManager) {
-                    window.zarateXP.appManager.openApp(programName);
+                this.openIcon(icon);
+            });
+
+            icon.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.openIcon(icon);
+                }
+
+                if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
+                    e.preventDefault();
+                    const rect = icon.getBoundingClientRect();
+                    this.showContextMenu(rect.left + 16, rect.top + 16, icon);
                 }
             });
             
@@ -75,7 +89,7 @@ export class DesktopManager {
                     const programName = icon.getAttribute('data-program-name');
                     
                     if (programName && window.zarateXP?.appManager) {
-                        window.zarateXP.appManager.openApp(programName);
+                        this.openIcon(icon);
                     }
                     touchStartTime = 0;
                 } else {
@@ -175,6 +189,13 @@ export class DesktopManager {
             }, 0);
             this.saveIconPositions();
         });
+    }
+
+    openIcon(icon) {
+        const programName = icon?.getAttribute('data-program-name');
+        if (programName && window.zarateXP?.appManager) {
+            window.zarateXP.appManager.openApp(programName);
+        }
     }
 
     getIconGridMetrics() {
@@ -315,10 +336,82 @@ export class DesktopManager {
     }
     
     setupContextMenu() {
+        this.contextMenu = document.createElement('div');
+        this.contextMenu.className = 'context-menu xp-context-menu';
+        this.contextMenu.setAttribute('role', 'menu');
+        this.contextMenu.innerHTML = `
+            <button type="button" class="context-menu-item" data-context-action="open">Abrir</button>
+            <div class="context-menu-separator"></div>
+            <button type="button" class="context-menu-item" data-context-action="arrange">Organizar iconos</button>
+            <button type="button" class="context-menu-item" data-context-action="refresh">Actualizar</button>
+            <button type="button" class="context-menu-item" data-context-action="reset-icons">Restaurar posiciones</button>
+            <div class="context-menu-separator"></div>
+            <button type="button" class="context-menu-item" data-context-action="cv">Abrir CV</button>
+            <button type="button" class="context-menu-item" data-context-action="projects">Mis Proyectos</button>
+            <button type="button" class="context-menu-item" data-context-action="properties">Propiedades</button>
+        `;
+        document.body.appendChild(this.contextMenu);
+
+        this.contextMenu.addEventListener('click', (event) => {
+            const item = event.target.closest('[data-context-action]');
+            if (!item || item.disabled) return;
+            this.runContextAction(item.dataset.contextAction, this.contextMenu.contextIcon);
+            this.hideContextMenu();
+        });
+
         this.desktop.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            // TODO: Show context menu
+            const icon = e.target.closest('.desktop-icon');
+            if (icon) {
+                this.clearSelection();
+                this.selectIcon(icon);
+            }
+            this.showContextMenu(e.clientX, e.clientY, icon);
         });
+
+        document.addEventListener('click', (event) => {
+            if (!event.target.closest('.xp-context-menu')) this.hideContextMenu();
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') this.hideContextMenu();
+        });
+    }
+
+    showContextMenu(clientX, clientY, icon = null) {
+        if (!this.contextMenu) return;
+        this.contextMenu.contextIcon = icon;
+        const openItem = this.contextMenu.querySelector('[data-context-action="open"]');
+        openItem.disabled = !icon;
+        openItem.classList.toggle('disabled', !icon);
+
+        this.contextMenu.style.display = 'block';
+        const rect = this.contextMenu.getBoundingClientRect();
+        const left = Math.min(clientX, window.innerWidth - rect.width - 8);
+        const top = Math.min(clientY, window.innerHeight - rect.height - 8);
+        this.contextMenu.style.left = `${Math.max(4, left)}px`;
+        this.contextMenu.style.top = `${Math.max(4, top)}px`;
+    }
+
+    hideContextMenu() {
+        if (!this.contextMenu) return;
+        this.contextMenu.style.display = 'none';
+        this.contextMenu.contextIcon = null;
+    }
+
+    runContextAction(action, icon) {
+        const appManager = window.zarateXP?.appManager;
+        const openProgram = (programName) => appManager?.openApp(programName);
+
+        if (action === 'open' && icon?.dataset.programName) openProgram(icon.dataset.programName);
+        if (action === 'arrange') this.arrangeIcons();
+        if (action === 'refresh') this.refreshDesktop();
+        if (action === 'reset-icons') {
+            localStorage.removeItem(this.iconPositionsKey);
+            this.applyIconPositions();
+        }
+        if (action === 'cv') openProgram('resume');
+        if (action === 'projects') openProgram('projects');
+        if (action === 'properties') openProgram('system-properties');
     }
     
     animateIcons() {

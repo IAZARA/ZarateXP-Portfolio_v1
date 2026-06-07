@@ -55,6 +55,13 @@
     border-color: rgba(0, 84, 227, 0.5);
 }
 
+.desktop-icon:focus-visible {
+    outline: 1px dotted #fff;
+    outline-offset: -2px;
+    background: rgba(0, 84, 227, 0.24);
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
 .desktop-icon.selected {
     background: rgba(0, 84, 227, 0.3);
     border-color: rgba(0, 84, 227, 0.8);
@@ -122,25 +129,40 @@
 
 /* Context Menu (if needed) */
 .context-menu {
-    position: absolute;
+    position: fixed;
     background: #ECE9D8;
     border: 1px solid #919B9C;
     box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     padding: 2px;
-    z-index: 1000;
+    z-index: 10001;
     display: none;
+    min-width: 178px;
+    color: #000;
 }
 
 .context-menu-item {
-    padding: 4px 20px;
+    display: block;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 4px 26px 4px 22px;
     cursor: pointer;
     font-size: 11px;
     font-family: 'Tahoma', sans-serif;
+    text-align: left;
+    color: #000;
+    min-height: 22px;
 }
 
-.context-menu-item:hover {
+.context-menu-item:hover:not(:disabled) {
     background: #316AC5;
     color: white;
+}
+
+.context-menu-item:disabled,
+.context-menu-item.disabled {
+    color: #8a867a;
+    text-shadow: 1px 1px 0 #fff;
 }
 
 .context-menu-separator {
@@ -180,6 +202,7 @@
 .desktop-icon:nth-child(12) { animation-delay: 1.2s; }
 .desktop-icon:nth-child(13) { animation-delay: 1.3s; }
 .desktop-icon:nth-child(14) { animation-delay: 1.4s; }
+.desktop-icon:nth-child(15) { animation-delay: 1.5s; }
 
 /* Drag and Drop Styles */
 .desktop-icon.dragging {

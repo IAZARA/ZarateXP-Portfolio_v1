@@ -145,6 +145,7 @@ export class StartMenuManager {
     open() {
         this.startMenu.style.visibility = 'visible';
         this.startMenu.style.opacity = '1';
+        this.startMenu.classList.add('show');
         this.isOpen = true;
         
         // Play sound
@@ -159,6 +160,7 @@ export class StartMenuManager {
     close() {
         this.startMenu.style.visibility = 'hidden';
         this.startMenu.style.opacity = '0';
+        this.startMenu.classList.remove('show');
         this.isOpen = false;
         this.hideAllSubmenus();
     }
@@ -221,6 +223,7 @@ export class StartMenuManager {
     
     openProgram(programName) {
         this.close();
+        this.addRecentProgram(programName);
         
         if (window.zarateXP?.appManager) {
             window.zarateXP.appManager.openApp(programName);
@@ -229,7 +232,31 @@ export class StartMenuManager {
     
     openUrl(url) {
         this.close();
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener');
+    }
+
+    addRecentProgram(programName) {
+        const app = window.zarateXP?.appManager?.getApp(programName);
+        if (!app || !this.recentlyUsedMenu) return;
+
+        const list = this.recentlyUsedMenu.querySelector('.recently-used-items');
+        if (!list) return;
+
+        list.querySelectorAll('.recently-used-item.disabled').forEach((item) => item.remove());
+        list.querySelector(`[data-program-name="${programName}"]`)?.remove();
+
+        const item = document.createElement('li');
+        item.className = 'recently-used-item';
+        item.dataset.action = 'open-program';
+        item.dataset.programName = programName;
+        item.innerHTML = `<img src="${app.icon}" alt="${app.name}">${app.name}`;
+        this.addClickAndTouchEvent(item, (event) => {
+            event.stopPropagation();
+            this.openProgram(programName);
+        });
+        list.prepend(item);
+
+        Array.from(list.querySelectorAll('.recently-used-item')).slice(6).forEach((itemToRemove) => itemToRemove.remove());
     }
     
     showLogOffDialog(isShutdown = false) {

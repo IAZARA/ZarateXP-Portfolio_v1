@@ -1,4 +1,8 @@
 // Boot Manager Module
+const debugLog = (...args) => {
+    if (window.ZARATEXP_DEBUG) console.log(...args);
+};
+
 export class BootManager {
     constructor() {
         this.bootScreen = document.getElementById('boot-screen');
@@ -9,15 +13,15 @@ export class BootManager {
     }
     
     async startBoot() {
-        console.log('Starting boot sequence...');
-        console.log('Boot screen element:', this.bootScreen);
-        console.log('Login screen element:', this.loginScreen);
+        debugLog('Starting boot sequence...');
+        debugLog('Boot screen element:', this.bootScreen);
+        debugLog('Login screen element:', this.loginScreen);
         
         // Verificar si ya hay una sesión activa
         const hasActiveSession = localStorage.getItem('zarateXP_session') === 'active';
         
         if (hasActiveSession) {
-            console.log('Sesión activa detectada, saltando directamente al escritorio...');
+            debugLog('Sesión activa detectada, saltando directamente al escritorio...');
             // Ocultar pantallas de boot y login
             this.bootScreen.style.display = 'none';
             this.loginScreen.style.display = 'none';
@@ -30,32 +34,32 @@ export class BootManager {
         this.bootScreen.style.display = 'flex';
         this.bootScreen.style.opacity = '1';
         
-        console.log('Boot screen shown, waiting 5 seconds...');
+        debugLog('Boot screen shown, waiting 5 seconds...');
         
         // Simulate boot time
         await this.delay(5000);
         
-        console.log('Fading out boot screen...');
+        debugLog('Fading out boot screen...');
         
         // Fade out boot screen
         await this.fadeOut(this.bootScreen);
         
-        console.log('Boot screen faded out');
-        console.log('Showing login screen...');
+        debugLog('Boot screen faded out');
+        debugLog('Showing login screen...');
         
         // Show login screen
         await this.showLoginScreen();
     }
     
     async showLoginScreen() {
-        console.log('showLoginScreen called');
-        console.log('Login screen element:', this.loginScreen);
+        debugLog('showLoginScreen called');
+        debugLog('Login screen element:', this.loginScreen);
         
         this.loginScreen.style.display = 'flex';
         await this.delay(100);
         this.loginScreen.style.opacity = '1';
         
-        console.log('Login screen displayed');
+        debugLog('Login screen displayed');
         
         // Only set up event listeners if they haven't been set up already
         if (!this.loginHandlersSet) {
@@ -69,12 +73,19 @@ export class BootManager {
         const userSection = this.loginScreen.querySelector('.right .back-gradient');
         const welcomeMessage = this.loginScreen.querySelector('.welcome-message');
         
-        console.log('User section:', userSection);
-        console.log('Welcome message:', welcomeMessage);
+        debugLog('User section:', userSection);
+        debugLog('Welcome message:', welcomeMessage);
         
         if (userSection) {
-            userSection.addEventListener('click', async () => {
-                console.log('User section clicked');
+            userSection.setAttribute('role', 'button');
+            userSection.setAttribute('tabindex', '0');
+            userSection.setAttribute('aria-label', 'Iniciar sesion como Ivan Agustin Zarate');
+
+            let isStartingSession = false;
+            const startSession = async () => {
+                if (isStartingSession) return;
+                isStartingSession = true;
+                debugLog('User section clicked');
                 // Play login sound if available
                 if (window.zarateXP?.soundManager) {
                     window.zarateXP.soundManager.play('startup');
@@ -98,6 +109,14 @@ export class BootManager {
                 
                 // Show desktop
                 await this.showDesktop();
+            };
+
+            userSection.addEventListener('click', startSession);
+            userSection.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    startSession();
+                }
             });
         }
         

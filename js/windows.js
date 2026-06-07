@@ -42,6 +42,7 @@ export class WindowManager {
             maximizable = true,
             minimizable = true,
             closable = true,
+            draggable = true,
             x = null,
             y = null
         } = options;
@@ -56,6 +57,8 @@ export class WindowManager {
         const windowElement = document.createElement('div');
         windowElement.className = 'window';
         windowElement.setAttribute('data-window-id', id);
+        windowElement.setAttribute('role', 'dialog');
+        windowElement.setAttribute('aria-label', title);
         windowElement.style.width = width + 'px';
         windowElement.style.height = height + 'px';
         
@@ -73,7 +76,7 @@ export class WindowManager {
         windowElement.innerHTML = `
             <div class="title-bar">
                 <div class="title-bar-text">
-                    <img src="${icon}" alt="${title}" class="title-bar-icon">
+                    <img src="${icon || './assets/images/hd-icons/my-computer.svg'}" alt="${title}" class="title-bar-icon">
                     <span>${title}</span>
                 </div>
                 <div class="title-bar-controls">
@@ -105,7 +108,7 @@ export class WindowManager {
         this.setupWindowControls(id);
         
         // Make window draggable
-        if (resizable) {
+        if (draggable) {
             this.makeWindowDraggable(id);
         }
         
@@ -284,21 +287,34 @@ export class WindowManager {
             const deltaX = e.clientX - startX;
             const deltaY = e.clientY - startY;
             
-            // Calculate new dimensions based on resize direction
+            const minWidth = 200;
+            const minHeight = 150;
+            const maxRight = globalThis.innerWidth - 4;
+            const maxBottom = globalThis.innerHeight - this.getTaskbarHeight() - 4;
+            let nextLeft = startLeft;
+            let nextTop = startTop;
+            let nextWidth = startWidth;
+            let nextHeight = startHeight;
+
             if (direction.includes('e')) {
-                windowElement.style.width = Math.max(200, startWidth + deltaX) + 'px';
+                nextWidth = Math.max(minWidth, Math.min(startWidth + deltaX, maxRight - startLeft));
             }
             if (direction.includes('w')) {
-                windowElement.style.width = Math.max(200, startWidth - deltaX) + 'px';
-                windowElement.style.left = (startLeft + deltaX) + 'px';
+                nextLeft = Math.max(0, Math.min(startLeft + deltaX, startLeft + startWidth - minWidth));
+                nextWidth = startLeft + startWidth - nextLeft;
             }
             if (direction.includes('s')) {
-                windowElement.style.height = Math.max(150, startHeight + deltaY) + 'px';
+                nextHeight = Math.max(minHeight, Math.min(startHeight + deltaY, maxBottom - startTop));
             }
             if (direction.includes('n')) {
-                windowElement.style.height = Math.max(150, startHeight - deltaY) + 'px';
-                windowElement.style.top = (startTop + deltaY) + 'px';
+                nextTop = Math.max(0, Math.min(startTop + deltaY, startTop + startHeight - minHeight));
+                nextHeight = startTop + startHeight - nextTop;
             }
+
+            windowElement.style.left = `${nextLeft}px`;
+            windowElement.style.top = `${nextTop}px`;
+            windowElement.style.width = `${nextWidth}px`;
+            windowElement.style.height = `${nextHeight}px`;
         });
         
         document.addEventListener('mouseup', () => {

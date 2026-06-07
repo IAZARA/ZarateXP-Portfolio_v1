@@ -11,7 +11,8 @@
     <title>ZarateXP - Ivan Agustin Zarate</title>
     
     <!-- Preload de imágenes importantes -->
-    <link rel="preload" href="./assets/images/bliss.jpg" as="image">
+    <link rel="preload" href="./assets/images/zaratexp-hd-wallpaper.png" as="image">
+    <link rel="preload" href="./fondo_windows.png?v=6" as="image">
     <link rel="preload" href="./assets/images/windows-xp-icon.png" as="image">
     <link rel="preload" href="images/foto-nuevo-usuario.jpeg" as="image">
     
@@ -120,6 +121,10 @@
                 <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV" loading="eager">
                 <span>Mi CV</span>
             </div>
+            <div class="desktop-icon" data-program-name="recruiter-route">
+                <img src="./assets/images/hd-icons/cv.svg" alt="Ruta Reclutador" loading="eager">
+                <span>Ruta Reclutador</span>
+            </div>
             <div class="desktop-icon" data-program-name="documents">
                 <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos" loading="eager">
                 <span>Mis Documentos</span>
@@ -176,6 +181,9 @@
             <img src="assets/images/hd-icons/xp-start.svg" alt="Start">
             <span>Inicio</span>
         </button>
+        <button class="quick-launch-button" id="show-desktop-button" type="button" data-tooltip="Mostrar escritorio">
+            <img src="./assets/images/hd-icons/my-computer.svg" alt="Mostrar escritorio">
+        </button>
         <div class="taskbar-programs"></div>
         <div class="system-tray">
             <img src="./assets/images/volume.png" alt="System Tray" class="system-tray-bg">
@@ -190,8 +198,8 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module" src="js/main.js"></script>
-    <script type="module" src="js/apps.js"></script>
+    <script type="module" src="js/main.js?v=zaratexp-20260606"></script>
+    <script type="module" src="js/apps.js?v=zaratexp-20260606"></script>
     <!-- CRT Effect - ALL DISABLED -->
     <div class="crt-effect" style="display: none;"></div>
     <div class="crt-scanline" style="display: none;"></div>
@@ -263,6 +271,13 @@
                         <div class="item-content">
                             <span class="item-title projects-bold">Mis Proyectos</span>
                             <span class="item-description">Ver mi trabajo</span>
+                        </div>
+                    </li>
+                    <li class="menu-item" id="menu-recruiter-route" data-action="open-program" data-program-name="recruiter-route">
+                        <img src="./assets/images/hd-icons/cv.svg" alt="Ruta Reclutador">
+                        <div class="item-content">
+                            <span class="item-title projects-bold">Ruta Reclutador</span>
+                            <span class="item-description">CV, evidencia y contacto</span>
                         </div>
                     </li>
                     <li class="menu-item" id="menu-contact" data-action="open-program" data-program-name="contact">
@@ -434,6 +449,10 @@
             <li class="all-programs-item" data-action="open-program" data-program-name="resume">
                 <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV">
                 Mi CV
+            </li>
+            <li class="all-programs-item" data-action="open-program" data-program-name="recruiter-route">
+                <img src="./assets/images/hd-icons/cv.svg" alt="Ruta Reclutador">
+                Ruta Reclutador
             </li>
             <li class="all-programs-item" data-action="open-program" data-program-name="documents">
                 <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos">

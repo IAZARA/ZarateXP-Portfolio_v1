@@ -26,6 +26,7 @@ Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Wi
 - Escritorio estilo Windows XP con pantalla de arranque y login.
 - Sistema de ventanas con arrastre, foco, minimizar, maximizar, cierre animado y botones activos en taskbar.
 - Menu de inicio con accesos a CV, documentos, proyectos, contacto, redes, juegos y accesorios.
+- Ruta Reclutador para revisar CV, proyectos, APIs, automatizaciones y contacto en pocos clicks.
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Visor de CV actualizado en PDF.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
@@ -53,6 +54,7 @@ Portfolio interactivo de Ivan Agustin Zarate con una experiencia inspirada en Wi
 - **API Center:** consumo REST real de clima, repositorios y datos publicos con cache, proveedor secundario y manejo de errores.
 - **Winamp XP Pro:** reproductor con playlist, visualizador Canvas, ecualizador y loops generados con Web Audio.
 - **PDF Studio:** visor de CV/PDF local con zoom, rotacion, descarga, impresion y notas persistentes.
+- **Ruta Reclutador:** recorrido guiado para evaluar rapidamente CV, evidencia tecnica, APIs, n8n y contacto.
 - **Buscaminas XP:** primer clic seguro, banderas, dudas, timer, dificultades y deteccion de victoria/derrota.
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.

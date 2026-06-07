@@ -3,13 +3,17 @@ export class TaskbarManager {
     constructor() {
         this.taskbar = document.querySelector('.taskbar');
         this.startButton = document.getElementById('start-button');
+        this.showDesktopButton = document.getElementById('show-desktop-button');
         this.programsArea = document.querySelector('.taskbar-programs');
         this.systemTray = document.querySelector('.system-tray');
         this.openPrograms = new Map();
+        this.desktopPeekActive = false;
+        this.desktopPeekWindowIds = new Set();
     }
     
     init() {
         this.setupStartButton();
+        this.setupQuickLaunch();
         this.setupSystemTray();
         this.setupTaskbarPrograms();
     }
@@ -39,6 +43,42 @@ export class TaskbarManager {
         document.addEventListener('click', () => {
             this.startButton.classList.remove('active');
         });
+    }
+
+    setupQuickLaunch() {
+        if (!this.showDesktopButton) return;
+
+        this.showDesktopButton.addEventListener('click', () => this.toggleShowDesktop());
+        this.showDesktopButton.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.toggleShowDesktop();
+            }
+        });
+    }
+
+    toggleShowDesktop() {
+        const windowManager = window.zarateXP?.windowManager;
+        if (!windowManager) return;
+
+        const entries = Array.from(windowManager.windows.entries());
+        const visibleWindows = entries.filter(([, data]) => !data.isMinimized && !data.isClosing);
+
+        if (visibleWindows.length && !this.desktopPeekActive) {
+            this.desktopPeekWindowIds = new Set(visibleWindows.map(([id]) => id));
+            visibleWindows.forEach(([id]) => windowManager.minimizeWindow(id));
+            this.desktopPeekActive = true;
+            this.showDesktopButton.classList.add('active');
+            this.showNotification('Escritorio visible');
+            return;
+        }
+
+        entries.forEach(([id, data]) => {
+            if (data.isMinimized && this.desktopPeekWindowIds.has(id)) windowManager.restoreWindow(id);
+        });
+        this.desktopPeekActive = false;
+        this.desktopPeekWindowIds.clear();
+        this.showDesktopButton.classList.remove('active');
     }
     
     setupSystemTray() {
@@ -113,6 +153,9 @@ export class TaskbarManager {
         
         this.programsArea.appendChild(button);
         this.openPrograms.set(windowId, button);
+        this.desktopPeekActive = false;
+        this.desktopPeekWindowIds.clear();
+        this.showDesktopButton?.classList.remove('active');
         
         // Play sound
         if (window.zarateXP?.soundManager) {
