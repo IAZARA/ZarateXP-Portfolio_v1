@@ -13,12 +13,17 @@
     z-index: 1000;
     visibility: hidden;
     opacity: 0;
-    transition: opacity 0.1s ease-out; /* Transición más rápida */
+    transform: translateY(12px);
+    transform-origin: left bottom;
+    transition:
+        opacity var(--xp-motion-fast) var(--xp-ease-out),
+        transform var(--xp-motion-fast) var(--xp-ease-out);
 }
 
 .startmenu.show {
     visibility: visible;
     opacity: 1;
+    transform: translateY(0);
 }
 
 /* Menu Top Bar */
@@ -223,10 +228,13 @@
     box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* Sombra para profundidad */
     margin-left: 3px;
     display: none;
+    opacity: 0;
+    transform: translateX(-8px);
 }
 
 .all-programs-menu.show {
     display: block;
+    animation: submenu-pop var(--xp-motion-fast) var(--xp-ease-out) both;
 }
 
 .all-programs-items {
@@ -276,10 +284,13 @@
     box-shadow: 2px 2px 5px rgba(0,0,0,0.3); /* Sombra para profundidad */
     margin-left: 3px;
     display: none;
+    opacity: 0;
+    transform: translateX(-8px);
 }
 
 .recently-used-menu.show {
     display: block;
+    animation: submenu-pop var(--xp-motion-fast) var(--xp-ease-out) both;
 }
 
 .recently-used-items {
@@ -347,6 +358,11 @@
         transform: translateX(-50%);
         margin-left: 0;
     }
+
+    .all-programs-menu.show,
+    .recently-used-menu.show {
+        animation: submenu-pop-mobile var(--xp-motion-fast) var(--xp-ease-out) both;
+    }
 }
 
 /* Animation for menu items */
@@ -362,15 +378,64 @@
 }
 
 .startmenu.show .menu-item {
-    animation: menuItemSlide 0.3s ease-out;
+    animation: menuItemSlide 0.18s var(--xp-ease-out);
     animation-fill-mode: both;
 }
 
-.startmenu.show .menu-item:nth-child(1) { animation-delay: 0.05s; }
-.startmenu.show .menu-item:nth-child(2) { animation-delay: 0.1s; }
-.startmenu.show .menu-item:nth-child(3) { animation-delay: 0.15s; }
-.startmenu.show .menu-item:nth-child(4) { animation-delay: 0.2s; }
-.startmenu.show .menu-item:nth-child(5) { animation-delay: 0.25s; }
-.startmenu.show .menu-item:nth-child(6) { animation-delay: 0.3s; }
-.startmenu.show .menu-item:nth-child(7) { animation-delay: 0.35s; }
-.startmenu.show .menu-item:nth-child(8) { animation-delay: 0.4s; }
+.startmenu.show .menu-item:nth-child(1) { animation-delay: 0.02s; }
+.startmenu.show .menu-item:nth-child(2) { animation-delay: 0.04s; }
+.startmenu.show .menu-item:nth-child(3) { animation-delay: 0.06s; }
+.startmenu.show .menu-item:nth-child(4) { animation-delay: 0.08s; }
+.startmenu.show .menu-item:nth-child(5) { animation-delay: 0.1s; }
+.startmenu.show .menu-item:nth-child(6) { animation-delay: 0.12s; }
+.startmenu.show .menu-item:nth-child(7) { animation-delay: 0.14s; }
+.startmenu.show .menu-item:nth-child(8) { animation-delay: 0.16s; }
+
+@keyframes submenu-pop {
+    from {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes submenu-pop-mobile {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .startmenu,
+    .startmenu.show,
+    .all-programs-menu.show,
+    .recently-used-menu.show,
+    .startmenu.show .menu-item {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .startmenu,
+    .startmenu.show,
+    .all-programs-menu,
+    .recently-used-menu {
+        transform: none;
+    }
+}
+
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+    .startmenu,
+    .startmenu.show,
+    .all-programs-menu,
+    .recently-used-menu {
+        transform: translateX(-50%);
+    }
+}

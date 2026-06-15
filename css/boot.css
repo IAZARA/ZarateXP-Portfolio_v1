@@ -327,7 +327,11 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    transition: all 0.2s ease;
+    transition:
+        background-color var(--xp-motion-window) var(--xp-ease-out),
+        border-color var(--xp-motion-window) var(--xp-ease-out),
+        box-shadow var(--xp-motion-window) var(--xp-ease-out),
+        transform var(--xp-motion-window) var(--xp-ease-out);
     box-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 

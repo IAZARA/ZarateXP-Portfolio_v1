@@ -656,7 +656,11 @@
 }
 
 .view-btn {
-    transition: all 0.1s ease;
+    transition:
+        background-color var(--xp-motion-fast) var(--xp-ease-out),
+        border-color var(--xp-motion-fast) var(--xp-ease-out),
+        box-shadow var(--xp-motion-fast) var(--xp-ease-out),
+        transform var(--xp-motion-fast) var(--xp-ease-out);
 }
 
 .project-item {

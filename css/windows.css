@@ -29,8 +29,11 @@
     min-width: 200px;
     min-height: 150px;
     opacity: 0;
-    transform: scale(0.9);
-    transition: opacity 0.2s, transform 0.2s;
+    transform: translateY(10px) scale(0.96);
+    transform-origin: center top;
+    transition:
+        opacity var(--xp-motion-window) var(--xp-ease-out),
+        transform var(--xp-motion-window) var(--xp-ease-out);
 }
 
 .window.active {
@@ -56,12 +59,12 @@
 }
 
 .window.minimizing {
-    transform: translateY(26px) scale(0.86) !important;
+    transform: translateY(30px) scale(0.88) !important;
     opacity: 0 !important;
 }
 
 .window.restoring {
-    animation: window-restore 0.16s ease-out;
+    animation: window-restore var(--xp-motion-window) var(--xp-ease-out);
 }
 
 /* Title Bar */
@@ -143,6 +146,11 @@
         inset 1px 1px 0 rgba(255, 255, 255, 0.58),
         inset -1px -1px 0 rgba(0, 32, 117, 0.45),
         0 1px 0 rgba(0, 0, 0, 0.28);
+    transition:
+        background-color var(--xp-motion-fast) var(--xp-ease-out),
+        border-color var(--xp-motion-fast) var(--xp-ease-out),
+        box-shadow var(--xp-motion-fast) var(--xp-ease-out),
+        transform var(--xp-motion-fast) var(--xp-ease-out);
 }
 
 .title-bar-controls button:hover {
@@ -153,6 +161,7 @@
         #65A2E7 100%
     );
     border-color: #2A5BB8;
+    transform: translateY(-1px);
 }
 
 .title-bar-controls button:active {
@@ -163,6 +172,7 @@
         #2D6CB8 100%
     );
     border-color: #1A4A9A;
+    transform: translateY(0);
 }
 
 /* Window Control Icons */
@@ -770,7 +780,7 @@ textarea.form-control {
 @keyframes window-open {
     from {
         opacity: 0;
-        transform: scale(0.9);
+        transform: translateY(10px) scale(0.96);
     }
     to {
         opacity: 1;
@@ -785,7 +795,7 @@ textarea.form-control {
     }
     to {
         opacity: 0;
-        transform: scale(0.9);
+        transform: translateY(10px) scale(0.96);
     }
 }
 
@@ -808,10 +818,23 @@ textarea.form-control {
 @keyframes window-restore {
     from {
         opacity: 0;
-        transform: translateY(18px) scale(0.94);
+        transform: translateY(22px) scale(0.94);
     }
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .window,
+    .window.restoring,
+    .title-bar-controls button {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .window.minimizing {
+        transform: none !important;
     }
 }

@@ -40,6 +40,10 @@ export class WindowManager {
             return fallback;
         }
     }
+
+    prefersReducedMotion() {
+        return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
+    }
     
     setupGlobalHandlers() {
         // Handle window focus on click
@@ -374,13 +378,17 @@ export class WindowManager {
         if (!windowData || windowData.isMinimized) return;
         
         windowData.isMinimized = true;
-        windowData.element.classList.add('minimizing');
-        window.setTimeout(() => {
-            if (windowData.isMinimized) {
-                windowData.element.style.display = 'none';
-                windowData.element.classList.remove('minimizing');
-            }
-        }, 140);
+        if (this.prefersReducedMotion()) {
+            windowData.element.style.display = 'none';
+        } else {
+            windowData.element.classList.add('minimizing');
+            window.setTimeout(() => {
+                if (windowData.isMinimized) {
+                    windowData.element.style.display = 'none';
+                    windowData.element.classList.remove('minimizing');
+                }
+            }, 180);
+        }
         
         // If this was the active window, focus the next available window
         if (this.activeWindow === windowId) {
@@ -413,8 +421,10 @@ export class WindowManager {
         
         windowData.isMinimized = false;
         windowData.element.style.display = 'flex';
-        windowData.element.classList.add('restoring');
-        window.setTimeout(() => windowData.element.classList.remove('restoring'), 160);
+        if (!this.prefersReducedMotion()) {
+            windowData.element.classList.add('restoring');
+            window.setTimeout(() => windowData.element.classList.remove('restoring'), 180);
+        }
         
         this.focusWindow(windowId);
         
@@ -551,23 +561,36 @@ export class WindowManager {
     }
     
     animateWindowOpen(windowElement) {
-        windowElement.style.transform = 'scale(0.9)';
+        if (this.prefersReducedMotion()) {
+            windowElement.style.transition = 'none';
+            windowElement.style.transform = 'none';
+            windowElement.style.opacity = '1';
+            return;
+        }
+
+        windowElement.style.transition = 'none';
+        windowElement.style.transform = 'translateY(10px) scale(0.96)';
         windowElement.style.opacity = '0';
-        
-        setTimeout(() => {
-            windowElement.style.transition = 'all 0.2s ease-out';
+
+        window.requestAnimationFrame(() => {
+            windowElement.style.transition = 'opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1)';
             windowElement.style.transform = 'scale(1)';
             windowElement.style.opacity = '1';
-        }, 10);
+        });
     }
     
     animateWindowClose(windowElement) {
         return new Promise(resolve => {
-            windowElement.style.transition = 'all 0.2s ease-in';
-            windowElement.style.transform = 'scale(0.9)';
+            if (this.prefersReducedMotion()) {
+                resolve();
+                return;
+            }
+
+            windowElement.style.transition = 'opacity 150ms cubic-bezier(0.7, 0, 0.84, 0), transform 150ms cubic-bezier(0.7, 0, 0.84, 0)';
+            windowElement.style.transform = 'translateY(10px) scale(0.96)';
             windowElement.style.opacity = '0';
             
-            setTimeout(resolve, 200);
+            setTimeout(resolve, 160);
         });
     }
 }

@@ -6,6 +6,7 @@ export class StartMenuManager {
         this.recentlyUsedMenu = document.querySelector('.recently-used-menu');
         this.isOpen = false;
         this.currentSubmenu = null;
+        this.closeTimer = null;
     }
     
     init() {
@@ -143,9 +144,9 @@ export class StartMenuManager {
     }
     
     open() {
+        window.clearTimeout(this.closeTimer);
         this.startMenu.style.visibility = 'visible';
-        this.startMenu.style.opacity = '1';
-        this.startMenu.classList.add('show');
+        window.requestAnimationFrame(() => this.startMenu.classList.add('show'));
         this.isOpen = true;
         
         // Play sound
@@ -158,27 +159,34 @@ export class StartMenuManager {
     }
     
     close() {
-        this.startMenu.style.visibility = 'hidden';
-        this.startMenu.style.opacity = '0';
+        window.clearTimeout(this.closeTimer);
         this.startMenu.classList.remove('show');
         this.isOpen = false;
         this.hideAllSubmenus();
+        const delay = this.prefersReducedMotion() ? 0 : 140;
+        this.closeTimer = window.setTimeout(() => {
+            if (!this.isOpen) {
+                this.startMenu.style.visibility = 'hidden';
+            }
+        }, delay);
     }
     
     toggleAllPrograms() {
-        if (this.allProgramsMenu.style.display === 'block') {
-            this.allProgramsMenu.style.display = 'none';
+        if (this.allProgramsMenu.classList.contains('show')) {
+            this.allProgramsMenu.classList.remove('show');
+            this.currentSubmenu = null;
         } else {
             this.hideAllSubmenus();
-            this.allProgramsMenu.style.display = 'block';
+            this.allProgramsMenu.classList.add('show');
             this.currentSubmenu = this.allProgramsMenu;
             this.positionSubmenu(this.allProgramsMenu);
         }
     }
     
     toggleRecentlyUsed() {
-        if (this.recentlyUsedMenu.style.display === 'block') {
-            this.recentlyUsedMenu.style.display = 'none';
+        if (this.recentlyUsedMenu.classList.contains('show')) {
+            this.recentlyUsedMenu.classList.remove('show');
+            this.currentSubmenu = null;
         } else {
             this.showRecentlyUsed();
         }
@@ -186,7 +194,7 @@ export class StartMenuManager {
     
     showRecentlyUsed() {
         this.hideAllSubmenus();
-        this.recentlyUsedMenu.style.display = 'block';
+        this.recentlyUsedMenu.classList.add('show');
         this.currentSubmenu = this.recentlyUsedMenu;
         
         // Position the submenu
@@ -199,8 +207,8 @@ export class StartMenuManager {
     }
     
     hideAllSubmenus() {
-        this.allProgramsMenu.style.display = 'none';
-        this.recentlyUsedMenu.style.display = 'none';
+        this.allProgramsMenu.classList.remove('show');
+        this.recentlyUsedMenu.classList.remove('show');
         this.currentSubmenu = null;
     }
     
@@ -279,6 +287,10 @@ export class StartMenuManager {
         } catch (error) {
             return '';
         }
+    }
+
+    prefersReducedMotion() {
+        return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
     }
     
     showLogOffDialog(isShutdown = false) {
@@ -436,7 +448,7 @@ export class StartMenuManager {
     animateMenuItems() {
         const items = this.startMenu.querySelectorAll('.menu-item');
         items.forEach((item, index) => {
-            item.style.animationDelay = `${index * 0.05}s`;
+            item.style.animationDelay = `${index * 0.03}s`;
         });
     }
 }

@@ -9,6 +9,10 @@
     --xp-orange-dark: #D86B20;
     --xp-gray: #ECE9D8;
     --xp-gray-dark: #D4D0C8;
+    --xp-motion-fast: 120ms;
+    --xp-motion-window: 180ms;
+    --xp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --xp-ease-in: cubic-bezier(0.7, 0, 0.84, 0);
 }
 
 body {
@@ -117,6 +121,17 @@ body {
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 /* Tooltip Styles */

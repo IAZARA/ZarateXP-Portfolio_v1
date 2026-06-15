@@ -41,6 +41,14 @@ clippy-character.entering {
   animation: clippy-entrance 1.2s ease-out forwards;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  clippy-character,
+  clippy-character.entering {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   clippy-character {

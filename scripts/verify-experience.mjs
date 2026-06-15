@@ -67,14 +67,26 @@ const checks = [
   ['Clippy assistant', /ClippyManager/],
   ['responsive mobile guard', /landscape-block/],
   ['debug logs gated', /ZARATEXP_DEBUG/],
-  ['XP icon dialogs', /Windows XP High Resolution Icon Pack\/Windows XP Icons\/Critical\.png/]
+  ['XP icon dialogs', /Windows XP High Resolution Icon Pack\/Windows XP Icons\/Critical\.png/],
+  ['reduced motion support', /prefers-reduced-motion/],
+  ['scoped window transitions', /opacity 180ms[\s\S]*transform 180ms/]
 ];
 
 const missing = checks.filter(([, pattern]) => !pattern.test(source));
+const forbidden = [
+  ['unscoped CSS transitions', /transition:\s*all\b/],
+  ['inline start menu opacity override', /class="startmenu"[^>]*opacity:\s*0/]
+].filter(([, pattern]) => pattern.test(source));
 
-if (missing.length) {
-  console.error('Missing experience checks:');
-  for (const [label] of missing) console.error(`- ${label}`);
+if (missing.length || forbidden.length) {
+  if (missing.length) {
+    console.error('Missing experience checks:');
+    for (const [label] of missing) console.error(`- ${label}`);
+  }
+  if (forbidden.length) {
+    console.error('Forbidden experience patterns:');
+    for (const [label] of forbidden) console.error(`- ${label}`);
+  }
   process.exit(1);
 }
 
