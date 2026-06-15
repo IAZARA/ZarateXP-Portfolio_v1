@@ -51,7 +51,22 @@ class ClippyDialog extends HTMLElement {
   }
 
   setText(text) {
-    this.shadowRoot.querySelector(".container").innerHTML = text;
+    const template = document.createElement("template");
+    template.innerHTML = String(text || "");
+    const allowedClasses = new Set(["welcome-text", "subtitle"]);
+    template.content.querySelectorAll("*").forEach((node) => {
+      if (node.tagName !== "P") {
+        node.replaceWith(document.createTextNode(node.textContent || ""));
+        return;
+      }
+
+      Array.from(node.attributes).forEach((attribute) => {
+        if (attribute.name !== "class" || !allowedClasses.has(attribute.value)) {
+          node.removeAttribute(attribute.name);
+        }
+      });
+    });
+    this.shadowRoot.querySelector(".container").replaceChildren(template.content);
   }
 
   connectedCallback() {

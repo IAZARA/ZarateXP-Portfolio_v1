@@ -120,17 +120,20 @@
                         <span>Endpoint: /users/{user}/repos</span>
                     </div>
                     <div class="xp-github-list">
-                        ${repos.map((repo) => `
-                            <article>
-                                <h3><a href="${repo.html_url}" target="_blank" rel="noopener">${this.escape(repo.name)}</a></h3>
-                                <p>${this.escape(repo.description || 'Sin descripcion publica')}</p>
-                                <footer>
-                                    <span>${this.escape(repo.language || 'Stack mixto')}</span>
-                                    <span>${repo.stargazers_count} stars</span>
-                                    <span>${this.shortDate(repo.updated_at)}</span>
-                                </footer>
-                            </article>
-                        `).join('')}
+                        ${repos.map((repo) => {
+                            const repoUrl = this.safeExternalUrl(repo.html_url, 'https://github.com/');
+                            return `
+                                <article>
+                                    <h3><a href="${repoUrl}" target="_blank" rel="noopener">${this.escape(repo.name)}</a></h3>
+                                    <p>${this.escape(repo.description || 'Sin descripcion publica')}</p>
+                                    <footer>
+                                        <span>${this.escape(repo.language || 'Stack mixto')}</span>
+                                        <span>${Number(repo.stargazers_count || 0)} stars</span>
+                                        <span>${this.shortDate(repo.updated_at)}</span>
+                                    </footer>
+                                </article>
+                            `;
+                        }).join('')}
                     </div>
                 `;
                 this.setLog(`Repos cargados desde GitHub REST para @${user}.`);
@@ -155,9 +158,10 @@
                 const languages = Object.values(item.languages || {}).join(', ');
                 const currencies = Object.values(item.currencies || {}).map((currency) => currency.name).join(', ');
 
+                const flagUrl = this.safeExternalUrl(item.flags?.png);
                 result.innerHTML = `
                     <div class="xp-country-card">
-                        <img src="${item.flags?.png || ''}" alt="Bandera de ${this.escape(item.name?.common || country)}">
+                        ${flagUrl ? `<img src="${flagUrl}" alt="Bandera de ${this.escape(item.name?.common || country)}">` : ''}
                         <div>
                             <small>REST Countries</small>
                             <h3>${this.escape(item.name?.common || country)}</h3>
@@ -333,6 +337,15 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
+        }
+
+        safeExternalUrl(value, fallback = '') {
+            try {
+                const url = new URL(String(value || ''), window.location.href);
+                return ['http:', 'https:'].includes(url.protocol) ? this.escape(url.href) : fallback;
+            } catch (error) {
+                return fallback;
+            }
         }
     }
 

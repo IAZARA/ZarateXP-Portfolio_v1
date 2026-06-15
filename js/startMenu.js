@@ -232,7 +232,8 @@ export class StartMenuManager {
     
     openUrl(url) {
         this.close();
-        window.open(url, '_blank', 'noopener');
+        const safeUrl = this.safeExternalUrl(url);
+        if (safeUrl) window.open(safeUrl, '_blank', 'noopener');
     }
 
     addRecentProgram(programName) {
@@ -249,7 +250,10 @@ export class StartMenuManager {
         item.className = 'recently-used-item';
         item.dataset.action = 'open-program';
         item.dataset.programName = programName;
-        item.innerHTML = `<img src="${app.icon}" alt="${app.name}">${app.name}`;
+        const icon = document.createElement('img');
+        icon.src = this.safeResourceUrl(app.icon);
+        icon.alt = String(app.name || programName);
+        item.append(icon, document.createTextNode(String(app.name || programName)));
         this.addClickAndTouchEvent(item, (event) => {
             event.stopPropagation();
             this.openProgram(programName);
@@ -257,6 +261,24 @@ export class StartMenuManager {
         list.prepend(item);
 
         Array.from(list.querySelectorAll('.recently-used-item')).slice(6).forEach((itemToRemove) => itemToRemove.remove());
+    }
+
+    safeResourceUrl(value, fallback = './assets/images/hd-icons/projects.svg') {
+        try {
+            const parsed = new URL(String(value || ''), window.location.href);
+            return ['http:', 'https:', 'blob:'].includes(parsed.protocol) ? String(value) : fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    safeExternalUrl(value) {
+        try {
+            const parsed = new URL(String(value || ''), window.location.href);
+            return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '';
+        } catch (error) {
+            return '';
+        }
     }
     
     showLogOffDialog(isShutdown = false) {

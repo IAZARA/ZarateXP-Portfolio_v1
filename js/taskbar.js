@@ -133,10 +133,12 @@ export class TaskbarManager {
         button.setAttribute('tabindex', '0');
         button.setAttribute('aria-pressed', 'true');
         button.title = title;
-        button.innerHTML = `
-            <img src="${icon}" alt="${title}">
-            <span>${title}</span>
-        `;
+        const image = document.createElement('img');
+        image.src = this.safeResourceUrl(icon);
+        image.alt = String(title || windowId);
+        const label = document.createElement('span');
+        label.textContent = String(title || windowId);
+        button.append(image, label);
 
         button.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
@@ -255,6 +257,15 @@ export class TaskbarManager {
             setTimeout(() => {
                 button.classList.remove('flashing');
             }, 3000);
+        }
+    }
+
+    safeResourceUrl(value, fallback = './assets/images/hd-icons/my-computer.svg') {
+        try {
+            const parsed = new URL(String(value || ''), window.location.href);
+            return ['http:', 'https:', 'blob:'].includes(parsed.protocol) ? String(value) : fallback;
+        } catch (error) {
+            return fallback;
         }
     }
 }

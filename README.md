@@ -78,6 +78,16 @@ http://localhost:8080
 
 Tambien se puede abrir `index.html` directamente, aunque el servidor local evita problemas de rutas al cargar componentes.
 
+## Calidad
+
+```bash
+npm install
+npm test
+npm run smoke
+```
+
+`npm test` valida sintaxis JavaScript, referencias locales de assets y checks de experiencia. `npm run smoke` levanta un servidor temporal y abre ventanas clave con Playwright.
+
 ## Estructura
 
 ```text

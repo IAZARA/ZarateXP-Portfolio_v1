@@ -1,0 +1,17 @@
+{
+  "name": "zaratexp-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "serve": "python3 -m http.server 8080",
+    "check:syntax": "node scripts/check-js-syntax.mjs",
+    "check:assets": "node scripts/check-assets.mjs",
+    "check:experience": "node scripts/verify-experience.mjs",
+    "test": "npm run check:syntax && npm run check:assets && npm run check:experience",
+    "smoke": "node scripts/smoke-playwright.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}

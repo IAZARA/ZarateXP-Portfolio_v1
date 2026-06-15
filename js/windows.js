@@ -18,6 +18,28 @@ export class WindowManager {
         const rawHeight = getComputedStyle(document.documentElement).getPropertyValue('--taskbar-height');
         return parseInt(rawHeight, 10) || 30;
     }
+
+    escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    safeResourceUrl(value, fallback = './assets/images/hd-icons/my-computer.svg') {
+        const rawValue = String(value || '').trim();
+        if (!rawValue) return fallback;
+
+        try {
+            const parsed = new URL(rawValue, window.location.href);
+            const allowedProtocols = new Set(['http:', 'https:', 'blob:']);
+            return allowedProtocols.has(parsed.protocol) ? rawValue : fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
     
     setupGlobalHandlers() {
         // Handle window focus on click
@@ -58,7 +80,7 @@ export class WindowManager {
         windowElement.className = 'window';
         windowElement.setAttribute('data-window-id', id);
         windowElement.setAttribute('role', 'dialog');
-        windowElement.setAttribute('aria-label', title);
+        windowElement.setAttribute('aria-label', String(title));
         windowElement.style.width = width + 'px';
         windowElement.style.height = height + 'px';
         
@@ -72,12 +94,16 @@ export class WindowManager {
             windowElement.style.top = Math.max(8, (globalThis.innerHeight - height - this.getTaskbarHeight()) / 2) + 'px';
         }
         
-        // Create window HTML
+        const safeTitle = this.escapeHtml(title);
+        const safeIcon = this.escapeHtml(this.safeResourceUrl(icon));
+
+        // Create window chrome. Window body content comes from first-party app
+        // templates and is inserted separately so dynamic chrome fields stay escaped.
         windowElement.innerHTML = `
             <div class="title-bar">
                 <div class="title-bar-text">
-                    <img src="${icon || './assets/images/hd-icons/my-computer.svg'}" alt="${title}" class="title-bar-icon">
-                    <span>${title}</span>
+                    <img src="${safeIcon}" alt="${safeTitle}" class="title-bar-icon">
+                    <span>${safeTitle}</span>
                 </div>
                 <div class="title-bar-controls">
                     ${minimizable ? '<button class="minimize-btn" aria-label="Minimize"></button>' : ''}
@@ -85,10 +111,9 @@ export class WindowManager {
                     ${closable ? '<button class="close-btn" aria-label="Close"></button>' : ''}
                 </div>
             </div>
-            <div class="window-body">
-                ${content}
-            </div>
+            <div class="window-body"></div>
         `;
+        windowElement.querySelector('.window-body').innerHTML = String(content);
         
         // Add to container
         this.windowsContainer.appendChild(windowElement);

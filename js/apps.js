@@ -354,7 +354,7 @@ export class AppManager {
                         <div style="padding: 20px; text-align: center;">
                             <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el componente 'Mi PC'</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
                         </div>
                     `,
@@ -558,7 +558,7 @@ export class AppManager {
                         <div style="padding: 20px; text-align: center;">
                             <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Sobre Mí'</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
                         </div>
                     `,
@@ -661,7 +661,7 @@ export class AppManager {
                         <div style="padding: 20px; text-align: center;">
                             <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mi Contacto'</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
                         </div>
                     `,
@@ -968,7 +968,7 @@ export class AppManager {
                         <div style="padding: 20px; text-align: center;">
                             <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mis Proyectos'</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">Aceptar</button>
                         </div>
                     `,
@@ -1374,17 +1374,20 @@ export class AppManager {
 
     _renderIconView(contentArea, projects) {
         const iconsHtml = projects.map(project => {
-            const iconHtml = project.icon.startsWith('./') || project.icon.includes('.png') || project.icon.includes('.jpg') || project.icon.includes('.svg') 
-                ? `<img src="${project.icon}" width="32" height="32" alt="${project.name}" style="object-fit: contain;"/>` 
-                : project.icon;
+            const safeId = this._safeDomId(project.id);
+            const safeType = this._escapeHtml(project.type);
+            const safeName = this._escapeHtml(project.name);
+            const safeDescription = this._escapeHtml(project.description);
+            const safeCategory = this._escapeHtml(project.category || '-');
+            const iconHtml = this._renderProjectIcon(project, 32);
             
             return `
-                <div class="project-item" data-project-id="${project.id}" data-type="${project.type}" title="${project.description}">
+                <div class="project-item" data-project-id="${safeId}" data-type="${safeType}" title="${safeDescription}">
                     <div class="project-icon">
                         ${iconHtml}
                     </div>
-                    <div class="project-name">${project.name}</div>
-                    <div class="project-details">${project.type === 'folder' ? 'Carpeta' : project.category}</div>
+                    <div class="project-name">${safeName}</div>
+                    <div class="project-details">${project.type === 'folder' ? 'Carpeta' : safeCategory}</div>
                 </div>
             `;
         }).join('');
@@ -1405,19 +1408,22 @@ export class AppManager {
                 </div>
                 <div class="list-body">
                     ${projects.map(project => {
-                        const iconHtml = project.icon.startsWith('./') || project.icon.includes('.png') || project.icon.includes('.jpg') || project.icon.includes('.svg') 
-                            ? `<img src="${project.icon}" width="16" height="16" alt="${project.name}" style="object-fit: contain;"/>` 
-                            : project.icon;
+                        const safeId = this._safeDomId(project.id);
+                        const safeType = this._escapeHtml(project.type);
+                        const safeName = this._escapeHtml(project.name);
+                        const safeCategory = this._escapeHtml(project.category || '-');
+                        const safeStatus = this._escapeHtml(project.status || '-');
+                        const iconHtml = this._renderProjectIcon(project, 16);
                         
                         return `
-                            <div class="list-row" data-project-id="${project.id}" data-type="${project.type}">
+                            <div class="list-row" data-project-id="${safeId}" data-type="${safeType}">
                                 <div class="list-cell">
                                     <span class="list-cell-icon">${iconHtml}</span>
-                                    ${project.name}
+                                    ${safeName}
                                 </div>
                                 <div class="list-cell">${project.type === 'folder' ? 'Carpeta' : 'Proyecto'}</div>
-                                <div class="list-cell">${project.category || '-'}</div>
-                                <div class="list-cell">${project.status || '-'}</div>
+                                <div class="list-cell">${safeCategory}</div>
+                                <div class="list-cell">${safeStatus}</div>
                             </div>
                         `;
                     }).join('')}
@@ -1548,8 +1554,9 @@ export class AppManager {
 
     _showProjectDetails(project) {
         if (this.windowManager) {
-            const hasUrl = Boolean(project.url && project.url !== '#');
-            const safeUrl = hasUrl ? this._escapeHtml(project.url) : '';
+            const safeUrl = this._safeExternalUrl(project.url);
+            const hasUrl = Boolean(safeUrl);
+            const safeProjectId = this._safeDomId(project.id);
             const safeName = this._escapeHtml(project.name);
             const safeDescription = this._escapeHtml(project.description);
             const techBadges = (project.technologies || [])
@@ -1584,11 +1591,8 @@ export class AppManager {
                     <div class="xp-project-details-header">
                         <div class="xp-project-details-icon">
                             ${project.detailImage ?
-                                `<img src="${this._escapeHtml(project.detailImage)}" width="64" height="64" alt="${safeName}" />` :
-                                (project.icon.startsWith('./') || project.icon.includes('.png') || project.icon.includes('.jpg') ?
-                                    `<img src="${this._escapeHtml(project.icon)}" width="48" height="48" alt="${safeName}" />` :
-                                    `<div>${this._escapeHtml(project.icon)}</div>`
-                                )
+                                `<img src="${this._escapeHtml(this._safeImageSrc(project.detailImage))}" width="64" height="64" alt="${safeName}" />` :
+                                this._renderProjectIcon(project, 48)
                             }
                         </div>
                         <div>
@@ -1631,7 +1635,7 @@ export class AppManager {
             `;
 
             const detailsWindow = this.windowManager.createWindow({
-                id: `project-details-${project.id}`,
+                id: `project-details-${safeProjectId}`,
                 title: `${project.name} - Detalles`,
                 icon: './assets/images/hd-icons/projects.svg',
                 content: detailsContent,
@@ -1648,7 +1652,7 @@ export class AppManager {
                 button.addEventListener('click', () => this.openApp(button.dataset.projectOpenApp));
             });
             detailsWindow?.querySelector('[data-project-close]')?.addEventListener('click', () => {
-                this.windowManager.closeWindow(`project-details-${project.id}`);
+                this.windowManager.closeWindow(`project-details-${safeProjectId}`);
             });
         }
     }
@@ -1714,6 +1718,7 @@ export class AppManager {
         if (statusWindow) statusWindow.remove();
 
         if (this.windowManager) {
+            const safeErrorMessage = this._escapeHtml(errorMessage || 'Ocurrió un error al enviar el mensaje. Por favor intenta nuevamente.');
             this.windowManager.createWindow({
                 id: 'email-error',
                 title: 'Error al Enviar',
@@ -1723,7 +1728,7 @@ export class AppManager {
                         <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 10px;"><strong>Error al enviar el mensaje</strong></div>
 	                        <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
-	                            ${errorMessage || 'Ocurrió un error al enviar el mensaje. Por favor intenta nuevamente.'}
+	                            ${safeErrorMessage}
 	                        </div>
 	                        <div style="display: flex; gap: 8px; justify-content: center;">
 	                            ${mailtoLink ? `<button type="button" data-mailto-fallback="${this._escapeHtml(mailtoLink)}" style="padding: 6px 16px;">Abrir email</button>` : ''}
@@ -1927,9 +1932,10 @@ export class AppManager {
     }
     
     showPlaceholder(appName) {
+        const safeAppName = this._escapeHtml(appName);
         const content = `
             <div style="padding: 20px; text-align: center;">
-                <h2>${appName}</h2>
+                <h2>${safeAppName}</h2>
                 <p>Esta aplicación está en desarrollo.</p>
                 <p>Próximamente estará disponible.</p>
             </div>
@@ -1939,7 +1945,7 @@ export class AppManager {
         if (this.windowManager) {
             return this.windowManager.createWindow({
                 id: `placeholder-${Date.now()}`,
-                title: appName,
+                title: String(appName),
                 content: content,
                 width: 400,
                 height: 300
@@ -1950,10 +1956,11 @@ export class AppManager {
     showError(message) {
         // If window manager is available, create an error window
         if (this.windowManager) {
+            const safeMessage = this._escapeHtml(message);
             const content = `
                 <div style="padding: 20px; text-align: center;">
                     <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
-                    <div style="margin-bottom: 20px;">${message}</div>
+                    <div style="margin-bottom: 20px;">${safeMessage}</div>
                     <button onclick="this.closest('.window').remove()">OK</button>
                 </div>
             `;
@@ -2282,11 +2289,11 @@ export class AppManager {
     }
 
     _openWordPad() {
-        const savedHtml = this._readLocal('zarateXP.wordpad', `
+        const savedHtml = this._sanitizeWordPadHtml(this._readLocal('zarateXP.wordpad', `
             <h2>Ivan Agustin Zarate</h2>
             <p><strong>Full Stack Developer</strong> orientado a productos web, automatizaciones e integraciones.</p>
             <p>Trabajo con frontends interactivos, APIs, dashboards, formularios, despliegues web y flujos n8n para mejorar procesos reales.</p>
-        `);
+        `));
 
         const content = `
             <div class="xp-wordpad-app">
@@ -2320,7 +2327,11 @@ export class AppManager {
                 const editor = appWindow.querySelector('.xp-wordpad-page');
                 const status = appWindow.querySelector('[data-wp-status]');
                 const save = () => {
-                    this._saveLocal('zarateXP.wordpad', editor.innerHTML);
+                    const cleanHtml = this._sanitizeWordPadHtml(editor.innerHTML);
+                    if (cleanHtml !== editor.innerHTML) {
+                        editor.innerHTML = cleanHtml;
+                    }
+                    this._saveLocal('zarateXP.wordpad', cleanHtml);
                     status.textContent = 'Guardado localmente';
                 };
 
@@ -2736,6 +2747,69 @@ export class AppManager {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    }
+
+    _safeDomId(value) {
+        const safeValue = String(value || '').replace(/[^a-zA-Z0-9_-]/g, '-');
+        return safeValue || `item-${Date.now()}`;
+    }
+
+    _safeExternalUrl(value) {
+        const rawValue = String(value || '').trim();
+        if (!rawValue || rawValue === '#') return '';
+
+        try {
+            const url = new URL(rawValue, window.location.href);
+            return ['http:', 'https:'].includes(url.protocol) ? this._escapeHtml(url.href) : '';
+        } catch (error) {
+            return '';
+        }
+    }
+
+    _safeImageSrc(value, fallback = './images/icons/placeholder.svg') {
+        const rawValue = String(value || '').trim();
+        if (!rawValue) return fallback;
+
+        try {
+            const url = new URL(rawValue, window.location.href);
+            if (['http:', 'https:', 'blob:'].includes(url.protocol)) return rawValue;
+        } catch (error) {
+            return fallback;
+        }
+
+        return fallback;
+    }
+
+    _isImageLike(value) {
+        return /\.(png|jpe?g|gif|webp|svg)(?:[?#].*)?$/i.test(String(value || ''));
+    }
+
+    _renderProjectIcon(project, size) {
+        const safeName = this._escapeHtml(project.name || 'Proyecto');
+        if (this._isImageLike(project.icon)) {
+            const safeSrc = this._escapeHtml(this._safeImageSrc(project.icon));
+            return `<img src="${safeSrc}" width="${size}" height="${size}" alt="${safeName}" style="object-fit: contain;"/>`;
+        }
+
+        return this._escapeHtml(project.icon || 'Carpeta');
+    }
+
+    _sanitizeWordPadHtml(html) {
+        const template = document.createElement('template');
+        template.innerHTML = String(html || '');
+        const allowedTags = new Set(['B', 'BR', 'DIV', 'EM', 'H2', 'H3', 'I', 'P', 'STRONG', 'U']);
+
+        template.content.querySelectorAll('script, style, iframe, object, embed, link, meta').forEach((node) => node.remove());
+        Array.from(template.content.querySelectorAll('*')).reverse().forEach((node) => {
+            if (!allowedTags.has(node.tagName)) {
+                node.replaceWith(document.createTextNode(node.textContent || ''));
+                return;
+            }
+
+            Array.from(node.attributes).forEach((attribute) => node.removeAttribute(attribute.name));
+        });
+
+        return template.innerHTML;
     }
     
     async _openMinesweeper() {
@@ -3271,7 +3345,7 @@ export class AppManager {
                         <div style="padding: 20px; text-align: center;">
                             <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el CV</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${error.message}</div>
+                            <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">Aceptar</button>
                         </div>
                     `,
