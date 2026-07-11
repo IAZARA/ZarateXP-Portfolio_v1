@@ -15,14 +15,25 @@ export class StartMenuManager {
         this.setupFooterButtons();
     }
     
-    // Helper para agregar eventos de click y touch
+    prepareInteractiveItem(element, options = {}) {
+        const { disabled = false, expanded = null, hasPopup = null } = options;
+        element.setAttribute('role', 'button');
+        element.setAttribute('tabindex', disabled ? '-1' : '0');
+        element.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+        if (hasPopup) element.setAttribute('aria-haspopup', hasPopup);
+        if (expanded !== null) element.setAttribute('aria-expanded', String(expanded));
+    }
+
+    // Helper para agregar eventos de click, touch y teclado
     addClickAndTouchEvent(element, handler) {
-        // Click para desktop
         element.addEventListener('click', handler);
-        
-        // Touch para móvil
         element.addEventListener('touchend', (e) => {
             e.preventDefault(); // Prevenir el click fantasma
+            handler(e);
+        });
+        element.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
             handler(e);
         });
     }
@@ -32,12 +43,18 @@ export class StartMenuManager {
         const menuItems = this.startMenu.querySelectorAll('.menu-item');
         
         menuItems.forEach(item => {
-            if (item.classList.contains('disabled')) return;
+            const isDisabled = item.classList.contains('disabled');
+            const action = item.getAttribute('data-action');
+            this.prepareInteractiveItem(item, {
+                disabled: isDisabled,
+                hasPopup: action === 'toggle-recently-used' ? 'menu' : null,
+                expanded: action === 'toggle-recently-used' ? false : null
+            });
+            if (isDisabled) return;
             
             this.addClickAndTouchEvent(item, (e) => {
                 e.stopPropagation();
                 
-                const action = item.getAttribute('data-action');
                 const programName = item.getAttribute('data-program-name');
                 const url = item.getAttribute('data-url');
                 
@@ -63,6 +80,7 @@ export class StartMenuManager {
         // All programs button
         const allProgramsBtn = document.getElementById('menu-all-programs');
         if (allProgramsBtn) {
+            this.prepareInteractiveItem(allProgramsBtn, { hasPopup: 'menu', expanded: false });
             this.addClickAndTouchEvent(allProgramsBtn, (e) => {
                 e.stopPropagation();
                 this.toggleAllPrograms();
@@ -74,7 +92,9 @@ export class StartMenuManager {
         // All Programs Menu
         const allProgramsItems = this.allProgramsMenu.querySelectorAll('.all-programs-item');
         allProgramsItems.forEach(item => {
-            if (item.classList.contains('disabled')) return;
+            const isDisabled = item.classList.contains('disabled');
+            this.prepareInteractiveItem(item, { disabled: isDisabled });
+            if (isDisabled) return;
             
             this.addClickAndTouchEvent(item, (e) => {
                 e.stopPropagation();
@@ -94,7 +114,9 @@ export class StartMenuManager {
         // Recently Used Menu
         const recentlyUsedItems = this.recentlyUsedMenu.querySelectorAll('.recently-used-item');
         recentlyUsedItems.forEach(item => {
-            if (item.classList.contains('disabled')) return;
+            const isDisabled = item.classList.contains('disabled');
+            this.prepareInteractiveItem(item, { disabled: isDisabled });
+            if (isDisabled) return;
             
             item.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -121,7 +143,8 @@ export class StartMenuManager {
         // Log off button
         const logOffBtn = document.getElementById('btn-log-off');
         if (logOffBtn) {
-            logOffBtn.addEventListener('click', () => {
+            this.prepareInteractiveItem(logOffBtn);
+            this.addClickAndTouchEvent(logOffBtn, () => {
                 this.showLogOffDialog(false); // false = logout mode
             });
         }
@@ -129,7 +152,8 @@ export class StartMenuManager {
         // Shut down button
         const shutDownBtn = document.getElementById('btn-shut-down');
         if (shutDownBtn) {
-            shutDownBtn.addEventListener('click', () => {
+            this.prepareInteractiveItem(shutDownBtn);
+            this.addClickAndTouchEvent(shutDownBtn, () => {
                 this.showLogOffDialog(true); // true = shutdown mode
             });
         }
@@ -175,11 +199,13 @@ export class StartMenuManager {
         if (this.allProgramsMenu.classList.contains('show')) {
             this.allProgramsMenu.classList.remove('show');
             this.currentSubmenu = null;
+            document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'false');
         } else {
             this.hideAllSubmenus();
             this.allProgramsMenu.classList.add('show');
             this.currentSubmenu = this.allProgramsMenu;
             this.positionSubmenu(this.allProgramsMenu);
+            document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'true');
         }
     }
     
@@ -187,6 +213,7 @@ export class StartMenuManager {
         if (this.recentlyUsedMenu.classList.contains('show')) {
             this.recentlyUsedMenu.classList.remove('show');
             this.currentSubmenu = null;
+            document.getElementById('menu-program4')?.setAttribute('aria-expanded', 'false');
         } else {
             this.showRecentlyUsed();
         }
@@ -196,6 +223,7 @@ export class StartMenuManager {
         this.hideAllSubmenus();
         this.recentlyUsedMenu.classList.add('show');
         this.currentSubmenu = this.recentlyUsedMenu;
+        document.getElementById('menu-program4')?.setAttribute('aria-expanded', 'true');
         
         // Position the submenu
         const menuItem = document.getElementById('menu-program4');
@@ -210,6 +238,8 @@ export class StartMenuManager {
         this.allProgramsMenu.classList.remove('show');
         this.recentlyUsedMenu.classList.remove('show');
         this.currentSubmenu = null;
+        document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'false');
+        document.getElementById('menu-program4')?.setAttribute('aria-expanded', 'false');
     }
     
     positionSubmenu(submenu) {
@@ -292,6 +322,14 @@ export class StartMenuManager {
     prefersReducedMotion() {
         return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches || false;
     }
+
+    loadLazyImages(scope) {
+        scope?.querySelectorAll('img[data-lazy-src]').forEach((image) => {
+            if (!image.getAttribute('src')) {
+                image.setAttribute('src', image.dataset.lazySrc);
+            }
+        });
+    }
     
     showLogOffDialog(isShutdown = false) {
         this.close();
@@ -311,14 +349,14 @@ export class StartMenuManager {
             // Update first button for restart
             const firstBtnImg = restartBtn.querySelector('img');
             const firstBtnText = restartBtn.querySelector('span');
-            firstBtnImg.src = 'assets/images/restart.png';
+            firstBtnImg.src = 'assets/images/xp-small-icons/restart.png';
             firstBtnImg.alt = 'Restart Icon';
             firstBtnText.textContent = 'Reiniciar';
             
             // Update second button for shutdown
             const secondBtnImg = shutdownBtn.querySelector('img');
             const secondBtnText = shutdownBtn.querySelector('span');
-            secondBtnImg.src = 'assets/images/shutdown.png';
+            secondBtnImg.src = 'assets/images/xp-small-icons/shutdown.png';
             secondBtnImg.alt = 'Shutdown Icon';
             secondBtnText.textContent = 'Apagar';
         } else {
@@ -330,18 +368,19 @@ export class StartMenuManager {
             // Update first button for restart
             const firstBtnImg = restartBtn.querySelector('img');
             const firstBtnText = restartBtn.querySelector('span');
-            firstBtnImg.src = 'assets/images/restart.png';
+            firstBtnImg.src = 'assets/images/xp-small-icons/restart.png';
             firstBtnImg.alt = 'Restart Icon';
             firstBtnText.textContent = 'Reiniciar';
             
             // Update second button for logout
             const secondBtnImg = shutdownBtn.querySelector('img');
             const secondBtnText = shutdownBtn.querySelector('span');
-            secondBtnImg.src = 'images/icons/logout.png';
+            secondBtnImg.src = 'assets/images/xp-small-icons/logout.png';
             secondBtnImg.alt = 'Logout Icon';
             secondBtnText.textContent = 'Cerrar Sesión';
         }
         
+        this.loadLazyImages(dialog);
         dialog.classList.remove('logoff-dialog-hidden');
         dialog.style.display = 'flex';
         

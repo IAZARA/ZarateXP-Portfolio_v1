@@ -42,7 +42,7 @@ function collectReferences(file) {
   const refs = [];
 
   if (ext === '.html') {
-    for (const match of source.matchAll(/\b(?:src|href|data)=["']([^"']+)["']/g)) {
+    for (const match of source.matchAll(/\b(?:src|href|data|data-lazy-src)=["']([^"']+)["']/g)) {
       const baseDir = relativeFile.startsWith('components/') ? root : path.dirname(file);
       refs.push({ ref: match[1], baseDir, relativeFile });
     }

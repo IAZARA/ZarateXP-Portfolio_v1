@@ -99,6 +99,17 @@
     color: white;
 }
 
+.menu-item:focus-visible,
+.all-programs-button:focus-visible,
+.all-programs-item:focus-visible,
+.recently-used-item:focus-visible,
+.footer-button:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: -3px;
+    background: #316AC5;
+    color: white;
+}
+
 .menu-item.disabled {
     opacity: 0.5;
     cursor: default;
@@ -329,6 +340,11 @@
 }
 
 .menu-item:hover .mut-menu-arrow {
+    color: white;
+    opacity: 1;
+}
+
+.menu-item:focus-visible .mut-menu-arrow {
     color: white;
     opacity: 1;
 }

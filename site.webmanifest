@@ -1,0 +1,25 @@
+{
+  "name": "ZarateXP Portfolio",
+  "short_name": "ZarateXP",
+  "description": "Portfolio interactivo estilo Windows XP de Ivan Agustin Zarate.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#316AC5",
+  "lang": "es-AR",
+  "icons": [
+    {
+      "src": "/assets/images/xp-small-icons/windows-xp-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/images/xp-small-icons/windows-xp-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

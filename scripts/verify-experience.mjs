@@ -14,6 +14,7 @@ const source = [
   'js/startMenu.js',
   'js/sounds.js',
   'js/apps.js',
+  'js/data/projects.js',
   'js/api-center.js',
   'js/minesweeper.js',
   'js/paint.js',
@@ -48,6 +49,10 @@ const checks = [
   ['control panel personalization', /zarateXP\.settings/],
   ['system properties', /system-properties/],
   ['recruiter route', /recruiter-route/],
+  ['FDE positioning', /Forward Deployed Engineering[\s\S]*MLOps/],
+  ['institutional case evidence', /CUFRE[\s\S]*SIFEBU[\s\S]*CRIACO[\s\S]*OSINTArgy/],
+  ['professional experience timeline', /2024 - Actualidad[\s\S]*2018 - 2024[\s\S]*2016 - 2018[\s\S]*2013 - 2015/],
+  ['education and languages', /Google Data Analytics[\s\S]*Inglés/],
   ['CV PDF viewer', /Ivan_Zarate_CV\.pdf#view=FitH/],
   ['PDF Studio', /initPdfStudioApp/],
   ['documents explorer', /xp-documents-app/],
@@ -65,11 +70,15 @@ const checks = [
   ['Pinball app', /initPinballApp/],
   ['Winamp Web Audio', /initWinampProApp/],
   ['Clippy assistant', /ClippyManager/],
+  ['Clippy waits for desktop', /desktopReady[\s\S]*scheduleClippyWelcome/],
   ['responsive mobile guard', /landscape-block/],
   ['debug logs gated', /ZARATEXP_DEBUG/],
-  ['XP icon dialogs', /Windows XP High Resolution Icon Pack\/Windows XP Icons\/Critical\.png/],
+  ['XP icon dialogs', /(?:Windows XP High Resolution Icon Pack\/Windows XP Icons\/Critical\.png|assets\/images\/xp-small-icons\/critical\.png)/],
   ['reduced motion support', /prefers-reduced-motion/],
-  ['scoped window transitions', /opacity 180ms[\s\S]*transform 180ms/]
+  ['scoped window transitions', /opacity 220ms[\s\S]*transform 220ms/],
+  ['crisp window control glyphs', /window-control-glyph[\s\S]*close-btn/],
+  ['animated window geometry', /animateWindowGeometry[\s\S]*scaleX[\s\S]*scaleY/],
+  ['taskbar-aware minimize motion', /targetRect[\s\S]*targetX[\s\S]*targetY/]
 ];
 
 const missing = checks.filter(([, pattern]) => !pattern.test(source));

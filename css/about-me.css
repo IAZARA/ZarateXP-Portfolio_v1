@@ -47,9 +47,56 @@
     height: 100%;
     overflow-y: auto;
     background:
-        linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0)),
-        linear-gradient(135deg, #4f9ded 0%, #8ed15d 52%, #f5f5df 100%);
+        radial-gradient(circle at 88% 8%, rgba(135, 187, 255, 0.46), transparent 28%),
+        linear-gradient(145deg, #d9e9ff 0%, #eef5ff 48%, #dcead4 100%);
     position: relative;
+}
+
+.about-profile {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 20px 18px 0;
+    padding: 22px;
+    border: 1px solid #285a9f;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #123f82, #2768b8 58%, #78a4df);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 10px 24px rgba(23, 67, 127, 0.2);
+    animation: fadeInUp 0.42s var(--xp-ease-out) both;
+}
+
+.about-profile img {
+    width: 112px;
+    height: 112px;
+    flex: 0 0 auto;
+    border: 3px solid rgba(255,255,255,0.92);
+    border-radius: 9px;
+    object-fit: cover;
+    box-shadow: 0 8px 18px rgba(6, 25, 55, 0.32);
+}
+
+.about-profile h2 {
+    margin: 2px 0 7px;
+    font: 700 clamp(22px, 4vw, 33px)/1.08 'Segoe UI', Tahoma, sans-serif;
+    letter-spacing: -0.02em;
+}
+
+.about-profile p {
+    max-width: 620px;
+    margin: 0;
+    color: #edf5ff;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.about-profile .about-kicker {
+    color: #cfe2ff;
+    font: 700 10px Tahoma, sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
 .about-sections {
@@ -61,7 +108,7 @@
     align-items: center;
     margin-bottom: 18px;
     padding: 0;
-    background: #fffef5;
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 8px;
     box-shadow: 0 2px 0 rgba(255, 255, 255, 0.8) inset, 0 8px 18px rgba(0, 0, 0, 0.16);
     border: 1px solid #6b8ec6;
@@ -113,11 +160,17 @@
 
 .about-text p {
     margin: 0;
-    text-align: justify;
+    text-align: left;
     font-size: 15px;
     line-height: 1.62;
     font-weight: 400;
     color: #1f2f46;
+}
+
+.about-text h3 {
+    margin: 0 0 8px;
+    color: #174f9f;
+    font: 700 18px/1.2 'Segoe UI', Tahoma, sans-serif;
 }
 
 .about-text strong {
@@ -154,6 +207,12 @@
 .about-section:nth-child(5) { animation-delay: 0.15s; }
 .about-section:nth-child(6) { animation-delay: 0.18s; }
 
+.about-section-education {
+    min-height: 150px;
+    border-left: 6px solid #2f67b2;
+    background: linear-gradient(135deg, #edf4ff, #ffffff 62%);
+}
+
 .about-me-container::before {
     content: "";
     position: absolute;
@@ -170,6 +229,21 @@
 
 /* Responsive adjustments */
 @media (max-width: 700px) {
+    .about-profile {
+        align-items: flex-start;
+        margin: 12px 10px 0;
+        padding: 16px;
+    }
+
+    .about-profile img {
+        width: 78px;
+        height: 78px;
+    }
+
+    .about-profile h2 {
+        font-size: 22px;
+    }
+
     .about-section, .about-section:nth-child(even) {
         flex-direction: column;
         text-align: center;
@@ -186,10 +260,27 @@
     
     .about-text {
         padding: 10px 30px 30px 30px;
-        text-align: justify;
+        text-align: left;
     }
     
     .about-sections { padding: 18px 12px; }
+}
+
+@media (max-width: 470px) {
+    .about-profile {
+        flex-direction: column;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .about-profile,
+    .about-section,
+    .about-section:hover,
+    .about-section:hover .about-image img {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
 }
 
 /* Scroll bar moderno */

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://iazara.github.io/ZarateXP-Portfolio_v1/sitemap.xml

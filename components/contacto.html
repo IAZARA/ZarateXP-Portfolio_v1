@@ -2,59 +2,76 @@
     <!-- Toolbar -->
     <div class="toolbar-xp">
         <div class="toolbar-group">
-            <button class="toolbar-btn" title="Send Email">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Email.png" width="16" height="16">
-                Enviar Mensaje
+            <button class="toolbar-btn" type="submit" form="contact-form" title="Enviar mensaje">
+                <img src="./assets/images/xp-small-icons/email.png" width="16" height="16" alt="">
+                Enviar
             </button>
-            <button class="toolbar-btn">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Outlook Express.png" width="16" height="16">
-                Nuevo Mensaje
+            <button class="toolbar-btn" type="button" data-contact-command="new">
+                <img src="./assets/images/xp-small-icons/outlook-express.png" width="16" height="16" alt="">
+                Nuevo
             </button>
         </div>
         <div class="toolbar-group">
-            <button class="toolbar-btn">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Cut.png" width="16" height="16">
+            <button class="toolbar-btn" type="button" data-contact-command="cut">
+                <img src="./assets/images/xp-small-icons/cut.png" width="16" height="16" alt="">
                 Cortar
             </button>
-            <button class="toolbar-btn">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Copy.png" width="16" height="16">
+            <button class="toolbar-btn" type="button" data-contact-command="copy">
+                <img src="./assets/images/xp-small-icons/copy.png" width="16" height="16" alt="">
                 Copiar
             </button>
-            <button class="toolbar-btn">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Paste.png" width="16" height="16">
+            <button class="toolbar-btn" type="button" data-contact-command="paste">
+                <img src="./assets/images/xp-small-icons/paste.png" width="16" height="16" alt="">
                 Pegar
             </button>
         </div>
         <div class="toolbar-group">
-            <button class="toolbar-btn">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Address Book.png" width="16" height="16">
-                Libreta de Direcciones
+            <button class="toolbar-btn" type="button" data-contact-command="address-book">
+                <img src="./assets/images/xp-small-icons/address-book.png" width="16" height="16" alt="">
+                Libreta
             </button>
         </div>
+    </div>
+
+    <div class="contact-profile-strip" aria-label="Datos de contacto de Ivan Zarate">
+        <strong>Ivan Agustin Zarate</strong>
+        <span>Forward Deployed Engineering</span>
+        <a href="mailto:ivan.agustin.95@gmail.com">ivan.agustin.95@gmail.com</a>
+        <a href="tel:+541140973159">11 4097 3159</a>
+        <a href="https://www.linkedin.com/in/ivan-agustin-zarate/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/IAZARA" target="_blank" rel="noopener">GitHub</a>
     </div>
     
     <!-- Email Form Section -->
     <form id="contact-form" class="email-form-xp">
         <div class="email-header-section">
             <div class="email-field-row">
-                <label class="email-label">Para:</label>
-                <input type="text" class="email-input-to" value="Ivan Zarate <ivan.agustin.95@gmail.com>" readonly>
-                <button type="button" class="address-btn" title="Seleccionar de la Libreta de Direcciones">📇</button>
+                <label class="email-label" for="contact-to">Para:</label>
+                <input type="text" id="contact-to" class="email-input-to" value="Ivan Zarate <ivan.agustin.95@gmail.com>" readonly>
+                <button type="button" class="address-btn" title="Seleccionar de la Libreta de Direcciones" aria-label="Abrir libreta de direcciones">
+                    <img src="./assets/images/xp-small-icons/address-book.png" width="16" height="16" alt="">
+                </button>
             </div>
             
             <div class="email-field-row">
-                <label class="email-label">De:</label>
-                <input type="email" id="contact-email" name="email" class="email-input" required placeholder="Tu dirección de email">
+                <label class="email-label" for="contact-email">De:</label>
+                <input type="email" id="contact-email" name="email" class="email-input" required autocomplete="email" placeholder="Tu dirección de email">
             </div>
             
             <div class="email-field-row">
-                <label class="email-label">Asunto:</label>
-                <input type="text" id="contact-subject" name="subject" class="email-input" required placeholder="Asunto de tu mensaje">
+                <label class="email-label" for="contact-subject">Asunto:</label>
+                <input type="text" id="contact-subject" name="subject" class="email-input" required autocomplete="off" maxlength="120" placeholder="Asunto de tu mensaje">
             </div>
         </div>
         
         <div class="email-body-section">
-            <textarea id="contact-body" name="body" class="email-textarea" required placeholder="Escribe tu mensaje aquí"></textarea>
+            <label class="sr-only" for="contact-body">Mensaje</label>
+            <textarea id="contact-body" name="body" class="email-textarea" required maxlength="3000" placeholder="Escribe tu mensaje aquí"></textarea>
+        </div>
+
+        <div class="contact-honeypot" aria-hidden="true">
+            <label for="contact-website">Sitio web</label>
+            <input type="text" id="contact-website" name="website" tabindex="-1" autocomplete="off">
         </div>
         
         <div class="email-footer-section">

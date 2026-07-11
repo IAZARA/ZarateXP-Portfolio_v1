@@ -1,3 +1,4 @@
+import { getProjectsData } from './data/projects.js?v=zaratexp-20260606';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -84,10 +85,10 @@ export class AppManager {
 
         this.registerApp({
             id: 'recruiter-route',
-            name: 'Ruta Reclutador',
+            name: 'Perfil FDE',
             icon: `${hd}/cv.svg`,
             category: 'documents',
-            description: 'CV, proyectos, APIs, automatizaciones y contacto en una sola ruta',
+            description: 'Experiencia, casos, capacidades y contacto en una sola ruta',
             handler: () => this._openRecruiterRoute()
         });
 
@@ -352,7 +353,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/my-computer.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
+                            <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el componente 'Mi PC'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
@@ -457,52 +458,72 @@ export class AppManager {
                         <span>A<u>y</u>uda</span>
                     </div>
                     <div class="about-me-container">
-                    <div class="about-sections">
-                        <div class="about-section">
-                            <div class="about-image">
-                                <img src="images/sobremi/fullstack-developer.png" alt="Ivan trabajando como desarrollador full stack" />
+                        <header class="about-profile">
+                            <img src="images/foto-nuevo-usuario.jpeg" alt="Retrato de Ivan Agustin Zarate" width="112" height="112" loading="eager" decoding="async" />
+                            <div>
+                                <p class="about-kicker">Analista en Sistemas</p>
+                                <h2>Conecto usuarios, producto y tecnología.</h2>
+                                <p>Perfil orientado a Forward Deployed Engineering, con experiencia en plataformas institucionales, MLOps y datos sensibles.</p>
                             </div>
-                            <div class="about-text">
-                                <p>¡Hola! Soy <strong>Ivan Agustin Zarate</strong>, Analista en Sistemas por ORT y desarrollador <strong>Full Stack</strong>. Hoy mi foco está en construir productos web, APIs, automatizaciones y soluciones con IA que reduzcan tareas manuales, mejoren procesos y conviertan ideas en sistemas útiles.</p>
-                            </div>
-                        </div>
+                        </header>
+                        <div class="about-sections">
+                            <article class="about-section">
+                                <div class="about-image">
+                                    <img src="images/sobremi/fullstack-developer.webp" alt="Trabajo de descubrimiento y desarrollo de plataformas" width="136" height="136" loading="lazy" decoding="async" />
+                                </div>
+                                <div class="about-text">
+                                    <h3>Forward Deployed Engineering</h3>
+                                    <p>Relevo necesidades con usuarios, traduzco problemas operativos en definiciones funcionales y técnicas, coordino la integración y acompaño la puesta en producción. Desde 2024 trabajo como <strong>Analista en Sistemas y Project Manager de Plataformas Digitales</strong> en el Ministerio de Seguridad Nacional.</p>
+                                </div>
+                            </article>
 
-                        <div class="about-section">
-                            <div class="about-image">
-                                <img src="images/sobremi/ai-automation.png" alt="Ivan diseñando automatizaciones e integraciones con IA" />
-                            </div>
-                            <div class="about-text">
-                                <p>Me especializo en <strong>automatización, IA e integración de sistemas</strong>: n8n, webhooks, APIs REST, agentes, OCR, extracción estructurada, RAG, embeddings y flujos que conectan herramientas para ahorrar tiempo real en operaciones.</p>
-                            </div>
-                        </div>
+                            <article class="about-section">
+                                <div class="about-image">
+                                    <img src="images/sobremi/ai-automation.webp" alt="Ciclo de vida de modelos y automatización" width="136" height="136" loading="lazy" decoding="async" />
+                                </div>
+                                <div class="about-text">
+                                    <h3>IA aplicada y MLOps</h3>
+                                    <p>Participo en preparación y validación de datos, experimentación, versionado, despliegue, monitoreo y mejora iterativa de modelos. Trabajo con redes neuronales, modelos de texto e imagen, <strong>Hugging Face, QLoRA, modelos locales y agentes de programación</strong>, cuidando la privacidad y la minimización de datos compartidos.</p>
+                                </div>
+                            </article>
 
-                        <div class="about-section">
-                            <div class="about-image">
-                                <img src="images/sobremi/forzatech-founder.png" alt="Ivan presentando soluciones de software a medida" />
-                            </div>
-                            <div class="about-text">
-                                <p>También soy fundador de <strong>ForzaTech</strong>, una iniciativa orientada a sistemas a medida, automatización, IA, apps móviles y micro-SaaS para PYMEs argentinas. Mi forma de trabajar combina relevamiento claro, prototipos rápidos y foco en impacto operativo.</p>
-                            </div>
-                        </div>
+                            <article class="about-section">
+                                <div class="about-image">
+                                    <img src="images/sobremi/privacy-data-products.webp" alt="Gestión responsable de datos críticos" width="136" height="136" loading="lazy" decoding="async" />
+                                </div>
+                                <div class="about-text">
+                                    <h3>Datos críticos, privacidad y seguridad</h3>
+                                    <p>Trabajo con calidad del dato, control de accesos, auditoría, trazabilidad, OSINT, análisis GIS y ciberseguridad aplicada. Entre 2018 y 2024 desarrollé funciones técnicas sobre bases de datos públicas en la Policía Federal Argentina, con foco en resguardo de información y uso responsable de sistemas.</p>
+                                </div>
+                            </article>
 
-                        <div class="about-section">
-                            <div class="about-image">
-                                <img src="images/sobremi/privacy-data-products.png" alt="Ivan revisando productos de datos con privacidad por diseño" />
-                            </div>
-                            <div class="about-text">
-                                <p>En productos con datos sensibles priorizo <strong>privacidad por diseño</strong>, mínimos privilegios, permisos por rol, validaciones backend, trazabilidad y documentación. Me interesa que cada sistema sea útil, mantenible y responsable desde su arquitectura.</p>
-                            </div>
-                        </div>
+                            <article class="about-section">
+                                <div class="about-image">
+                                    <img src="images/sobremi/forzatech-founder.webp" alt="Coordinación de equipos y trabajo con usuarios" width="136" height="136" loading="lazy" decoding="async" />
+                                </div>
+                                <div class="about-text">
+                                    <h3>Coordinación y comunicación</h3>
+                                    <p>Coordino áreas usuarias, proveedores, equipos técnicos y especialistas en ciberseguridad. Antes lideré equipos operativos en la Policía Federal Argentina y trabajé en administración de personal en COTO Digital. Esa experiencia aporta planificación, criterio, comunicación bajo presión y manejo confidencial de documentación.</p>
+                                </div>
+                            </article>
 
-                        <div class="about-section">
-                            <div class="about-image">
-                                <img src="images/sobremi/shipping-projects.png" alt="Ivan publicando proyectos full stack" />
-                            </div>
-                            <div class="about-text">
-                                <p>Trabajo con stacks como <strong>React, Next.js, TypeScript, Tailwind, Python, FastAPI, Node.js, NestJS, Java/Spring Boot, PostgreSQL, Oracle, MongoDB, Docker y Nginx</strong>. Me gusta cerrar el circuito: diseñar, desarrollar, desplegar, medir y seguir mejorando.</p>
-                            </div>
+                            <article class="about-section">
+                                <div class="about-image">
+                                    <img src="images/sobremi/shipping-projects.webp" alt="Implementación de sistemas productivos" width="136" height="136" loading="lazy" decoding="async" />
+                                </div>
+                                <div class="about-text">
+                                    <h3>Construcción y entrega</h3>
+                                    <p>Desarrollo sistemas con <strong>Java, Spring Boot, React, JavaScript, TypeScript, Maven, APIs, Git, Oracle y SQL</strong>. CUFRE, SIFEBU, CRIACO y OSINTArgy muestran experiencia en plataformas CRUD, información federal, GIS, investigación digital y capacitación.</p>
+                                </div>
+                            </article>
+
+                            <article class="about-section about-section-education">
+                                <div class="about-text">
+                                    <h3>Formación e idiomas</h3>
+                                    <p><strong>Analista de Sistemas, ORT Argentina</strong> (título obtenido). Licenciatura en Seguridad con orientación en Investigación Criminal. Google Data Analytics Professional Certificate, con SQL, Tableau, R y hojas de cálculo. Español nativo e inglés intermedio, con comprensión técnica y experiencia en reuniones con proveedores.</p>
+                                </div>
+                            </article>
                         </div>
-                    </div>
                     </div>
                 </div>
             `;
@@ -556,7 +577,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/about.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
+                            <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Sobre Mí'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
@@ -659,7 +680,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/contact.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
+                            <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mi Contacto'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">OK</button>
@@ -680,7 +701,8 @@ export class AppManager {
         debugLog('Configurando formulario de contacto...');
         try {
             const form = contactWindow.querySelector('#contact-form');
-            const sendBtn = contactWindow.querySelector('.toolbar-btn[title*="Send"]') || 
+            const sendBtn = contactWindow.querySelector('.toolbar-btn[form="contact-form"]') ||
+                           contactWindow.querySelector('.toolbar-btn[title*="Send"]') ||
                            contactWindow.querySelector('.toolbar-btn img[src*="Email"]')?.parentElement;
 
             debugLog('Form encontrado:', !!form);
@@ -700,11 +722,24 @@ export class AppManager {
                 const email = form.querySelector('#contact-email').value;
                 const subject = form.querySelector('#contact-subject').value;
                 const body = form.querySelector('#contact-body').value;
+                const honeypot = form.querySelector('#contact-website')?.value.trim();
                 
                 debugLog('Datos del formulario:', { name, email, subject, body });
 
+                if (honeypot) {
+                    debugLog('Contacto descartado por honeypot');
+                    form.reset();
+                    return;
+                }
+
                 if (!email || !subject || !body) {
                     this._showValidationError('Por favor completa todos los campos requeridos: Email, Asunto y Mensaje');
+                    return;
+                }
+
+                const lastSent = Number(localStorage.getItem('zarateXP.contactLastSent') || 0);
+                if (Date.now() - lastSent < 60000) {
+                    this._showValidationError('Espera un minuto antes de enviar otro mensaje.');
                     return;
                 }
 
@@ -712,6 +747,10 @@ export class AppManager {
                 this._showSendingStatus(contactWindow);
 
                 try {
+                    if (!this._canUseEmailJs()) {
+                        throw new Error('EmailJS deshabilitado para este dominio');
+                    }
+
                     // Inicializar EmailJS si no está inicializado
                     if (!window.emailjs) {
                         throw new Error('EmailJS no está cargado');
@@ -746,17 +785,23 @@ export class AppManager {
                     
                     // Mostrar confirmación de éxito
                     this._showContactConfirmation(contactWindow);
+                    localStorage.setItem('zarateXP.contactLastSent', String(Date.now()));
                     
                     // Limpiar formulario
                     form.reset();
                     
                 } catch (error) {
                     console.error('Error al enviar email:', error);
+
+                    const sendingWindow = document.querySelector('[data-window-id="sending-status"]');
+                    if (sendingWindow) {
+                        sendingWindow.remove();
+                    }
                     
                     const fullMessage = `Hola Ivan,\n\nDe: ${email}\nNombre: ${name}\n\n${body}\n\n---\nEnviado desde ZarateXP Portfolio`;
                     const mailtoLink = `mailto:ivan.agustin.95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
 
-                    if (error.message.includes('Service ID') || error.message.includes('Template ID') || error.message.includes('Public Key')) {
+                    if (error.message.includes('Service ID') || error.message.includes('Template ID') || error.message.includes('Public Key') || error.message.includes('dominio')) {
                         window.open(mailtoLink, '_blank', 'noopener');
                         this._showMailtoFallback(contactWindow);
                     } else {
@@ -792,10 +837,16 @@ export class AppManager {
         }
     }
 
+    _canUseEmailJs() {
+        const allowedHosts = new Set(['iazara.github.io', 'localhost', '127.0.0.1']);
+        return allowedHosts.has(window.location.hostname);
+    }
+
     _setupToolbarButtons(contactWindow, form) {
         try {
             // Botón "New Message" - limpiar formulario
-            const newMsgBtn = contactWindow.querySelector('.toolbar-btn img[src*="Outlook"]')?.parentElement;
+            const newMsgBtn = contactWindow.querySelector('[data-contact-command="new"]') ||
+                contactWindow.querySelector('.toolbar-btn img[src*="Outlook"]')?.parentElement;
             if (newMsgBtn) {
                 newMsgBtn.addEventListener('click', () => {
                     form.reset();
@@ -807,7 +858,8 @@ export class AppManager {
             }
 
             // Botón "Libreta de Direcciones" - acción placeholder
-            const addressBtn = contactWindow.querySelector('.toolbar-btn img[src*="Address"]')?.parentElement;
+            const addressBtn = contactWindow.querySelector('[data-contact-command="address-book"]') ||
+                contactWindow.querySelector('.toolbar-btn img[src*="Address"]')?.parentElement;
             if (addressBtn) {
                 addressBtn.addEventListener('click', () => {
                     this._showInfoDialog('Libreta de Direcciones', 'Contáctame directamente en ivan.agustin.95@gmail.com');
@@ -815,9 +867,12 @@ export class AppManager {
             }
 
             // Botones de edición (Cut, Copy, Paste) - funcionalidad básica
-            const cutBtn = contactWindow.querySelector('.toolbar-btn img[src*="Cut"]')?.parentElement;
-            const copyBtn = contactWindow.querySelector('.toolbar-btn img[src*="Copy"]')?.parentElement;
-            const pasteBtn = contactWindow.querySelector('.toolbar-btn img[src*="Paste"]')?.parentElement;
+            const cutBtn = contactWindow.querySelector('[data-contact-command="cut"]') ||
+                contactWindow.querySelector('.toolbar-btn img[src*="Cut"]')?.parentElement;
+            const copyBtn = contactWindow.querySelector('[data-contact-command="copy"]') ||
+                contactWindow.querySelector('.toolbar-btn img[src*="Copy"]')?.parentElement;
+            const pasteBtn = contactWindow.querySelector('[data-contact-command="paste"]') ||
+                contactWindow.querySelector('.toolbar-btn img[src*="Paste"]')?.parentElement;
 
             if (cutBtn) {
                 cutBtn.addEventListener('click', () => {
@@ -847,7 +902,7 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'validation-error',
                 title: 'Error de Entrada',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
+                icon: './assets/images/xp-small-icons/critical.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
                         <div style="font-size: 32px; color: #FF0000; margin-bottom: 10px;">⚠️</div>
@@ -870,10 +925,10 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'info-dialog',
                 title: title,
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png',
+                icon: './assets/images/xp-small-icons/information.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png" alt="Informacion" width="40" height="40" style="margin-bottom: 10px;">
+                        <img src="./assets/images/xp-small-icons/information.png" alt="Informacion" width="40" height="40" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 20px; color: #000;">${message}</div>
                         <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
                     </div>
@@ -966,7 +1021,7 @@ export class AppManager {
                     icon: './assets/images/hd-icons/projects.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
+                            <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mis Proyectos'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">Aceptar</button>
@@ -1045,14 +1100,14 @@ export class AppManager {
                         expand.textContent = '+';
                         const icon = item.querySelector('.tree-icon');
                         if (icon) {
-                            icon.src = './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Closed.png';
+                            icon.src = './assets/images/xp-small-icons/folder-closed.png';
                         }
                     } else {
                         item.classList.add('expanded');
                         expand.textContent = '−';
                         const icon = item.querySelector('.tree-icon');
                         if (icon) {
-                            icon.src = './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png';
+                            icon.src = './assets/images/xp-small-icons/folder-opened.png';
                         }
                     }
                 });
@@ -1153,7 +1208,7 @@ export class AppManager {
         // Mostrar indicador de carga
         contentArea.innerHTML = `
             <div class="loading-message">
-                <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Folder Opened.png" width="32" height="32"/>
+                <img src="./assets/images/xp-small-icons/folder-opened.png" width="32" height="32"/>
                 <p>Cargando proyectos...</p>
             </div>
         `;
@@ -1173,195 +1228,7 @@ export class AppManager {
     }
 
     _getProjectsData(folder) {
-        // Para la carpeta root, mostrar directamente los proyectos sin carpetas
-        if (folder === 'root') {
-            return [
-                {
-                    id: 'zaratexp',
-                    name: 'Zárate XP',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/my-computer.svg',
-                    detailImage: './logo_ivanxp.png',
-                    description: 'Portfolio interactivo estilo Windows XP',
-                    url: '#',
-                    technologies: ['HTML', 'CSS', 'JavaScript'],
-                    category: 'Portfolio',
-                    status: 'Activo',
-                    details: 'Portfolio personal desarrollado como una simulación completa del sistema operativo Windows XP, incluyendo escritorio interactivo, ventanas funcionales, y aplicaciones integradas.'
-                },
-                {
-                    id: 'osintargy',
-                    name: 'OSINTArgy',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/api.svg',
-                    detailImage: './osintargy.png',
-                    description: 'Plataforma OSINT para la Comunidad Hispana',
-                    url: 'https://osintargy.online',
-                    technologies: ['React 18', 'Node.js', 'MongoDB', 'Canvas HTML5', 'Vite'],
-                    category: 'OSINT Platform',
-                    status: 'Activo',
-                    details: 'OSINTArgy es una plataforma integral de inteligencia de fuentes abiertas (OSINT) diseñada específicamente para democratizar el acceso a herramientas y conocimientos especializados en la comunidad hispanohablante de Argentina y Latinoamérica.'
-                },
-                {
-                    id: 'wjpc-capituloargentino',
-                    name: 'WJPC Capítulo Argentino',
-                    type: 'project',
-                    icon: './icono.png',
-                    detailImage: './icono.png',
-                    description: 'Sitio web oficial del Capítulo Argentino del Centro de Estudios Hemisféricos de Defensa William J. Perry',
-                    url: 'https://www.wjpc-capituloargentino.org/',
-                    preview: true,
-                    technologies: ['React 18', 'Vite', 'Tailwind CSS', 'Node.js', 'Express.js', 'Docker', 'Google Cloud Platform'],
-                    category: 'Institucional',
-                    status: 'Activo',
-                    details: 'Aplicación web completa para una organización profesional dedicada a la integración continental y el fortalecimiento de vínculos fraternales entre las naciones americanas. Incluye un sitio público institucional y un panel administrativo para gestión de contenido. Stack tecnológico: Frontend con React 18 + Vite + Tailwind CSS + React Router, Backend con Node.js + Express.js + JWT Authentication, infraestructura en Google Cloud Platform (Cloud Run, Cloud Build, Cloud Storage), contenedorización con Docker + Nginx. Características principales: Sitio público responsive con información institucional, panel de administración con CRUD para noticias y eventos, autenticación JWT con middleware de seguridad, integración con Google Cloud Storage para imágenes, despliegue serverless en Cloud Run con CI/CD, rate limiting y CSP para seguridad. Arquitectura moderna y escalable con prácticas DevOps, seguridad implementada correctamente y responsive design profesional.'
-                },
-                {
-                    id: 'forzatech',
-                    name: 'ForzaTech',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/projects.svg',
-                    detailImage: './assets/readme/zaratexp-banner.png',
-                    description: 'Marketing, sistemas e IA para PYMEs en Argentina',
-                    url: 'https://forzatech.com.ar/',
-                    preview: true,
-                    technologies: ['Landing Page', 'Marketing Digital', 'Automatización', 'IA', 'Sistemas a medida', 'Micro-SaaS'],
-                    category: 'Producto / Agencia',
-                    status: 'Activo',
-                    details: 'Sitio comercial de ForzaTech, iniciativa enfocada en ayudar a PYMEs argentinas con marketing digital, sistemas a medida, automatizaciones, apps móviles, micro-SaaS y soluciones con IA para vender y operar mejor.'
-                },
-                {
-                    id: 'estudio-luttini',
-                    name: 'Estudio Luttini',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/wordpad.svg',
-                    detailImage: './assets/images/hd-icons/wordpad.svg',
-                    description: 'Sitio institucional jurídico-contable para profesionales y empresas',
-                    url: 'https://www.estudioluttini.com/',
-                    preview: true,
-                    technologies: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design', 'SEO'],
-                    category: 'Institucional',
-                    status: 'Activo',
-                    details: 'Sitio web profesional para un estudio jurídico-contable en Puerto Madero, orientado a comunicar servicios legales, contables, impositivos, societarios y de compliance para personas, profesionales, PYMEs y empresas.'
-                },
-                {
-                    id: 'limpia-limpia',
-                    name: 'Limpia-Limpia',
-                    type: 'project',
-                    icon: './limpia-limpia.png',
-                    detailImage: './limpia-limpia.png',
-                    description: 'Landing Page de Servicio de Limpieza de Tapizados',
-                    url: '#',
-                    technologies: ['HTML5', 'CSS3', 'JavaScript Vanilla', 'WhatsApp Business API'],
-                    category: 'Landing Page',
-                    status: 'Próximamente',
-                    details: 'Sitio web profesional y responsivo para "Limpia-Limpia", servicio especializado en limpieza de tapizados, sillones y sillas. Landing page optimizada para conversión con integración directa a WhatsApp. Características principales: Diseño responsivo mobile-first con navegación adaptativa, interfaz interactiva con slider antes/después y animaciones smooth scroll, conversión optimizada con múltiples CTAs integrados con WhatsApp, UX moderna con tipografía Google Fonts (Poppins) y esquema de colores profesional. Stack tecnológico: Frontend con HTML5, CSS3 puro, JavaScript vanilla, características avanzadas con CSS Grid/Flexbox, CSS Variables, Intersection Observer API, integración con WhatsApp Business API, performance optimizada con assets optimizados y lazy loading preparado. Funcionalidades: Header con navegación sticky y hamburger menu, sección hero con CTA principal, grid de servicios (sillones, sillas, limpieza profunda), galería interactiva antes/después, proceso paso a paso (4 etapas), botón flotante de WhatsApp, footer informativo. Valor de negocio: Landing diseñada para generar leads vía WhatsApp, diseño que transmite confianza y calidad, estructura preparada para agregar más servicios, SEO Ready con meta tags y estructura semántica optimizada. Diseño con paleta cyan primario (#06b6d4) y verde secundario (#10b981), animaciones con transiciones suaves y efectos hover, responsivo con breakpoints móvil, tablet, desktop, accesibilidad con contraste adecuado y navegación por teclado.'
-                },
-                {
-                    id: 'sistema-enterprise-java',
-                    name: 'Sistema Enterprise Java',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/control-panel.svg',
-                    detailImage: './assets/images/hd-icons/control-panel.svg',
-                    description: 'Aplicación empresarial full-stack para gestión de expedientes con arquitectura escalable',
-                    url: '#',
-                    technologies: ['Java 17', 'Spring Boot 3.2.3', 'React 18.3.1', 'TypeScript', 'Material-UI', 'Oracle Database 21c', 'Docker', 'Nginx'],
-                    category: 'Enterprise',
-                    status: 'Activo',
-                    details: 'Aplicación empresarial de nivel enterprise para gestión de expedientes y casos, demostrando arquitectura full-stack escalable y robusta con cumplimiento de estándares internacionales de seguridad. Backend: Spring Boot 3.2.3 con Java 17, Oracle Database 21c, arquitectura Repository/Service pattern, migraciones Flyway, mapeo MapStruct entity-DTO, monitoreo Spring Actuator, manejo centralizado de excepciones. Frontend: React 18.3.1 con TypeScript, Material-UI para componentes, gestión de estado con Context API, hooks personalizados para lógica reutilizable, rutas protegidas con verificación de roles, lazy loading y error boundaries, service workers para funcionalidad offline. Funcionalidades clave: Sistema de gestión completa de expedientes con creación/edición de casos, gestión de personas con scoring de prioridad, carga y gestión de fotos/documentos, tracking de estados. API pública con endpoint público, codificación Base64 de fotos para fácil integración, filtrado por autorización judicial, CORS habilitado para sitios institucionales. Dashboard avanzado con estadísticas y métricas en tiempo real, charts interactivos (Recharts), mapas de calor geográficos (Leaflet), rankings por tipo, evolución temporal de casos. Seguridad enterprise: Autenticación JWT con refresh tokens, 2FA obligatorio (Google Authenticator), acceso basado en roles granular (ADMIN/USER/READ_ONLY), auditoría completa de actividades, protección de timeout de sesión, cumplimiento de normas OWASP Top 10 para seguridad en aplicaciones web, implementación de controles ISO/IEC 27001 para Sistema de Gestión de Seguridad de la Información (SGSI), incluyendo establecimiento, implementación, mantenimiento y mejora continua de políticas de seguridad. DevOps: Dockerfiles multi-stage optimizados, orquestación Docker Compose, configuraciones específicas por ambiente, scripts de deployment automatizado, health checks de contenedores. Demostración de arquitectura de nivel enterprise con seguridad robusta certificada bajo estándares internacionales, escalabilidad y API pública para integración institucional.'
-                },
-                {
-                    id: 'n8n-workflows-atencion',
-                    name: 'Workflows n8n - Atención al Cliente',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/n8n.svg',
-                    detailImage: './assets/images/hd-icons/n8n.svg',
-                    description: 'Automatización de procesos de atención al cliente para e-commerce mediante workflows inteligentes',
-                    url: '#',
-                    technologies: ['n8n', 'Webhook APIs', 'Gmail API', 'Slack API', 'Google Sheets API', 'WhatsApp Business API', 'Telegram Bot API'],
-                    category: 'Automatización',
-                    status: 'Activo',
-                    details: 'Suite de workflows de automatización diseñada para optimizar procesos de atención al cliente en tiendas online y e-commerce. Workflows implementados: Gestión automática de consultas por WhatsApp con clasificación inteligente de mensajes, respuestas automáticas según tipo de consulta, escalamiento a agentes humanos para casos complejos, integración con base de datos de productos para consultas de stock y precios. Automatización de seguimiento post-venta con envío automático de emails de seguimiento después de compras, solicitud de reseñas y feedback, notificaciones de estado de envío, recordatorios de garantía y soporte técnico. Sistema de alertas y monitoreo con notificaciones en Slack para pedidos urgentes, alertas de stock bajo, reportes diarios de métricas de atención, escalamiento automático de quejas y reclamos. Sincronización de datos entre plataformas con actualización automática de inventario entre sistemas, sincronización de datos de clientes, exportación de métricas a Google Sheets, backup automático de conversaciones importantes. Gestión de tickets de soporte con creación automática de tickets desde múltiples canales (email, WhatsApp, formularios web), asignación inteligente según disponibilidad y especialización del equipo, seguimiento automático de tiempos de respuesta, cierre automático de tickets resueltos. Integración omnicanal con conexión entre WhatsApp, Telegram, email y formularios web, historial unificado de conversaciones por cliente, routing inteligente según canal de origen y tipo de consulta. Los workflows están diseñados con triggers inteligentes, validaciones de datos, manejo de errores y recuperación automática, logging detallado para auditoría y optimización. Demostración de capacidades de automatización empresarial con integración multi-plataforma y mejora significativa en tiempos de respuesta y satisfacción del cliente.'
-                }
-            ];
-        }
-        
-        // Mantener el comportamiento original para otras carpetas
-        const projectsData = {
-            'web': [
-                {
-                    id: 'forzatech',
-                    name: 'ForzaTech',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/projects.svg',
-                    detailImage: './assets/readme/zaratexp-banner.png',
-                    description: 'Marketing, sistemas e IA para PYMEs en Argentina',
-                    url: 'https://forzatech.com.ar/',
-                    preview: true,
-                    technologies: ['Landing Page', 'Marketing Digital', 'Automatización', 'IA', 'Sistemas a medida', 'Micro-SaaS'],
-                    category: 'Producto / Agencia',
-                    status: 'Activo',
-                    details: 'ForzaTech ayuda a PYMEs argentinas con marketing digital, sistemas a medida, automatización, apps móviles, micro-SaaS y soporte para vender y operar mejor.'
-                },
-                {
-                    id: 'estudio-luttini',
-                    name: 'Estudio Luttini',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/wordpad.svg',
-                    detailImage: './assets/images/hd-icons/wordpad.svg',
-                    description: 'Sitio institucional jurídico-contable',
-                    url: 'https://www.estudioluttini.com/',
-                    preview: true,
-                    technologies: ['HTML5', 'CSS3', 'JavaScript', 'Responsive Design', 'SEO'],
-                    category: 'Institucional',
-                    status: 'Activo',
-                    details: 'Sitio web profesional para un estudio jurídico-contable en Puerto Madero, con foco en servicios legales, contables, impositivos, societarios y de compliance para personas, profesionales, PYMEs y empresas.'
-                },
-                {
-                    id: 'wjpc-capituloargentino',
-                    name: 'WJPC Capítulo Argentino',
-                    type: 'project',
-                    icon: './icono.png',
-                    detailImage: './icono.png',
-                    description: 'Sitio institucional del Capítulo Argentino William J. Perry',
-                    url: 'https://www.wjpc-capituloargentino.org/',
-                    preview: true,
-                    technologies: ['React 18', 'Vite', 'Tailwind CSS', 'Node.js', 'Express.js', 'Docker', 'Google Cloud Platform'],
-                    category: 'Institucional',
-                    status: 'Activo',
-                    details: 'Sitio público institucional con panel de administración, gestión de noticias y eventos, autenticación, despliegue serverless y arquitectura full stack preparada para operación continua.'
-                },
-                {
-                    id: 'osintargy',
-                    name: 'OSINTArgy',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/api.svg',
-                    detailImage: './osintargy.png',
-                    description: 'Plataforma OSINT para la Comunidad Hispana',
-                    url: 'https://osintargy.online',
-                    technologies: ['React 18', 'Node.js', 'MongoDB', 'Canvas HTML5', 'Vite'],
-                    category: 'OSINT Platform',
-                    status: 'Activo',
-                    details: 'OSINTArgy es una plataforma integral de inteligencia de fuentes abiertas (OSINT) diseñada específicamente para democratizar el acceso a herramientas y conocimientos especializados en la comunidad hispanohablante de Argentina y Latinoamérica. Características principales: Interfaz tipo galaxia con visualización interactiva, generador avanzado de Google Dorks con 400+ dorks especializados, herramientas OSINT especializadas para email, username y análisis de archivos, componentes educativos con academia OSINT y juego detective. Stack tecnológico: React 18 + Vite, Canvas HTML5 para visualizaciones, Node.js 18+ + Express.js, MongoDB con autenticación JWT. Impacto: Democratización del conocimiento OSINT en español, enfoque educativo con propósito social.'
-                },
-                {
-                    id: 'zaratexp',
-                    name: 'ZarateXP Portfolio',
-                    type: 'project',
-                    icon: './assets/images/hd-icons/my-computer.svg',
-                    detailImage: './logo_ivanxp.png',
-                    description: 'Portfolio interactivo estilo Windows XP',
-                    url: '#',
-                    technologies: ['HTML', 'CSS', 'JavaScript'],
-                    category: 'Portfolio',
-                    status: 'Activo',
-                    details: 'Portfolio personal desarrollado como una simulación completa del sistema operativo Windows XP, incluyendo escritorio interactivo, ventanas funcionales, y aplicaciones integradas.'
-                }
-            ],
-            'ai': []
-        };
-
-        return projectsData[folder] || [];
+        return getProjectsData(folder);
     }
 
     _renderProjects(contentArea, projects, viewMode) {
@@ -1666,7 +1533,7 @@ export class AppManager {
                 icon: './assets/images/hd-icons/contact.svg',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png" alt="Mensaje enviado" width="48" height="48" style="margin-bottom: 10px;">
+                        <img src="./assets/images/xp-small-icons/information.png" alt="Mensaje enviado" width="48" height="48" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 10px;"><strong>¡Mensaje enviado exitosamente!</strong></div>
                         <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
                             Tu mensaje ha sido enviado a Ivan.<br>
@@ -1688,7 +1555,7 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'sending-status',
                 title: 'Enviando Mensaje',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Email.png',
+                icon: './assets/images/xp-small-icons/email.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
                         <div style="margin-bottom: 20px;">
@@ -1722,10 +1589,10 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'email-error',
                 title: 'Error al Enviar',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
+                icon: './assets/images/xp-small-icons/critical.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
+                        <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 10px;"><strong>Error al enviar el mensaje</strong></div>
 	                        <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
 	                            ${safeErrorMessage}
@@ -1757,10 +1624,10 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'mailto-fallback',
                 title: 'Configuración Requerida',
-                icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png',
+                icon: './assets/images/xp-small-icons/information.png',
                 content: `
                     <div style="padding: 20px; text-align: center;">
-                        <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Information.png" alt="Informacion" width="48" height="48" style="margin-bottom: 10px;">
+                        <img src="./assets/images/xp-small-icons/information.png" alt="Informacion" width="48" height="48" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 10px;"><strong>EmailJS no configurado</strong></div>
                         <div style="margin-bottom: 20px; color: #666; line-height: 1.4;">
                             Se abrió tu cliente de correo con el mensaje.<br>
@@ -1959,7 +1826,7 @@ export class AppManager {
             const safeMessage = this._escapeHtml(message);
             const content = `
                 <div style="padding: 20px; text-align: center;">
-                    <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
+                    <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                     <div style="margin-bottom: 20px;">${safeMessage}</div>
                     <button onclick="this.closest('.window').remove()">OK</button>
                 </div>
@@ -1980,27 +1847,27 @@ export class AppManager {
     }
 
     _openDocuments() {
-        const iconBase = './images/Windows XP High Resolution Icon Pack/Windows XP Icons';
+        const iconBase = './assets/images/xp-small-icons';
         const content = `
             <div class="xp-documents-app">
                 <div class="xp-explorer-menubar">
                     <span><u>A</u>rchivo</span><span><u>E</u>dicion</span><span><u>V</u>er</span><span><u>F</u>avoritos</span><span>A<u>y</u>uda</span>
                 </div>
                 <div class="xp-explorer-toolbar">
-                    <button type="button" data-doc-open="my-computer"><img src="${iconBase}/Back.png" alt=""> Atras</button>
-                    <button type="button" data-doc-open="projects"><img src="${iconBase}/Search.png" alt=""> Buscar proyectos</button>
-                    <button type="button" data-doc-open="control-panel"><img src="${iconBase}/Control Panel.png" alt=""> Configurar</button>
+                    <button type="button" data-doc-open="my-computer"><img src="${iconBase}/back.png" alt=""> Atras</button>
+                    <button type="button" data-doc-open="projects"><img src="${iconBase}/search.png" alt=""> Buscar proyectos</button>
+                    <button type="button" data-doc-open="control-panel"><img src="${iconBase}/control-panel.png" alt=""> Configurar</button>
                 </div>
                 <div class="xp-explorer-address">
                     <span>Direccion</span>
-                    <div><img src="${iconBase}/My Documents.png" alt=""> C:\\Documents and Settings\\Ivan\\Mis documentos</div>
+                    <div><img src="${iconBase}/my-documents.png" alt=""> C:\\Documents and Settings\\Ivan\\Mis documentos</div>
                 </div>
                 <div class="xp-documents-layout">
                     <aside class="xp-task-pane">
                         <section>
                             <h3>Tareas de documento</h3>
                             <button type="button" data-doc-open="resume">Abrir CV actualizado</button>
-                            <button type="button" data-doc-open="recruiter-route">Ruta reclutador</button>
+                            <button type="button" data-doc-open="recruiter-route">Abrir perfil FDE</button>
                             <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
                             <button type="button" data-doc-open="projects">Ver proyectos web</button>
                             <button type="button" data-doc-open="api-center">Abrir API Center</button>
@@ -2008,7 +1875,7 @@ export class AppManager {
                         </section>
                         <section>
                             <h3>Detalles</h3>
-                            <p>Portfolio orientado a roles Full Stack, automatizacion, integraciones y productos web.</p>
+                            <p>Portfolio orientado a Forward Deployed Engineering, MLOps, plataformas y datos sensibles.</p>
                         </section>
                     </aside>
                     <main class="xp-folder-grid">
@@ -2019,13 +1886,13 @@ export class AppManager {
                         </button>
                         <button type="button" class="xp-folder-item important" data-doc-open="recruiter-route">
                             <img src="./assets/images/hd-icons/cv.svg" alt="">
-                            <span>Ruta Reclutador.lnk</span>
-                            <small>CV, evidencia y contacto en pocos clicks</small>
+                            <span>Perfil FDE.lnk</span>
+                            <small>Experiencia, casos, capacidades y contacto</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="projects">
                             <img src="./assets/images/hd-icons/projects.svg" alt="">
                             <span>Proyectos destacados</span>
-                            <small>ForzaTech, WJPC, Luttini, ZarateXP</small>
+                            <small>CUFRE, SIFEBU, CRIACO, OSINTArgy y más</small>
                         </button>
                         <button type="button" class="xp-folder-item important" data-doc-open="api-center">
                             <img src="./assets/images/hd-icons/api.svg" alt="">
@@ -2040,7 +1907,7 @@ export class AppManager {
                         <button type="button" class="xp-folder-item" data-doc-open="about-me">
                             <img src="./assets/images/hd-icons/about.svg" alt="">
                             <span>Perfil profesional</span>
-                            <small>Full Stack + automatizacion</small>
+                            <small>FDE + MLOps + plataformas</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
                             <img src="./assets/images/hd-icons/n8n.svg" alt="">
@@ -2094,66 +1961,122 @@ export class AppManager {
             <div class="xp-recruiter-route">
                 <aside class="xp-task-pane">
                     <section>
-                        <h3>Ruta Reclutador</h3>
-                        <p>Un recorrido corto para evaluar CV, evidencia técnica, automatizaciones y contacto sin perder tiempo explorando.</p>
+                        <h3>Perfil FDE</h3>
+                        <p>Una vista ejecutiva de experiencia, casos, capacidades y formación para evaluar encaje con un rol Forward Deployed Engineer.</p>
                     </section>
                     <section>
-                        <button type="button" data-route-open-all>Abrir ruta completa</button>
-                        <button type="button" data-route-app="resume">CV PDF</button>
-                        <button type="button" data-route-app="projects">Proyectos</button>
-                        <button type="button" data-route-app="contact">Contacto</button>
+                        <h3>Accesos directos</h3>
+                        <button type="button" data-route-app="resume">Abrir CV PDF</button>
+                        <button type="button" data-route-app="projects">Explorar proyectos</button>
+                    </section>
+                    <section>
+                        <h3>Disponibilidad</h3>
+                        <p>Interés actual: Forward Deployed Engineering, Solutions Engineering y plataformas con IA.</p>
                     </section>
                 </aside>
-                <main class="xp-route-list">
-                    <button type="button" class="xp-route-step primary" data-route-app="resume">
-                        <img src="./assets/images/hd-icons/cv.svg" alt="">
-                        <span>1. CV actualizado</span>
-                        <small>PDF descargable/imprimible y accesible desde PDF Studio.</small>
-                    </button>
-                    <button type="button" class="xp-route-step" data-route-app="projects">
-                        <img src="./assets/images/hd-icons/projects.svg" alt="">
-                        <span>2. Evidencia en proyectos</span>
-                        <small>Stack, rol, impacto visible, previews y links externos con fallback.</small>
-                    </button>
-                    <button type="button" class="xp-route-step" data-route-app="api-center">
-                        <img src="./assets/images/hd-icons/api.svg" alt="">
-                        <span>3. APIs en vivo</span>
-                        <small>Fetch, cache, loading, error states y proveedores públicos.</small>
-                    </button>
-                    <button type="button" class="xp-route-step" data-route-app="n8n-flows">
-                        <img src="./assets/images/hd-icons/n8n.svg" alt="">
-                        <span>4. Automatizaciones n8n</span>
-                        <small>Flujos visuales, estados y simulación funcional.</small>
-                    </button>
-                    <button type="button" class="xp-route-step" data-route-app="paint">
-                        <img src="./assets/images/hd-icons/paint.svg" alt="">
-                        <span>5. Apps interactivas</span>
-                        <small>Paint, juegos, Canvas, Web Audio y estado local.</small>
-                    </button>
-                    <button type="button" class="xp-route-step primary" data-route-app="contact">
-                        <img src="./assets/images/hd-icons/contact.svg" alt="">
-                        <span>6. Contacto</span>
-                        <small>Formulario estilo Outlook con validación y fallback.</small>
-                    </button>
+                <main class="xp-fde-brief">
+                    <header class="xp-fde-hero">
+                        <div>
+                            <span class="xp-fde-role">Analista en Sistemas</span>
+                            <h2>Del problema en campo a una solución en producción.</h2>
+                            <p>Descubrimiento con usuarios, traducción funcional-técnica, implementación, capacitación y mejora continua.</p>
+                        </div>
+                        <img src="images/foto-nuevo-usuario.jpeg" alt="Ivan Agustin Zarate" width="112" height="112">
+                    </header>
+
+                    <section class="xp-fde-section xp-fde-operating-model">
+                        <h3>Cómo trabajo</h3>
+                        <div class="xp-fde-flow" aria-label="Proceso de trabajo Forward Deployed Engineering">
+                            <div><strong>Descubrir</strong><span>Entrevistas, contexto operativo y requerimientos.</span></div>
+                            <div><strong>Traducir</strong><span>Definición funcional, arquitectura y prioridades.</span></div>
+                            <div><strong>Implementar</strong><span>Integración, validación y puesta en producción.</span></div>
+                            <div><strong>Acompañar</strong><span>Documentación, capacitación, monitoreo y mejora.</span></div>
+                        </div>
+                    </section>
+
+                    <section class="xp-fde-section">
+                        <h3>Experiencia profesional</h3>
+                        <div class="xp-fde-timeline">
+                            <article class="current">
+                                <time>2024 - Actualidad</time>
+                                <h4>Analista en Sistemas / Project Manager de Plataformas Digitales</h4>
+                                <p>Dirección Nacional de Gestión de Bases de Datos de Seguridad, Ministerio de Seguridad Nacional. Desarrollo e implementación de plataformas, ciclo de vida de modelos, MLOps, datos críticos y coordinación multidisciplinaria.</p>
+                            </article>
+                            <article>
+                                <time>2018 - 2024</time>
+                                <h4>Analista de Datos, Control y Gestión de Información</h4>
+                                <p>Policía Federal Argentina. Bases de datos públicas, privacidad, resguardo de información y uso responsable de sistemas.</p>
+                            </article>
+                            <article>
+                                <time>2016 - 2018</time>
+                                <h4>Coordinador de Equipo</h4>
+                                <p>Policía Federal Argentina. Planificación, coordinación, comunicación bajo presión y toma de decisiones.</p>
+                            </article>
+                            <article>
+                                <time>2013 - 2015</time>
+                                <h4>Auxiliar de Recursos Humanos</h4>
+                                <p>COTO Digital. Gestión confidencial de documentación, asistencia y novedades de personal.</p>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="xp-fde-section">
+                        <div class="xp-fde-section-heading">
+                            <h3>Casos relevantes</h3>
+                            <button type="button" data-route-app="projects">Ver ficha técnica</button>
+                        </div>
+                        <div class="xp-fde-cases">
+                            <article><h4>CUFRE</h4><p>Gestión y priorización de casos con Java, Spring Boot, React, Maven y Oracle.</p></article>
+                            <article><h4>SIFEBU</h4><p>Sistema federal con JavaScript, TypeScript, React y Oracle, orientado a disponibilidad y calidad.</p></article>
+                            <article><h4>CRIACO</h4><p>Plataforma de análisis territorial con GIS, mapas, capas y visualización de datos.</p></article>
+                            <article><h4>OSINTArgy</h4><p>Investigación digital, capacitación, tratamiento de datos y privacidad para pequeñas empresas.</p></article>
+                        </div>
+                    </section>
+
+                    <section class="xp-fde-section xp-fde-capabilities">
+                        <h3>Capacidades aplicadas</h3>
+                        <div class="xp-fde-capability-grid">
+                            <article><h4>IA y MLOps</h4><p>Datos, experimentación, versionado, despliegue, monitoreo, redes neuronales, Hugging Face y QLoRA.</p></article>
+                            <article><h4>Sistemas</h4><p>Java, Spring Boot, React, JavaScript, TypeScript, Maven, APIs, Git, Oracle y SQL.</p></article>
+                            <article><h4>Datos y seguridad</h4><p>Calidad, privacidad, trazabilidad, control de accesos, auditoría, OSINT, GIS y ciberseguridad.</p></article>
+                            <article><h4>Herramientas de IA</h4><p>Modelos locales de pesos abiertos, Claude, Codex y OpenCode con minimización de datos.</p></article>
+                        </div>
+                    </section>
+
+                    <section class="xp-fde-section xp-fde-credentials">
+                        <div>
+                            <h3>Formación</h3>
+                            <p><strong>Analista de Sistemas</strong><br>Instituto Superior ORT Argentina, 2024-2026. Título obtenido.</p>
+                            <p><strong>Licenciatura en Seguridad</strong><br>Orientación en Investigación Criminal, 2020-2025.</p>
+                            <p><strong>Google Data Analytics</strong><br>Certificación profesional de 8 cursos, 2024.</p>
+                        </div>
+                        <div>
+                            <h3>Idiomas y ubicación</h3>
+                            <p><strong>Español:</strong> nativo.</p>
+                            <p><strong>Inglés:</strong> intermedio, lectura técnica y reuniones con proveedores.</p>
+                            <p><strong>Base:</strong> Monserrat, Ciudad Autónoma de Buenos Aires, Argentina.</p>
+                            <p><strong>Nacimiento:</strong> 17 de agosto de 1995.</p>
+                        </div>
+                    </section>
+
+                    <footer class="xp-fde-cta">
+                        <div><strong>¿Buscás a alguien que pueda entender el contexto y llevarlo a producción?</strong><span>Revisá el CV completo o conversemos.</span></div>
+                        <button type="button" data-route-app="contact">Contactar</button>
+                    </footer>
                 </main>
             </div>
         `;
 
         return this._createSingleInstanceWindow({
             id: 'recruiter-route',
-            title: 'Ruta Reclutador - Evaluacion rapida',
+            title: 'Perfil FDE - Ivan Agustin Zarate',
             icon: './assets/images/hd-icons/cv.svg',
             content,
-            width: 760,
-            height: 500,
+            width: 920,
+            height: 650,
             onReady: (appWindow) => {
                 appWindow.querySelectorAll('[data-route-app]').forEach((button) => {
                     button.addEventListener('click', () => this.openApp(button.dataset.routeApp));
-                });
-                appWindow.querySelector('[data-route-open-all]')?.addEventListener('click', () => {
-                    ['resume', 'projects', 'api-center', 'n8n-flows', 'contact'].forEach((appId, index) => {
-                        window.setTimeout(() => this.openApp(appId), index * 180);
-                    });
                 });
             }
         });
@@ -2174,23 +2097,23 @@ export class AppManager {
                 </div>
                 <div class="xp-system-page">
                     <section class="xp-system-hero">
-                        <img src="./assets/images/windows-xp-icon.png" alt="ZarateXP">
+                        <img src="./assets/images/xp-small-icons/windows-xp-icon-192.png" alt="ZarateXP">
                         <div>
                             <h2>ZarateXP Professional</h2>
-                            <p>Portfolio Full Stack Edition</p>
+                            <p>Forward Deployed Engineering Edition</p>
                             <span>Registrado a nombre de Ivan Agustin Zarate</span>
                         </div>
                     </section>
                     <dl class="xp-system-specs">
                         <dt>Sistema</dt><dd>Windows XP-inspired desktop en HTML, CSS y JavaScript vanilla</dd>
                         <dt>Version</dt><dd>GitHub Pages / build estatico</dd>
-                        <dt>Procesador</dt><dd>Full Stack Developer + Automation Integrator</dd>
+                        <dt>Procesador</dt><dd>Analista en Sistemas + Forward Deployed Engineering</dd>
                         <dt>Memoria</dt><dd>${appsCount} aplicaciones internas, ${projectCount} proyectos destacados</dd>
                         <dt>Resolucion actual</dt><dd>${viewport}</dd>
                         <dt>Estado</dt><dd>${sessionState}</dd>
                     </dl>
                     <div class="xp-system-actions">
-                        <button type="button" data-system-open="recruiter-route">Ruta Reclutador</button>
+                        <button type="button" data-system-open="recruiter-route">Perfil FDE</button>
                         <button type="button" data-system-open="control-panel">Panel de control</button>
                         <button type="button" data-system-open="resume">Ver CV</button>
                         <button type="button" data-system-close>Aceptar</button>
@@ -2223,9 +2146,9 @@ export class AppManager {
         const savedText = this._readLocal('zarateXP.notepad', [
             'Notas rapidas - Ivan Zarate',
             '',
-            '- Perfil: Full Stack Developer / Systems Analyst',
-            '- Foco: React, JavaScript, backend, automatizaciones n8n e integraciones',
-            '- Portfolio: abrir Mis Proyectos y CV desde el escritorio'
+            '- Perfil: Analista en Sistemas / Forward Deployed Engineering',
+            '- Foco: plataformas, MLOps, datos sensibles e integracion con usuarios',
+            '- Evidencia: CUFRE, SIFEBU, CRIACO, OSINTArgy y proyectos full stack'
         ].join('\n'));
 
         const content = `
@@ -2291,8 +2214,9 @@ export class AppManager {
     _openWordPad() {
         const savedHtml = this._sanitizeWordPadHtml(this._readLocal('zarateXP.wordpad', `
             <h2>Ivan Agustin Zarate</h2>
-            <p><strong>Full Stack Developer</strong> orientado a productos web, automatizaciones e integraciones.</p>
-            <p>Trabajo con frontends interactivos, APIs, dashboards, formularios, despliegues web y flujos n8n para mejorar procesos reales.</p>
+            <p><strong>Analista en Sistemas orientado a Forward Deployed Engineering</strong>.</p>
+            <p>Relevo necesidades con usuarios, las traduzco en soluciones técnicas y acompaño su integración, puesta en producción y mejora continua.</p>
+            <p>Experiencia en MLOps, plataformas institucionales, datos sensibles, Java, Spring Boot, React, TypeScript, Oracle, SQL, GIS y OSINT.</p>
         `));
 
         const content = `
@@ -3061,11 +2985,11 @@ export class AppManager {
                 <div id="resume-viewer" class="xp-resume-app">
                     <div class="resume-toolbar">
                         <button class="toolbar-button" id="save-cv-btn" type="button">
-                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Save.png" alt="Guardar">
+                            <img src="./assets/images/xp-small-icons/save.png" alt="Guardar">
                             <span>Guardar</span>
                         </button>
                         <button class="toolbar-button" id="print-cv-btn" type="button">
-                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Print to file.png" alt="Imprimir">
+                            <img src="./assets/images/xp-small-icons/print-to-file.png" alt="Imprimir">
                             <span>Imprimir</span>
                         </button>
                         <button class="toolbar-button" id="pdf-studio-btn" type="button">
@@ -3093,7 +3017,7 @@ export class AppManager {
                             </section>
                             <section>
                                 <h3>Lo que demuestra</h3>
-                                <p>Frontend interactivo, estado local, ventanas, Canvas, File APIs, consumo REST, n8n e integración de servicios.</p>
+                                <p>Descubrimiento con usuarios, plataformas productivas, MLOps, datos críticos, integración, capacitación y mejora continua.</p>
                             </section>
                         </aside>
                         <div class="resume-content">
@@ -3340,10 +3264,10 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-resume',
                     title: 'Error',
-                    icon: './images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png',
+                    icon: './assets/images/xp-small-icons/critical.png',
                     content: `
                         <div style="padding: 20px; text-align: center;">
-                            <img src="./images/Windows XP High Resolution Icon Pack/Windows XP Icons/Critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
+                            <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el CV</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
                             <button onclick="this.closest('.window').remove()">Aceptar</button>

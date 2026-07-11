@@ -4,7 +4,8 @@
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(var(--real-vh, 1vh) * 100);
+    min-height: 100dvh;
     background: #000;
     display: flex;
     flex-direction: column;
@@ -35,6 +36,12 @@
     object-fit: contain;
     margin-bottom: 30px; /* Ajustar el margen inferior de la imagen del logo */
     filter: drop-shadow(0 0 30px rgba(255,255,255,0.4));
+    animation: xp-boot-logo 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes xp-boot-logo {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .windows-logo h1 {
@@ -76,6 +83,12 @@
     box-shadow: inset 0 0 3px rgba(0,0,0,0.8);
     position: relative;
     overflow: hidden;
+    animation: xp-boot-bar 0.42s 0.18s ease-out both;
+}
+
+@keyframes xp-boot-bar {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .loading-bar-container::after {
@@ -158,6 +171,12 @@
     font-weight: bold;
     font-style: italic;
     opacity: 0.8;
+    animation: xp-wordmark-enter 0.55s 0.2s ease-out both;
+}
+
+@keyframes xp-wordmark-enter {
+    from { opacity: 0; transform: translateX(12px); }
+    to { opacity: 0.8; transform: translateX(0); }
 }
 
 /* Boot Fadeout Overlay */
@@ -178,7 +197,8 @@
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: calc(var(--real-vh, 1vh) * 100);
+    min-height: 100dvh;
     z-index: 9997;
     overflow: hidden;
 }
@@ -243,6 +263,12 @@
     gap: 50px; /* Espacio entre el logo y el perfil de usuario */
     z-index: 1;
     position: relative;
+    animation: xp-login-stage 0.48s var(--xp-ease-out) both;
+}
+
+@keyframes xp-login-stage {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .left {
@@ -257,6 +283,12 @@
     height: auto;
     margin: 0;
     filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+    animation: xp-login-logo 0.55s 0.08s var(--xp-ease-out) both;
+}
+
+@keyframes xp-login-logo {
+    from { opacity: 0; transform: translateX(-14px) scale(0.97); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 .left-text {
@@ -316,14 +348,21 @@
 .right {
     cursor: pointer;
     /* Eliminamos el posicionamiento absoluto para que flexbox lo maneje */
+    animation: xp-login-user 0.55s 0.14s var(--xp-ease-out) both;
+}
+
+@keyframes xp-login-user {
+    from { opacity: 0; transform: translateX(14px) scale(0.97); }
+    to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 .back-gradient {
-    background: rgba(255,255,255,0.15);
-    padding: 12px 20px;
-    border-radius: 5px;
-    border: 1px solid rgba(255,255,255,0.3);
-    backdrop-filter: blur(15px);
+    min-width: 292px;
+    background: linear-gradient(90deg, rgba(8, 73, 168, 0.92), rgba(28, 105, 207, 0.7));
+    padding: 10px 18px 10px 10px;
+    border: 1px solid rgba(220, 239, 255, 0.92);
+    border-left: 5px solid #f4a52c;
+    border-radius: 7px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -332,23 +371,40 @@
         border-color var(--xp-motion-window) var(--xp-ease-out),
         box-shadow var(--xp-motion-window) var(--xp-ease-out),
         transform var(--xp-motion-window) var(--xp-ease-out);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,0.36),
+        inset -1px -1px 0 rgba(0,48,130,0.52),
+        0 4px 14px rgba(0,37,103,0.28);
 }
 
 .back-gradient:hover {
-    background: rgba(255,255,255,0.25);
-    border-color: rgba(255,255,255,0.5);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-    transform: translateY(-2px);
+    background: linear-gradient(90deg, rgba(18, 91, 194, 0.98), rgba(52, 132, 229, 0.82));
+    border-color: #fff;
+    border-left-color: #ffc45b;
+    box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,0.5),
+        inset -1px -1px 0 rgba(0,48,130,0.58),
+        0 7px 18px rgba(0,37,103,0.34);
+    transform: translateY(-2px) scale(1.015);
+}
+
+.back-gradient:active {
+    transform: translateY(0) scale(0.985);
+}
+
+.back-gradient:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
 }
 
 .user img {
-    width: 48px;
-    height: 48px;
-    border-radius: 3px;
-    border: 2px solid rgba(255,255,255,0.4);
+    width: 56px;
+    height: 56px;
+    border-radius: 4px;
+    border: 2px solid #ffd27a;
     background: white;
     padding: 2px;
+    box-shadow: 1px 2px 4px rgba(0, 32, 91, 0.46);
 }
 
 .text-wrap {
@@ -446,6 +502,22 @@
     font-weight: bold;
     font-style: italic;
     text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
+    animation: xp-welcome-enter 0.46s var(--xp-ease-out) both;
+}
+
+@keyframes xp-welcome-enter {
+    from { opacity: 0; transform: translateY(8px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-screen-center,
+    .custom-logo,
+    .right,
+    .welcome-image-fallback {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 /* Mobile Responsive */

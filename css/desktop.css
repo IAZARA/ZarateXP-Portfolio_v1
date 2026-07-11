@@ -1,8 +1,13 @@
 /* Desktop Styles */
 .desktop {
     width: 100vw;
-    height: 100vh;
+    height: calc(var(--real-vh, 1vh) * 100);
+    min-height: 100dvh;
     background-image: url('../assets/images/zaratexp-hd-wallpaper.png');
+    background-image: image-set(
+        url('../assets/images/zaratexp-hd-wallpaper.webp') type('image/webp'),
+        url('../assets/images/zaratexp-hd-wallpaper.png') type('image/png')
+    );
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -14,6 +19,10 @@
 
 .wallpaper-default {
     background-image: url('../assets/images/zaratexp-hd-wallpaper.png');
+    background-image: image-set(
+        url('../assets/images/zaratexp-hd-wallpaper.webp') type('image/webp'),
+        url('../assets/images/zaratexp-hd-wallpaper.png') type('image/png')
+    );
 }
 
 /* Desktop Icons Container */
@@ -23,7 +32,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    height: calc(100vh - var(--taskbar-height));
+    height: calc((var(--real-vh, 1vh) * 100) - var(--taskbar-height));
     width: 100%;
     overflow: hidden;
 }

@@ -34,10 +34,12 @@ export class BootManager {
         this.bootScreen.style.display = 'flex';
         this.bootScreen.style.opacity = '1';
         
-        debugLog('Boot screen shown, waiting 5 seconds...');
+        const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        const bootDelay = reduceMotion ? 500 : 2400;
+        debugLog('Boot screen shown...');
         
-        // Simulate boot time
-        await this.delay(5000);
+        // Breve secuencia de marca sin bloquear el acceso al contenido.
+        await this.delay(bootDelay);
         
         debugLog('Fading out boot screen...');
         
@@ -99,7 +101,8 @@ export class BootManager {
                 welcomeMessage.classList.remove('welcome-message-initial-hidden');
                 welcomeMessage.style.opacity = '1';
                 
-                await this.delay(4000);
+                const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+                await this.delay(reduceMotion ? 300 : 1400);
                 
                 // Fade out login screen
                 await this.fadeOut(this.loginScreen);

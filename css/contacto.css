@@ -58,6 +58,14 @@
     border: 1px outset #ACA899;
 }
 
+.toolbar-btn:focus-visible,
+.address-btn:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: -3px;
+    background: linear-gradient(to bottom, #FEFEFE, #E8E5D7);
+    border: 1px outset #ACA899;
+}
+
 .toolbar-btn:active {
     background: linear-gradient(to bottom, #E8E5D7, #FEFEFE);
     border: 1px inset #ACA899;
@@ -65,6 +73,33 @@
 
 .toolbar-btn img {
     margin-right: 2px;
+}
+
+.contact-profile-strip {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-height: 30px;
+    padding: 5px 9px;
+    border-bottom: 1px solid #7f9db9;
+    background: linear-gradient(90deg, #e8f1ff, #ffffff);
+    color: #25354d;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.contact-profile-strip strong {
+    color: #0b3d91;
+}
+
+.contact-profile-strip a {
+    color: #003399;
+}
+
+.contact-profile-strip span,
+.contact-profile-strip a {
+    padding-left: 9px;
+    border-left: 1px solid #b8c9e5;
 }
 
 /* ============== FORMULARIO EMAIL ESTILO WINDOWS XP ============== */
@@ -142,6 +177,10 @@
     background: linear-gradient(to bottom, #E8E8E8, #FEFEFE);
 }
 
+.address-btn img {
+    display: block;
+}
+
 /* ============== ÁREA DEL MENSAJE ============== */
 .email-body-section {
     flex: 1;
@@ -166,6 +205,14 @@
 .email-textarea:focus {
     outline: none;
     border-color: #316AC5;
+}
+
+.contact-honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
 }
 
 /* ============== FOOTER ============== */

@@ -21,6 +21,7 @@ class ZarateXP {
         this.soundManager = new SoundManager();
         this.appManager = new AppManager();
         this.clippyManager = new ClippyManager();
+        this.viewportRaf = null;
         
         this.init();
     }
@@ -28,8 +29,9 @@ class ZarateXP {
     init() {
         // Set viewport height for mobile
         this.setViewportHeight();
-        window.addEventListener('resize', () => this.setViewportHeight());
-        window.addEventListener('orientationchange', () => this.setViewportHeight());
+        window.addEventListener('resize', () => this.queueViewportHeightUpdate(), { passive: true });
+        window.addEventListener('orientationchange', () => this.queueViewportHeightUpdate(), { passive: true });
+        window.visualViewport?.addEventListener('resize', () => this.queueViewportHeightUpdate(), { passive: true });
         
         // Initialize boot sequence
         this.bootManager.startBoot().then(() => {
@@ -40,12 +42,21 @@ class ZarateXP {
         
         // Handle landscape orientation
         this.handleOrientation();
-        window.addEventListener('orientationchange', () => this.handleOrientation());
     }
     
     setViewportHeight() {
-        const vh = window.innerHeight * 0.01;
+        const viewportHeight = window.visualViewport?.height || window.innerHeight;
+        const vh = viewportHeight * 0.01;
         document.documentElement.style.setProperty('--real-vh', `${vh}px`);
+    }
+
+    queueViewportHeightUpdate() {
+        if (this.viewportRaf) return;
+        this.viewportRaf = window.requestAnimationFrame(() => {
+            this.viewportRaf = null;
+            this.setViewportHeight();
+            this.handleOrientation();
+        });
     }
     
     handleOrientation() {
@@ -81,10 +92,19 @@ class ZarateXP {
         // Initialize tooltips
         this.initTooltips();
         
-        // Show Clippy welcome after desktop is ready (10 seconds delay)
-        setTimeout(() => {
-            this.clippyManager.showWelcome();
-        }, 10000);
+        // Clippy only appears after the desktop is visible, never over login.
+        const scheduleClippyWelcome = () => {
+            if (this.clippyWelcomeTimer) return;
+            this.clippyWelcomeTimer = window.setTimeout(() => {
+                this.clippyManager.showWelcome();
+            }, 6000);
+        };
+        const desktop = document.querySelector('.desktop');
+        if (desktop && getComputedStyle(desktop).display !== 'none') {
+            scheduleClippyWelcome();
+        } else {
+            window.addEventListener('desktopReady', scheduleClippyWelcome, { once: true });
+        }
     }
     
     setupGlobalListeners() {
