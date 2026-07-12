@@ -89,7 +89,16 @@ const checks = [
   ['Pinball fixed-step physics', /FIXED_STEP[\s\S]*MAX_PHYSICS_STEPS[\s\S]*physicsStep/],
   ['Pinball missions and ball save', /BALL_SAVE_SECONDS[\s\S]*advanceMission[\s\S]*checkExtraBall/],
   ['Pinball accessibility and cleanup', /toggleFullscreen[\s\S]*destroyPinballApp/],
-  ['Winamp Web Audio', /initWinampProApp/],
+  ['Winamp real music order', /acdc-thunderstruck\.mp3[\s\S]*soda-stereo-tratame-suavemente\.mp3/],
+  ['Winamp media and Web Audio graph', /createBiquadFilter[\s\S]*createAnalyser[\s\S]*createMediaElementSource/],
+  ['Winamp custom equalizer controls', /data-eq-output="bass"[\s\S]*appearance:\s*none[\s\S]*slider-runnable-track[\s\S]*slider-thumb/],
+  ['Winamp equalizer visible values', /updateEqLabels[\s\S]*aria-valuetext[\s\S]*resetEq/],
+  ['Winamp accessible controls and keyboard', /aria-pressed="false"[\s\S]*handleKeyboard[\s\S]*toggleMute/],
+  ['Winamp responsive visualizer', /ResizeObserver[\s\S]*resizeCanvas[\s\S]*drawSpectrum[\s\S]*@container \(max-width: 620px\)/],
+  ['Winamp cleanup', /destroyed = true[\s\S]*eventController\.abort\(\)[\s\S]*audioContext\.close/],
+  ['Winamp detached-window guard', /if \(!appWindow\.isConnected\) return;[\s\S]*initWinampProApp/],
+  ['Winamp async playback cancellation', /playRequestId[\s\S]*isPlayRequestActive[\s\S]*cancelPendingPlay/],
+  ['Winamp reduced-motion display', /prefersReducedMotion[\s\S]*displayTimer[\s\S]*500/],
   ['Clippy assistant', /ClippyManager/],
   ['Clippy waits for desktop', /desktopReady[\s\S]*scheduleClippyWelcome/],
   ['responsive mobile guard', /landscape-block/],
@@ -112,7 +121,10 @@ const forbidden = [
   ['false FDE structured job title', /"jobTitle"\s*:\s*"[^"]*(?:Forward Deployed|\bFDE\b)/i],
   ['false FDE contact title', /class="contact-profile-strip"[\s\S]{0,500}<span>\s*Forward Deployed Engineering\s*<\/span>/i],
   ['false FDE author title', /Analista en Sistemas\s*\|\s*Forward Deployed Engineering/i],
-  ['unqualified FDE profile label', /name:\s*['"]Perfil FDE['"]/i]
+  ['unqualified FDE profile label', /name:\s*['"]Perfil FDE['"]/i],
+  ['broken Winamp fixed grid', /grid-template-columns:\s*minmax\(360px,\s*1fr\)\s+170px\s+210px/],
+  ['ambiguous Winamp ASCII play control', /data-winamp-action="play">&gt;<\/button>/],
+  ['duplicate Winamp close control', /data-winamp-action="close"/]
 ].filter(([, pattern]) => pattern.test(source));
 
 if (missing.length || forbidden.length) {

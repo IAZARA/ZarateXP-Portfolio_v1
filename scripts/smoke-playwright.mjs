@@ -258,6 +258,290 @@ async function exerciseSolitaire(page) {
   return 'Solitario: reparto de 52 cartas, reloj, movimientos, pista y deshacer';
 }
 
+async function exerciseWinamp(page) {
+  let appWindow = await openApp(page, 'winamp');
+  const root = appWindow.locator('[data-winamp-root]');
+  await page.waitForFunction(() => {
+    const windowNode = document.querySelector('.window[data-window-id="winamp"]');
+    return windowNode?._winampProApp?.tracks?.length === 6;
+  });
+
+  const playlist = appWindow.locator('[data-winamp-playlist] [data-track-index]');
+  ensure(await playlist.count() === 6, 'Winamp no renderizó las seis pistas esperadas');
+  const trackOrder = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return app.tracks.slice(0, 2).map(({ title, artist, src, kind }) => ({ title, artist, src, kind }));
+  });
+  ensure(trackOrder[0].artist === 'AC/DC' && trackOrder[0].title === 'Thunderstruck', 'Thunderstruck no quedó primero en Winamp');
+  ensure(trackOrder[1].artist === 'Soda Stereo' && /Trátame suavemente/.test(trackOrder[1].title), 'Trátame suavemente no quedó segunda en Winamp');
+  ensure(trackOrder.every((track) => track.kind === 'media' && track.src.endsWith('.mp3')), 'Las dos primeras pistas no apuntan a MP3 reales');
+  ensure(await playlist.first().getAttribute('aria-current') === 'true', 'Winamp no marcó la primera pista como activa');
+
+  const desktopGeometry = await appWindow.evaluate((windowNode) => {
+    const player = windowNode.querySelector('[data-winamp-root]');
+    const controls = Array.from(windowNode.querySelectorAll('.xp-winamp-transport button'));
+    const rootRect = player.getBoundingClientRect();
+    return {
+      noHorizontalOverflow: player.scrollWidth <= player.clientWidth + 1,
+      controlsVisible: controls.every((button) => {
+        const rect = button.getBoundingClientRect();
+        return rect.width >= 36 && rect.height >= 30 && rect.left >= rootRect.left && rect.right <= rootRect.right + 1;
+      })
+    };
+  });
+  ensure(desktopGeometry.noHorizontalOverflow, 'Winamp todavía desborda horizontalmente en desktop');
+  ensure(desktopGeometry.controlsVisible, 'Winamp tiene controles recortados o demasiado pequeños en desktop');
+
+  await appWindow.locator('[data-winamp-action="play"]').click();
+  await page.waitForFunction(() => {
+    const app = document.querySelector('.window[data-window-id="winamp"]')?._winampProApp;
+    return app?.isPlaying && !app.audio.paused && app.audio.currentTime > 0.15;
+  }, null, { timeout: 12000 });
+  await page.waitForFunction(() => {
+    const app = document.querySelector('.window[data-window-id="winamp"]')?._winampProApp;
+    return Array.from(app?.frequencyData || []).some((value) => value > 0);
+  }, null, { timeout: 6000 });
+  const playingState = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return {
+      state: app.root.dataset.winampState,
+      duration: app.audio.duration,
+      analyserActive: Array.from(app.frequencyData || []).some((value) => value > 0)
+    };
+  });
+  ensure(playingState.state === 'play' && playingState.duration > 290, 'Winamp no reprodujo Thunderstruck correctamente');
+  ensure(playingState.analyserActive, 'El visualizador de Winamp no recibió señal de audio');
+
+  await appWindow.locator('[data-winamp-action="pause"]').click();
+  const pausedState = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return { playing: app.isPlaying, paused: app.audio.paused, position: app.position, raf: app.raf, scheduler: app.scheduler };
+  });
+  ensure(!pausedState.playing && pausedState.paused && pausedState.position > 0 && pausedState.raf === null && pausedState.scheduler === null, 'Winamp no pausó y limpió su animación');
+
+  await appWindow.locator('[data-winamp-seek]').fill('500');
+  const seekState = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return { position: app.position, duration: app.currentDuration(), audioTime: app.audio.currentTime };
+  });
+  ensure(Math.abs(seekState.position - seekState.duration / 2) < 1.5 && Math.abs(seekState.audioTime - seekState.position) < 1.5, 'Winamp no aplicó el seek al 50%');
+
+  await appWindow.locator('[data-winamp-volume]').fill('25');
+  await page.waitForFunction(() => {
+    const app = document.querySelector('.window[data-window-id="winamp"]')?._winampProApp;
+    return app?.gain && Math.abs(app.gain.gain.value - 0.25) < 0.04;
+  });
+  const mixerState = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return { gain: app.gain.gain.value, label: app.volumeOutput.textContent };
+  });
+  ensure(Math.abs(mixerState.gain - 0.25) < 0.04 && mixerState.label === '25%', 'Winamp no aplicó el volumen visible al grafo de audio');
+
+  const eqInputs = appWindow.locator('[data-eq-band]');
+  await eqInputs.nth(0).fill('-8');
+  await eqInputs.nth(1).fill('4');
+  await eqInputs.nth(2).fill('10');
+  const eqState = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    const panel = windowNode.querySelector('.xp-winamp-eq');
+    const panelRect = panel.getBoundingClientRect();
+    const controls = Array.from(panel.querySelectorAll('.xp-eq-control'));
+    return {
+      values: app.eqInputs.map((input) => Number(input.value)),
+      outputs: Array.from(panel.querySelectorAll('[data-eq-output]')).map((output) => output.textContent),
+      gains: [app.bass.gain.value, app.mid.gain.value, app.treble.gain.value],
+      types: [app.bass.type, app.mid.type, app.treble.type],
+      frequencies: [app.bass.frequency.value, app.mid.frequency.value, app.treble.frequency.value],
+      customAppearance: app.eqInputs.every((input) => getComputedStyle(input).appearance === 'none'),
+      verticalOrientation: app.eqInputs.every((input) => input.getAttribute('aria-orientation') === 'vertical'),
+      noHorizontalOverflow: panel.scrollWidth <= panel.clientWidth + 1,
+      controlsContained: controls.every((control) => {
+        const rect = control.getBoundingClientRect();
+        return rect.left >= panelRect.left && rect.right <= panelRect.right + 1 && rect.top >= panelRect.top && rect.bottom <= panelRect.bottom + 1;
+      })
+    };
+  });
+  ensure(eqState.values.join(',') === '-8,4,10' && eqState.outputs.join(',') === '-8 dB,+4 dB,+10 dB', 'Winamp no sincronizó los valores visibles del ecualizador');
+  ensure(eqState.gains.join(',') === '-8,4,10', 'Winamp no aplicó las ganancias del ecualizador al grafo Web Audio');
+  ensure(eqState.types.join(',') === 'lowshelf,peaking,highshelf' && eqState.frequencies.join(',') === '60,1000,14000', 'Winamp no respetó las bandas declaradas del ecualizador');
+  ensure(eqState.customAppearance && eqState.verticalOrientation && eqState.noHorizontalOverflow && eqState.controlsContained, 'Winamp volvió a mostrar controles nativos, inaccesibles o desalineados en el ecualizador');
+
+  const seekBeforeEqKeyboard = await appWindow.locator('[data-winamp-seek]').inputValue();
+  await eqInputs.nth(0).focus();
+  await page.keyboard.press('Home');
+  await page.keyboard.press('ArrowUp');
+  const eqKeyboardState = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return {
+      value: Number(app.eqInputs[0].value),
+      output: app.eqOutputs.get('bass')?.textContent,
+      gain: app.bass.gain.value,
+      seek: app.seekEl.value
+    };
+  });
+  ensure(eqKeyboardState.value === -11 && eqKeyboardState.output === '-11 dB' && eqKeyboardState.gain === -11 && eqKeyboardState.seek === seekBeforeEqKeyboard, 'Winamp no manejó correctamente el teclado dentro del ecualizador');
+
+  const eqReset = appWindow.locator('[data-winamp-action="eq-reset"]');
+  await eqReset.click();
+  const resetEqState = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return {
+      values: app.eqInputs.map((input) => Number(input.value)),
+      outputs: Array.from(app.eqOutputs.values()).map((output) => output.textContent),
+      gains: [app.bass.gain.value, app.mid.gain.value, app.treble.gain.value],
+      status: app.statusEl.textContent
+    };
+  });
+  ensure(resetEqState.values.every((value) => value === 0) && resetEqState.outputs.every((value) => value === '0 dB') && resetEqState.gains.every((value) => value === 0) && resetEqState.status.includes('0 dB'), 'Winamp no restableció completamente el ecualizador');
+
+  await eqInputs.nth(0).fill('-6');
+  await eqInputs.nth(1).fill('3');
+  await eqInputs.nth(2).fill('7');
+
+  await playlist.nth(1).click();
+  await page.waitForFunction(() => {
+    const app = document.querySelector('.window[data-window-id="winamp"]')?._winampProApp;
+    return app?.trackIndex === 1 && app?.isPlaying && !app.audio.paused && app.audio.currentTime > 0.1;
+  }, null, { timeout: 12000 });
+  ensure((await appWindow.locator('[data-winamp-title]').innerText()).includes('Trátame suavemente'), 'Winamp no actualizó el readout de Soda Stereo');
+
+  const shuffle = appWindow.locator('[data-winamp-action="shuffle"]');
+  const repeat = appWindow.locator('[data-winamp-action="repeat"]');
+  await shuffle.click();
+  await repeat.click();
+  ensure(await shuffle.getAttribute('aria-pressed') === 'true' && await repeat.getAttribute('aria-pressed') === 'true', 'Winamp no expuso los estados de shuffle y repeat');
+
+  await appWindow.locator('[data-winamp-action="stop"]').click();
+  const stopped = await appWindow.evaluate((windowNode) => {
+    const app = windowNode._winampProApp;
+    return { playing: app.isPlaying, position: app.position, audioTime: app.audio.currentTime, state: app.root.dataset.winampState };
+  });
+  ensure(!stopped.playing && stopped.position === 0 && stopped.audioTime === 0 && stopped.state === 'stop', 'Winamp no volvió a cero al detener');
+
+  const reducedMotionState = await appWindow.evaluate(async (windowNode) => {
+    const app = windowNode._winampProApp;
+    document.body.classList.add('xp-no-animations');
+    await app.play();
+    await new Promise((resolve) => setTimeout(resolve, 550));
+    const state = {
+      playing: app.isPlaying,
+      raf: app.raf,
+      displayTimer: app.displayTimer,
+      playbackState: app.root.dataset.winampState
+    };
+    app.stop();
+    document.body.classList.remove('xp-no-animations');
+    return state;
+  });
+  ensure(reducedMotionState.playing && reducedMotionState.raf === null && reducedMotionState.displayTimer !== null && reducedMotionState.playbackState === 'play', 'Winamp no respetó el modo de movimiento reducido');
+
+  const stoppedDuringLoad = await appWindow.evaluate(async (windowNode) => {
+    const app = windowNode._winampProApp;
+    const originalPlay = app.audio.play;
+    app.audio.play = () => new Promise((resolve, reject) => {
+      window.setTimeout(() => reject(new DOMException('Reproducción interrumpida', 'AbortError')), 120);
+    });
+    const pending = app.play();
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    app.stop();
+    await pending;
+    await new Promise((resolve) => setTimeout(resolve, 130));
+    const state = {
+      playing: app.isPlaying,
+      loading: app.isLoading,
+      playbackState: app.root.dataset.winampState,
+      hasError: Boolean(app.root.dataset.winampError),
+      pauseActive: app.root.querySelector('[data-winamp-action="pause"]').classList.contains('active')
+    };
+    app.audio.play = originalPlay;
+    return state;
+  });
+  ensure(!stoppedDuringLoad.playing && !stoppedDuringLoad.loading && stoppedDuringLoad.playbackState === 'stop' && !stoppedDuringLoad.hasError && !stoppedDuringLoad.pauseActive, 'Winamp dejó que una carga cancelada sobrescribiera el estado STOP');
+
+  const failedPlayback = await appWindow.evaluate(async (windowNode) => {
+    const app = windowNode._winampProApp;
+    const originalPlay = app.audio.play;
+    app.audio.play = () => Promise.reject(new Error('fallo simulado'));
+    await app.play();
+    const state = {
+      playing: app.isPlaying,
+      loading: app.isLoading,
+      playbackState: app.root.dataset.winampState,
+      pauseActive: app.root.querySelector('[data-winamp-action="pause"]').classList.contains('active'),
+      raf: app.raf,
+      scheduler: app.scheduler,
+      activeNodes: app.activeNodes.size
+    };
+    app.audio.play = originalPlay;
+    app.stop();
+    return state;
+  });
+  ensure(!failedPlayback.playing && !failedPlayback.loading && failedPlayback.playbackState === 'error' && !failedPlayback.pauseActive && failedPlayback.raf === null && failedPlayback.scheduler === null && failedPlayback.activeNodes === 0, 'Winamp no limpió correctamente un error de reproducción');
+
+  await appWindow.evaluate((windowNode) => { window.__winampSmokeClosed = windowNode._winampProApp; });
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('winamp'));
+  await appWindow.waitFor({ state: 'detached' });
+  await page.waitForFunction(() => {
+    const app = window.__winampSmokeClosed;
+    return app?.destroyed && app.scheduler === null && app.raf === null && app.displayTimer === null
+      && app.motionObserver === null && app.activeNodes.size === 0
+      && (!app.audioContext || app.audioContext.state === 'closed');
+  });
+
+  const originalViewport = page.viewportSize();
+  await page.setViewportSize({ width: 390, height: 844 });
+  appWindow = await openApp(page, 'winamp');
+  await page.waitForTimeout(300);
+  const restoredEqState = await appWindow.evaluate(async (windowNode) => {
+    const app = windowNode._winampProApp;
+    await app.ensureAudioGraph();
+    const panel = windowNode.querySelector('.xp-winamp-eq');
+    const panelRect = panel.getBoundingClientRect();
+    const controls = Array.from(panel.querySelectorAll('.xp-eq-control'));
+    return {
+      values: app.eqInputs.map((input) => Number(input.value)),
+      outputs: Array.from(app.eqOutputs.values()).map((output) => output.textContent),
+      gains: [app.bass.gain.value, app.mid.gain.value, app.treble.gain.value],
+      noHorizontalOverflow: panel.scrollWidth <= panel.clientWidth + 1,
+      controlsReachable: controls.every((control) => {
+        const rect = control.getBoundingClientRect();
+        return rect.width >= 43.5 && rect.height >= 87.5
+          && rect.left >= panelRect.left && rect.right <= panelRect.right + 1
+          && rect.top >= panelRect.top && rect.bottom <= panelRect.bottom + 1;
+      }),
+      customAppearance: app.eqInputs.every((input) => getComputedStyle(input).appearance === 'none')
+    };
+  });
+  ensure(restoredEqState.values.join(',') === '-6,3,7' && restoredEqState.outputs.join(',') === '-6 dB,+3 dB,+7 dB' && restoredEqState.gains.join(',') === '-6,3,7', 'Winamp no restauró las preferencias del ecualizador');
+  ensure(restoredEqState.noHorizontalOverflow && restoredEqState.controlsReachable && restoredEqState.customAppearance, 'Winamp desalineó el ecualizador personalizado en móvil');
+  const mobileGeometry = await appWindow.evaluate((windowNode) => {
+    const player = windowNode.querySelector('[data-winamp-root]');
+    const workspace = windowNode.querySelector('.xp-winamp-workspace');
+    const transport = windowNode.querySelector('.xp-winamp-transport');
+    const windowRect = windowNode.getBoundingClientRect();
+    const controls = Array.from(windowNode.querySelectorAll('.xp-winamp-transport button'));
+    return {
+      noHorizontalOverflow: player.scrollWidth <= player.clientWidth + 1,
+      windowContained: windowRect.left >= -1 && windowRect.right <= window.innerWidth + 1,
+      oneColumn: getComputedStyle(workspace).display === 'contents'
+        || getComputedStyle(workspace).gridTemplateColumns.trim().split(/\s+/).length === 1,
+      transport: { scrollWidth: transport.scrollWidth, clientWidth: transport.clientWidth },
+      buttons: controls.map((button) => {
+        const rect = button.getBoundingClientRect();
+        return { width: rect.width, height: rect.height };
+      }),
+      controlsReachable: transport.scrollWidth <= transport.clientWidth + 1 && controls.every((button) => {
+        const rect = button.getBoundingClientRect();
+        return rect.width >= 43.5 && rect.height >= 43.5;
+      })
+    };
+  });
+  ensure(mobileGeometry.noHorizontalOverflow && mobileGeometry.windowContained && mobileGeometry.oneColumn && mobileGeometry.controlsReachable, `Winamp no se adaptó al viewport móvil (${JSON.stringify(mobileGeometry)})`);
+  await page.setViewportSize(originalViewport);
+
+  return 'Winamp: MP3 reales, controles, EQ personalizado persistente, errores, cleanup y layout móvil';
+}
+
 async function exerciseMinesweeper(page) {
   const appWindow = await openApp(page, 'minesweeper');
   const board = appWindow.locator('[data-ms-board]');
@@ -404,17 +688,27 @@ async function main() {
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
   const consoleErrors = [];
   const failedRequests = [];
+  const successfulMusic = new Set();
 
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
+  page.on('response', (response) => {
+    const pathname = new URL(response.url()).pathname;
+    if (pathname.includes('/assets/music/') && [200, 206].includes(response.status())) {
+      successfulMusic.add(pathname);
+    }
+  });
   page.on('requestfailed', (request) => {
     const url = request.url();
     const errorText = request.failure()?.errorText || 'failed';
-    const isBenignAbort = errorText === 'net::ERR_ABORTED' && /\.(mp3|pdf)(?:[?#].*)?$/i.test(new URL(url).pathname);
+    const pathname = new URL(url).pathname;
+    const isPortfolioMusic = pathname.includes('/assets/music/');
+    const isBenignAbort = errorText === 'net::ERR_ABORTED'
+      && (/\.pdf$/i.test(pathname) || (/\.mp3$/i.test(pathname) && !isPortfolioMusic));
     if (url.startsWith(baseUrl)) {
-      if (!isBenignAbort) failedRequests.push(`${errorText} ${url}`);
+      if (!isBenignAbort) failedRequests.push({ text: `${errorText} ${url}`, pathname, isPortfolioMusic });
     }
   });
 
@@ -439,22 +733,26 @@ async function main() {
     ensure(positioning.jobTitle === 'Software Analyst & Project Manager', 'El Schema.org presenta un cargo FDE no ejercido');
     ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
 
-    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'api-center', 'solitaire', 'minesweeper', 'pinball']);
+    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'api-center', 'winamp', 'solitaire', 'minesweeper', 'pinball']);
     for (const appId of ['about-me', 'projects', 'pdf-studio', 'contact']) await openApp(page, appId);
 
     const exercised = [];
     exercised.push(await exerciseApiCenter(page));
+    exercised.push(await exerciseWinamp(page));
     exercised.push(await exerciseSolitaire(page));
     exercised.push(await exerciseMinesweeper(page));
     exercised.push(await exercisePinball(page));
 
     const openedWindows = await page.locator('#windows-container .window').evaluateAll((nodes) => nodes.map((node) => node.dataset.windowId));
     const missingWindows = [...expectedWindows].filter((id) => !openedWindows.includes(id));
+    const unresolvedFailures = failedRequests.filter((failure) => {
+      return !failure.isPortfolioMusic || !successfulMusic.has(failure.pathname);
+    });
 
-    if (missingWindows.length || consoleErrors.length || failedRequests.length) {
+    if (missingWindows.length || consoleErrors.length || unresolvedFailures.length) {
       if (missingWindows.length) console.error(`Missing windows: ${missingWindows.join(', ')}`);
       if (consoleErrors.length) console.error(`Console errors:\n${consoleErrors.join('\n')}`);
-      if (failedRequests.length) console.error(`Failed local requests:\n${failedRequests.join('\n')}`);
+      if (unresolvedFailures.length) console.error(`Failed local requests:\n${unresolvedFailures.map((failure) => failure.text).join('\n')}`);
       process.exitCode = 1;
       return;
     }

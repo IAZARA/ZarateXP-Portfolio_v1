@@ -52,7 +52,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 ## Apps destacadas
 
 - **API Center:** consumo REST real de clima, repositorios y datos publicos con cache, proveedor secundario y manejo de errores.
-- **Winamp XP Pro:** reproductor con playlist, visualizador Canvas, ecualizador y loops generados con Web Audio.
+- **Winamp XP Pro:** reproductor de MP3 locales y loops Web Audio con playlist, visualizador Canvas, controles completos, balance y ecualizador de tres bandas.
 - **PDF Studio:** visor de CV/PDF local con zoom, rotacion, descarga, impresion y notas persistentes.
 - **Perfil orientado a FDE:** recorrido ejecutivo para evaluar experiencia profesional, forma de trabajo, casos, stack, formación e idiomas.
 - **Buscaminas XP:** primer clic seguro, banderas, dudas, timer, dificultades y deteccion de victoria/derrota.
@@ -61,6 +61,10 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
 - **Flujos n8n:** canvas visual con nodos, estado de ejecucion y log funcional.
 - **Panel de control:** personalizacion persistente del escritorio.
+
+### Audio del reproductor
+
+Los dos MP3 incluidos fueron aportados por el propietario del portfolio, quien confirmó que cuenta con autorización para distribuirlos públicamente. Los derechos de las grabaciones y composiciones pertenecen a sus respectivos titulares.
 
 ## Ejecutar localmente
 

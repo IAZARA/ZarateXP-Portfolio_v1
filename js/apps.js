@@ -373,58 +373,102 @@ export class AppManager {
     async _openWinamp() {
         const content = `
             <div class="xp-winamp-pro" data-winamp-root>
-                <section class="xp-winamp-main">
-                    <div class="xp-winamp-screen">
-                        <canvas width="360" height="104" data-winamp-visualizer></canvas>
-                        <div class="xp-winamp-readout">
-                            <strong data-winamp-title>01. API Weather Groove</strong>
-                            <span data-winamp-meta>44 kHz stereo - Web Audio API</span>
-                            <small data-winamp-time>00:00 / 00:00</small>
+                <audio data-winamp-audio preload="metadata"></audio>
+                <header class="xp-winamp-brandbar">
+                    <div class="xp-winamp-wordmark"><strong>WINAMP</strong><span>XP PRO</span></div>
+                    <span data-winamp-mode>PLAYLIST LOCAL + WEB AUDIO</span>
+                </header>
+                <div class="xp-winamp-workspace">
+                    <section class="xp-winamp-main" aria-label="Reproductor principal">
+                        <div class="xp-winamp-screen">
+                            <canvas width="720" height="176" data-winamp-visualizer aria-label="Visualizador de espectro"></canvas>
+                            <div class="xp-winamp-clock" aria-label="Tiempo de reproducción">
+                                <span data-winamp-state>READY</span>
+                                <strong data-winamp-current-time>00:00</strong>
+                                <small>TOTAL <span data-winamp-duration>04:53</span></small>
+                            </div>
+                            <div class="xp-winamp-readout">
+                                <small data-winamp-counter>TRACK 01 / 06</small>
+                                <strong data-winamp-title>Thunderstruck</strong>
+                                <span data-winamp-artist>AC/DC</span>
+                                <small data-winamp-meta>MP3 - 192 kbps - 44,1 kHz estéreo</small>
+                            </div>
                         </div>
+                        <div class="xp-winamp-seek-row">
+                            <span data-winamp-time>00:00</span>
+                            <input class="xp-winamp-seek" type="range" min="0" max="1000" value="0" step="1" data-winamp-seek aria-label="Progreso de la canción">
+                            <span data-winamp-remaining>-04:53</span>
+                        </div>
+                        <div class="xp-winamp-transport" role="group" aria-label="Controles de reproducción">
+                            <button type="button" data-winamp-action="prev" aria-label="Canción anterior" title="Canción anterior"><span aria-hidden="true">|◀</span></button>
+                            <button type="button" class="primary" data-winamp-action="play" aria-label="Reproducir" title="Reproducir"><span aria-hidden="true">▶</span></button>
+                            <button type="button" data-winamp-action="pause" aria-label="Pausar" title="Pausar"><span aria-hidden="true">Ⅱ</span></button>
+                            <button type="button" data-winamp-action="stop" aria-label="Detener" title="Detener"><span aria-hidden="true">■</span></button>
+                            <button type="button" data-winamp-action="next" aria-label="Canción siguiente" title="Canción siguiente"><span aria-hidden="true">▶|</span></button>
+                            <span class="xp-winamp-transport-divider" aria-hidden="true"></span>
+                            <button type="button" class="toggle" data-winamp-action="shuffle" aria-label="Alternar reproducción aleatoria" aria-pressed="false">SHUF</button>
+                            <button type="button" class="toggle" data-winamp-action="repeat" aria-label="Alternar repetición" aria-pressed="false">REP</button>
+                        </div>
+                        <div class="xp-winamp-mixers">
+                            <label><span>VOLUMEN <output data-winamp-volume-output>70%</output></span><input type="range" min="0" max="100" value="70" data-winamp-volume aria-label="Volumen"></label>
+                            <label><span>BALANCE <output data-winamp-balance-output>CENTRO</output></span><input type="range" min="-100" max="100" value="0" data-winamp-balance aria-label="Balance estéreo"></label>
+                            <button type="button" data-winamp-action="mute" aria-label="Silenciar" aria-pressed="false">MUTE</button>
+                        </div>
+                    </section>
+                    <section class="xp-winamp-eq" aria-label="Ecualizador de tres bandas">
+                        <div class="xp-winamp-section-heading">
+                            <h3>ECUALIZADOR</h3>
+                            <button type="button" data-winamp-action="eq-reset">RESET</button>
+                        </div>
+                        <div class="xp-eq-scale" aria-hidden="true"><span>+12</span><span>0</span><span>-12</span></div>
+                        <div class="xp-eq-sliders">
+                            <label>
+                                <span class="xp-eq-control"><input id="winamp-eq-bass" type="range" min="-12" max="12" step="1" value="2" data-eq-band="bass" aria-label="Graves 60 Hz" aria-orientation="vertical"></span>
+                                <span class="xp-eq-band-label"><strong>60 Hz</strong><output for="winamp-eq-bass" data-eq-output="bass">+2 dB</output></span>
+                            </label>
+                            <label>
+                                <span class="xp-eq-control"><input id="winamp-eq-mid" type="range" min="-12" max="12" step="1" value="0" data-eq-band="mid" aria-label="Medios 1 kHz" aria-orientation="vertical"></span>
+                                <span class="xp-eq-band-label"><strong>1 kHz</strong><output for="winamp-eq-mid" data-eq-output="mid">0 dB</output></span>
+                            </label>
+                            <label>
+                                <span class="xp-eq-control"><input id="winamp-eq-treble" type="range" min="-12" max="12" step="1" value="3" data-eq-band="treble" aria-label="Agudos 14 kHz" aria-orientation="vertical"></span>
+                                <span class="xp-eq-band-label"><strong>14 kHz</strong><output for="winamp-eq-treble" data-eq-output="treble">+3 dB</output></span>
+                            </label>
+                        </div>
+                    </section>
+                </div>
+                <section class="xp-winamp-playlist" aria-label="Lista de reproducción">
+                    <div class="xp-winamp-section-heading">
+                        <h3>PLAYLIST</h3>
+                        <span data-winamp-playlist-summary>6 canciones</span>
                     </div>
-                    <input class="xp-winamp-seek" type="range" min="0" max="100" value="0" data-winamp-seek aria-label="Progreso">
-                    <div class="xp-winamp-controls">
-                        <button type="button" data-winamp-action="prev">|&lt;</button>
-                        <button type="button" data-winamp-action="play">&gt;</button>
-                        <button type="button" data-winamp-action="pause">||</button>
-                        <button type="button" data-winamp-action="stop">[]</button>
-                        <button type="button" data-winamp-action="next">&gt;|</button>
-                        <button type="button" data-winamp-action="shuffle">SHUF</button>
-                        <button type="button" data-winamp-action="repeat">REP</button>
-                        <button type="button" data-winamp-action="close">X</button>
-                    </div>
-                    <div class="xp-winamp-mixers">
-                        <label>Vol <input type="range" min="0" max="100" value="70" data-winamp-volume></label>
-                        <label>Bal <input type="range" min="-100" max="100" value="0" data-winamp-balance></label>
-                    </div>
-                </section>
-                <section class="xp-winamp-eq">
-                    <h3>Ecualizador</h3>
-                    <div class="xp-eq-sliders">
-                        <label>60<input type="range" min="-12" max="12" value="2" data-eq-band="bass"></label>
-                        <label>1K<input type="range" min="-12" max="12" value="0" data-eq-band="mid"></label>
-                        <label>14K<input type="range" min="-12" max="12" value="3" data-eq-band="treble"></label>
-                    </div>
-                    <p data-winamp-status>Listo para reproducir loops generados en navegador.</p>
-                </section>
-                <section class="xp-winamp-playlist">
-                    <h3>Playlist</h3>
                     <ol data-winamp-playlist></ol>
                 </section>
+                <footer class="xp-winamp-statusbar">
+                    <span data-winamp-status role="status" aria-live="polite">Listo. Elegí una canción y presioná reproducir.</span>
+                    <span>ESPACIO: PLAY/PAUSE · ←/→: 5 SEG</span>
+                </footer>
             </div>
         `;
 
         return this._createSingleInstanceWindow({
             id: 'winamp',
-            title: 'Winamp XP Pro - Web Audio Lab',
+            title: 'Winamp XP Pro - Reproductor de música',
             icon: './assets/images/hd-icons/winamp.svg',
             content,
-            width: 720,
-            height: 500,
+            width: 780,
+            height: 590,
+            resizable: false,
+            maximizable: false,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/winamp-pro.js', 'initWinampProApp')
-                    .then(() => window.initWinampProApp?.(appWindow))
-                    .catch((error) => this.showError(`No se pudo iniciar Winamp: ${error.message}`));
+                this._loadScriptOnce('js/winamp-pro.js?v=zaratexp-20260712-eq2', 'initWinampProApp')
+                    .then(() => {
+                        if (!appWindow.isConnected) return;
+                        window.initWinampProApp?.(appWindow);
+                    })
+                    .catch((error) => {
+                        if (appWindow.isConnected) this.showError(`No se pudo iniciar Winamp: ${error.message}`);
+                    });
             },
             onClose: (appWindow) => window.destroyWinampProApp?.(appWindow)
         });

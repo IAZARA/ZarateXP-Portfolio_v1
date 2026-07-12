@@ -461,7 +461,7 @@
                 this.savePreferences();
             }
 
-            this.setStatus(`Ganaste en ${this.formatTimeLabel(this.timer)}${isRecord ? ' — nuevo mejor tiempo.' : ` — record: ${this.formatTimeLabel(previousBest)}.`}`);
+            this.setStatus(`Ganaste en ${this.formatTimeLabel(this.timer)}${isRecord ? ' - nuevo mejor tiempo.' : ` - record: ${this.formatTimeLabel(previousBest)}.`}`);
             this.updateCounters();
             this.paintBoard();
         }

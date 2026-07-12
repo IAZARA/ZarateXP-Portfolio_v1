@@ -58,6 +58,8 @@ const requiredReferences = [
 ];
 
 const sizeBudgets = [
+  ['assets/music/acdc-thunderstruck.mp3', 8 * 1024 * 1024],
+  ['assets/music/soda-stereo-tratame-suavemente.mp3', 6 * 1024 * 1024],
   ['assets/images/zaratexp-hd-wallpaper.webp', 400 * 1024],
   ['fondo_windows.webp', 80 * 1024],
   ['images/tarjeta_windos.webp', 80 * 1024],
