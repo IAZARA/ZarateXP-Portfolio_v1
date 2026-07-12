@@ -1,12 +1,12 @@
 // Main JavaScript Module
-import { BootManager } from './boot.js?v=zaratexp-20260712-eq2';
-import { DesktopManager } from './desktop.js?v=zaratexp-20260712-eq2';
-import { WindowManager } from './windows.js?v=zaratexp-20260712-eq2';
-import { TaskbarManager } from './taskbar.js?v=zaratexp-20260712-eq2';
-import { StartMenuManager } from './startMenu.js?v=zaratexp-20260712-eq2';
-import { SoundManager } from './sounds.js?v=zaratexp-20260712-eq2';
-import { AppManager } from './apps.js?v=zaratexp-20260712-eq2';
-import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260712-eq2';
+import { BootManager } from './boot.js?v=zaratexp-20260712-mlops1';
+import { DesktopManager } from './desktop.js?v=zaratexp-20260712-mlops1';
+import { WindowManager } from './windows.js?v=zaratexp-20260712-mlops1';
+import { TaskbarManager } from './taskbar.js?v=zaratexp-20260712-mlops1';
+import { StartMenuManager } from './startMenu.js?v=zaratexp-20260712-mlops1';
+import { SoundManager } from './sounds.js?v=zaratexp-20260712-mlops1';
+import { AppManager } from './apps.js?v=zaratexp-20260712-mlops1';
+import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260712-mlops1';
 
 class ZarateXP {
     constructor() {

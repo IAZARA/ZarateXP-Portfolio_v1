@@ -153,7 +153,7 @@ export class AppManager {
             name: 'Flujos n8n',
             icon: `${hd}/n8n.svg`,
             category: 'automation',
-            description: 'Automatizaciones visuales y funcionales',
+            description: 'Caso interactivo de ciclo SDLC + MLOps',
             handler: () => this._openN8nFlows()
         });
 
@@ -461,7 +461,7 @@ export class AppManager {
             resizable: false,
             maximizable: false,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/winamp-pro.js?v=zaratexp-20260712-eq2', 'initWinampProApp')
+                this._loadScriptOnce('js/winamp-pro.js?v=zaratexp-20260712-mlops1', 'initWinampProApp')
                     .then(() => {
                         if (!appWindow.isConnected) return;
                         window.initWinampProApp?.(appWindow);
@@ -1915,7 +1915,7 @@ export class AppManager {
                             <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
                             <button type="button" data-doc-open="projects">Ver proyectos web</button>
                             <button type="button" data-doc-open="api-center">Abrir API Center</button>
-                            <button type="button" data-doc-open="n8n-flows">Ver automatizaciones n8n</button>
+                            <button type="button" data-doc-open="n8n-flows">Ver ciclo SDLC + MLOps</button>
                         </section>
                         <section>
                             <h3>Detalles</h3>
@@ -1956,7 +1956,7 @@ export class AppManager {
                         <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
                             <img src="./assets/images/hd-icons/n8n.svg" alt="">
                             <span>Flujos n8n</span>
-                            <small>Procesos visuales funcionales</small>
+                            <small>Orquestación, gates, drift y feedback</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="notepad">
                             <img src="./assets/images/hd-icons/notepad.svg" alt="">
@@ -2329,82 +2329,180 @@ export class AppManager {
 
     _openN8nFlows() {
         const content = `
-            <div class="xp-n8n-app">
-                <aside class="xp-n8n-sidebar">
-                    <img src="./assets/images/hd-icons/n8n.svg" alt="n8n">
-                    <h2>Automatizaciones</h2>
-                    <p>Flujos visuales que conectan formularios, APIs, CRM, correo y dashboards.</p>
-                    <button type="button" data-flow-run>Ejecutar demo</button>
-                    <button type="button" data-flow-reset>Reiniciar</button>
+            <div class="xp-mlops-app" data-mlops-root data-state="idle" aria-busy="false" aria-labelledby="mlops-pipeline-title">
+                <header class="xp-mlops-toolbar">
+                    <div class="xp-mlops-brand xp-mlops-toolbar-brand">
+                        <img class="xp-mlops-logo" src="./assets/images/hd-icons/n8n.svg" alt="">
+                        <div>
+                            <span>CASO DEMOSTRATIVO · SDLC + MLOps</span>
+                            <h2>Ciclo completo de entrega</h2>
+                        </div>
+                    </div>
+                    <span class="xp-mlops-toolbar-copy">n8n coordina · los runners especializados ejecutan</span>
+                    <div class="xp-mlops-actions" aria-label="Controles del ciclo">
+                        <button type="button" class="primary" data-mlops-run>▶ Ejecutar ciclo</button>
+                        <button type="button" data-mlops-approve disabled>✓ Aprobar release</button>
+                        <button type="button" data-mlops-drift>⚠ Simular drift</button>
+                        <button type="button" data-mlops-reset>↺ Reiniciar</button>
+                    </div>
+                </header>
+
+                <aside class="xp-mlops-brief" aria-labelledby="mlops-brief-title">
+                    <p class="xp-mlops-kicker xp-mlops-eyebrow">DEL PROBLEMA A PRODUCCIÓN</p>
+                    <h3 class="xp-mlops-panel-title" id="mlops-brief-title">Clasificador asistido de tickets</h3>
+                    <p>Una necesidad operativa se transforma en una solución versionada, validada, desplegada y observable.</p>
+                    <div class="xp-mlops-orchestrator-note xp-mlops-brief-card">
+                        <strong>Qué hace n8n</strong>
+                        <p>Coordina eventos, APIs, jobs y decisiones humanas. El CI/CD, el entrenamiento, el registry y el serving se ejecutan en herramientas especializadas.</p>
+                    </div>
+                    <dl class="xp-mlops-facts">
+                        <div><dt>Entrada</dt><dd>Issue + dataset versionado</dd></div>
+                        <div><dt>Salida</dt><dd>Release trazable y reversible</dd></div>
+                        <div><dt>Principio</dt><dd>Evidencia antes que promesas</dd></div>
+                    </dl>
                 </aside>
-                <main class="xp-flow-canvas" aria-label="Canvas de flujo n8n">
-                    <div class="xp-flow-node" data-node="webhook" style="--x: 4%; --y: 28%;">
-                        <strong>Webhook</strong><span>Formulario portfolio</span>
+
+                <main class="xp-mlops-canvas" aria-labelledby="mlops-pipeline-title">
+                    <div class="xp-mlops-canvas-heading xp-mlops-canvas-header">
+                        <div>
+                            <span>WORKFLOW / ORQUESTACIÓN</span>
+                            <h3 class="xp-mlops-panel-title" id="mlops-pipeline-title">Pipeline SDLC + MLOps</h3>
+                        </div>
+                        <div class="xp-mlops-legend xp-mlops-phase-legend" aria-label="Leyenda de estados">
+                            <span><i class="idle"></i>Pendiente</span>
+                            <span><i class="running"></i>En curso</span>
+                            <span><i class="done"></i>Validado</span>
+                        </div>
                     </div>
-                    <div class="xp-flow-link" style="--x: 22%; --y: 39%; --w: 15%;"></div>
-                    <div class="xp-flow-node" data-node="validate" style="--x: 35%; --y: 18%;">
-                        <strong>Validar lead</strong><span>Datos y origen</span>
+                    <div class="xp-mlops-flow-scroll">
+                    <ol class="xp-mlops-flow xp-mlops-pipeline" data-mlops-flow aria-label="Ocho etapas del ciclo de entrega">
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="discovery" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">01</b><em class="xp-mlops-stage-code">DESCUBRIR</em></span>
+                                <strong class="xp-mlops-stage-title">Definir problema</strong>
+                                <small class="xp-mlops-stage-summary">Valor, riesgo y aceptación</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="versioning" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">02</b><em class="xp-mlops-stage-code">VERSIONAR</em></span>
+                                <strong class="xp-mlops-stage-title">Fijar versiones</strong>
+                                <small class="xp-mlops-stage-summary">Código, datos y configuración</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="data" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">03</b><em class="xp-mlops-stage-code">DATOS</em></span>
+                                <strong class="xp-mlops-stage-title">Preparar datos</strong>
+                                <small class="xp-mlops-stage-summary">Contrato, calidad y lineage</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="build" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">04</b><em class="xp-mlops-stage-code">CONSTRUIR</em></span>
+                                <strong class="xp-mlops-stage-title">CI + entrenamiento</strong>
+                                <small class="xp-mlops-stage-summary">Tests y experimento reproducible</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="validate" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">05</b><em class="xp-mlops-stage-code">VALIDAR</em></span>
+                                <strong class="xp-mlops-stage-title">Evaluar candidato</strong>
+                                <small class="xp-mlops-stage-summary">Baseline, seguridad y negocio</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="registry" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">06</b><em class="xp-mlops-stage-code">APROBAR</em></span>
+                                <strong class="xp-mlops-stage-title">Registrar artefacto</strong>
+                                <small class="xp-mlops-stage-summary">Registry y decisión humana</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="deploy" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">07</b><em class="xp-mlops-stage-code">LIBERAR</em></span>
+                                <strong class="xp-mlops-stage-title">Desplegar seguro</strong>
+                                <small class="xp-mlops-stage-summary">Canary, smoke y rollback</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="monitor" data-state="idle">
+                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">08</b><em class="xp-mlops-stage-code">OPERAR</em></span>
+                                <strong class="xp-mlops-stage-title">Observar y aprender</strong>
+                                <small class="xp-mlops-stage-summary">Drift, KPI y feedback</small>
+                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
+                            </button>
+                        </li>
+                    </ol>
                     </div>
-                    <div class="xp-flow-node" data-node="crm" style="--x: 35%; --y: 52%;">
-                        <strong>CRM</strong><span>Guardar oportunidad</span>
-                    </div>
-                    <div class="xp-flow-link vertical" style="--x: 50%; --y: 39%; --h: 13%;"></div>
-                    <div class="xp-flow-link" style="--x: 54%; --y: 29%; --w: 14%;"></div>
-                    <div class="xp-flow-link" style="--x: 54%; --y: 63%; --w: 14%;"></div>
-                    <div class="xp-flow-node" data-node="email" style="--x: 68%; --y: 18%;">
-                        <strong>Email</strong><span>Respuesta automatica</span>
-                    </div>
-                    <div class="xp-flow-node" data-node="dashboard" style="--x: 68%; --y: 52%;">
-                        <strong>Dashboard</strong><span>Metricas y seguimiento</span>
+                    <div class="xp-mlops-feedback" data-mlops-feedback>
+                        <strong>Bucle de mejora</strong>
+                        <span>Producción devuelve incidentes, feedback y nuevos datos a Descubrir y Preparar datos.</span>
                     </div>
                 </main>
-                <footer class="xp-flow-log" data-flow-log>Listo para ejecutar.</footer>
+
+                <aside class="xp-mlops-inspector" data-mlops-inspector aria-live="polite">
+                    <div class="xp-mlops-inspector-head">
+                        <span class="xp-mlops-inspector-label">INSPECTOR DE ETAPA</span>
+                        <h3 class="xp-mlops-panel-title" data-mlops-detail-title>Definir problema</h3>
+                        <p data-mlops-detail-summary>Seleccioná una etapa para revisar cómo se controla y qué evidencia produce.</p>
+                    </div>
+                    <dl>
+                        <div class="xp-mlops-detail"><dt>Propósito</dt><dd data-mlops-detail-objective></dd></div>
+                        <div class="xp-mlops-detail"><dt>Entrada</dt><dd data-mlops-detail-input></dd></div>
+                        <div class="xp-mlops-detail"><dt>Orquestación</dt><dd data-mlops-detail-orchestration></dd></div>
+                        <div class="xp-mlops-detail"><dt>Quality gate</dt><dd data-mlops-detail-gate></dd></div>
+                        <div class="xp-mlops-detail"><dt>Evidencia</dt><dd data-mlops-detail-evidence></dd></div>
+                        <div class="xp-mlops-detail"><dt>Responsable</dt><dd data-mlops-detail-owner></dd></div>
+                    </dl>
+                </aside>
+
+                <section class="xp-mlops-log-panel" aria-labelledby="mlops-log-title">
+                    <div class="xp-mlops-log-heading xp-mlops-log-head">
+                        <h3 id="mlops-log-title">Registro de orquestación</h3>
+                        <span>SIMULACIÓN LOCAL · SIN DATOS REALES</span>
+                    </div>
+                    <ol class="xp-mlops-log" data-mlops-log role="log" aria-live="polite" aria-relevant="additions"></ol>
+                </section>
+
+                <footer class="xp-mlops-statusbar">
+                    <div class="xp-mlops-status">
+                        <span class="xp-mlops-status-dot" aria-hidden="true"></span>
+                        <span data-mlops-status role="status" aria-live="polite">Listo para ejecutar el ciclo.</span>
+                    </div>
+                    <label class="xp-mlops-progress-wrap">
+                        <span class="xp-mlops-progress-value" data-mlops-progress-label>0 de 8 etapas</span>
+                        <progress class="xp-mlops-progress" data-mlops-progress value="0" max="100" aria-label="Progreso del ciclo">0%</progress>
+                    </label>
+                </footer>
             </div>
         `;
 
         return this._createSingleInstanceWindow({
             id: 'n8n-flows',
-            title: 'n8n - Flujos de automatizacion',
+            title: 'n8n - Pipeline SDLC + MLOps',
             icon: './assets/images/hd-icons/n8n.svg',
             content,
-            width: 780,
-            height: 500,
+            width: 1120,
+            height: 690,
             onReady: (appWindow) => {
-                const nodes = Array.from(appWindow.querySelectorAll('.xp-flow-node'));
-                const log = appWindow.querySelector('[data-flow-log]');
-                const reset = () => {
-                    nodes.forEach((node) => node.classList.remove('running', 'done'));
-                    log.textContent = 'Listo para ejecutar.';
-                };
-
-                appWindow.querySelector('[data-flow-reset]').addEventListener('click', reset);
-                appWindow.querySelector('[data-flow-run]').addEventListener('click', () => {
-                    reset();
-                    const messages = [
-                        'Recibiendo lead desde el portfolio...',
-                        'Validando datos y fuente de contacto...',
-                        'Creando oportunidad en CRM...',
-                        'Enviando respuesta automatica...',
-                        'Actualizando dashboard de seguimiento...'
-                    ];
-
-                    nodes.forEach((node, index) => {
-                        window.setTimeout(() => {
-                            nodes.forEach((item) => item.classList.remove('running'));
-                            node.classList.add('running');
-                            log.textContent = messages[index];
-                        }, index * 650);
-
-                        window.setTimeout(() => {
-                            node.classList.remove('running');
-                            node.classList.add('done');
-                            if (index === nodes.length - 1) {
-                                log.textContent = 'Flujo completado: lead clasificado, notificado y medido.';
-                            }
-                        }, index * 650 + 550);
+                this._loadScriptOnce('js/n8n-mlops.js?v=zaratexp-20260712-mlops1', 'initMLOpsLifecycleApp')
+                    .then(() => {
+                        if (!appWindow.isConnected) return;
+                        window.initMLOpsLifecycleApp?.(appWindow);
+                    })
+                    .catch((error) => {
+                        if (appWindow.isConnected) this.showError(`No se pudo iniciar el pipeline MLOps: ${error.message}`);
                     });
-                });
-            }
+            },
+            onClose: (appWindow) => window.destroyMLOpsLifecycleApp?.(appWindow)
         });
     }
 
@@ -3026,7 +3124,7 @@ export class AppManager {
                                 <h3>Ruta rápida</h3>
                                 <button type="button" data-resume-open="projects">Ver evidencia en proyectos</button>
                                 <button type="button" data-resume-open="api-center">Probar APIs en vivo</button>
-                                <button type="button" data-resume-open="n8n-flows">Ver automatizaciones</button>
+                                <button type="button" data-resume-open="n8n-flows">Ver ciclo SDLC + MLOps</button>
                                 <button type="button" data-resume-open="contact">Contactar</button>
                             </section>
                             <section>

@@ -233,6 +233,199 @@ async function exerciseApiCenter(page) {
   return 'API Center: clima, GitHub, países, teclado, cache y ejecución paralela';
 }
 
+async function exerciseMlopsLifecycle(page) {
+  const desktopIcon = page.locator('.desktop-icons > .desktop-icon[data-program-name="n8n-flows"]');
+  await desktopIcon.waitFor({ state: 'visible', timeout: 12000 });
+  await desktopIcon.dblclick();
+
+  let appWindow = page.locator('#windows-container .window[data-window-id="n8n-flows"]');
+  await appWindow.waitFor({ state: 'visible', timeout: 12000 });
+  let root = appWindow.locator('[data-mlops-root]');
+  await root.waitFor({ state: 'visible', timeout: 12000 });
+
+  const initialAudit = await root.evaluate((rootNode) => {
+    const stages = Array.from(rootNode.querySelectorAll('[data-mlops-stage][data-stage-id]'));
+    const stageIds = stages.map((stage) => stage.dataset.stageId);
+    const controls = ['run', 'approve', 'drift', 'reset'].map((name) => rootNode.querySelector(`[data-mlops-${name}]`));
+    const progress = rootNode.querySelector('[data-mlops-progress]');
+    const status = rootNode.querySelector('[data-mlops-status]');
+    const log = rootNode.querySelector('[data-mlops-log]');
+    const accessibleName = (element) => (element?.getAttribute('aria-label') || element?.textContent || '').trim();
+
+    return {
+      stageCount: stages.length,
+      uniqueStageIds: new Set(stageIds).size,
+      stageIdsComplete: stageIds.every(Boolean),
+      stagesFocusable: stages.every((stage) => stage.tabIndex >= 0 && accessibleName(stage).length > 0),
+      controlsPresent: controls.every(Boolean),
+      controlsNamed: controls.every((control) => accessibleName(control).length > 0),
+      rootNamed: Boolean(rootNode.getAttribute('aria-label') || rootNode.getAttribute('aria-labelledby')),
+      progressSemantic: Boolean(progress && (progress.tagName === 'PROGRESS' || progress.getAttribute('role') === 'progressbar')),
+      progressValue: Number(progress?.value ?? progress?.getAttribute('aria-valuenow')),
+      progressMax: Number(progress?.max ?? progress?.getAttribute('aria-valuemax')),
+      statusLive: status?.getAttribute('role') === 'status' && ['polite', 'assertive'].includes(status.getAttribute('aria-live')),
+      logLive: log?.getAttribute('role') === 'log' || ['polite', 'assertive'].includes(log?.getAttribute('aria-live')),
+      initialState: rootNode.dataset.state,
+      stagesIdle: stages.every((stage) => stage.dataset.state === 'idle')
+    };
+  });
+
+  ensure(initialAudit.stageCount === 8 && initialAudit.uniqueStageIds === 8 && initialAudit.stageIdsComplete, `El ciclo MLOps no expuso ocho etapas únicas (${JSON.stringify(initialAudit)})`);
+  ensure(initialAudit.stagesFocusable && initialAudit.controlsPresent && initialAudit.controlsNamed && initialAudit.rootNamed, 'La app MLOps dejó etapas o controles sin acceso y nombre semántico');
+  ensure(initialAudit.progressSemantic && initialAudit.progressValue === 0 && initialAudit.progressMax === 100, 'El progreso MLOps inicial no es un progressbar 0/100');
+  ensure(initialAudit.statusLive && initialAudit.logLive, 'La app MLOps no anunció estado y eventos con regiones vivas');
+  ensure(initialAudit.initialState === 'idle' && initialAudit.stagesIdle, 'La app MLOps no abrió en estado limpio');
+
+  const stages = root.locator('[data-mlops-stage][data-stage-id]');
+  await stages.first().focus();
+  await stages.first().press('ArrowRight');
+  ensure(await stages.nth(1).evaluate((stage) => document.activeElement === stage), 'Las etapas MLOps no permiten recorrer el ciclo con flechas');
+
+  const run = root.locator('[data-mlops-run]');
+  const approve = root.locator('[data-mlops-approve]');
+  const drift = root.locator('[data-mlops-drift]');
+  const reset = root.locator('[data-mlops-reset]');
+
+  await run.dblclick();
+  await page.waitForFunction(() => {
+    const rootNode = document.querySelector('.window[data-window-id="n8n-flows"] [data-mlops-root]');
+    return rootNode?.dataset.state === 'running';
+  }, null, { timeout: 5000 });
+
+  const executionAudit = await root.evaluate(async (rootNode) => {
+    const progress = rootNode.querySelector('[data-mlops-progress]');
+    const samples = [];
+    const startedAt = Date.now();
+
+    while (rootNode.dataset.state !== 'awaiting_approval' && Date.now() - startedAt < 20000) {
+      const running = rootNode.querySelectorAll('[data-mlops-stage][data-state="running"]').length;
+      samples.push({
+        state: rootNode.dataset.state,
+        running,
+        progress: Number(progress?.value ?? progress?.getAttribute('aria-valuenow')),
+        busy: rootNode.getAttribute('aria-busy')
+      });
+      await new Promise((resolve) => window.setTimeout(resolve, 40));
+    }
+
+    return {
+      reachedGate: rootNode.dataset.state === 'awaiting_approval',
+      maxRunning: Math.max(0, ...samples.map((sample) => sample.running)),
+      hadRunningStage: samples.some((sample) => sample.running === 1),
+      announcedBusy: samples.some((sample) => sample.busy === 'true'),
+      progressMonotonic: samples.every((sample, index) => index === 0 || sample.progress >= samples[index - 1].progress),
+      finalProgress: Number(progress?.value ?? progress?.getAttribute('aria-valuenow'))
+    };
+  });
+
+  ensure(executionAudit.reachedGate, 'La ejecución MLOps no llegó al gate de aprobación');
+  ensure(executionAudit.maxRunning === 1 && executionAudit.hadRunningStage, `El doble clic inició ejecuciones solapadas (${JSON.stringify(executionAudit)})`);
+  ensure(executionAudit.announcedBusy && executionAudit.progressMonotonic, 'La ejecución MLOps no comunicó actividad o hizo retroceder el progreso');
+  ensure(executionAudit.finalProgress > 0 && executionAudit.finalProgress < 100, 'El gate de aprobación no detuvo el ciclo antes del despliegue');
+  ensure(await approve.isEnabled(), 'El gate no habilitó la aprobación humana');
+  ensure(await root.locator('[data-mlops-stage][data-state="waiting"]').count() === 1, 'El gate no dejó exactamente una etapa esperando aprobación');
+  const gateIsVisible = await root.locator('[data-mlops-stage][data-state="waiting"]').evaluate((stage) => {
+    const scroller = stage.closest('.xp-mlops-flow-scroll');
+    const stageRect = stage.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    return stageRect.left >= scrollerRect.left - 1 && stageRect.right <= scrollerRect.right + 1;
+  });
+  ensure(gateIsVisible, 'El pipeline no llevó el gate activo al viewport horizontal');
+
+  await approve.click();
+  await page.waitForFunction(() => {
+    const rootNode = document.querySelector('.window[data-window-id="n8n-flows"] [data-mlops-root]');
+    const progress = rootNode?.querySelector('[data-mlops-progress]');
+    return rootNode?.dataset.state === 'completed' && Number(progress?.value ?? progress?.getAttribute('aria-valuenow')) === 100;
+  }, null, { timeout: 20000 });
+
+  const completedAudit = await root.evaluate((rootNode) => ({
+    done: rootNode.querySelectorAll('[data-mlops-stage][data-state="done"]').length,
+    status: rootNode.querySelector('[data-mlops-status]')?.textContent || '',
+    log: rootNode.querySelector('[data-mlops-log]')?.textContent || '',
+    busy: rootNode.getAttribute('aria-busy')
+  }));
+  ensure(completedAudit.done === 8, `El ciclo terminó con ${completedAudit.done}/8 etapas completas`);
+  ensure(/ciclo completado/i.test(`${completedAudit.status} ${completedAudit.log}`) && completedAudit.busy === 'false', 'La app MLOps no anunció claramente la finalización');
+
+  await drift.click();
+  await page.waitForFunction(() => {
+    const rootNode = document.querySelector('.window[data-window-id="n8n-flows"] [data-mlops-root]');
+    return rootNode?.dataset.state === 'drift_detected';
+  }, null, { timeout: 5000 });
+  const driftFeedback = await root.locator('[data-mlops-status], [data-mlops-log]').allInnerTexts();
+  ensure(/(?:drift|deriva|rollback|reentren)/i.test(driftFeedback.join(' ')), 'La simulación de drift no explicó detección, rollback o reentrenamiento');
+  ensure(await root.locator('[data-mlops-stage][data-state="warning"]').count() >= 1, 'La simulación de drift no marcó visual y semánticamente la alerta');
+  await page.waitForTimeout(250);
+  const driftIsVisible = await root.locator('[data-mlops-stage][data-state="warning"]').evaluate((stage) => {
+    const scroller = stage.closest('.xp-mlops-flow-scroll');
+    const stageRect = stage.getBoundingClientRect();
+    const scrollerRect = scroller.getBoundingClientRect();
+    return stageRect.left >= scrollerRect.left - 1 && stageRect.right <= scrollerRect.right + 1;
+  });
+  ensure(driftIsVisible, 'El pipeline no llevó la alerta de drift al viewport horizontal');
+
+  await reset.click();
+  await page.waitForFunction(() => {
+    const rootNode = document.querySelector('.window[data-window-id="n8n-flows"] [data-mlops-root]');
+    const progress = rootNode?.querySelector('[data-mlops-progress]');
+    return rootNode?.dataset.state === 'idle' && Number(progress?.value ?? progress?.getAttribute('aria-valuenow')) === 0;
+  });
+  ensure(await root.locator('[data-mlops-stage][data-state="idle"]').count() === 8, 'Reiniciar no devolvió las ocho etapas a idle');
+
+  await run.dblclick();
+  await page.waitForFunction(() => {
+    const rootNode = document.querySelector('.window[data-window-id="n8n-flows"] [data-mlops-root]');
+    const progress = rootNode?.querySelector('[data-mlops-progress]');
+    return rootNode?.dataset.state === 'running' && Number(progress?.value ?? progress?.getAttribute('aria-valuenow')) > 0;
+  }, null, { timeout: 7000 });
+  await reset.click();
+  await page.waitForTimeout(900);
+  const cancelledAudit = await root.evaluate((rootNode) => ({
+    state: rootNode.dataset.state,
+    progress: Number(rootNode.querySelector('[data-mlops-progress]')?.value ?? 0),
+    idle: rootNode.querySelectorAll('[data-mlops-stage][data-state="idle"]').length,
+    running: rootNode.querySelectorAll('[data-mlops-stage][data-state="running"]').length
+  }));
+  ensure(cancelledAudit.state === 'idle' && cancelledAudit.progress === 0 && cancelledAudit.idle === 8 && cancelledAudit.running === 0, `Reiniciar no canceló los callbacks pendientes (${JSON.stringify(cancelledAudit)})`);
+
+  const originalViewport = page.viewportSize();
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('n8n-flows'));
+  await appWindow.waitFor({ state: 'detached' });
+  await page.setViewportSize({ width: 390, height: 844 });
+  appWindow = await openApp(page, 'n8n-flows');
+  root = appWindow.locator('[data-mlops-root]');
+  await root.waitFor({ state: 'visible', timeout: 12000 });
+  await page.waitForTimeout(200);
+  const mobileAudit = await root.evaluate((rootNode) => {
+    const rootRect = rootNode.getBoundingClientRect();
+    const controls = ['run', 'approve', 'drift', 'reset'].map((name) => rootNode.querySelector(`[data-mlops-${name}]`));
+    const toolbarRect = rootNode.querySelector('.xp-mlops-toolbar').getBoundingClientRect();
+    const canvasRect = rootNode.querySelector('.xp-mlops-canvas').getBoundingClientRect();
+    const feedbackRect = rootNode.querySelector('[data-mlops-feedback]').getBoundingClientRect();
+    const inspectorRect = rootNode.querySelector('[data-mlops-inspector]').getBoundingClientRect();
+    const logRect = rootNode.querySelector('.xp-mlops-log-panel').getBoundingClientRect();
+    const stageRects = Array.from(rootNode.querySelectorAll('[data-mlops-stage]'), (stage) => stage.getBoundingClientRect());
+    return {
+      noHorizontalOverflow: rootNode.scrollWidth <= rootNode.clientWidth + 1,
+      controlsVisible: controls.every((control) => {
+        const rect = control.getBoundingClientRect();
+        return rect.width >= 40 && rect.height >= 40
+          && rect.left >= rootRect.left - 1 && rect.right <= rootRect.right + 1;
+      }),
+      toolbarContainsControls: controls.every((control) => control.getBoundingClientRect().bottom <= toolbarRect.bottom + 1),
+      orderedStages: stageRects.every((rect, index) => index === 0 || rect.top >= stageRects[index - 1].bottom - 1),
+      canvasContainsFlow: feedbackRect.bottom <= canvasRect.bottom + 1,
+      sectionsDoNotOverlap: canvasRect.bottom <= inspectorRect.top + 1 && inspectorRect.bottom <= logRect.top + 1,
+      rootContained: rootRect.left >= -1 && rootRect.right <= window.innerWidth + 1
+    };
+  });
+  ensure(Object.values(mobileAudit).every(Boolean), `La app MLOps desborda, superpone secciones o pierde controles en móvil (${JSON.stringify(mobileAudit)})`);
+  await page.setViewportSize(originalViewport);
+
+  return 'MLOps n8n: icono, 8 etapas, gate humano, drift, reset, concurrencia, accesibilidad y móvil';
+}
+
 async function exerciseSolitaire(page) {
   const appWindow = await openApp(page, 'solitaire');
   await appWindow.locator('[data-tableau-column]').nth(6).waitFor({ timeout: 12000 });
@@ -733,10 +926,11 @@ async function main() {
     ensure(positioning.jobTitle === 'Software Analyst & Project Manager', 'El Schema.org presenta un cargo FDE no ejercido');
     ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
 
-    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'api-center', 'winamp', 'solitaire', 'minesweeper', 'pinball']);
+    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball']);
+    const exercised = [];
+    exercised.push(await exerciseMlopsLifecycle(page));
     for (const appId of ['about-me', 'projects', 'pdf-studio', 'contact']) await openApp(page, appId);
 
-    const exercised = [];
     exercised.push(await exerciseApiCenter(page));
     exercised.push(await exerciseWinamp(page));
     exercised.push(await exerciseSolitaire(page));

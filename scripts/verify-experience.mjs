@@ -20,6 +20,7 @@ const source = [
   'js/apps.js',
   'js/data/projects.js',
   'js/api-center.js',
+  'js/n8n-mlops.js',
   'js/minesweeper.js',
   'js/paint.js',
   'js/pdf-studio.js',
@@ -75,7 +76,12 @@ const checks = [
   ['API cancellation and stale-response guard', /AbortController[\s\S]*assertCurrent[\s\S]*cancelAll/],
   ['API parallel execution and freshness', /Promise\.all\([\s\S]*preferFreshCache[\s\S]*data-api-last-updated/],
   ['API keyboard and provider health', /handleTabKeydown[\s\S]*data-api-health/],
-  ['n8n flows demo', /data-flow-run/],
+  ['n8n MLOps lifecycle app contract', /data-mlops-root[\s\S]*data-mlops-run[\s\S]*data-mlops-approve[\s\S]*data-mlops-drift[\s\S]*data-mlops-reset/],
+  ['n8n MLOps eight-stage model', /(?=[\s\S]*data-mlops-stage)(?=[\s\S]*data-stage-id)(?=[\s\S]*(?:STAGES|stages))(?=[\s\S]*(?:discovery|descubrimiento))(?=[\s\S]*(?:monitoring|observabilidad|monitoreo))/i],
+  ['MLOps software delivery evidence', /(?=[\s\S]*(?:Git|versionad))(?=[\s\S]*(?:datos|dataset))(?=[\s\S]*(?:test|validaci))(?=[\s\S]*(?:registry|registro))(?=[\s\S]*(?:CI\/CD|desplieg))(?=[\s\S]*(?:drift|deriva))(?=[\s\S]*(?:rollback|reentren))/i],
+  ['MLOps approval gate and completion', /(?=[\s\S]*awaiting_approval)(?=[\s\S]*data-mlops-approve)(?=[\s\S]*Ciclo completado)/i],
+  ['MLOps progress and live status', /(?=[\s\S]*data-mlops-progress)(?=[\s\S]*(?:role=["']status["']|aria-live))(?=[\s\S]*data-mlops-(?:status|log))/],
+  ['MLOps cancellable execution lifecycle', /(?=[\s\S]*(?:AbortController|runToken|executionToken))(?=[\s\S]*(?:clearTimeout|cancel))(?=[\s\S]*(?:destroyMLOpsLifecycleApp|destroy\s*\())/],
   ['Paint app', /initPaintApp/],
   ['Minesweeper exact difficulties', /beginner:[\s\S]*mines:\s*10[\s\S]*intermediate:[\s\S]*mines:\s*40[\s\S]*expert:[\s\S]*mines:\s*99/],
   ['Minesweeper first click and neighborhood safe', /firstClick[\s\S]*placeMines[\s\S]*safeCells[\s\S]*neighbors/],
@@ -124,7 +130,8 @@ const forbidden = [
   ['unqualified FDE profile label', /name:\s*['"]Perfil FDE['"]/i],
   ['broken Winamp fixed grid', /grid-template-columns:\s*minmax\(360px,\s*1fr\)\s+170px\s+210px/],
   ['ambiguous Winamp ASCII play control', /data-winamp-action="play">&gt;<\/button>/],
-  ['duplicate Winamp close control', /data-winamp-action="close"/]
+  ['duplicate Winamp close control', /data-winamp-action="close"/],
+  ['legacy n8n lead demo controls', /data-flow-(?:run|reset|log)/]
 ].filter(([, pattern]) => pattern.test(source));
 
 if (missing.length || forbidden.length) {

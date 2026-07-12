@@ -36,7 +36,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - Apps retro: Winamp Pro, Paint mejorado, Buscaminas robusto, Solitario, Pinball, Bloc de notas y WordPad.
 - PDF Studio para abrir PDFs locales, revisar el CV, anotar observaciones y usar File/Blob APIs.
 - Panel de control para personalizar fondo, tema, iconos, efecto CRT y taskbar.
-- Flujos n8n visuales con simulacion funcional de ejecucion.
+- Pipeline interactivo SDLC + MLOps: versionado, calidad de datos, CI, entrenamiento reproducible, evaluación, registry, aprobación humana, despliegue progresivo, observabilidad, drift y feedback.
 - Perfil profesional actualizado con experiencia institucional, MLOps, gestión de datos sensibles, coordinación y formación.
 
 ## Stack
@@ -59,7 +59,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
-- **Flujos n8n:** canvas visual con nodos, estado de ejecucion y log funcional.
+- **Flujos n8n:** caso demostrativo de entrega de software e IA. n8n coordina eventos, APIs, jobs y decisiones humanas; las herramientas especializadas ejecutan CI/CD, entrenamiento, registry y serving. Incluye quality gate, rollback conceptual, drift y reentrenamiento.
 - **Panel de control:** personalizacion persistente del escritorio.
 
 ### Audio del reproductor
