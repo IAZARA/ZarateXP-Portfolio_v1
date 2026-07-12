@@ -46,6 +46,7 @@ tmp/
 # Generated/local-only assets
 generated/
 output/
+.playwright-cli/
 
 # Local CV drafts
 MI CV*.pdf

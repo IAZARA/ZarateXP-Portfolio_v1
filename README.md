@@ -8,7 +8,7 @@
 [![Portfolio](https://img.shields.io/badge/Portfolio-Windows_XP-2D7DD2?style=for-the-badge)](#)
 [![Status](https://img.shields.io/badge/status-active-2EA44F?style=for-the-badge)](#)
 
-Portfolio interactivo de Ivan Agustin Zarate, Analista en Sistemas orientado a Forward Deployed Engineering, MLOps y plataformas digitales. La experiencia inspirada en Windows XP funciona como un escritorio navegable con perfil FDE, CV actualizado, casos institucionales, proyectos, automatizaciones, APIs y aplicaciones funcionales.
+Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manager** enfocado en **Software, Data & AI Solutions** con Java, Spring Boot, React y Oracle. La experiencia inspirada en Windows XP funciona como un escritorio navegable con un perfil orientado a oportunidades de Forward Deployed Engineer (FDE), CV actualizado, casos institucionales, proyectos, automatizaciones, APIs y aplicaciones funcionales.
 
 ## Demo
 
@@ -26,13 +26,13 @@ Portfolio interactivo de Ivan Agustin Zarate, Analista en Sistemas orientado a F
 - Escritorio estilo Windows XP con pantalla de arranque y login.
 - Sistema de ventanas con arrastre, foco, minimizar, maximizar, cierre animado y botones activos en taskbar.
 - Menu de inicio con accesos a CV, documentos, proyectos, contacto, redes, juegos y accesorios.
-- Perfil FDE con experiencia, modelo de trabajo, casos, capacidades, formación, idiomas y contacto.
+- Perfil orientado a FDE con experiencia, modelo de trabajo, casos, capacidades, formación, idiomas y contacto.
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Visor de CV actualizado en PDF.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.
 - Casos destacados: CUFRE, SIFEBU, CRIACO y OSINTArgy, además de ZarateXP, ForzaTech, WJPC Capitulo Argentino y sistemas full stack.
-- API Center con Open-Meteo, wttr.in, GitHub REST y REST Countries, cache local, loading/error states y fallback.
+- API Center con Open-Meteo, wttr.in, GitHub REST, Countries y Banco Mundial, cache con TTL, cancelación, estados de frescura y recuperación offline.
 - Apps retro: Winamp Pro, Paint mejorado, Buscaminas robusto, Solitario, Pinball, Bloc de notas y WordPad.
 - PDF Studio para abrir PDFs locales, revisar el CV, anotar observaciones y usar File/Blob APIs.
 - Panel de control para personalizar fondo, tema, iconos, efecto CRT y taskbar.
@@ -54,7 +54,7 @@ Portfolio interactivo de Ivan Agustin Zarate, Analista en Sistemas orientado a F
 - **API Center:** consumo REST real de clima, repositorios y datos publicos con cache, proveedor secundario y manejo de errores.
 - **Winamp XP Pro:** reproductor con playlist, visualizador Canvas, ecualizador y loops generados con Web Audio.
 - **PDF Studio:** visor de CV/PDF local con zoom, rotacion, descarga, impresion y notas persistentes.
-- **Perfil FDE:** recorrido ejecutivo para evaluar experiencia profesional, forma de trabajo, casos, stack, formación e idiomas.
+- **Perfil orientado a FDE:** recorrido ejecutivo para evaluar experiencia profesional, forma de trabajo, casos, stack, formación e idiomas.
 - **Buscaminas XP:** primer clic seguro, banderas, dudas, timer, dificultades y deteccion de victoria/derrota.
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
@@ -90,6 +90,8 @@ npm run smoke
 
 El check de performance protege la carga inicial: valida que los fondos y dialogos pesados usen WebP/lazy loading y que los iconos pequeños de la ventana de contacto no vuelvan a depender de PNGs gigantes.
 
+Los iconos de Buscaminas y Pinball son composiciones SVG originales del portfolio; su procedencia y referencias CC0 están documentadas en [`THIRD_PARTY_ASSETS.md`](THIRD_PARTY_ASSETS.md).
+
 ## Estructura
 
 ```text
@@ -117,5 +119,6 @@ Los proyectos con URL publica pueden mostrarse embebidos dentro del explorador. 
 ## Autor
 
 Ivan Agustin Zarate<br>
-Analista en Sistemas | Forward Deployed Engineering | MLOps y Plataformas Digitales<br>
+Software Analyst & Project Manager | Software, Data & AI Solutions | Java, Spring Boot, React, Oracle<br>
+Perfil orientado a oportunidades de Forward Deployed Engineer (FDE).<br>
 [Portfolio](https://iazara.github.io/ZarateXP-Portfolio_v1/) | [github.com/IAZARA](https://github.com/IAZARA) | [forzatech.com.ar](https://forzatech.com.ar/)

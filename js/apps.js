@@ -1,4 +1,4 @@
-import { getProjectsData } from './data/projects.js?v=zaratexp-20260606';
+import { getProjectsData } from './data/projects.js?v=zaratexp-20260712-release';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -85,7 +85,7 @@ export class AppManager {
 
         this.registerApp({
             id: 'recruiter-route',
-            name: 'Perfil FDE',
+            name: 'Perfil orientado a FDE',
             icon: `${hd}/cv.svg`,
             category: 'documents',
             description: 'Experiencia, casos, capacidades y contacto en una sola ruta',
@@ -114,7 +114,7 @@ export class AppManager {
         this.registerApp({
             id: 'minesweeper',
             name: 'Buscaminas',
-            icon: `${hd}/minesweeper.svg`,
+            icon: `${hd}/minesweeper.svg?v=20260712`,
             category: 'games',
             description: 'Juego clásico de Buscaminas',
             handler: () => this._openMinesweeper()
@@ -205,7 +205,7 @@ export class AppManager {
         this.registerApp({
             id: 'pinball',
             name: 'Pinball XP',
-            icon: `${hd}/pinball.svg`,
+            icon: `${hd}/pinball.svg?v=20260712`,
             category: 'games',
             description: 'Mesa de pinball canvas inspirada en XP',
             handler: () => this._openPinball()
@@ -461,9 +461,9 @@ export class AppManager {
                         <header class="about-profile">
                             <img src="images/foto-nuevo-usuario.jpeg" alt="Retrato de Ivan Agustin Zarate" width="112" height="112" loading="eager" decoding="async" />
                             <div>
-                                <p class="about-kicker">Analista en Sistemas</p>
+                                <p class="about-kicker">Software Analyst &amp; Project Manager</p>
                                 <h2>Conecto usuarios, producto y tecnología.</h2>
-                                <p>Perfil orientado a Forward Deployed Engineering, con experiencia en plataformas institucionales, MLOps y datos sensibles.</p>
+                                <p>Perfil orientado a oportunidades de Forward Deployed Engineer (FDE), con experiencia en plataformas institucionales, MLOps y datos sensibles.</p>
                             </div>
                         </header>
                         <div class="about-sections">
@@ -472,7 +472,7 @@ export class AppManager {
                                     <img src="images/sobremi/fullstack-developer.webp" alt="Trabajo de descubrimiento y desarrollo de plataformas" width="136" height="136" loading="lazy" decoding="async" />
                                 </div>
                                 <div class="about-text">
-                                    <h3>Forward Deployed Engineering</h3>
+                                    <h3>Capacidades alineadas con Forward Deployed Engineering</h3>
                                     <p>Relevo necesidades con usuarios, traduzco problemas operativos en definiciones funcionales y técnicas, coordino la integración y acompaño la puesta en producción. Desde 2024 trabajo como <strong>Analista en Sistemas y Project Manager de Plataformas Digitales</strong> en el Ministerio de Seguridad Nacional.</p>
                                 </div>
                             </article>
@@ -1867,7 +1867,7 @@ export class AppManager {
                         <section>
                             <h3>Tareas de documento</h3>
                             <button type="button" data-doc-open="resume">Abrir CV actualizado</button>
-                            <button type="button" data-doc-open="recruiter-route">Abrir perfil FDE</button>
+                            <button type="button" data-doc-open="recruiter-route">Abrir perfil orientado a FDE</button>
                             <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
                             <button type="button" data-doc-open="projects">Ver proyectos web</button>
                             <button type="button" data-doc-open="api-center">Abrir API Center</button>
@@ -1875,7 +1875,7 @@ export class AppManager {
                         </section>
                         <section>
                             <h3>Detalles</h3>
-                            <p>Portfolio orientado a Forward Deployed Engineering, MLOps, plataformas y datos sensibles.</p>
+                            <p>Software Analyst &amp; Project Manager con portfolio orientado a oportunidades FDE, MLOps, plataformas y datos sensibles.</p>
                         </section>
                     </aside>
                     <main class="xp-folder-grid">
@@ -1886,7 +1886,7 @@ export class AppManager {
                         </button>
                         <button type="button" class="xp-folder-item important" data-doc-open="recruiter-route">
                             <img src="./assets/images/hd-icons/cv.svg" alt="">
-                            <span>Perfil FDE.lnk</span>
+                            <span>Perfil orientado a FDE.lnk</span>
                             <small>Experiencia, casos, capacidades y contacto</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="projects">
@@ -1907,7 +1907,7 @@ export class AppManager {
                         <button type="button" class="xp-folder-item" data-doc-open="about-me">
                             <img src="./assets/images/hd-icons/about.svg" alt="">
                             <span>Perfil profesional</span>
-                            <small>FDE + MLOps + plataformas</small>
+                            <small>Software, Data &amp; AI + orientación FDE</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
                             <img src="./assets/images/hd-icons/n8n.svg" alt="">
@@ -1930,7 +1930,7 @@ export class AppManager {
                             <small>Logica Klondike propia</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="pinball">
-                            <img src="./assets/images/hd-icons/pinball.svg" alt="">
+                            <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="">
                             <span>Pinball XP Lab</span>
                             <small>Canvas, fisica y teclado</small>
                         </button>
@@ -1961,8 +1961,8 @@ export class AppManager {
             <div class="xp-recruiter-route">
                 <aside class="xp-task-pane">
                     <section>
-                        <h3>Perfil FDE</h3>
-                        <p>Una vista ejecutiva de experiencia, casos, capacidades y formación para evaluar encaje con un rol Forward Deployed Engineer.</p>
+                        <h3>Perfil orientado a FDE</h3>
+                        <p>Una vista ejecutiva de experiencia verificable, casos, capacidades y formación para evaluar mi encaje con oportunidades de Forward Deployed Engineer.</p>
                     </section>
                     <section>
                         <h3>Accesos directos</h3>
@@ -1977,16 +1977,16 @@ export class AppManager {
                 <main class="xp-fde-brief">
                     <header class="xp-fde-hero">
                         <div>
-                            <span class="xp-fde-role">Analista en Sistemas</span>
+                            <span class="xp-fde-role">Software Analyst &amp; Project Manager | Software, Data &amp; AI Solutions</span>
                             <h2>Del problema en campo a una solución en producción.</h2>
-                            <p>Descubrimiento con usuarios, traducción funcional-técnica, implementación, capacitación y mejora continua.</p>
+                            <p>Perfil orientado a oportunidades de Forward Deployed Engineer (FDE): descubrimiento con usuarios, traducción funcional-técnica, implementación, capacitación y mejora continua.</p>
                         </div>
                         <img src="images/foto-nuevo-usuario.jpeg" alt="Ivan Agustin Zarate" width="112" height="112">
                     </header>
 
                     <section class="xp-fde-section xp-fde-operating-model">
                         <h3>Cómo trabajo</h3>
-                        <div class="xp-fde-flow" aria-label="Proceso de trabajo Forward Deployed Engineering">
+                        <div class="xp-fde-flow" aria-label="Proceso de trabajo alineado con Forward Deployed Engineering">
                             <div><strong>Descubrir</strong><span>Entrevistas, contexto operativo y requerimientos.</span></div>
                             <div><strong>Traducir</strong><span>Definición funcional, arquitectura y prioridades.</span></div>
                             <div><strong>Implementar</strong><span>Integración, validación y puesta en producción.</span></div>
@@ -2069,7 +2069,7 @@ export class AppManager {
 
         return this._createSingleInstanceWindow({
             id: 'recruiter-route',
-            title: 'Perfil FDE - Ivan Agustin Zarate',
+            title: 'Perfil orientado a FDE - Ivan Agustin Zarate',
             icon: './assets/images/hd-icons/cv.svg',
             content,
             width: 920,
@@ -2100,20 +2100,20 @@ export class AppManager {
                         <img src="./assets/images/xp-small-icons/windows-xp-icon-192.png" alt="ZarateXP">
                         <div>
                             <h2>ZarateXP Professional</h2>
-                            <p>Forward Deployed Engineering Edition</p>
+                            <p>FDE-Oriented Portfolio Edition</p>
                             <span>Registrado a nombre de Ivan Agustin Zarate</span>
                         </div>
                     </section>
                     <dl class="xp-system-specs">
                         <dt>Sistema</dt><dd>Windows XP-inspired desktop en HTML, CSS y JavaScript vanilla</dd>
                         <dt>Version</dt><dd>GitHub Pages / build estatico</dd>
-                        <dt>Procesador</dt><dd>Analista en Sistemas + Forward Deployed Engineering</dd>
+                        <dt>Perfil</dt><dd>Software Analyst &amp; Project Manager | orientación FDE</dd>
                         <dt>Memoria</dt><dd>${appsCount} aplicaciones internas, ${projectCount} proyectos destacados</dd>
                         <dt>Resolucion actual</dt><dd>${viewport}</dd>
                         <dt>Estado</dt><dd>${sessionState}</dd>
                     </dl>
                     <div class="xp-system-actions">
-                        <button type="button" data-system-open="recruiter-route">Perfil FDE</button>
+                        <button type="button" data-system-open="recruiter-route">Perfil orientado a FDE</button>
                         <button type="button" data-system-open="control-panel">Panel de control</button>
                         <button type="button" data-system-open="resume">Ver CV</button>
                         <button type="button" data-system-close>Aceptar</button>
@@ -2146,7 +2146,8 @@ export class AppManager {
         const savedText = this._readLocal('zarateXP.notepad', [
             'Notas rapidas - Ivan Zarate',
             '',
-            '- Perfil: Analista en Sistemas / Forward Deployed Engineering',
+            '- Titular: Software Analyst & Project Manager | Software, Data & AI Solutions | Java, Spring Boot, React, Oracle',
+            '- Objetivo: oportunidades de Forward Deployed Engineer (FDE), Solutions Engineering y plataformas con IA',
             '- Foco: plataformas, MLOps, datos sensibles e integracion con usuarios',
             '- Evidencia: CUFRE, SIFEBU, CRIACO, OSINTArgy y proyectos full stack'
         ].join('\n'));
@@ -2214,7 +2215,8 @@ export class AppManager {
     _openWordPad() {
         const savedHtml = this._sanitizeWordPadHtml(this._readLocal('zarateXP.wordpad', `
             <h2>Ivan Agustin Zarate</h2>
-            <p><strong>Analista en Sistemas orientado a Forward Deployed Engineering</strong>.</p>
+            <p><strong>Software Analyst &amp; Project Manager | Software, Data &amp; AI Solutions | Java, Spring Boot, React, Oracle</strong>.</p>
+            <p>Perfil orientado a oportunidades de Forward Deployed Engineer (FDE).</p>
             <p>Relevo necesidades con usuarios, las traduzco en soluciones técnicas y acompaño su integración, puesta en producción y mejora continua.</p>
             <p>Experiencia en MLOps, plataformas institucionales, datos sensibles, Java, Spring Boot, React, TypeScript, Oracle, SQL, GIS y OSINT.</p>
         `));
@@ -2469,35 +2471,60 @@ export class AppManager {
             <div class="xp-api-center" data-api-root>
                 <aside class="xp-api-sidebar">
                     <h2>API Center</h2>
-                    <p>Integraciones reales sin API key para mostrar consumo REST, estados de carga, errores y cache local.</p>
-                    <button type="button" class="active" data-api-tab="weather">Clima</button>
-                    <button type="button" data-api-tab="github">GitHub</button>
-                    <button type="button" data-api-tab="countries">Datos publicos</button>
-                    <button type="button" data-api-run-all>Ejecutar todo</button>
+                    <p>Laboratorio de integraciones REST con datos en vivo, cache local, cancelación y recuperación ante fallos.</p>
+                    <nav class="xp-api-nav" data-api-tabs role="tablist" aria-label="Fuentes de datos">
+                        <button type="button" class="active" data-api-tab="weather" role="tab" aria-selected="true">Clima</button>
+                        <button type="button" data-api-tab="github" role="tab" aria-selected="false">GitHub</button>
+                        <button type="button" data-api-tab="countries" role="tab" aria-selected="false">Países</button>
+                    </nav>
+                    <div class="xp-api-health" aria-label="Estado de proveedores">
+                        <strong>Proveedores</strong>
+                        <span data-api-health="weather">Open-Meteo + wttr.in</span>
+                        <span data-api-health="github">GitHub REST</span>
+                        <span data-api-health="countries">Countries + Banco Mundial</span>
+                    </div>
+                    <div class="xp-api-sidebar-actions">
+                        <button type="button" data-api-refresh-active>Actualizar vista</button>
+                        <button type="button" data-api-run-all>Ejecutar todo</button>
+                        <button type="button" data-api-clear-cache>Limpiar cache</button>
+                    </div>
                 </aside>
                 <main class="xp-api-main">
-                    <section class="xp-api-panel active" data-api-panel="weather">
+                    <div class="xp-api-mobile-tabs" data-api-tabs role="tablist" aria-label="Fuentes de datos">
+                        <button type="button" class="active" data-api-tab="weather" role="tab" aria-selected="true">Clima</button>
+                        <button type="button" data-api-tab="github" role="tab" aria-selected="false">GitHub</button>
+                        <button type="button" data-api-tab="countries" role="tab" aria-selected="false">Países</button>
+                    </div>
+                    <div class="xp-api-mobile-actions" aria-label="Acciones de API Center">
+                        <button type="button" data-api-refresh-active>Actualizar</button>
+                        <button type="button" data-api-run-all>Ejecutar todo</button>
+                        <button type="button" data-api-clear-cache>Limpiar cache</button>
+                    </div>
+                    <section class="xp-api-panel active" data-api-panel="weather" role="tabpanel" aria-label="Clima">
                         <div class="xp-api-toolbar">
-                            <label>Ciudad <input type="search" value="Buenos Aires" data-weather-city></label>
+                            <label for="api-weather-city">Ciudad</label>
+                            <input id="api-weather-city" type="search" value="Buenos Aires" autocomplete="off" data-weather-city>
                             <button type="button" data-weather-run>Consultar clima</button>
                         </div>
-                        <div class="xp-api-result xp-weather-result" data-weather-result></div>
+                        <div class="xp-api-result xp-weather-result" data-weather-result aria-live="polite"></div>
                     </section>
-                    <section class="xp-api-panel" data-api-panel="github">
+                    <section class="xp-api-panel" data-api-panel="github" role="tabpanel" aria-label="GitHub">
                         <div class="xp-api-toolbar">
-                            <label>Usuario <input type="search" value="IAZARA" data-github-user></label>
+                            <label for="api-github-user">Usuario</label>
+                            <input id="api-github-user" type="search" value="IAZARA" autocomplete="off" data-github-user>
                             <button type="button" data-github-run>Traer repos</button>
                         </div>
-                        <div class="xp-api-result" data-github-result></div>
+                        <div class="xp-api-result" data-github-result aria-live="polite"></div>
                     </section>
-                    <section class="xp-api-panel" data-api-panel="countries">
+                    <section class="xp-api-panel" data-api-panel="countries" role="tabpanel" aria-label="Países">
                         <div class="xp-api-toolbar">
-                            <label>Pais <input type="search" value="Argentina" data-country-name></label>
-                            <button type="button" data-country-run>Buscar pais</button>
+                            <label for="api-country-name">País</label>
+                            <input id="api-country-name" type="search" value="Argentina" autocomplete="off" data-country-name>
+                            <button type="button" data-country-run>Buscar país</button>
                         </div>
-                        <div class="xp-api-result" data-country-result></div>
+                        <div class="xp-api-result" data-country-result aria-live="polite"></div>
                     </section>
-                    <footer class="xp-api-log" data-api-log>Listo. Las consultas usan Open-Meteo, GitHub REST y REST Countries.</footer>
+                    <footer class="xp-api-log"><span data-api-log role="status">Listo para consultar datos.</span><time data-api-last-updated>Sin actualizar</time></footer>
                 </main>
             </div>
         `;
@@ -2510,10 +2537,11 @@ export class AppManager {
             width: 820,
             height: 540,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/api-center.js', 'initApiCenterApp')
+                this._loadScriptOnce('js/api-center.js?v=zaratexp-20260712-release', 'initApiCenterApp')
                     .then(() => window.initApiCenterApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar API Center: ${error.message}`));
-            }
+            },
+            onClose: (appWindow) => window.destroyApiCenterApp?.(appWindow)
         });
     }
 
@@ -2572,18 +2600,27 @@ export class AppManager {
         const content = `
             <div class="xp-solitaire-app" data-solitaire-root>
                 <div class="xp-solitaire-toolbar">
-                    <button type="button" data-solitaire-new>Nuevo juego</button>
-                    <button type="button" data-solitaire-undo>Deshacer</button>
-                    <span data-solitaire-status>Solitario listo</span>
-                    <strong data-solitaire-score>0 pts</strong>
+                    <div class="xp-solitaire-actions">
+                        <button type="button" data-solitaire-new>Nuevo</button>
+                        <button type="button" data-solitaire-undo>Deshacer</button>
+                        <button type="button" data-solitaire-hint>Pista</button>
+                        <button type="button" data-solitaire-auto>Auto</button>
+                    </div>
+                    <span data-solitaire-status role="status">Solitario listo</span>
+                    <div class="xp-solitaire-metrics" aria-label="Estadísticas de partida">
+                        <strong data-solitaire-score>0 pts</strong>
+                        <span data-solitaire-moves>0 mov.</span>
+                        <time data-solitaire-time>00:00</time>
+                        <span data-solitaire-best>Mejor: --</span>
+                    </div>
                 </div>
-                <div class="xp-solitaire-board">
+                <div class="xp-solitaire-board" aria-label="Mesa de Solitario Klondike">
                     <div class="xp-solitaire-top">
                         <button type="button" class="xp-card-pile stock" data-pile="stock" aria-label="Mazo"></button>
                         <button type="button" class="xp-card-pile waste" data-pile="waste" aria-label="Descarte"></button>
-                        <div class="xp-foundations" data-foundations></div>
+                        <div class="xp-foundations" data-foundations aria-label="Fundaciones"></div>
                     </div>
-                    <div class="xp-tableau" data-tableau></div>
+                    <div class="xp-tableau" data-tableau aria-label="Columnas del tablero"></div>
                 </div>
             </div>
         `;
@@ -2596,10 +2633,11 @@ export class AppManager {
             width: 860,
             height: 610,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/solitaire.js', 'initSolitaireApp')
+                this._loadScriptOnce('js/solitaire.js?v=zaratexp-20260712-release', 'initSolitaireApp')
                     .then(() => window.initSolitaireApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar Solitario: ${error.message}`));
-            }
+            },
+            onClose: (appWindow) => window.destroySolitaireApp?.(appWindow)
         });
     }
 
@@ -2607,12 +2645,16 @@ export class AppManager {
         const content = `
             <div class="xp-pinball-app" data-pinball-root>
                 <aside class="xp-pinball-panel">
-                    <h2>Pinball XP Lab</h2>
-                    <p>Mesa Canvas con assets HD, fisica propia, targets, lanes, high score y efectos de arcade.</p>
+                    <div class="xp-pinball-brand">
+                        <h2>Pinball XP Lab</h2>
+                        <p>Mesa Canvas con física propia, misiones, combos y progresión arcade.</p>
+                    </div>
                     <div class="xp-pinball-actions">
-                        <button type="button" data-pinball-start>Iniciar / lanzar</button>
+                        <button type="button" data-pinball-start>Iniciar / Lanzar</button>
                         <button type="button" data-pinball-pause>Pausar</button>
                         <button type="button" data-pinball-reset>Reiniciar</button>
+                        <button type="button" data-pinball-sound aria-pressed="true">Sonido: Sí</button>
+                        <button type="button" data-pinball-fullscreen aria-pressed="false">Pantalla completa</button>
                     </div>
                     <dl class="xp-pinball-stats">
                         <dt>Puntos</dt><dd data-pinball-score>0</dd>
@@ -2620,8 +2662,14 @@ export class AppManager {
                         <dt>Bolas</dt><dd data-pinball-balls>3</dd>
                         <dt>Estado</dt><dd data-pinball-state>Listo</dd>
                         <dt>Combo</dt><dd data-pinball-combo>x1</dd>
+                        <dt>Multiplicador</dt><dd data-pinball-multiplier>x1</dd>
+                        <dt>Nivel</dt><dd data-pinball-level>1</dd>
                     </dl>
-                    <div class="xp-pinball-meter" aria-label="Carga del lanzador">
+                    <div class="xp-pinball-mission" aria-live="polite">
+                        <strong>Misión</strong>
+                        <span data-pinball-mission>Encendé los tres carriles XP</span>
+                    </div>
+                    <div class="xp-pinball-meter" role="progressbar" aria-label="Carga del lanzador" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                         <span data-pinball-charge></span>
                     </div>
                     <div class="xp-pinball-pad" aria-label="Controles tactiles">
@@ -2629,10 +2677,10 @@ export class AppManager {
                         <button type="button" data-pinball-plunger>Espacio</button>
                         <button type="button" data-pinball-right>D / Der</button>
                     </div>
-                    <p class="xp-pinball-help">Mantene Espacio o flecha abajo para cargar el lanzador. A/D o flechas mueven los flippers. P pausa, R reinicia.</p>
+                    <p class="xp-pinball-help">Mantené Espacio o flecha abajo para cargar. A/D o flechas controlan los flippers. P pausa, R reinicia.</p>
                 </aside>
                 <main class="xp-pinball-table-wrap">
-                    <canvas width="520" height="700" data-pinball-canvas></canvas>
+                    <canvas width="520" height="700" data-pinball-canvas tabindex="0" aria-label="Mesa interactiva de Pinball XP"></canvas>
                 </main>
             </div>
         `;
@@ -2640,12 +2688,12 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'pinball',
             title: 'Pinball XP Lab',
-            icon: './assets/images/hd-icons/pinball.svg',
+            icon: './assets/images/hd-icons/pinball.svg?v=20260712',
             content,
             width: 900,
             height: 720,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/pinball.js', 'initPinballApp')
+                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260712-release', 'initPinballApp')
                     .then(() => window.initPinballApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar Pinball: ${error.message}`));
             },
@@ -2737,116 +2785,38 @@ export class AppManager {
     }
     
     async _openMinesweeper() {
-        // Prevenir que se abra más de una ventana de Buscaminas
-        if (this.runningApps.has('minesweeper')) {
-            debugLog('Minesweeper is already running');
-            if (this.windowManager && this.windowManager.focusWindow) {
-                this.windowManager.focusWindow('minesweeper');
-            }
-            return;
-        }
-        
+        if (this._focusIfRunning('minesweeper')) return null;
+
         try {
-            // Verificar que WindowManager esté disponible
-            if (!this.windowManager) {
-                throw new Error('WindowManager no está disponible');
-            }
-            
-            // Cargar el contenido del buscaminas
-            debugLog('Loading minesweeper.html...');
             const response = await fetch('./minesweeper.html');
             if (!response.ok) {
                 throw new Error(`Error al cargar minesweeper.html: ${response.statusText} (${response.status})`);
             }
-            const htmlContent = await response.text();
-            
-            // Crear la ventana usando el WindowManager
-            const minesweeperWindow = this.windowManager.createWindow({
+            const content = await response.text();
+
+            // Evita una segunda instancia si dos aperturas coincidieron durante el fetch.
+            if (this._focusIfRunning('minesweeper')) return null;
+
+            return this._createSingleInstanceWindow({
                 id: 'minesweeper',
                 title: 'Buscaminas',
-                icon: './assets/images/hd-icons/minesweeper.svg',
-                content: htmlContent,
-                width: 330,
-                height: 430,
+                icon: './assets/images/hd-icons/minesweeper.svg?v=20260712',
+                content,
+                width: 360,
+                height: 480,
                 resizable: true,
-                maximizable: false
+                maximizable: false,
+                onReady: (appWindow) => {
+                    this._loadScriptOnce('js/minesweeper.js?v=zaratexp-20260712-release', 'initMinesweeperGame')
+                        .then(() => window.initMinesweeperGame?.(appWindow))
+                        .catch((error) => this.showError(`No se pudo iniciar Buscaminas: ${error.message}`));
+                },
+                onClose: (appWindow) => window.destroyMinesweeperGame?.(appWindow)
             });
-            
-            // Cargar dinámicamente el script del buscaminas
-            setTimeout(() => {
-                const windowElement = document.querySelector('[data-window-id="minesweeper"]');
-                if (windowElement) {
-                    // Verificar si ya se ha cargado el script
-                    if (!document.querySelector('script[src="js/minesweeper.js"]')) {
-                        const script = document.createElement('script');
-                        script.src = 'js/minesweeper.js';
-                        script.type = 'text/javascript';
-                        
-                        script.onload = () => {
-                            debugLog('Minesweeper script loaded, initializing game...');
-                            if (typeof initMinesweeperGame === 'function') {
-                                try {
-                                    initMinesweeperGame(windowElement);
-                                    debugLog('Minesweeper game initialized successfully');
-                                } catch (error) {
-                                    console.error('Error initializing minesweeper game:', error);
-                                }
-                            }
-                        };
-                        
-                        script.onerror = (error) => {
-                            console.error('Error loading minesweeper script:', error);
-                        };
-                        
-                        document.head.appendChild(script);
-                    } else {
-                        debugLog('Minesweeper script already loaded, initializing game...');
-                        if (typeof initMinesweeperGame === 'function') {
-                            try {
-                                initMinesweeperGame(windowElement);
-                                debugLog('Minesweeper game initialized successfully');
-                            } catch (error) {
-                                console.error('Error initializing minesweeper game:', error);
-                            }
-                        }
-                    }
-                } else {
-                    debugLog('Minesweeper window element not found');
-                }
-            }, 300);
-            
-            // Configurar observer para detectar cuando se cierra la ventana
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList') {
-                        mutation.removedNodes.forEach((node) => {
-                            if (node.dataset && node.dataset.windowId === 'minesweeper') {
-                                debugLog('Minesweeper window closed');
-                                if (typeof destroyMinesweeperGame === 'function') {
-                                    destroyMinesweeperGame(node);
-                                }
-                                this.closeApp('minesweeper');
-                                observer.disconnect();
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Observar cambios en el contenedor de ventanas
-            if (minesweeperWindow.parentNode) {
-                observer.observe(minesweeperWindow.parentNode, { childList: true });
-            }
-            
-            // Marcar como aplicación en ejecución
-            this.runningApps.set('minesweeper', 'minesweeper');
-            
-            debugLog('Minesweeper window created successfully');
-            return minesweeperWindow;
-            
         } catch (error) {
             console.error('Error al abrir Buscaminas:', error);
             this.showError(`Error al abrir Buscaminas: ${error.message}`);
+            return null;
         }
     }
 

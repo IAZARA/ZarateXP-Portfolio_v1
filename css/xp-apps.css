@@ -1175,8 +1175,8 @@ body.xp-no-animations *::after {
 }
 
 .xp-api-center {
-    grid-template-columns: 220px 1fr;
-    background: #f4f6fb;
+    grid-template-columns: 228px minmax(0, 1fr);
+    background: #eef3fb;
 }
 
 .xp-api-sidebar,
@@ -1186,6 +1186,66 @@ body.xp-no-animations *::after {
     background: linear-gradient(#ffffff, #dce9ff);
     border-right: 1px solid #8aa9d8;
     overflow: auto;
+}
+
+.xp-api-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.xp-api-nav,
+.xp-api-sidebar-actions {
+    display: grid;
+    gap: 3px;
+}
+
+.xp-api-nav {
+    margin-bottom: 12px;
+}
+
+.xp-api-health {
+    margin: 2px 0 10px;
+    padding: 9px;
+    border: 1px solid #9ab4dc;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.xp-api-health strong,
+.xp-api-health span {
+    display: block;
+}
+
+.xp-api-health strong {
+    margin-bottom: 6px;
+    color: #0b3d91;
+}
+
+.xp-api-health span {
+    position: relative;
+    padding: 3px 0 3px 14px;
+    color: #394960;
+}
+
+.xp-api-health span::before {
+    content: '';
+    position: absolute;
+    top: 7px;
+    left: 1px;
+    width: 7px;
+    height: 7px;
+    border: 1px solid #4d6a95;
+    border-radius: 50%;
+    background: #8ca6c9;
+}
+
+.xp-api-health span.loading::before { background: #f3c743; }
+.xp-api-health span.success::before { background: #4caf50; }
+.xp-api-health span.cached::before { background: #4b8de8; }
+.xp-api-health span.error::before { background: #d9534f; }
+
+.xp-api-sidebar-actions {
+    margin-top: auto;
 }
 
 .xp-api-sidebar h2,
@@ -1245,18 +1305,25 @@ body.xp-no-animations *::after {
 .xp-api-main {
     min-width: 0;
     min-height: 0;
-    display: grid;
-    grid-template-rows: 1fr auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.xp-api-mobile-tabs,
+.xp-api-mobile-actions {
+    display: none;
 }
 
 .xp-api-panel {
     display: none;
     min-height: 0;
-    overflow: auto;
+    flex: 1;
+    overflow: hidden;
 }
 
 .xp-api-panel.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
 .xp-api-toolbar,
@@ -1271,6 +1338,15 @@ body.xp-no-animations *::after {
     border-bottom: 1px solid #aca899;
 }
 
+.xp-api-toolbar {
+    flex: 0 0 auto;
+}
+
+.xp-api-toolbar label {
+    font-weight: 700;
+    color: #26374f;
+}
+
 .xp-api-toolbar input {
     width: min(240px, 42vw);
     height: 22px;
@@ -1279,8 +1355,16 @@ body.xp-no-animations *::after {
     font: 11px Tahoma, sans-serif;
 }
 
+.xp-api-toolbar input:focus {
+    outline: 1px solid #316ac5;
+    outline-offset: -2px;
+}
+
 .xp-api-result {
+    flex: 1;
+    min-height: 0;
     padding: 14px;
+    overflow: auto;
 }
 
 .xp-weather-card,
@@ -1346,6 +1430,12 @@ body.xp-no-animations *::after {
     border: 1px solid #b7c9ee;
     background: linear-gradient(#fff, #edf4ff);
     padding: 9px;
+    transition: transform var(--xp-motion-fast) var(--xp-ease-out), border-color var(--xp-motion-fast) var(--xp-ease-out);
+}
+
+.xp-api-cards article:hover {
+    transform: translateY(-2px);
+    border-color: #5f8dcc;
 }
 
 .xp-api-cards strong,
@@ -1361,6 +1451,12 @@ body.xp-no-animations *::after {
 
 .xp-github-list article {
     padding: 12px;
+    transition: transform var(--xp-motion-fast) var(--xp-ease-out), border-color var(--xp-motion-fast) var(--xp-ease-out);
+}
+
+.xp-github-list article:hover {
+    transform: translateY(-2px);
+    border-color: #4f80c4;
 }
 
 .xp-github-list p {
@@ -1402,9 +1498,85 @@ body.xp-no-animations *::after {
     padding: 10px;
 }
 
+.xp-api-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.xp-api-summary > strong {
+    margin-right: 2px;
+    color: #153f7d;
+}
+
+.xp-api-summary > p {
+    flex: 1 0 100%;
+    margin: 2px 0 0;
+    line-height: 1.4;
+}
+
+.xp-api-summary[data-api-empty="true"] {
+    min-height: 150px;
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.xp-api-summary[data-api-empty="true"] > strong,
+.xp-api-summary[data-api-empty="true"] > span {
+    flex-basis: 100%;
+}
+
+.xp-api-empty {
+    min-height: 180px;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    border: 1px dashed #8aa9d8;
+    background: #f8fbff;
+    color: #42516a;
+    text-align: center;
+}
+
+.xp-api-skeleton {
+    display: grid;
+    gap: 9px;
+}
+
+.xp-api-skeleton span {
+    display: block;
+    height: 18px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #dce7f7 25%, #f5f8fd 45%, #dce7f7 70%);
+    background-size: 220% 100%;
+    animation: xp-api-shimmer 1.1s ease-in-out infinite;
+}
+
+.xp-api-skeleton span:first-child { width: 42%; height: 52px; }
+.xp-api-skeleton span:nth-child(2) { width: 88%; }
+.xp-api-skeleton span:nth-child(3) { width: 70%; }
+
+@keyframes xp-api-shimmer {
+    from { background-position: 100% 0; }
+    to { background-position: -100% 0; }
+}
+
 .xp-api-error {
+    display: grid;
+    gap: 6px;
     border-color: #bd3f2f;
     background: #fff2ed;
+}
+
+.xp-api-error [data-api-retry] {
+    justify-self: start;
+    margin-top: 2px;
+}
+
+.xp-api-loading {
+    display: flex;
+    align-items: center;
 }
 
 .xp-api-loading span {
@@ -1424,6 +1596,15 @@ body.xp-no-animations *::after {
     border-top: 1px solid #aca899;
     background: #ffffe1;
     padding: 7px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.xp-api-log time {
+    flex: 0 0 auto;
+    color: #596273;
 }
 
 .xp-pdf-studio {
@@ -1671,60 +1852,112 @@ body.xp-no-animations *::after {
     height: 100%;
     display: grid;
     grid-template-rows: auto 1fr;
-    background: #16803c;
+    background: #0e6d37;
     font: 11px Tahoma, sans-serif;
 }
 
 .xp-solitaire-toolbar {
     justify-content: flex-start;
+    flex-wrap: wrap;
+    min-height: 42px;
+    box-shadow: inset 0 1px 0 #fff;
+}
+
+.xp-solitaire-actions,
+.xp-solitaire-metrics {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .xp-solitaire-toolbar [data-solitaire-status] {
     flex: 1;
+    min-width: 180px;
+    padding: 4px 8px;
+    border: 1px inset #fff;
+    background: #fffef2;
+    color: #26374f;
+}
+
+.xp-solitaire-metrics {
+    margin-left: auto;
+}
+
+.xp-solitaire-metrics > * {
+    min-width: 58px;
+    padding: 3px 6px;
+    border: 1px solid #b4b0a2;
+    background: #f8f7f0;
+    color: #27364a;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .xp-solitaire-board {
+    position: relative;
     min-height: 0;
     overflow: auto;
-    padding: 16px;
+    padding: 18px;
     background:
-        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.12), transparent 20%),
-        #16803c;
+        radial-gradient(circle at 18% 12%, rgba(255,255,255,0.13), transparent 22%),
+        radial-gradient(circle at 78% 80%, rgba(0,0,0,0.12), transparent 28%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 4px),
+        #0f7a3e;
+    box-shadow: inset 0 0 24px rgba(0, 39, 15, 0.35);
 }
 
 .xp-solitaire-top {
     display: grid;
-    grid-template-columns: 78px 78px 1fr;
-    gap: 12px;
+    grid-template-columns: 82px 82px 1fr;
+    gap: 14px;
     align-items: start;
-    margin-bottom: 20px;
+    min-width: 690px;
+    margin-bottom: 24px;
 }
 
 .xp-foundations {
     display: grid;
-    grid-template-columns: repeat(4, 78px);
-    gap: 12px;
+    grid-template-columns: repeat(4, 82px);
+    gap: 14px;
     justify-content: end;
 }
 
 .xp-tableau {
     display: grid;
-    grid-template-columns: repeat(7, 78px);
-    gap: 12px;
+    grid-template-columns: repeat(7, 82px);
+    gap: 14px;
     align-items: start;
+    min-width: 690px;
 }
 
 .xp-tableau-column {
-    min-height: 310px;
-    border-radius: 5px;
+    min-height: 360px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    transition: background-color var(--xp-motion-fast) ease-out, border-color var(--xp-motion-fast) ease-out;
+}
+
+.xp-tableau-column.drop-target,
+.xp-tableau-column.drag-target,
+.xp-tableau-column:focus-within {
+    border-color: rgba(255,255,255,0.62);
+    background: rgba(255,255,255,0.08);
+}
+
+.xp-card-pile.drag-target,
+.xp-tableau-column.drag-target {
+    outline: 3px solid #7bff91;
+    outline-offset: 2px;
+    box-shadow: 0 0 16px rgba(123, 255, 145, 0.56);
 }
 
 .xp-card-pile,
 .xp-playing-card {
-    width: 78px;
-    height: 108px;
-    border-radius: 7px;
-    border: 1px solid rgba(0, 0, 0, 0.48);
+    box-sizing: border-box;
+    width: 82px;
+    height: 114px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.58);
     font: 700 14px Tahoma, sans-serif;
 }
 
@@ -1733,15 +1966,18 @@ body.xp-no-animations *::after {
     place-items: center;
     background: rgba(0, 0, 0, 0.12);
     color: rgba(255, 255, 255, 0.82);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
 }
 
 .xp-playing-card {
     position: relative;
     display: block;
-    margin-bottom: -72px;
+    margin-bottom: -74px;
     background: #fff;
-    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.24);
-    padding: 5px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.34);
+    padding: 6px;
+    cursor: pointer;
+    transition: transform var(--xp-motion-fast) var(--xp-ease-out), box-shadow var(--xp-motion-fast) var(--xp-ease-out), outline-color var(--xp-motion-fast) ease-out;
 }
 
 .xp-card-pile > .xp-playing-card {
@@ -1750,7 +1986,32 @@ body.xp-no-animations *::after {
 
 .xp-playing-card.selected {
     outline: 3px solid #ffdf4d;
+    outline-offset: 1px;
     transform: translateY(-4px);
+    box-shadow: 0 7px 12px rgba(0,0,0,0.34);
+}
+
+.xp-playing-card:not(.back):hover,
+.xp-playing-card:not(.back):focus-visible {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.32);
+}
+
+.xp-playing-card.hint,
+.xp-playing-card.hint-source,
+.xp-card-pile.hint,
+.xp-card-pile.hint-target,
+.xp-tableau-column.hint-target {
+    animation: xp-solitaire-hint 0.7s ease-in-out 2;
+}
+
+.xp-playing-card.dragging {
+    opacity: 0.58;
+    transform: translateY(-8px) rotate(-1deg);
+}
+
+.xp-playing-card.invalid {
+    animation: xp-solitaire-invalid 0.25s ease-in-out 2;
 }
 
 .xp-playing-card.back,
@@ -1772,6 +2033,7 @@ body.xp-no-animations *::after {
     display: grid;
     place-items: center;
     font-size: 32px;
+    pointer-events: none;
 }
 
 .xp-playing-card small {
@@ -1800,8 +2062,38 @@ body.xp-no-animations *::after {
     opacity: 0.5;
 }
 
+.xp-solitaire-win {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: grid;
+    place-items: center;
+    background: rgba(3, 56, 24, 0.72);
+}
+
+.xp-solitaire-win > div {
+    max-width: 320px;
+    padding: 24px;
+    border: 3px solid #f8cf46;
+    border-radius: 10px;
+    background: #fffef1;
+    color: #17375e;
+    text-align: center;
+    box-shadow: 0 16px 36px rgba(0,0,0,0.42);
+}
+
+@keyframes xp-solitaire-hint {
+    0%, 100% { outline: 2px solid transparent; }
+    50% { outline: 4px solid #ffe15a; transform: translateY(-5px); }
+}
+
+@keyframes xp-solitaire-invalid {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+}
+
 .xp-pinball-app {
-    grid-template-columns: 250px 1fr;
+    grid-template-columns: 270px minmax(0, 1fr);
     background:
         radial-gradient(circle at 72% 18%, rgba(108, 240, 145, 0.18), transparent 26%),
         linear-gradient(145deg, #06132d 0%, #102a67 46%, #061326 100%);
@@ -1815,6 +2107,27 @@ body.xp-no-animations *::after {
     color: #10233f;
 }
 
+.xp-pinball-brand {
+    margin: -14px -14px 12px;
+    padding: 15px 14px 13px;
+    border-bottom: 1px solid #5d7da9;
+    background: linear-gradient(145deg, #123f82, #2f73c5);
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.xp-pinball-brand h2 {
+    margin: 0 0 5px;
+    color: #fff;
+    font: 700 17px Tahoma, sans-serif;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.35);
+}
+
+.xp-pinball-brand p {
+    margin: 0;
+    color: #eaf3ff;
+}
+
 .xp-pinball-actions,
 .xp-pinball-pad {
     display: grid;
@@ -1826,20 +2139,54 @@ body.xp-no-animations *::after {
     margin-bottom: 10px;
 }
 
-.xp-pinball-actions button:first-child,
-.xp-pinball-actions button:last-child {
+.xp-pinball-actions button:first-child {
     grid-column: 1 / -1;
+}
+
+.xp-pinball-actions button[aria-pressed="false"] {
+    color: #5d6470;
+    background: linear-gradient(#f3f3f3, #d8d5cb);
 }
 
 .xp-pinball-stats {
     border: 1px solid #8aa9d8;
-    background: rgba(255, 255, 255, 0.76);
-    padding: 9px;
+    background: rgba(255, 255, 255, 0.84);
+    padding: 10px;
     margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: inset 1px 1px 0 #fff;
+}
+
+.xp-pinball-stats dd {
+    color: #0b3d91;
+    font-variant-numeric: tabular-nums;
+}
+
+.xp-pinball-mission {
+    margin-bottom: 9px;
+    padding: 9px;
+    border: 1px solid #8aa9d8;
+    border-left: 4px solid #2f67b2;
+    background: #f5f9ff;
+}
+
+.xp-pinball-mission strong,
+.xp-pinball-mission span {
+    display: block;
+}
+
+.xp-pinball-mission strong {
+    margin-bottom: 4px;
+    color: #0b3d91;
+}
+
+.xp-pinball-mission.complete {
+    border-left-color: #4d9f39;
+    background: #f0faed;
 }
 
 .xp-pinball-meter {
-    height: 13px;
+    height: 15px;
     border: 1px inset #fff;
     background: #fff;
     margin: 8px 0 12px;
@@ -1855,6 +2202,11 @@ body.xp-no-animations *::after {
     transition: width 0.08s linear;
 }
 
+.xp-pinball-meter span[data-skill-shot="true"] {
+    background: linear-gradient(90deg, #fff25d, #7dff80);
+    box-shadow: 0 0 11px rgba(255, 237, 79, 0.92);
+}
+
 .xp-pinball-pad {
     grid-template-columns: repeat(3, 1fr);
     margin-bottom: 10px;
@@ -1864,6 +2216,15 @@ body.xp-no-animations *::after {
 .xp-pinball-actions button {
     text-align: center;
     touch-action: none;
+    transition: transform var(--xp-motion-fast) var(--xp-ease-out), background-color var(--xp-motion-fast) ease-out;
+}
+
+.xp-pinball-pad button:active,
+.xp-pinball-pad button.pressed,
+.xp-pinball-pad button[data-active],
+.xp-pinball-actions button:active {
+    transform: translateY(1px) scale(0.97);
+    background: linear-gradient(#c8dcf7, #f7fbff);
 }
 
 .xp-pinball-help {
@@ -1879,7 +2240,10 @@ body.xp-no-animations *::after {
     display: grid;
     place-items: center;
     overflow: auto;
-    padding: 10px;
+    padding: 14px;
+    background:
+        radial-gradient(circle at 50% 15%, rgba(83,207,255,0.17), transparent 28%),
+        linear-gradient(145deg, rgba(1,8,28,0.28), transparent 50%);
 }
 
 .xp-pinball-table-wrap canvas {
@@ -1895,6 +2259,15 @@ body.xp-no-animations *::after {
         0 14px 28px rgba(0, 0, 0, 0.48);
     image-rendering: auto;
     touch-action: none;
+    outline: none;
+}
+
+.xp-pinball-table-wrap canvas:focus-visible {
+    border-color: #fff27a;
+    box-shadow:
+        0 0 0 2px #315f9d,
+        0 0 26px rgba(255, 236, 91, 0.38),
+        0 14px 28px rgba(0, 0, 0, 0.48);
 }
 
 @keyframes xp-spin {
@@ -1916,9 +2289,106 @@ body.xp-no-animations *::after {
     .xp-task-pane,
     .xp-n8n-sidebar,
     .xp-api-sidebar,
-    .xp-pdf-sidebar,
-    .xp-pinball-panel {
+    .xp-pdf-sidebar {
         display: none;
+    }
+
+    .xp-api-mobile-tabs {
+        display: flex;
+        gap: 3px;
+        padding: 5px;
+        border-bottom: 1px solid #aca899;
+        background: #ece9d8;
+        overflow-x: auto;
+    }
+
+    .xp-api-mobile-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3px;
+        padding: 4px 5px;
+        border-bottom: 1px solid #aca899;
+        background: #f7f5e9;
+    }
+
+    .xp-api-mobile-actions button {
+        min-width: 0;
+        padding-inline: 4px;
+        white-space: nowrap;
+    }
+
+    .xp-api-mobile-tabs button {
+        flex: 1 0 auto;
+        min-height: 28px;
+        border: 1px solid #7f9db9;
+        background: linear-gradient(#fff, #e4e9f2);
+        font: 11px Tahoma, sans-serif;
+    }
+
+    .xp-api-mobile-tabs button.active {
+        border-color: #164ba1;
+        background: #dce9ff;
+        color: #0b3d91;
+        font-weight: 700;
+    }
+
+    .xp-api-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .xp-api-toolbar input {
+        flex: 1;
+        width: auto;
+        min-width: 160px;
+    }
+
+    .xp-api-log {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .xp-pinball-app {
+        grid-template-rows: auto minmax(420px, 1fr);
+        overflow: auto;
+    }
+
+    .xp-pinball-panel {
+        display: block;
+        overflow: visible;
+    }
+
+    .xp-pinball-brand {
+        padding-block: 11px;
+    }
+
+    .xp-pinball-panel .xp-pinball-stats {
+        grid-template-columns: repeat(4, auto 1fr);
+        gap: 5px 7px;
+    }
+
+    .xp-pinball-help {
+        margin-bottom: 0 !important;
+    }
+
+    .xp-solitaire-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .xp-solitaire-actions,
+    .xp-solitaire-metrics {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .xp-solitaire-toolbar [data-solitaire-status] {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .xp-solitaire-metrics {
+        margin-left: 0;
     }
 
     .xp-flow-log {
@@ -1934,5 +2404,40 @@ body.xp-no-animations *::after {
     .xp-weather-card,
     .xp-winamp-pro {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 460px) {
+    .xp-pinball-panel .xp-pinball-stats {
+        grid-template-columns: auto 1fr auto 1fr;
+    }
+
+    .xp-pinball-actions,
+    .xp-pinball-pad {
+        gap: 4px;
+    }
+
+    .xp-pinball-table-wrap {
+        padding: 7px;
+    }
+
+    .xp-pinball-table-wrap canvas {
+        width: auto;
+        max-width: 100%;
+        max-height: 400px;
+    }
+
+    .xp-pinball-help {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .xp-api-skeleton span,
+    .xp-playing-card,
+    .xp-playing-card.hint,
+    .xp-playing-card.invalid {
+        animation: none !important;
+        transition: none !important;
     }
 }

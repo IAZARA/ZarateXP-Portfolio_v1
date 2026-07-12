@@ -6,7 +6,7 @@ export class ClippyManager {
         this.isVisible = false;
         this.welcomeShown = false;
         this.tips = [
-            '<p class="welcome-text">Hola, soy el asistente de ZarateXP.</p><p class="subtitle">Abre Perfil FDE para revisar experiencia, casos, capacidades y contacto.</p>',
+            '<p class="welcome-text">Hola, soy el asistente de ZarateXP.</p><p class="subtitle">Abre Perfil orientado a FDE para revisar experiencia, casos, capacidades y contacto.</p>',
             '<p class="welcome-text">Tip de portfolio</p><p class="subtitle">En Mis Proyectos puedes abrir ForzaTech, Estudio Luttini y WJPC embebidos.</p>',
             '<p class="welcome-text">APIs en vivo</p><p class="subtitle">API Center consulta clima, GitHub y datos publicos sin API key.</p>',
             '<p class="welcome-text">PDF Studio</p><p class="subtitle">Puedes abrir el CV, cargar PDFs locales y guardar notas de revision.</p>',
