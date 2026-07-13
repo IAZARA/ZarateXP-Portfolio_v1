@@ -458,6 +458,14 @@ async function exerciseWinamp(page) {
     const windowNode = document.querySelector('.window[data-window-id="winamp"]');
     return windowNode?._winampProApp?.tracks?.length === 6;
   });
+  await page.waitForFunction(() => {
+    const windowNode = document.querySelector('.window[data-window-id="winamp"]');
+    if (!windowNode) return false;
+    const transform = getComputedStyle(windowNode).transform;
+    if (transform === 'none') return true;
+    const matrix = new DOMMatrixReadOnly(transform);
+    return Math.abs(matrix.a - 1) < 0.001 && Math.abs(matrix.d - 1) < 0.001;
+  });
 
   const playlist = appWindow.locator('[data-winamp-playlist] [data-track-index]');
   ensure(await playlist.count() === 6, 'Winamp no renderizó las seis pistas esperadas');
