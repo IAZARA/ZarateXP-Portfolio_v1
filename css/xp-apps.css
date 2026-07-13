@@ -3613,6 +3613,7 @@ body.xp-no-animations *::after {
     }
 
     .xp-pinball-canvas-stage {
+        grid-template-rows: minmax(0, 1fr);
         padding-bottom: 6px;
         box-sizing: border-box;
     }
@@ -4283,6 +4284,20 @@ body.xp-no-animations *::after {
     }
 
     .xp-winamp-statusbar > span:last-child {
+        display: none;
+    }
+}
+
+@media (max-height: 720px) and (max-width: 760px),
+       (max-height: 720px) and (pointer: coarse) {
+    .xp-pinball-panel {
+        grid-template-areas: "actions";
+        grid-template-rows: 44px;
+    }
+
+    .xp-pinball-panel .xp-pinball-stats,
+    .xp-pinball-panel .xp-pinball-mission,
+    .xp-pinball-panel .xp-pinball-meter {
         display: none;
     }
 }

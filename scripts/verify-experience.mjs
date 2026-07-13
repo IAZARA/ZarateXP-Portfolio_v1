@@ -37,6 +37,7 @@ const source = [
   'css/xp-apps.css',
   'css/minesweeper.css',
   'css/proyectos-explorer.css',
+  'scripts/smoke-playwright.mjs',
   'assets/images/hd-icons/minesweeper.svg',
   'assets/images/hd-icons/pinball.svg'
 ].map(read).join('\n');
@@ -100,6 +101,8 @@ const checks = [
   ['Pinball accessibility and cleanup', /toggleFullscreen[\s\S]*destroyPinballApp/],
   ['Pinball responsive touch dock', /\.xp-pinball-pad\s*\{[\s\S]{0,500}display:\s*none[\s\S]*@media\s*\(max-width:\s*760px\)[\s\S]{0,2000}\.xp-pinball-pad\s*\{[\s\S]{0,300}display:\s*grid/],
   ['Pinball touch controls and release', /data-pinball-left[\s\S]*data-pinball-plunger[\s\S]*data-pinball-right[\s\S]*bindPadButton[\s\S]*pointerdown[\s\S]*pointerup/],
+  ['Pinball mobile viewport regression matrix', /PINBALL_MOBILE_VIEWPORTS[\s\S]{0,500}375[\s\S]{0,100}600[\s\S]{0,500}430[\s\S]{0,100}739[\s\S]{0,500}390[\s\S]{0,100}844/],
+  ['Pinball complete mobile playfield audit', /canvasContained[\s\S]{0,5000}ratioWithinTolerance[\s\S]{0,5000}logicalVisibleBottom[\s\S]{0,5000}flippersComplete/],
   ['Winamp real music order', /acdc-thunderstruck\.mp3[\s\S]*soda-stereo-tratame-suavemente\.mp3/],
   ['Winamp media and Web Audio graph', /createBiquadFilter[\s\S]*createAnalyser[\s\S]*createMediaElementSource/],
   ['Winamp custom equalizer controls', /data-eq-output="bass"[\s\S]*appearance:\s*none[\s\S]*slider-runnable-track[\s\S]*slider-thumb/],

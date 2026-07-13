@@ -1066,9 +1066,21 @@ async function touchPinballControl(page, cdp, button, selector, control, touchId
   return released;
 }
 
-async function exerciseMobileClippyAndPinball(browser, baseUrl) {
+const PINBALL_BOARD_WIDTH = 520;
+const PINBALL_BOARD_HEIGHT = 700;
+const PINBALL_RATIO_TOLERANCE = 0.005;
+const PINBALL_MOBILE_VIEWPORTS = [
+  { width: 375, height: 600 },
+  { width: 390, height: 664 },
+  { width: 390, height: 745 },
+  { width: 430, height: 739, exerciseTouch: true },
+  { width: 430, height: 824 },
+  { width: 390, height: 844 }
+];
+
+async function auditMobilePinballViewport(browser, baseUrl, viewportCase) {
   const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
+    viewport: { width: viewportCase.width, height: viewportCase.height },
     isMobile: true,
     hasTouch: true,
     deviceScaleFactor: 2
@@ -1087,15 +1099,17 @@ async function exerciseMobileClippyAndPinball(browser, baseUrl) {
     await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
     await page.waitForFunction(() => Boolean(window.zarateXP?.appManager?.windowManager), null, { timeout: 12000 });
 
-    const trayClippy = page.locator('.tray-clippy-icon');
-    ensure(await trayClippy.count() === 1 && await trayClippy.isHidden(), 'El icono de Clippy en la bandeja no quedo oculto en un dispositivo movil real');
+    if (viewportCase.exerciseTouch) {
+      const trayClippy = page.locator('.tray-clippy-icon');
+      ensure(await trayClippy.count() === 1 && await trayClippy.isHidden(), 'El icono de Clippy en la bandeja no quedo oculto en un dispositivo movil real');
 
-    await page.evaluate(() => window.zarateXP.clippyManager.showWelcome());
-    await page.waitForTimeout(650);
-    ensure(await page.locator('clippy-character').count() === 0, 'showWelcome creo un host de Clippy en movil');
-    await page.evaluate(() => window.zarateXP.clippyManager.showTip(0));
-    await page.waitForTimeout(650);
-    ensure(await page.locator('clippy-character').count() === 0, 'showTip creo un host de Clippy en movil');
+      await page.evaluate(() => window.zarateXP.clippyManager.showWelcome());
+      await page.waitForTimeout(650);
+      ensure(await page.locator('clippy-character').count() === 0, 'showWelcome creo un host de Clippy en movil');
+      await page.evaluate(() => window.zarateXP.clippyManager.showTip(0));
+      await page.waitForTimeout(650);
+      ensure(await page.locator('clippy-character').count() === 0, 'showTip creo un host de Clippy en movil');
+    }
 
     const appWindow = await openApp(page, 'pinball');
     const root = appWindow.locator('[data-pinball-root]');
@@ -1109,77 +1123,177 @@ async function exerciseMobileClippyAndPinball(browser, baseUrl) {
     }, null, { timeout: 12000 });
     await waitForWindowAnimation(page, 'pinball');
 
-    const mobileLayout = await appWindow.evaluate((windowNode) => {
+    const mobileLayout = await appWindow.evaluate((windowNode, board) => {
       const rootNode = windowNode.querySelector('[data-pinball-root]');
       const windowBody = windowNode.querySelector('.window-body');
+      const tableWrap = rootNode?.querySelector('.xp-pinball-table-wrap');
+      const canvasStage = rootNode?.querySelector('.xp-pinball-canvas-stage');
       const canvasNode = rootNode?.querySelector('[data-pinball-canvas]');
       const pad = rootNode?.querySelector('.xp-pinball-pad');
+      const app = rootNode?._pinballApp || rootNode?.closest('.window')?._pinballApp;
       const requiredButtons = [
         rootNode?.querySelector('[data-pinball-left]'),
         rootNode?.querySelector('[data-pinball-plunger]'),
         rootNode?.querySelector('[data-pinball-right]')
       ];
-      if (!rootNode || !windowBody || !canvasNode || !pad || requiredButtons.some((button) => !button)) {
+      if (!rootNode || !windowBody || !tableWrap || !canvasStage || !canvasNode || !pad || !app || requiredButtons.some((button) => !button)) {
         return { complete: false };
       }
 
       const bodyRect = windowBody.getBoundingClientRect();
+      const wrapRect = tableWrap.getBoundingClientRect();
+      const stageRect = canvasStage.getBoundingClientRect();
       const canvasRect = canvasNode.getBoundingClientRect();
       const padRect = pad.getBoundingClientRect();
       const taskbarTop = document.querySelector('.taskbar')?.getBoundingClientRect().top ?? window.innerHeight;
-      const usableBottom = Math.min(window.innerHeight, taskbarTop);
-      const inViewport = (rect) => rect.width > 0 && rect.height > 0
-        && rect.left >= -1 && rect.right <= window.innerWidth + 1
-        && rect.top >= -1 && rect.bottom <= usableBottom + 1;
-      const inWindowBody = (rect) => rect.left >= bodyRect.left - 1
-        && rect.right <= bodyRect.right + 1
-        && rect.top >= bodyRect.top - 1
-        && rect.bottom <= bodyRect.bottom + 1;
+      const visualViewportRect = {
+        left: window.visualViewport?.offsetLeft ?? 0,
+        top: window.visualViewport?.offsetTop ?? 0,
+        right: (window.visualViewport?.offsetLeft ?? 0) + (window.visualViewport?.width ?? window.innerWidth),
+        bottom: (window.visualViewport?.offsetTop ?? 0) + (window.visualViewport?.height ?? window.innerHeight)
+      };
+      const usableViewportRect = {
+        ...visualViewportRect,
+        bottom: Math.min(visualViewportRect.bottom, taskbarTop)
+      };
+      const contains = (outer, inner, tolerance = 1) => inner.width > 0 && inner.height > 0
+        && inner.left >= outer.left - tolerance
+        && inner.right <= outer.right + tolerance
+        && inner.top >= outer.top - tolerance
+        && inner.bottom <= outer.bottom + tolerance;
+      const clipRect = {
+        left: Math.max(stageRect.left, wrapRect.left, bodyRect.left, usableViewportRect.left),
+        top: Math.max(stageRect.top, wrapRect.top, bodyRect.top, usableViewportRect.top),
+        right: Math.min(stageRect.right, wrapRect.right, bodyRect.right, usableViewportRect.right),
+        bottom: Math.min(stageRect.bottom, wrapRect.bottom, bodyRect.bottom, usableViewportRect.bottom)
+      };
+
+      const canvasStyle = getComputedStyle(canvasNode);
+      const borderLeft = Number.parseFloat(canvasStyle.borderLeftWidth) || 0;
+      const borderRight = Number.parseFloat(canvasStyle.borderRightWidth) || 0;
+      const borderTop = Number.parseFloat(canvasStyle.borderTopWidth) || 0;
+      const borderBottom = Number.parseFloat(canvasStyle.borderBottomWidth) || 0;
+      const canvasContentRect = {
+        left: canvasRect.left + borderLeft,
+        top: canvasRect.top + borderTop,
+        right: canvasRect.right - borderRight,
+        bottom: canvasRect.bottom - borderBottom,
+        width: canvasRect.width - borderLeft - borderRight,
+        height: canvasRect.height - borderTop - borderBottom
+      };
+      const intrinsicRatio = canvasNode.width / canvasNode.height;
+      const renderedRatio = canvasContentRect.width / canvasContentRect.height;
+      const ratioError = Math.abs((renderedRatio / intrinsicRatio) - 1);
+      const visibleContentBottom = Math.min(canvasContentRect.bottom, clipRect.bottom);
+      const logicalVisibleBottom = Math.max(0, Math.min(
+        board.height,
+        ((visibleContentBottom - canvasContentRect.top) / canvasContentRect.height) * board.height
+      ));
+      const logicalToPixelRect = (bounds) => ({
+        left: canvasContentRect.left + (bounds.left / board.width) * canvasContentRect.width,
+        right: canvasContentRect.left + (bounds.right / board.width) * canvasContentRect.width,
+        top: canvasContentRect.top + (bounds.top / board.height) * canvasContentRect.height,
+        bottom: canvasContentRect.top + (bounds.bottom / board.height) * canvasContentRect.height,
+        width: ((bounds.right - bounds.left) / board.width) * canvasContentRect.width,
+        height: ((bounds.bottom - bounds.top) / board.height) * canvasContentRect.height
+      });
+      const flipperBounds = ['left', 'right'].map((side) => {
+        const segment = app.flipperSegment(side);
+        return logicalToPixelRect({
+          left: Math.min(segment.a.x, segment.b.x) - segment.thickness,
+          right: Math.max(segment.a.x, segment.b.x) + segment.thickness,
+          top: Math.min(segment.a.y, segment.b.y) - segment.thickness,
+          bottom: Math.max(segment.a.y, segment.b.y) + segment.thickness
+        });
+      });
       const scrollingElement = document.scrollingElement;
       const scrollSurfaces = [scrollingElement, windowBody, rootNode].filter(Boolean);
+      const containment = {
+        stage: contains(stageRect, canvasRect),
+        wrap: contains(wrapRect, canvasRect),
+        body: contains(bodyRect, canvasRect),
+        visualViewport: contains(usableViewportRect, canvasRect)
+      };
 
       return {
         complete: true,
-        viewport: { width: window.innerWidth, height: window.innerHeight, usableBottom },
+        viewport: {
+          width: window.innerWidth,
+          height: window.innerHeight,
+          visualWidth: window.visualViewport?.width ?? window.innerWidth,
+          visualHeight: window.visualViewport?.height ?? window.innerHeight,
+          usableBottom: usableViewportRect.bottom
+        },
         hasTouch: navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches,
         buttonCount: pad.querySelectorAll('button').length,
-        padVisible: getComputedStyle(pad).display !== 'none' && inViewport(padRect) && inWindowBody(padRect),
-        canvasVisible: getComputedStyle(canvasNode).display !== 'none' && inViewport(canvasRect) && inWindowBody(canvasRect),
+        padVisible: getComputedStyle(pad).display !== 'none'
+          && contains(wrapRect, padRect)
+          && contains(bodyRect, padRect)
+          && contains(usableViewportRect, padRect),
+        canvasContained: Object.values(containment).every(Boolean),
+        containment,
+        ratioError,
+        ratioWithinTolerance: Number.isFinite(ratioError) && ratioError <= board.ratioTolerance,
+        logicalVisibleBottom,
+        bottomEdgeVisible: logicalVisibleBottom >= board.height - 1,
+        flippersComplete: flipperBounds.every((bounds) => contains(clipRect, bounds)),
         targetsLargeEnough: requiredButtons.every((button) => {
           const rect = button.getBoundingClientRect();
           return rect.width >= 43.5 && rect.height >= 43.5;
         }),
         noVerticalScroll: scrollSurfaces.every((surface) => surface.scrollHeight <= surface.clientHeight + 1 && Math.abs(surface.scrollTop) <= 1),
         canvas: { top: canvasRect.top, bottom: canvasRect.bottom, width: canvasRect.width, height: canvasRect.height },
+        canvasContent: canvasContentRect,
+        clip: clipRect,
         pad: { top: padRect.top, bottom: padRect.bottom, width: padRect.width, height: padRect.height },
         body: { top: bodyRect.top, bottom: bodyRect.bottom, scrollHeight: windowBody.scrollHeight, clientHeight: windowBody.clientHeight },
         root: { scrollHeight: rootNode.scrollHeight, clientHeight: rootNode.clientHeight },
+        flippers: flipperBounds,
         buttons: requiredButtons.map((button) => {
           const rect = button.getBoundingClientRect();
           return { width: rect.width, height: rect.height };
         })
       };
+    }, {
+      width: PINBALL_BOARD_WIDTH,
+      height: PINBALL_BOARD_HEIGHT,
+      ratioTolerance: PINBALL_RATIO_TOLERANCE
     });
 
-    ensure(mobileLayout.complete && mobileLayout.hasTouch, `El contexto movil no expuso touch real (${JSON.stringify(mobileLayout)})`);
-    ensure(mobileLayout.buttonCount === 3 && mobileLayout.targetsLargeEnough, `El dock de Pinball no expuso tres controles de al menos 44 px (${JSON.stringify(mobileLayout)})`);
-    ensure(mobileLayout.padVisible && mobileLayout.canvasVisible && mobileLayout.noVerticalScroll, `Canvas y dock de Pinball no quedaron visibles simultaneamente sin scroll vertical (${JSON.stringify(mobileLayout)})`);
+    const caseLabel = `${viewportCase.width}x${viewportCase.height}`;
+    ensure(mobileLayout.complete && mobileLayout.hasTouch, `El contexto movil ${caseLabel} no expuso touch real (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.buttonCount === 3 && mobileLayout.targetsLargeEnough, `El dock de Pinball no expuso tres controles de al menos 44 px en ${caseLabel} (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.padVisible && mobileLayout.canvasContained, `Canvas o dock de Pinball quedaron recortados en ${caseLabel} (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.ratioWithinTolerance, `El canvas de Pinball deformo la relacion 520:700 en ${caseLabel} (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.logicalVisibleBottom >= PINBALL_BOARD_HEIGHT - 1 && mobileLayout.bottomEdgeVisible, `El borde inferior del tablero no quedo visible en ${caseLabel} (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.flippersComplete, `Los flippers no quedaron completamente visibles en ${caseLabel} (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.noVerticalScroll, `Pinball genero scroll vertical en ${caseLabel} (${JSON.stringify(mobileLayout)})`);
 
-    const cdp = await context.newCDPSession(page);
-    await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-left]'), '[data-pinball-left]', 'left', 11);
-    await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-right]'), '[data-pinball-right]', 'right', 12);
-    await root.evaluate((rootNode) => {
-      const app = rootNode._pinballApp || rootNode.closest('.window')?._pinballApp;
-      app.resetGame({ announce: false });
-    });
-    const plungerReleased = await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-plunger]'), '[data-pinball-plunger]', 'plunger', 13, 160);
-    ensure(plungerReleased.gameState === 'playing' && plungerReleased.launchPower >= 0.3 && plungerReleased.ballInLauncherLane, `El lanzador no disparo la bola al soltar el control tactil (${JSON.stringify(plungerReleased)})`);
-    ensure(await page.locator('clippy-character').count() === 0, 'Clippy reaparecio durante la sesion movil');
+    if (viewportCase.exerciseTouch) {
+      const cdp = await context.newCDPSession(page);
+      await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-left]'), '[data-pinball-left]', 'left', 11);
+      await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-right]'), '[data-pinball-right]', 'right', 12);
+      await root.evaluate((rootNode) => {
+        const app = rootNode._pinballApp || rootNode.closest('.window')?._pinballApp;
+        app.resetGame({ announce: false });
+      });
+      const plungerReleased = await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-plunger]'), '[data-pinball-plunger]', 'plunger', 13, 160);
+      ensure(plungerReleased.gameState === 'playing' && plungerReleased.launchPower >= 0.3 && plungerReleased.ballInLauncherLane, `El lanzador no disparo la bola al soltar el control tactil (${JSON.stringify(plungerReleased)})`);
+      ensure(await page.locator('clippy-character').count() === 0, 'Clippy reaparecio durante la sesion movil');
+    }
 
-    return 'Movil real: Clippy deshabilitado y Pinball con dock tactil, touch press/release y lanzamiento';
+    return caseLabel;
   } finally {
     await context.close();
   }
+}
+
+async function exerciseMobileClippyAndPinball(browser, baseUrl) {
+  const auditedViewports = [];
+  for (const viewportCase of PINBALL_MOBILE_VIEWPORTS) {
+    auditedViewports.push(await auditMobilePinballViewport(browser, baseUrl, viewportCase));
+  }
+  return `Movil real: Clippy deshabilitado y Pinball completo en ${auditedViewports.join(', ')}, con touch press/release y lanzamiento`;
 }
 
 async function main() {
