@@ -23,9 +23,13 @@ Copyright in the recordings and compositions remains with the respective rights 
 
 ## Project identity and preview assets
 
-The files in `assets/images/project-icons/` are resized or square-cropped versions of
+Most files in `assets/images/project-icons/` are resized or square-cropped versions of
 identity assets and screenshots published by the represented projects. They are used only
 to identify portfolio entries. Trademarks and artwork remain with their respective owners.
+
+The Auto-Inbox, CyberDetective Academy, CyberShield and Workflow Black Box icons are
+original, AI-assisted ZarateXP compositions generated from each project's visual concept.
+They do not embed the source screenshots or wordmarks.
 
 - CAP-21 logo: https://www.cap21.com.ar/brand/cap21-logo.png
 - Estudio Luttini identity: https://www.estudioluttini.com/iconoL-l.png
