@@ -10,16 +10,28 @@
             this.noteList = this.root.querySelector('[data-pdf-note-list]');
             this.zoom = 1;
             this.rotation = 0;
-            this.fileName = 'Ivan_Zarate_CV.pdf';
-            this.currentUrl = './Ivan_Zarate_CV.pdf';
+            const cv = this.defaultCv();
+            this.fileName = cv.fileName;
+            this.currentUrl = cv.url;
             this.objectUrl = null;
             this.notes = this.readNotes();
+            this.localeChangeHandler = () => {
+                if (!this.objectUrl) this.openDefault();
+                else this.renderNotes();
+            };
         }
 
         init() {
             this.bindControls();
             this.renderNotes();
             this.applyTransform();
+            window.addEventListener('zaratexp:localechange', this.localeChangeHandler);
+        }
+
+        defaultCv() {
+            const english = window.zarateXP?.i18nManager?.locale === 'en';
+            const fileName = english ? 'Ivan_Zarate_CV_EN.pdf' : 'Ivan_Zarate_CV.pdf';
+            return { fileName, url: `./${fileName}` };
         }
 
         bindControls() {
@@ -52,6 +64,7 @@
             this.fileName = file.name;
             this.frame.src = this.objectUrl;
             this.status.textContent = `Archivo local: ${file.name}`;
+            this.syncWindowTitle();
             this.notes = this.readNotes();
             this.renderNotes();
         }
@@ -61,12 +74,31 @@
                 URL.revokeObjectURL(this.objectUrl);
                 this.objectUrl = null;
             }
-            this.currentUrl = './Ivan_Zarate_CV.pdf';
-            this.fileName = 'Ivan_Zarate_CV.pdf';
-            this.frame.src = './Ivan_Zarate_CV.pdf#view=FitH';
-            this.status.textContent = 'Ivan_Zarate_CV.pdf';
+            const cv = this.defaultCv();
+            this.currentUrl = cv.url;
+            this.fileName = cv.fileName;
+            this.frame.src = `${cv.url}#view=FitH`;
+            this.status.textContent = cv.fileName;
+            this.syncWindowTitle();
             this.notes = this.readNotes();
             this.renderNotes();
+        }
+
+        syncWindowTitle() {
+            const title = `PDF Studio - ${this.fileName}`;
+            this.windowElement.setAttribute('aria-label', title);
+            const titleText = this.windowElement.querySelector('.title-bar-text span');
+            const titleIcon = this.windowElement.querySelector('.title-bar-icon');
+            if (titleText) titleText.textContent = title;
+            if (titleIcon) titleIcon.alt = title;
+            const taskbarButton = window.zarateXP?.taskbarManager?.openPrograms?.get('pdf-studio');
+            if (taskbarButton) {
+                taskbarButton.setAttribute('aria-label', title);
+                const label = taskbarButton.querySelector('span');
+                const icon = taskbarButton.querySelector('img');
+                if (label) label.textContent = title;
+                if (icon) icon.alt = title;
+            }
         }
 
         addNote() {
@@ -94,7 +126,7 @@
                     <button type="button" data-note-delete="${note.id}" aria-label="Eliminar nota">x</button>
                     <strong>${this.escape(note.fileName)}</strong>
                     <span>${this.escape(note.text)}</span>
-                    <small>${new Date(note.createdAt).toLocaleString('es-AR')}</small>
+                    <small>${new Date(note.createdAt).toLocaleString(window.zarateXP?.i18nManager?.locale === 'en' ? 'en-US' : 'es-AR')}</small>
                 </li>
             `).join('');
 
@@ -159,6 +191,7 @@
         }
 
         destroy() {
+            window.removeEventListener('zaratexp:localechange', this.localeChangeHandler);
             if (this.objectUrl) URL.revokeObjectURL(this.objectUrl);
         }
     }

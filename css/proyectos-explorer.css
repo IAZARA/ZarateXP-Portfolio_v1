@@ -462,6 +462,26 @@
     background: #ffffff;
 }
 
+.project-preview-language-note {
+    display: none;
+    min-height: 180px;
+    padding: 24px;
+    place-items: center;
+    background: #fff;
+    color: #333;
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+body[data-locale="en"] .project-preview-frame {
+    display: none;
+}
+
+body[data-locale="en"] .project-preview-language-note {
+    display: grid;
+}
+
 .project-preview-fallback {
     border-top: 1px solid #aca899;
     background: #ffffe1;

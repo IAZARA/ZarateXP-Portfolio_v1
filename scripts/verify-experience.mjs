@@ -63,7 +63,7 @@ const checks = [
   ['institutional case evidence', /CUFRE[\s\S]*SIFEBU[\s\S]*CRIACO[\s\S]*OSINTArgy/],
   ['professional experience timeline', /2024 - Actualidad[\s\S]*2018 - 2024[\s\S]*2016 - 2018[\s\S]*2013 - 2015/],
   ['education and languages', /Google Data Analytics[\s\S]*Inglés/],
-  ['CV PDF viewer', /Ivan_Zarate_CV\.pdf#view=FitH/],
+  ['localized CV PDF viewer', /Ivan_Zarate_CV_EN\.pdf[\s\S]*data-localized-cv-object/],
   ['PDF Studio', /initPdfStudioApp/],
   ['documents explorer', /xp-documents-app/],
   ['projects explorer', /proyectos-explorer\.html/],

@@ -51,6 +51,14 @@
             this.initialized = false;
         }
 
+        get locale() {
+            return window.zarateXP?.i18nManager?.locale === 'en' ? 'en' : 'es';
+        }
+
+        get intlLocale() {
+            return this.locale === 'en' ? 'en-US' : 'es-AR';
+        }
+
         init() {
             if (this.initialized) return this;
             this.initialized = true;
@@ -354,7 +362,7 @@
 
             try {
                 const geocode = await this.fetchJson(
-                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=5&language=es&format=json`,
+                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=5&language=${this.locale}&format=json`,
                     `weather.geo.${this.cacheToken(city)}`,
                     {
                         signal: request.controller.signal,
@@ -407,7 +415,7 @@
                     this.assertCurrent(channel, request);
                     this.renderLoading(result, 'Open-Meteo no respondió. Probando el proveedor secundario...');
                     const wttr = await this.fetchJson(
-                        `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=es`,
+                        `https://wttr.in/${encodeURIComponent(city)}?format=j1&lang=${this.locale}`,
                         `weather.wttr.${this.cacheToken(city)}`,
                         {
                             signal: request.controller.signal,
@@ -1402,7 +1410,7 @@
         formatTemperature(value, includeUnit = true) {
             const number = Number(value);
             if (!Number.isFinite(number)) return 'N/D';
-            const formatted = Math.round(number).toLocaleString('es-AR');
+            const formatted = Math.round(number).toLocaleString(this.intlLocale);
             return `${formatted}${includeUnit ? '&deg;C' : '&deg;'}`;
         }
 
@@ -1421,13 +1429,13 @@
         formatInteger(value) {
             const number = Number(value);
             if (!Number.isFinite(number)) return 'N/D';
-            return new Intl.NumberFormat('es-AR', { maximumFractionDigits: 0 }).format(number);
+            return new Intl.NumberFormat(this.intlLocale, { maximumFractionDigits: 0 }).format(number);
         }
 
         formatNumber(value, digits = 0) {
             const number = Number(value);
             if (!Number.isFinite(number)) return 'N/D';
-            return new Intl.NumberFormat('es-AR', {
+            return new Intl.NumberFormat(this.intlLocale, {
                 minimumFractionDigits: digits,
                 maximumFractionDigits: digits
             }).format(number);
@@ -1439,19 +1447,19 @@
                 ? new Date(`${raw}T12:00:00`)
                 : new Date(value);
             if (Number.isNaN(date.getTime())) return String(value || 'N/D');
-            return new Intl.DateTimeFormat('es-AR', { weekday: 'short', day: '2-digit', month: 'short' }).format(date);
+            return new Intl.DateTimeFormat(this.intlLocale, { weekday: 'short', day: '2-digit', month: 'short' }).format(date);
         }
 
         fullDate(value) {
             const date = new Date(value);
             if (Number.isNaN(date.getTime())) return 'sin fecha';
-            return new Intl.DateTimeFormat('es-AR', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
+            return new Intl.DateTimeFormat(this.intlLocale, { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
         }
 
         fullDateTime(value) {
             const date = new Date(Number(value));
             if (Number.isNaN(date.getTime())) return 'Fecha no disponible';
-            return new Intl.DateTimeFormat('es-AR', {
+            return new Intl.DateTimeFormat(this.intlLocale, {
                 dateStyle: 'medium',
                 timeStyle: 'short'
             }).format(date);
@@ -1464,7 +1472,7 @@
             const date = new Date(hasExplicitZone ? raw : `${raw}${raw.length === 16 ? ':00' : ''}Z`);
             if (Number.isNaN(date.getTime())) return String(value).replace('T', ' ');
             try {
-                return new Intl.DateTimeFormat('es-AR', {
+                return new Intl.DateTimeFormat(this.intlLocale, {
                     day: '2-digit',
                     month: 'short',
                     hour: '2-digit',
@@ -1497,7 +1505,7 @@
             if (!future && amount > 0) amount = -amount;
             if (amount === 0 && !future) return 'hace unos segundos';
             try {
-                return new Intl.RelativeTimeFormat('es-AR', { numeric: 'auto' }).format(amount, unit);
+                return new Intl.RelativeTimeFormat(this.intlLocale, { numeric: 'auto' }).format(amount, unit);
             } catch (error) {
                 return this.fullDateTime(timestamp);
             }

@@ -49,12 +49,7 @@ export class TaskbarManager {
         if (!this.showDesktopButton) return;
 
         this.showDesktopButton.addEventListener('click', () => this.toggleShowDesktop());
-        this.showDesktopButton.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                this.toggleShowDesktop();
-            }
-        });
+        this.syncShowDesktopButton();
     }
 
     toggleShowDesktop() {
@@ -68,7 +63,7 @@ export class TaskbarManager {
             this.desktopPeekWindowIds = new Set(visibleWindows.map(([id]) => id));
             visibleWindows.forEach(([id]) => windowManager.minimizeWindow(id));
             this.desktopPeekActive = true;
-            this.showDesktopButton.classList.add('active');
+            this.syncShowDesktopButton();
             this.showNotification('Escritorio visible');
             return;
         }
@@ -78,7 +73,20 @@ export class TaskbarManager {
         });
         this.desktopPeekActive = false;
         this.desktopPeekWindowIds.clear();
-        this.showDesktopButton.classList.remove('active');
+        this.syncShowDesktopButton();
+    }
+
+    syncShowDesktopButton() {
+        if (!this.showDesktopButton) return;
+        const label = this.desktopPeekActive ? 'Restaurar ventanas' : 'Mostrar escritorio';
+        this.showDesktopButton.classList.toggle('active', this.desktopPeekActive);
+        this.showDesktopButton.setAttribute('aria-pressed', String(this.desktopPeekActive));
+        this.showDesktopButton.setAttribute('aria-label', label);
+        this.showDesktopButton.dataset.tooltip = label;
+        window.zarateXP?.i18nManager?.localizeSubtree(this.showDesktopButton);
+        const tooltipId = this.showDesktopButton.getAttribute('aria-describedby');
+        const activeTooltip = tooltipId ? document.getElementById(tooltipId) : null;
+        if (activeTooltip) activeTooltip.textContent = this.showDesktopButton.dataset.tooltip;
     }
     
     setupSystemTray() {
@@ -157,7 +165,7 @@ export class TaskbarManager {
         this.openPrograms.set(windowId, button);
         this.desktopPeekActive = false;
         this.desktopPeekWindowIds.clear();
-        this.showDesktopButton?.classList.remove('active');
+        this.syncShowDesktopButton();
         
         // Play sound
         if (window.zarateXP?.soundManager) {
@@ -239,12 +247,11 @@ export class TaskbarManager {
     updateClock() {
         const clockElement = this.systemTray.querySelector('.time');
         if (clockElement) {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            const displayHours = hours % 12 || 12;
-            clockElement.textContent = `${displayHours}:${minutes} ${ampm}`;
+            const locale = window.zarateXP?.i18nManager?.locale === 'en' ? 'en-US' : 'es-AR';
+            clockElement.textContent = new Date().toLocaleTimeString(locale, {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
     }
     

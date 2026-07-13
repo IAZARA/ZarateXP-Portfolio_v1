@@ -198,6 +198,14 @@
             this.background.src = TABLE_ASSET;
         }
 
+        get intlLocale() {
+            return window.zarateXP?.i18nManager?.locale === 'en' ? 'en-US' : 'es-AR';
+        }
+
+        t(value) {
+            return window.zarateXP?.i18nManager?.t(value) || String(value);
+        }
+
         init() {
             this.setupAccessibility();
             this.resizeCanvas();
@@ -1020,7 +1028,7 @@
             const base = 1800 + this.level * 200;
             const awarded = this.addScore(base, 'Skill shot', 414, 116, { affectsCombo: false, useCombo: false });
             this.showEffect(`SKILL SHOT +${awarded}`);
-            this.announce(`Skill shot. ${awarded.toLocaleString('es-AR')} puntos.`);
+            this.announce(`Skill shot. ${awarded.toLocaleString(this.intlLocale)} puntos.`);
             this.emitParticles(418, 104, '#ffe76b', 24);
             this.playChord([660, 880, 1100], 0.07);
             this.haptic([20, 25, 35]);
@@ -1198,7 +1206,7 @@
                 this.state = 'gameover';
                 this.pendingAutoLaunch = null;
                 this.showEffect('Game over');
-                this.announce(`Fin de la partida. Puntaje ${this.score.toLocaleString('es-AR')}.`);
+                this.announce(`Fin de la partida. Puntaje ${this.score.toLocaleString(this.intlLocale)}.`);
                 this.playChord([260, 196, 130], 0.12);
             } else {
                 this.resetBall({ newBall: true });
@@ -1402,7 +1410,7 @@
                 this.extraBallsAwarded.add(threshold);
                 this.balls = Math.min(6, this.balls + 1);
                 this.showEffect('EXTRA BALL');
-                this.announce(`Bola extra al superar ${threshold.toLocaleString('es-AR')} puntos.`);
+                this.announce(`Bola extra al superar ${threshold.toLocaleString(this.intlLocale)} puntos.`);
                 this.playChord([620, 780, 930, 1240], 0.08);
                 this.haptic([30, 25, 55]);
             });
@@ -1451,8 +1459,8 @@
 
         updateHud() {
             const mission = this.currentMission();
-            this.setText(this.scoreEl, this.score.toLocaleString('es-AR'));
-            this.setText(this.highScoreEl, this.highScore.toLocaleString('es-AR'));
+            this.setText(this.scoreEl, this.score.toLocaleString(this.intlLocale));
+            this.setText(this.highScoreEl, this.highScore.toLocaleString(this.intlLocale));
             this.setText(this.ballsEl, String(Math.max(0, this.balls)));
             this.setText(this.comboEl, `x${this.formatMultiplier(this.combo)}`);
             this.setText(this.levelEl, String(this.level));
@@ -1522,7 +1530,7 @@
         }
 
         formatMultiplier(value) {
-            return Number(value).toLocaleString('es-AR', {
+            return Number(value).toLocaleString(this.intlLocale, {
                 minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
                 maximumFractionDigits: 2
             });
@@ -1541,12 +1549,12 @@
         }
 
         showFloatingText(text, x, y, label) {
-            this.effects.push({ text, label, x, y, life: 0.85, maxLife: 0.85 });
+            this.effects.push({ text: this.t(text), label: this.t(label), x, y, life: 0.85, maxLife: 0.85 });
             if (this.effects.length > 12) this.effects.splice(0, this.effects.length - 12);
         }
 
         showEffect(text) {
-            this.effects.push({ text, x: WIDTH / 2, y: 318, life: 1.35, maxLife: 1.35, banner: true });
+            this.effects.push({ text: this.t(text), x: WIDTH / 2, y: 318, life: 1.35, maxLife: 1.35, banner: true });
             if (this.effects.length > 12) this.effects.splice(0, this.effects.length - 12);
         }
 
@@ -1867,7 +1875,7 @@
             ctx.font = '700 11px Tahoma, sans-serif';
             ctx.textBaseline = 'alphabetic';
             ctx.textAlign = 'left';
-            ctx.fillText(`NIVEL ${this.level}`, 113, 27);
+            ctx.fillText(`${this.intlLocale === 'en-US' ? 'LEVEL' : 'NIVEL'} ${this.level}`, 113, 27);
             ctx.textAlign = 'center';
             ctx.fillText(`MULTI x${this.formatMultiplier(this.playfieldMultiplier())}`, WIDTH / 2, 27);
             ctx.textAlign = 'right';
@@ -1880,12 +1888,12 @@
                 ctx.fillText(`SAVE ${remaining.toFixed(1)}s`, 407, 27);
             } else {
                 ctx.fillStyle = '#d9f7ff';
-                ctx.fillText(`BOLAS ${this.balls}`, 407, 27);
+                ctx.fillText(`${this.intlLocale === 'en-US' ? 'BALLS' : 'BOLAS'} ${this.balls}`, 407, 27);
             }
             ctx.fillStyle = '#d9f7ff';
             ctx.font = '10px Tahoma, sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText(`${mission.name}  ${this.missionProgress}/${mission.goal}`, WIDTH / 2, 48);
+            ctx.fillText(`${this.t(mission.name)}  ${this.missionProgress}/${mission.goal}`, WIDTH / 2, 48);
             ctx.restore();
         }
 
@@ -1948,9 +1956,9 @@
             ctx.fillStyle = '#ffffff';
             ctx.textAlign = 'center';
             ctx.font = '700 19px Tahoma, sans-serif';
-            ctx.fillText(title, WIDTH / 2, 312, 320);
+            ctx.fillText(this.t(title), WIDTH / 2, 312, 320);
             ctx.font = '12px Tahoma, sans-serif';
-            ctx.fillText(subtitle, WIDTH / 2, 338, 320);
+            ctx.fillText(this.t(subtitle), WIDTH / 2, 338, 320);
             ctx.restore();
         }
 

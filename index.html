@@ -72,14 +72,14 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/boot.css?v=zaratexp-20260712-release">
     <link rel="stylesheet" href="css/desktop.css">
-    <link rel="stylesheet" href="css/taskbar.css">
+    <link rel="stylesheet" href="css/taskbar.css?v=zaratexp-20260712-i18n2">
     <link rel="stylesheet" href="css/startMenu.css">
     <link rel="stylesheet" href="css/windows.css">
     <link rel="stylesheet" href="css/mipc.css">
     <link rel="stylesheet" href="css/minesweeper.css?v=zaratexp-20260712-release">
     <link rel="stylesheet" href="css/about-me.css">
     <link rel="stylesheet" href="css/contacto.css">
-    <link rel="stylesheet" href="css/proyectos-explorer.css">
+    <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260712-i18n2">
     <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260712-mlops1">
     <link rel="stylesheet" href="css/clippy.css">
     <link rel="stylesheet" href="css/crtEffect.css">
@@ -233,13 +233,26 @@
             <img src="assets/images/hd-icons/xp-start.svg" alt="Start">
             <span>Inicio</span>
         </button>
-        <button class="quick-launch-button" id="show-desktop-button" type="button" data-tooltip="Mostrar escritorio">
-            <img src="./assets/images/hd-icons/my-computer.svg" alt="Mostrar escritorio">
-        </button>
+        <div class="quick-launch-shell" aria-label="Inicio rápido">
+            <span class="quick-launch-grip" aria-hidden="true"></span>
+            <button class="quick-launch-button" id="show-desktop-button" type="button" aria-label="Mostrar escritorio" aria-pressed="false" data-tooltip="Mostrar escritorio">
+                <img src="./assets/images/computer.png" alt="" aria-hidden="true">
+            </button>
+        </div>
         <div class="taskbar-programs"></div>
         <div class="system-tray">
             <img src="./assets/images/xp-small-icons/volume.png" alt="" class="system-tray-bg" aria-hidden="true">
             <div class="tray-content">
+                <div class="taskbar-language" data-language-switcher>
+                    <button class="taskbar-language-trigger" type="button" data-language-trigger data-no-i18n aria-label="Idioma: Español" aria-haspopup="menu" aria-expanded="false" data-tooltip="Seleccionar idioma">
+                        <span data-language-code data-no-i18n>ES</span>
+                    </button>
+                    <div class="taskbar-language-menu" data-language-menu role="menu" aria-label="Idioma" hidden>
+                        <button type="button" role="menuitemradio" data-language-option="es" aria-checked="true"><strong>ES</strong><span>Español</span><span class="language-check" aria-hidden="true">✓</span></button>
+                        <button type="button" role="menuitemradio" data-language-option="en" aria-checked="false"><strong>EN</strong><span>English</span><span class="language-check" aria-hidden="true">✓</span></button>
+                    </div>
+                    <span class="sr-only" data-language-status data-no-i18n role="status" aria-live="polite"></span>
+                </div>
                 <div class="tray-icons">
                     <img src="./assets/images/xp-small-icons/volume.png" alt="Volume Icon" class="tray-network-icon" data-tooltip="Volumen">
                     <img src="./assets/images/tools.png" alt="Clippy" class="tray-clippy-icon" data-tooltip="Asistente">
@@ -250,8 +263,8 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module" src="js/main.js?v=zaratexp-20260712-mlops1"></script>
-    <script type="module" src="js/apps.js?v=zaratexp-20260712-mlops1"></script>
+    <script type="module" src="js/main.js?v=zaratexp-20260712-i18n2"></script>
+    <script type="module" src="js/apps.js?v=zaratexp-20260712-i18n2"></script>
     <!-- CRT Effect - ALL DISABLED -->
     <div class="crt-effect" style="display: none;"></div>
     <div class="crt-scanline" style="display: none;"></div>

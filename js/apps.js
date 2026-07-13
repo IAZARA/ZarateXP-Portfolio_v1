@@ -1,4 +1,4 @@
-import { getProjectsData } from './data/projects.js?v=zaratexp-20260712-release';
+import { getProjectsData } from './data/projects.js?v=zaratexp-20260712-i18n2';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -26,6 +26,32 @@ export class AppManager {
 
         // Aplicar preferencias del escritorio antes de abrir ventanas
         this.applyPersonalization();
+
+        this.localeChangeHandler = () => this._syncLocalizedCvAssets(document);
+        window.addEventListener('zaratexp:localechange', this.localeChangeHandler);
+    }
+
+    _getCvAsset() {
+        const english = window.zarateXP?.i18nManager?.locale === 'en';
+        const fileName = english ? 'Ivan_Zarate_CV_EN.pdf' : 'Ivan_Zarate_CV.pdf';
+        return {
+            fileName,
+            url: `./${fileName}`,
+            viewerUrl: `./${fileName}#view=FitH`
+        };
+    }
+
+    _syncLocalizedCvAssets(root = document) {
+        const cv = this._getCvAsset();
+        root.querySelectorAll?.('[data-localized-cv-name]').forEach((element) => {
+            element.textContent = cv.fileName;
+        });
+        root.querySelectorAll?.('[data-localized-cv-object]').forEach((element) => {
+            element.setAttribute('data', cv.viewerUrl);
+        });
+        root.querySelectorAll?.('[data-localized-cv-link]').forEach((element) => {
+            element.setAttribute('href', cv.url);
+        });
     }
     
     loadAppScripts() {
@@ -495,11 +521,11 @@ export class AppManager {
             const content = `
                 <div id="about-me-window">
                     <div class="about-me-menu-bar">
-                        <span><u>A</u>rchivo</span>
-                        <span><u>E</u>dición</span>
-                        <span><u>V</u>er</span>
-                        <span><u>H</u>erramientas</span>
-                        <span>A<u>y</u>uda</span>
+                        <span>Archivo</span>
+                        <span>Edición</span>
+                        <span>Ver</span>
+                        <span>Herramientas</span>
+                        <span>Ayuda</span>
                     </div>
                     <div class="about-me-container">
                         <header class="about-profile">
@@ -1005,7 +1031,7 @@ export class AppManager {
 
             // Cargar el contenido del componente de proyectos
             debugLog('Loading proyectos-explorer.html...');
-            const response = await fetch('./components/proyectos-explorer.html');
+            const response = await fetch('./components/proyectos-explorer.html?v=zaratexp-20260712-i18n2');
             if (!response.ok) {
                 throw new Error(`Error al cargar proyectos-explorer.html: ${response.statusText} (${response.status})`);
             }
@@ -1126,7 +1152,8 @@ export class AppManager {
                 const path = item.getAttribute('data-path') || 'Mis Proyectos';
                 const pathInput = projectsWindow.querySelector('#current-path');
                 if (pathInput) {
-                    pathInput.value = path;
+                    pathInput.dataset.i18nValue = path;
+                    pathInput.value = window.zarateXP?.i18nManager?.t(path) || path;
                 }
                 
                 // Cargar contenido de la carpeta
@@ -1482,6 +1509,9 @@ export class AppManager {
                         <div class="project-preview-header">
                             <span>Vista previa embebida</span>
                             <button type="button" class="project-preview-open" data-project-open-url="${safeUrl}">Abrir en navegador</button>
+                        </div>
+                        <div class="project-preview-language-note">
+                            El sitio externo está publicado en español. Puedes abrirlo en una pestaña nueva para explorar su contenido original.
                         </div>
                         <iframe
                             class="project-preview-frame"
@@ -1892,10 +1922,11 @@ export class AppManager {
 
     _openDocuments() {
         const iconBase = './assets/images/xp-small-icons';
+        const cv = this._getCvAsset();
         const content = `
             <div class="xp-documents-app">
                 <div class="xp-explorer-menubar">
-                    <span><u>A</u>rchivo</span><span><u>E</u>dicion</span><span><u>V</u>er</span><span><u>F</u>avoritos</span><span>A<u>y</u>uda</span>
+                    <span>Archivo</span><span>Edicion</span><span>Ver</span><span>Favoritos</span><span>Ayuda</span>
                 </div>
                 <div class="xp-explorer-toolbar">
                     <button type="button" data-doc-open="my-computer"><img src="${iconBase}/back.png" alt=""> Atras</button>
@@ -1925,7 +1956,7 @@ export class AppManager {
                     <main class="xp-folder-grid">
                         <button type="button" class="xp-folder-item important" data-doc-open="resume">
                             <img src="./assets/images/hd-icons/cv.svg" alt="">
-                            <span>Ivan_Zarate_CV.pdf</span>
+                            <span data-localized-cv-name data-no-i18n>${cv.fileName}</span>
                             <small>CV actualizado</small>
                         </button>
                         <button type="button" class="xp-folder-item important" data-doc-open="recruiter-route">
@@ -2225,7 +2256,8 @@ export class AppManager {
                 };
                 const save = () => {
                     this._saveLocal('zarateXP.notepad', textarea.value);
-                    status.textContent = `Guardado ${new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}`;
+                    const locale = window.zarateXP?.i18nManager?.locale === 'en' ? 'en-US' : 'es-AR';
+                    status.textContent = `Guardado ${new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' })}`;
                 };
 
                 textarea.addEventListener('input', () => {
@@ -2679,7 +2711,7 @@ export class AppManager {
             width: 820,
             height: 540,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/api-center.js?v=zaratexp-20260712-release', 'initApiCenterApp')
+                this._loadScriptOnce('js/api-center.js?v=zaratexp-20260712-i18n2', 'initApiCenterApp')
                     .then(() => window.initApiCenterApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar API Center: ${error.message}`));
             },
@@ -2688,6 +2720,7 @@ export class AppManager {
     }
 
     _openPdfStudio() {
+        const cv = this._getCvAsset();
         const content = `
             <div class="xp-pdf-studio" data-pdf-root>
                 <aside class="xp-pdf-sidebar">
@@ -2713,10 +2746,10 @@ export class AppManager {
                         <span data-pdf-zoom-label>100%</span>
                         <button type="button" data-pdf-zoom="0.1">+</button>
                         <button type="button" data-pdf-rotate>Rotar</button>
-                        <span data-pdf-status>Ivan_Zarate_CV.pdf</span>
+                        <span data-pdf-status>${cv.fileName}</span>
                     </div>
                     <div class="xp-pdf-frame-wrap">
-                        <iframe title="Visor PDF" data-pdf-frame src="./Ivan_Zarate_CV.pdf#view=FitH"></iframe>
+                        <iframe title="Visor PDF" data-pdf-frame src="${cv.viewerUrl}"></iframe>
                     </div>
                 </main>
             </div>
@@ -2724,13 +2757,13 @@ export class AppManager {
 
         return this._createSingleInstanceWindow({
             id: 'pdf-studio',
-            title: 'PDF Studio - Ivan_Zarate_CV.pdf',
+            title: `PDF Studio - ${cv.fileName}`,
             icon: './assets/images/hd-icons/pdf-studio.svg',
             content,
             width: 900,
             height: 620,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/pdf-studio.js', 'initPdfStudioApp')
+                this._loadScriptOnce('js/pdf-studio.js?v=zaratexp-20260712-i18n2', 'initPdfStudioApp')
                     .then(() => window.initPdfStudioApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar PDF Studio: ${error.message}`));
             },
@@ -2835,7 +2868,7 @@ export class AppManager {
             width: 900,
             height: 720,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260712-release', 'initPinballApp')
+                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260712-i18n2', 'initPinballApp')
                     .then(() => window.initPinballApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar Pinball: ${error.message}`));
             },
@@ -3087,6 +3120,7 @@ export class AppManager {
         }
 
         try {
+            const cv = this._getCvAsset();
             // Verificar que WindowManager esté disponible
             if (!this.windowManager) {
                 throw new Error('WindowManager no está disponible');
@@ -3133,15 +3167,15 @@ export class AppManager {
                             </section>
                         </aside>
                         <div class="resume-content">
-                            <object class="resume-pdf" data="./Ivan_Zarate_CV.pdf#view=FitH" type="application/pdf">
+                            <object class="resume-pdf" data-localized-cv-object data="${cv.viewerUrl}" type="application/pdf">
                                 <div class="resume-fallback">
                                     <p>No se pudo mostrar el PDF en este navegador.</p>
-                                    <a href="./Ivan_Zarate_CV.pdf" target="_blank" rel="noopener">Abrir CV actualizado</a>
+                                    <a data-localized-cv-link href="${cv.url}" target="_blank" rel="noopener">Abrir CV actualizado</a>
                                 </div>
                             </object>
                         </div>
                     </div>
-                    <div class="xp-statusbar"><span>Ivan_Zarate_CV.pdf</span><span>PDF actualizado dentro de ZarateXP</span></div>
+                    <div class="xp-statusbar"><span data-localized-cv-name data-no-i18n>${cv.fileName}</span><span>PDF actualizado dentro de ZarateXP</span></div>
                 </div>
                 <style>
                     #resume-viewer {
@@ -3310,8 +3344,9 @@ export class AppManager {
                         // Crear un enlace temporal para descargar el PDF
                         const link = document.createElement('a');
                         // Usar ruta relativa al archivo PDF en la carpeta del proyecto
-                        link.href = './Ivan_Zarate_CV.pdf';
-                        link.download = 'Ivan_Zarate_CV.pdf';
+                        const currentCv = this._getCvAsset();
+                        link.href = currentCv.url;
+                        link.download = currentCv.fileName;
                         
                         // Simular clic para descargar
                         document.body.appendChild(link);

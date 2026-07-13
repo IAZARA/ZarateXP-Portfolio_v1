@@ -8,8 +8,9 @@
     "check:syntax": "node scripts/check-js-syntax.mjs",
     "check:assets": "node scripts/check-assets.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "check:experience": "node scripts/verify-experience.mjs",
-    "test": "npm run check:syntax && npm run check:assets && npm run check:performance && npm run check:experience",
+    "test": "npm run check:syntax && npm run check:assets && npm run check:performance && npm run check:i18n && npm run check:experience",
     "smoke": "node scripts/smoke-playwright.mjs"
   },
   "devDependencies": {

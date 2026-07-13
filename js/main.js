@@ -1,18 +1,23 @@
 // Main JavaScript Module
-import { BootManager } from './boot.js?v=zaratexp-20260712-mlops1';
-import { DesktopManager } from './desktop.js?v=zaratexp-20260712-mlops1';
-import { WindowManager } from './windows.js?v=zaratexp-20260712-mlops1';
-import { TaskbarManager } from './taskbar.js?v=zaratexp-20260712-mlops1';
-import { StartMenuManager } from './startMenu.js?v=zaratexp-20260712-mlops1';
-import { SoundManager } from './sounds.js?v=zaratexp-20260712-mlops1';
-import { AppManager } from './apps.js?v=zaratexp-20260712-mlops1';
-import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260712-mlops1';
+import { I18nManager } from './i18n.js?v=zaratexp-20260712-i18n2';
+import { BootManager } from './boot.js?v=zaratexp-20260712-i18n2';
+import { DesktopManager } from './desktop.js?v=zaratexp-20260712-i18n2';
+import { WindowManager } from './windows.js?v=zaratexp-20260712-i18n2';
+import { TaskbarManager } from './taskbar.js?v=zaratexp-20260712-i18n2';
+import { StartMenuManager } from './startMenu.js?v=zaratexp-20260712-i18n2';
+import { SoundManager } from './sounds.js?v=zaratexp-20260712-i18n2';
+import { AppManager } from './apps.js?v=zaratexp-20260712-i18n2';
+import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260712-i18n2';
 
 class ZarateXP {
     constructor() {
         // Make ZarateXP globally available immediately
         window.zarateXP = this;
-        
+
+        this.i18nManager = new I18nManager();
+        this.i18n = this.i18nManager;
+        this.i18nManager.init();
+
         this.bootManager = new BootManager();
         this.desktopManager = new DesktopManager();
         this.windowManager = new WindowManager();
@@ -150,37 +155,50 @@ class ZarateXP {
     updateClock() {
         const clockElement = document.querySelector('.time');
         if (clockElement) {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            const displayHours = hours % 12 || 12;
-            clockElement.textContent = `${displayHours}:${minutes} ${ampm}`;
+            const locale = this.i18nManager.locale === 'en' ? 'en-US' : 'es-AR';
+            clockElement.textContent = new Date().toLocaleTimeString(locale, {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
     }
     
     initTooltips() {
         const tooltip = document.querySelector('.dynamic-tooltip');
-        
+        if (!tooltip) return;
+        tooltip.id ||= 'zaratexp-tooltip';
+        tooltip.setAttribute('role', 'tooltip');
+
+        const showTooltip = (target) => {
+            if (!target) return;
+            const text = target.getAttribute('data-tooltip');
+            if (!text) return;
+            tooltip.textContent = text;
+            tooltip.style.display = 'block';
+            target.setAttribute('aria-describedby', tooltip.id);
+
+            const rect = target.getBoundingClientRect();
+            const preferredLeft = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2);
+            tooltip.style.left = `${Math.max(4, Math.min(preferredLeft, window.innerWidth - tooltip.offsetWidth - 4))}px`;
+            tooltip.style.top = `${Math.max(4, rect.top - tooltip.offsetHeight - 5)}px`;
+        };
+
+        const hideTooltip = (target) => {
+            tooltip.style.display = 'none';
+            if (target?.getAttribute('aria-describedby') === tooltip.id) target.removeAttribute('aria-describedby');
+        };
+
         document.addEventListener('mouseover', (e) => {
             const target = e.target.closest('[data-tooltip]');
-            if (target) {
-                const text = target.getAttribute('data-tooltip');
-                tooltip.textContent = text;
-                tooltip.style.display = 'block';
-                
-                const rect = target.getBoundingClientRect();
-                tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-                tooltip.style.top = rect.top - tooltip.offsetHeight - 5 + 'px';
-            }
+            if (target && !target.contains(e.relatedTarget)) showTooltip(target);
         });
-        
+
         document.addEventListener('mouseout', (e) => {
             const target = e.target.closest('[data-tooltip]');
-            if (target) {
-                tooltip.style.display = 'none';
-            }
+            if (target && !target.contains(e.relatedTarget)) hideTooltip(target);
         });
+        document.addEventListener('focusin', (e) => showTooltip(e.target.closest?.('[data-tooltip]')));
+        document.addEventListener('focusout', (e) => hideTooltip(e.target.closest?.('[data-tooltip]')));
     }
 }
 
