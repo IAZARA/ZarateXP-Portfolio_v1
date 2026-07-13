@@ -2833,12 +2833,12 @@ export class AppManager {
                     </div>
                     <dl class="xp-pinball-stats">
                         <dt>Puntos</dt><dd data-pinball-score>0</dd>
-                        <dt>Record</dt><dd data-pinball-highscore>0</dd>
+                        <dt class="xp-pinball-stat-secondary">Record</dt><dd class="xp-pinball-stat-secondary" data-pinball-highscore>0</dd>
                         <dt>Bolas</dt><dd data-pinball-balls>3</dd>
                         <dt>Estado</dt><dd data-pinball-state>Listo</dd>
-                        <dt>Combo</dt><dd data-pinball-combo>x1</dd>
-                        <dt>Multiplicador</dt><dd data-pinball-multiplier>x1</dd>
-                        <dt>Nivel</dt><dd data-pinball-level>1</dd>
+                        <dt class="xp-pinball-stat-secondary">Combo</dt><dd class="xp-pinball-stat-secondary" data-pinball-combo>x1</dd>
+                        <dt class="xp-pinball-stat-secondary">Multiplicador</dt><dd class="xp-pinball-stat-secondary" data-pinball-multiplier>x1</dd>
+                        <dt class="xp-pinball-stat-secondary">Nivel</dt><dd class="xp-pinball-stat-secondary" data-pinball-level>1</dd>
                     </dl>
                     <div class="xp-pinball-mission" aria-live="polite">
                         <strong>Misión</strong>
@@ -2847,15 +2847,17 @@ export class AppManager {
                     <div class="xp-pinball-meter" role="progressbar" aria-label="Carga del lanzador" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
                         <span data-pinball-charge></span>
                     </div>
-                    <div class="xp-pinball-pad" aria-label="Controles tactiles">
-                        <button type="button" data-pinball-left>A / Izq</button>
-                        <button type="button" data-pinball-plunger>Espacio</button>
-                        <button type="button" data-pinball-right>D / Der</button>
-                    </div>
                     <p class="xp-pinball-help">Mantené Espacio o flecha abajo para cargar. A/D o flechas controlan los flippers. P pausa, R reinicia.</p>
                 </aside>
                 <main class="xp-pinball-table-wrap">
-                    <canvas width="520" height="700" data-pinball-canvas tabindex="0" aria-label="Mesa interactiva de Pinball XP"></canvas>
+                    <div class="xp-pinball-canvas-stage">
+                        <canvas width="520" height="700" data-pinball-canvas tabindex="0" aria-label="Mesa interactiva de Pinball XP"></canvas>
+                    </div>
+                    <div class="xp-pinball-pad" role="group" aria-label="Controles táctiles de Pinball">
+                        <button type="button" data-pinball-left aria-label="Flipper izquierdo" aria-pressed="false">IZQ</button>
+                        <button type="button" data-pinball-plunger aria-label="Mantené para cargar y soltá para lanzar" aria-pressed="false">LANZAR</button>
+                        <button type="button" data-pinball-right aria-label="Flipper derecho" aria-pressed="false">DER</button>
+                    </div>
                 </main>
             </div>
         `;
@@ -2868,7 +2870,7 @@ export class AppManager {
             width: 900,
             height: 720,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260712-i18n2', 'initPinballApp')
+                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260713-pinball-touch1', 'initPinballApp')
                     .then(() => window.initPinballApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar Pinball: ${error.message}`));
             },

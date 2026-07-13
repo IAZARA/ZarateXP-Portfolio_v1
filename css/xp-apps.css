@@ -3417,11 +3417,11 @@ body.xp-no-animations *::after {
 
 .xp-pinball-actions,
 .xp-pinball-pad {
-    display: grid;
     gap: 6px;
 }
 
 .xp-pinball-actions {
+    display: grid;
     grid-template-columns: 1fr 1fr;
     margin-bottom: 10px;
 }
@@ -3495,8 +3495,15 @@ body.xp-no-animations *::after {
 }
 
 .xp-pinball-pad {
+    display: none;
     grid-template-columns: repeat(3, 1fr);
-    margin-bottom: 10px;
+    width: min(100%, 520px);
+    box-sizing: border-box;
+    margin: 0;
+    padding: 8px;
+    border-top: 1px solid rgba(164, 221, 255, 0.62);
+    background: linear-gradient(180deg, rgba(5, 32, 84, 0.97), rgba(2, 17, 52, 0.99));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.13);
 }
 
 .xp-pinball-pad button,
@@ -3504,6 +3511,28 @@ body.xp-no-animations *::after {
     text-align: center;
     touch-action: none;
     transition: transform var(--xp-motion-fast) var(--xp-ease-out), background-color var(--xp-motion-fast) ease-out;
+}
+
+.xp-pinball-pad button {
+    min-width: 0;
+    min-height: 56px;
+    margin: 0;
+    padding: 6px 8px;
+    border: 2px solid #d7f4ff;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #ffffff 0%, #dcecff 47%, #9fc5f4 100%);
+    color: #0b376f;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.95),
+        inset -1px -1px 0 rgba(30, 78, 139, 0.72),
+        0 2px 0 rgba(0, 10, 40, 0.72);
+    font: 700 12px Tahoma, sans-serif;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .xp-pinball-pad button:active,
@@ -3514,6 +3543,11 @@ body.xp-no-animations *::after {
     background: linear-gradient(#c8dcf7, #f7fbff);
 }
 
+.xp-pinball-pad button:focus-visible {
+    outline: 2px solid #fff27a;
+    outline-offset: 2px;
+}
+
 .xp-pinball-help {
     border: 1px solid #b7c9ee;
     background: rgba(255, 255, 255, 0.68);
@@ -3522,18 +3556,33 @@ body.xp-no-animations *::after {
 }
 
 .xp-pinball-table-wrap {
+    position: relative;
     min-width: 0;
     min-height: 0;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     place-items: center;
-    overflow: auto;
+    overflow: hidden;
+    overscroll-behavior: contain;
     padding: 14px;
     background:
         radial-gradient(circle at 50% 15%, rgba(83,207,255,0.17), transparent 28%),
         linear-gradient(145deg, rgba(1,8,28,0.28), transparent 50%);
 }
 
+.xp-pinball-canvas-stage {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
 .xp-pinball-table-wrap canvas {
+    box-sizing: border-box;
     width: min(100%, 520px);
     height: auto;
     max-height: calc((var(--real-vh, 1vh) * 100) - 88px);
@@ -3555,6 +3604,34 @@ body.xp-no-animations *::after {
         0 0 0 2px #315f9d,
         0 0 26px rgba(255, 236, 91, 0.38),
         0 14px 28px rgba(0, 0, 0, 0.48);
+}
+
+@media (max-width: 760px), (pointer: coarse) {
+    .xp-pinball-table-wrap {
+        grid-template-rows: minmax(0, 1fr) auto;
+        padding: 8px 8px 0;
+    }
+
+    .xp-pinball-canvas-stage {
+        padding-bottom: 6px;
+        box-sizing: border-box;
+    }
+
+    .xp-pinball-table-wrap canvas {
+        width: auto;
+        height: calc(100% - 12px);
+        max-width: 100%;
+        max-height: calc(100% - 12px);
+    }
+
+    .xp-pinball-pad {
+        display: grid;
+        padding:
+            8px
+            max(8px, env(safe-area-inset-right))
+            calc(8px + env(safe-area-inset-bottom))
+            max(8px, env(safe-area-inset-left));
+    }
 }
 
 @keyframes xp-spin {
@@ -3885,26 +3962,99 @@ body.xp-no-animations *::after {
     }
 
     .xp-pinball-app {
-        grid-template-rows: auto minmax(420px, 1fr);
-        overflow: auto;
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: hidden;
+        overscroll-behavior: contain;
     }
 
     .xp-pinball-panel {
-        display: block;
-        overflow: visible;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "actions"
+            "stats"
+            "mission"
+            "meter";
+        gap: 4px;
+        padding: 6px 8px;
+        border-right: 0;
+        border-bottom: 1px solid #5d7da9;
+        overflow: hidden;
     }
 
-    .xp-pinball-brand {
-        padding-block: 11px;
+    .xp-pinball-brand,
+    .xp-pinball-help {
+        display: none;
+    }
+
+    .xp-pinball-actions {
+        grid-area: actions;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+        margin: 0;
+    }
+
+    .xp-pinball-actions button,
+    .xp-pinball-actions button:first-child {
+        grid-column: auto;
+        min-width: 0;
+        min-height: 44px;
+        margin: 0;
+        padding: 3px 4px;
+        overflow: hidden;
+        font-size: 10px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .xp-pinball-actions [data-pinball-fullscreen] {
+        display: none;
     }
 
     .xp-pinball-panel .xp-pinball-stats {
-        grid-template-columns: repeat(4, auto 1fr);
-        gap: 5px 7px;
+        grid-area: stats;
+        grid-template-columns:
+            auto minmax(0, 1fr)
+            auto minmax(0, 1fr)
+            auto minmax(0, 1.35fr);
+        align-items: center;
+        gap: 3px 6px;
+        min-height: 27px;
+        margin: 0;
+        padding: 4px 6px;
     }
 
-    .xp-pinball-help {
-        margin-bottom: 0 !important;
+    .xp-pinball-stat-secondary {
+        display: none;
+    }
+
+    .xp-pinball-mission {
+        grid-area: mission;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 6px;
+        min-height: 29px;
+        margin: 0;
+        padding: 4px 7px;
+    }
+
+    .xp-pinball-mission strong {
+        margin: 0;
+    }
+
+    .xp-pinball-mission span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .xp-pinball-meter {
+        grid-area: meter;
+        height: 9px;
+        margin: 0;
+        box-sizing: border-box;
     }
 
     .xp-solitaire-toolbar {
@@ -3941,7 +4091,10 @@ body.xp-no-animations *::after {
 
 @media (max-width: 460px) {
     .xp-pinball-panel .xp-pinball-stats {
-        grid-template-columns: auto 1fr auto 1fr;
+        grid-template-columns:
+            auto minmax(0, 1fr)
+            auto minmax(0, 1fr)
+            auto minmax(0, 1.2fr);
     }
 
     .xp-pinball-actions,
@@ -3950,17 +4103,14 @@ body.xp-no-animations *::after {
     }
 
     .xp-pinball-table-wrap {
-        padding: 7px;
+        padding: 6px 6px 0;
     }
 
     .xp-pinball-table-wrap canvas {
         width: auto;
+        height: calc(100% - 12px);
         max-width: 100%;
-        max-height: 400px;
-    }
-
-    .xp-pinball-help {
-        display: none;
+        max-height: calc(100% - 12px);
     }
 
     .xp-winamp-screen {

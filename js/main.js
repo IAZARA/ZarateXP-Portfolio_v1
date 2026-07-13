@@ -1,13 +1,13 @@
 // Main JavaScript Module
-import { I18nManager } from './i18n.js?v=zaratexp-20260712-i18n2';
+import { I18nManager } from './i18n.js?v=zaratexp-20260713-pinball-touch1';
 import { BootManager } from './boot.js?v=zaratexp-20260712-i18n2';
 import { DesktopManager } from './desktop.js?v=zaratexp-20260712-i18n2';
 import { WindowManager } from './windows.js?v=zaratexp-20260712-i18n2';
-import { TaskbarManager } from './taskbar.js?v=zaratexp-20260712-i18n2';
+import { TaskbarManager } from './taskbar.js?v=zaratexp-20260712-clippy-mobile1';
 import { StartMenuManager } from './startMenu.js?v=zaratexp-20260712-i18n2';
 import { SoundManager } from './sounds.js?v=zaratexp-20260712-i18n2';
-import { AppManager } from './apps.js?v=zaratexp-20260712-i18n2';
-import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260712-i18n2';
+import { AppManager } from './apps.js?v=zaratexp-20260713-pinball-touch1';
+import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260712-clippy-mobile1';
 
 class ZarateXP {
     constructor() {
@@ -99,10 +99,7 @@ class ZarateXP {
         
         // Clippy only appears after the desktop is visible, never over login.
         const scheduleClippyWelcome = () => {
-            if (this.clippyWelcomeTimer) return;
-            this.clippyWelcomeTimer = window.setTimeout(() => {
-                this.clippyManager.showWelcome();
-            }, 6000);
+            this.clippyManager.scheduleWelcome(6000);
         };
         const desktop = document.querySelector('.desktop');
         if (desktop && getComputedStyle(desktop).display !== 'none') {

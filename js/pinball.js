@@ -327,19 +327,33 @@
             if (!button) return;
             const source = `pad-${control}`;
             const release = (event) => {
+                if (event.cancelable) event.preventDefault();
                 const token = `${source}-${event.pointerId}`;
                 this.setPointerControl(control, token, false);
+                if (event.type !== 'lostpointercapture' && button.hasPointerCapture?.(event.pointerId)) {
+                    try {
+                        button.releasePointerCapture(event.pointerId);
+                    } catch (error) {
+                        // El control ya fue liberado por el navegador.
+                    }
+                }
             };
 
             this.listen(button, 'pointerdown', (event) => {
+                if (event.pointerType === 'mouse' && event.button !== 0) return;
                 event.preventDefault();
                 this.ensureAudio();
-                button.setPointerCapture?.(event.pointerId);
+                try {
+                    button.setPointerCapture?.(event.pointerId);
+                } catch (error) {
+                    // El juego sigue respondiendo aunque el navegador no permita capturar el puntero.
+                }
                 this.setPointerControl(control, `${source}-${event.pointerId}`, true);
             });
             this.listen(button, 'pointerup', release);
             this.listen(button, 'pointercancel', release);
             this.listen(button, 'lostpointercapture', release);
+            this.listen(button, 'contextmenu', (event) => event.preventDefault());
         }
 
         observeLifecycle() {
@@ -499,7 +513,7 @@
         }
 
         controlAtPoint(point) {
-            if (point.x > WIDTH * 0.84 || point.y > HEIGHT * 0.91) return 'plunger';
+            if (point.x > WIDTH * 0.84) return 'plunger';
             if (point.y > HEIGHT * 0.68 && point.x < WIDTH * 0.47) return 'left';
             if (point.y > HEIGHT * 0.68 && point.x > WIDTH * 0.53) return 'right';
             return null;

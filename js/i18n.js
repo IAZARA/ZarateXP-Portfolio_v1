@@ -1,5 +1,5 @@
 import { CORE_TRANSLATIONS } from './i18n/catalog-core.js?v=zaratexp-20260712-i18n2';
-import { APP_TRANSLATIONS } from './i18n/catalog-apps.js?v=zaratexp-20260712-i18n2';
+import { APP_TRANSLATIONS } from './i18n/catalog-apps.js?v=zaratexp-20260713-pinball-touch1';
 import { PROJECT_TRANSLATIONS } from './i18n/catalog-projects.js?v=zaratexp-20260712-i18n2';
 
 const STORAGE_KEY = 'zarateXP.locale';

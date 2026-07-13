@@ -101,7 +101,9 @@ export class TaskbarManager {
         const clippyIcon = this.systemTray.querySelector('.tray-clippy-icon');
         if (clippyIcon) {
             clippyIcon.addEventListener('click', () => {
-                window.zarateXP?.clippyManager?.showTip(Math.floor(Math.random() * 4));
+                const clippyManager = window.zarateXP?.clippyManager;
+                if (clippyManager?.isDisabled()) return;
+                clippyManager?.showTip(Math.floor(Math.random() * 4));
             });
         }
         

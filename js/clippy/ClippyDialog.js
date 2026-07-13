@@ -19,17 +19,27 @@ class ClippyDialog extends HTMLElement {
         box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
       }
 
-      .container::before {
+      .container::before,
+      .container::after {
         content: "";
-        width: 30px;
-        height: 30px;
-        display: inline-block;
         position: absolute;
-        background: #ffffcc;
-        clip-path: polygon(0 100%, 100% 0, 100% 100%);
-        transform: translate(-38px, 15px);
-        border-left: 2px solid #000;
-        border-bottom: 2px solid #000;
+        width: 0;
+        height: 0;
+        border-style: solid;
+      }
+
+      .container::before {
+        right: -27px;
+        bottom: 22px;
+        border-width: 14px 0 14px 27px;
+        border-color: transparent transparent transparent #000;
+      }
+
+      .container::after {
+        right: -22px;
+        bottom: 24px;
+        border-width: 12px 0 12px 23px;
+        border-color: transparent transparent transparent #ffffcc;
       }
 
       p {

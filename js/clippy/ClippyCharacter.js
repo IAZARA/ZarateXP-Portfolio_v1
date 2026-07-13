@@ -1,36 +1,56 @@
 import "./ClippyOcular.js";
 import "./ClippyMetal.js";
 import "./ClippyPaper.js";
-import "./ClippyDialog.js";
+import "./ClippyDialog.js?v=zaratexp-20260712-clippy-mobile1";
 
 class ClippyCharacter extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+    this.blinkTimer = null;
+    this.blinkResetTimer = null;
   }
 
   static get styles() {
     return /* css */`
       :host {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 9999;
+        display: block;
         pointer-events: none;
       }
 
       .container {
-        max-width: 475px;
+        width: max-content;
+        max-width: min(475px, calc(100vw - 12px));
         display: flex;
+        align-items: flex-end;
         gap: 25px;
-        pointer-events: auto;
+        position: relative;
+        pointer-events: none;
       }
 
-      .subcontainer {
+      .sub-container {
         --width: 150px;
-        --height: 290px;
+        /* The SVG wire is intrinsically tall; reserve its full box so the
+           bottom-right host anchor contains the complete character. */
+        --height: 491px;
         width: var(--width);
         height: var(--height);
+        flex: 0 0 var(--width);
+        position: relative;
+        pointer-events: none;
+      }
+
+      .dialog-shell {
+        width: min(300px, calc(100vw - 190px));
+        align-self: flex-start;
+        margin-top: 24px;
+        position: relative;
+        pointer-events: none;
+      }
+
+      clippy-dialog {
+        display: block;
+        width: 100%;
       }
 
       :host([no-paper]) clippy-paper {
@@ -54,10 +74,11 @@ class ClippyCharacter extends HTMLElement {
 
       .close-button {
         position: absolute;
-        top: -10px;
-        right: -10px;
-        width: 20px;
-        height: 20px;
+        top: -9px;
+        right: -9px;
+        width: 28px;
+        height: 28px;
+        padding: 0;
         background: #ff4444;
         border: 1px solid #333;
         border-radius: 50%;
@@ -65,14 +86,21 @@ class ClippyCharacter extends HTMLElement {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
+        font: bold 18px/1 Arial, sans-serif;
         font-weight: bold;
         color: white;
         z-index: 10;
+        appearance: none;
+        pointer-events: auto;
       }
 
       .close-button:hover {
         background: #ff6666;
+      }
+
+      .close-button:focus-visible {
+        outline: 2px solid #0054e3;
+        outline-offset: 2px;
       }
     `;
   }
@@ -81,6 +109,13 @@ class ClippyCharacter extends HTMLElement {
     this.render();
     this.setupCloseButton();
     this.startAnimations();
+  }
+
+  disconnectedCallback() {
+    window.clearInterval(this.blinkTimer);
+    window.clearTimeout(this.blinkResetTimer);
+    this.blinkTimer = null;
+    this.blinkResetTimer = null;
   }
 
   setText(text) {
@@ -97,9 +132,11 @@ class ClippyCharacter extends HTMLElement {
 
   startAnimations() {
     // Parpadeo cada 4 segundos
-    setInterval(() => {
+    window.clearInterval(this.blinkTimer);
+    this.blinkTimer = window.setInterval(() => {
       this.classList.add("blink");
-      setTimeout(() => this.classList.remove("blink"), 350);
+      window.clearTimeout(this.blinkResetTimer);
+      this.blinkResetTimer = window.setTimeout(() => this.classList.remove("blink"), 350);
     }, 4000);
   }
 
@@ -107,6 +144,10 @@ class ClippyCharacter extends HTMLElement {
     this.shadowRoot.innerHTML = /* html */`
     <style>${ClippyCharacter.styles}</style>
     <div class="container">
+      <div class="dialog-shell">
+        <clippy-dialog></clippy-dialog>
+        <button class="close-button" type="button" aria-label="Cerrar" title="Cerrar"><span aria-hidden="true">×</span></button>
+      </div>
       <div class="sub-container">
         <div class="clippy">
           <header>
@@ -117,8 +158,6 @@ class ClippyCharacter extends HTMLElement {
         </div>
         <clippy-paper></clippy-paper>
       </div>
-      <clippy-dialog></clippy-dialog>
-      <div class="close-button">×</div>
     </div>`;
   }
 }

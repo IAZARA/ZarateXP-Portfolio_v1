@@ -1,12 +1,13 @@
 /* Clippy Component Styles */
 clippy-character {
   position: fixed;
-  bottom: -100px; /* Superpuesto con la barra de tareas */
-  right: 5px; /* Más pegado a la esquina derecha */
+  bottom: calc(var(--taskbar-height, 30px) + 6px);
+  right: 6px;
   z-index: 9999;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(50px) scale(0.6); /* Más pequeño por defecto */
+  transform: translateY(50px) scale(0.6);
+  transform-origin: right bottom;
   transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
@@ -49,65 +50,11 @@ clippy-character.entering {
   }
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+/* Clippy is intentionally desktop-only, including wide mobile landscape. */
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
   clippy-character {
-    bottom: -100px;
-    right: 5px;
-    transform: translateY(50px) scale(0.5);
-  }
-  
-  clippy-character.show {
-    transform: translateY(0) scale(0.5);
-  }
-  
-  clippy-character.hide {
-    transform: translateY(50px) scale(0.5);
-  }
-
-  @keyframes clippy-entrance {
-    0% {
-      opacity: 0;
-      transform: translateY(80px) scale(0.3);
-    }
-    60% {
-      opacity: 1;
-      transform: translateY(-8px) scale(0.53);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(0.5);
-    }
-  }
-}
-
-@media (max-width: 480px) {
-  clippy-character {
-    bottom: -100px;
-    right: 3px;
-    transform: translateY(50px) scale(0.4);
-  }
-  
-  clippy-character.show {
-    transform: translateY(0) scale(0.4);
-  }
-  
-  clippy-character.hide {
-    transform: translateY(50px) scale(0.4);
-  }
-
-  @keyframes clippy-entrance {
-    0% {
-      opacity: 0;
-      transform: translateY(60px) scale(0.25);
-    }
-    60% {
-      opacity: 1;
-      transform: translateY(-5px) scale(0.42);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(0.4);
-    }
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 }

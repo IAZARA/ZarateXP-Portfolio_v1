@@ -199,6 +199,98 @@ function ensure(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+async function waitForWindowAnimation(page, appId) {
+  await page.waitForFunction((id) => {
+    const windowNode = document.querySelector(`.window[data-window-id="${id}"]`);
+    if (!windowNode) return false;
+    const transform = getComputedStyle(windowNode).transform;
+    if (transform === 'none') return true;
+    const matrix = new DOMMatrixReadOnly(transform);
+    return Math.abs(matrix.a - 1) < 0.001 && Math.abs(matrix.d - 1) < 0.001;
+  }, appId, { timeout: 5000 });
+}
+
+async function exerciseClippy(page) {
+  const originalViewport = page.viewportSize();
+  ensure(originalViewport?.width > 768, 'Clippy necesita iniciar la auditoria en viewport desktop');
+
+  await page.evaluate(() => {
+    const manager = window.zarateXP?.clippyManager;
+    if (!manager) throw new Error('ClippyManager no esta disponible');
+    manager.welcomeShown = false;
+    manager.showWelcome();
+  });
+
+  const clippy = page.locator('clippy-character');
+  await clippy.waitFor({ state: 'attached', timeout: 3000 });
+  await page.waitForFunction(() => {
+    const host = document.querySelector('clippy-character');
+    return Boolean(host?.classList.contains('show'))
+      && Number.parseFloat(getComputedStyle(host).opacity) >= 0.99;
+  }, null, { timeout: 4000 });
+
+  const geometry = await clippy.evaluate((host) => {
+    const shadow = host.shadowRoot;
+    const character = shadow?.querySelector('.clippy');
+    const dialog = shadow?.querySelector('clippy-dialog')?.shadowRoot?.querySelector('.container');
+    const container = shadow?.querySelector('.container');
+    const closeButton = shadow?.querySelector('.close-button');
+    if (!character || !dialog || !container) return { complete: false };
+
+    const characterRect = character.getBoundingClientRect();
+    const dialogRect = dialog.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const closeRect = closeButton?.getBoundingClientRect() || containerRect;
+    const contentBounds = {
+      left: Math.min(characterRect.left, dialogRect.left, containerRect.left, closeRect.left),
+      top: Math.min(characterRect.top, dialogRect.top, containerRect.top, closeRect.top),
+      right: Math.max(characterRect.right, dialogRect.right, containerRect.right, closeRect.right),
+      bottom: Math.max(characterRect.bottom, dialogRect.bottom, containerRect.bottom, closeRect.bottom)
+    };
+
+    return {
+      complete: true,
+      visible: getComputedStyle(host).display !== 'none'
+        && getComputedStyle(host).visibility !== 'hidden'
+        && Number.parseFloat(getComputedStyle(host).opacity) >= 0.99,
+      characterRightGap: window.innerWidth - characterRect.right,
+      dialogAtLeft: dialogRect.right <= characterRect.left + 1,
+      contentContained: contentBounds.left >= -1
+        && contentBounds.top >= -1
+        && contentBounds.right <= window.innerWidth + 1
+        && contentBounds.bottom <= window.innerHeight + 1,
+      character: {
+        left: characterRect.left,
+        right: characterRect.right,
+        top: characterRect.top,
+        bottom: characterRect.bottom
+      },
+      dialog: {
+        left: dialogRect.left,
+        right: dialogRect.right,
+        top: dialogRect.top,
+        bottom: dialogRect.bottom
+      },
+      contentBounds
+    };
+  });
+
+  ensure(geometry.complete && geometry.visible, `Clippy no quedo visible en desktop (${JSON.stringify(geometry)})`);
+  ensure(geometry.characterRightGap >= 3.5 && geometry.characterRightGap <= 8.5, `Clippy no quedo a 4-8 px del margen derecho (${JSON.stringify(geometry)})`);
+  ensure(geometry.dialogAtLeft, `El globo de Clippy no quedo a la izquierda del personaje (${JSON.stringify(geometry)})`);
+  ensure(geometry.contentContained, `Clippy o su globo quedaron fuera del viewport (${JSON.stringify(geometry)})`);
+
+  try {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForFunction(() => !document.querySelector('clippy-character'), null, { timeout: 2500 });
+    ensure(await page.locator('clippy-character').count() === 0, 'Clippy no se retiro al cambiar a viewport movil');
+  } finally {
+    await page.setViewportSize(originalViewport);
+  }
+
+  return 'Clippy: visible y al margen en desktop, globo a la izquierda y teardown responsive';
+}
+
 async function exerciseApiCenter(page) {
   const appWindow = await openApp(page, 'api-center');
   const root = appWindow.locator('[data-api-root]');
@@ -829,6 +921,10 @@ async function exercisePinball(page) {
   const appWindow = await openApp(page, 'pinball');
   const canvas = appWindow.locator('[data-pinball-canvas]');
   await canvas.waitFor({ state: 'visible', timeout: 12000 });
+  await waitForWindowAnimation(page, 'pinball');
+
+  const touchPad = appWindow.locator('.xp-pinball-pad');
+  ensure(await touchPad.isHidden(), 'Pinball mostro el dock tactil en viewport desktop');
 
   await appWindow.locator('[data-pinball-start]').click();
   await page.waitForFunction(() => {
@@ -881,6 +977,211 @@ async function exercisePinball(page) {
   return 'Pinball: lanzamiento, salida del carril, drenaje pasivo, pausa, sonido, misión, nivel y teclado';
 }
 
+async function touchPinballControl(page, cdp, button, selector, control, touchId, holdMs = 0) {
+  const box = await button.boundingBox();
+  ensure(box && box.width > 0 && box.height > 0, `El control tactil ${control} no tiene geometria interactiva`);
+  const touchPoint = {
+    x: box.x + box.width / 2,
+    y: box.y + box.height / 2,
+    radiusX: 8,
+    radiusY: 8,
+    rotationAngle: 0,
+    force: 1,
+    id: touchId
+  };
+
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [touchPoint]
+  });
+
+  try {
+    await page.waitForFunction(({ controlSelector, controlName }) => {
+      const node = document.querySelector(`.window[data-window-id="pinball"] ${controlSelector}`);
+      const root = node?.closest('[data-pinball-root]');
+      const app = root?._pinballApp || root?.closest('.window')?._pinballApp;
+      return node?.getAttribute('aria-pressed') === 'true'
+        && node.hasAttribute('data-active')
+        && app?.pointerSources?.[controlName]?.size > 0;
+    }, { controlSelector: selector, controlName: control }, { timeout: 2000 });
+
+    if (holdMs > 0) await page.waitForTimeout(holdMs);
+    const pressed = await button.evaluate((node, controlName) => {
+      const root = node.closest('[data-pinball-root]');
+      const app = root?._pinballApp || root?.closest('.window')?._pinballApp;
+      const logicalPressed = controlName === 'left'
+        ? app?.isLeftPressed()
+        : controlName === 'right'
+          ? app?.isRightPressed()
+          : app?.isPlungerPressed();
+      return {
+        ariaPressed: node.getAttribute('aria-pressed'),
+        active: node.hasAttribute('data-active'),
+        pointerSources: app?.pointerSources?.[controlName]?.size ?? -1,
+        logicalPressed,
+        gameState: app?.state,
+        charge: app?.charge,
+        meter: Number(root?.querySelector('.xp-pinball-meter')?.getAttribute('aria-valuenow'))
+      };
+    }, control);
+    ensure(pressed.ariaPressed === 'true' && pressed.active && pressed.pointerSources > 0 && pressed.logicalPressed, `Pinball no activo ${control} con touchStart (${JSON.stringify(pressed)})`);
+    if (control === 'plunger') {
+      ensure(pressed.gameState === 'charging' && pressed.charge > 0 && pressed.meter > 0, `El lanzador no cargo durante touchStart (${JSON.stringify(pressed)})`);
+    }
+  } finally {
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: []
+    });
+  }
+
+  await page.waitForFunction(({ controlSelector, controlName }) => {
+    const node = document.querySelector(`.window[data-window-id="pinball"] ${controlSelector}`);
+    const root = node?.closest('[data-pinball-root]');
+    const app = root?._pinballApp || root?.closest('.window')?._pinballApp;
+    return node?.getAttribute('aria-pressed') === 'false'
+      && !node.hasAttribute('data-active')
+      && app?.pointerSources?.[controlName]?.size === 0;
+  }, { controlSelector: selector, controlName: control }, { timeout: 2000 });
+
+  const released = await button.evaluate((node, controlName) => {
+    const root = node.closest('[data-pinball-root]');
+    const app = root?._pinballApp || root?.closest('.window')?._pinballApp;
+    const logicalPressed = controlName === 'left'
+      ? app?.isLeftPressed()
+      : controlName === 'right'
+        ? app?.isRightPressed()
+        : app?.isPlungerPressed();
+    return {
+      ariaPressed: node.getAttribute('aria-pressed'),
+      active: node.hasAttribute('data-active'),
+      pointerSources: app?.pointerSources?.[controlName]?.size ?? -1,
+      logicalPressed,
+      gameState: app?.state,
+      launchPower: app?.launchPower,
+      ballInLauncherLane: app?.ball?.inLauncherLane
+    };
+  }, control);
+  ensure(released.ariaPressed === 'false' && !released.active && released.pointerSources === 0 && !released.logicalPressed, `Pinball dejo ${control} activo despues de touchEnd (${JSON.stringify(released)})`);
+  return released;
+}
+
+async function exerciseMobileClippyAndPinball(browser, baseUrl) {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    isMobile: true,
+    hasTouch: true,
+    deviceScaleFactor: 2
+  });
+
+  try {
+    await context.addInitScript(() => {
+      try {
+        localStorage.setItem('zarateXP_session', 'active');
+      } catch (error) {
+        // about:blank no expone localStorage; la misma inicializacion se repite al navegar.
+      }
+    });
+    const page = await context.newPage();
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => Boolean(window.zarateXP?.appManager?.windowManager), null, { timeout: 12000 });
+
+    const trayClippy = page.locator('.tray-clippy-icon');
+    ensure(await trayClippy.count() === 1 && await trayClippy.isHidden(), 'El icono de Clippy en la bandeja no quedo oculto en un dispositivo movil real');
+
+    await page.evaluate(() => window.zarateXP.clippyManager.showWelcome());
+    await page.waitForTimeout(650);
+    ensure(await page.locator('clippy-character').count() === 0, 'showWelcome creo un host de Clippy en movil');
+    await page.evaluate(() => window.zarateXP.clippyManager.showTip(0));
+    await page.waitForTimeout(650);
+    ensure(await page.locator('clippy-character').count() === 0, 'showTip creo un host de Clippy en movil');
+
+    const appWindow = await openApp(page, 'pinball');
+    const root = appWindow.locator('[data-pinball-root]');
+    const canvas = appWindow.locator('[data-pinball-canvas]');
+    const touchPad = appWindow.locator('.xp-pinball-pad');
+    await canvas.waitFor({ state: 'visible', timeout: 12000 });
+    await touchPad.waitFor({ state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => {
+      const rootNode = document.querySelector('.window[data-window-id="pinball"] [data-pinball-root]');
+      return Boolean(rootNode?._pinballApp || rootNode?.closest('.window')?._pinballApp);
+    }, null, { timeout: 12000 });
+    await waitForWindowAnimation(page, 'pinball');
+
+    const mobileLayout = await appWindow.evaluate((windowNode) => {
+      const rootNode = windowNode.querySelector('[data-pinball-root]');
+      const windowBody = windowNode.querySelector('.window-body');
+      const canvasNode = rootNode?.querySelector('[data-pinball-canvas]');
+      const pad = rootNode?.querySelector('.xp-pinball-pad');
+      const requiredButtons = [
+        rootNode?.querySelector('[data-pinball-left]'),
+        rootNode?.querySelector('[data-pinball-plunger]'),
+        rootNode?.querySelector('[data-pinball-right]')
+      ];
+      if (!rootNode || !windowBody || !canvasNode || !pad || requiredButtons.some((button) => !button)) {
+        return { complete: false };
+      }
+
+      const bodyRect = windowBody.getBoundingClientRect();
+      const canvasRect = canvasNode.getBoundingClientRect();
+      const padRect = pad.getBoundingClientRect();
+      const taskbarTop = document.querySelector('.taskbar')?.getBoundingClientRect().top ?? window.innerHeight;
+      const usableBottom = Math.min(window.innerHeight, taskbarTop);
+      const inViewport = (rect) => rect.width > 0 && rect.height > 0
+        && rect.left >= -1 && rect.right <= window.innerWidth + 1
+        && rect.top >= -1 && rect.bottom <= usableBottom + 1;
+      const inWindowBody = (rect) => rect.left >= bodyRect.left - 1
+        && rect.right <= bodyRect.right + 1
+        && rect.top >= bodyRect.top - 1
+        && rect.bottom <= bodyRect.bottom + 1;
+      const scrollingElement = document.scrollingElement;
+      const scrollSurfaces = [scrollingElement, windowBody, rootNode].filter(Boolean);
+
+      return {
+        complete: true,
+        viewport: { width: window.innerWidth, height: window.innerHeight, usableBottom },
+        hasTouch: navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches,
+        buttonCount: pad.querySelectorAll('button').length,
+        padVisible: getComputedStyle(pad).display !== 'none' && inViewport(padRect) && inWindowBody(padRect),
+        canvasVisible: getComputedStyle(canvasNode).display !== 'none' && inViewport(canvasRect) && inWindowBody(canvasRect),
+        targetsLargeEnough: requiredButtons.every((button) => {
+          const rect = button.getBoundingClientRect();
+          return rect.width >= 43.5 && rect.height >= 43.5;
+        }),
+        noVerticalScroll: scrollSurfaces.every((surface) => surface.scrollHeight <= surface.clientHeight + 1 && Math.abs(surface.scrollTop) <= 1),
+        canvas: { top: canvasRect.top, bottom: canvasRect.bottom, width: canvasRect.width, height: canvasRect.height },
+        pad: { top: padRect.top, bottom: padRect.bottom, width: padRect.width, height: padRect.height },
+        body: { top: bodyRect.top, bottom: bodyRect.bottom, scrollHeight: windowBody.scrollHeight, clientHeight: windowBody.clientHeight },
+        root: { scrollHeight: rootNode.scrollHeight, clientHeight: rootNode.clientHeight },
+        buttons: requiredButtons.map((button) => {
+          const rect = button.getBoundingClientRect();
+          return { width: rect.width, height: rect.height };
+        })
+      };
+    });
+
+    ensure(mobileLayout.complete && mobileLayout.hasTouch, `El contexto movil no expuso touch real (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.buttonCount === 3 && mobileLayout.targetsLargeEnough, `El dock de Pinball no expuso tres controles de al menos 44 px (${JSON.stringify(mobileLayout)})`);
+    ensure(mobileLayout.padVisible && mobileLayout.canvasVisible && mobileLayout.noVerticalScroll, `Canvas y dock de Pinball no quedaron visibles simultaneamente sin scroll vertical (${JSON.stringify(mobileLayout)})`);
+
+    const cdp = await context.newCDPSession(page);
+    await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-left]'), '[data-pinball-left]', 'left', 11);
+    await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-right]'), '[data-pinball-right]', 'right', 12);
+    await root.evaluate((rootNode) => {
+      const app = rootNode._pinballApp || rootNode.closest('.window')?._pinballApp;
+      app.resetGame({ announce: false });
+    });
+    const plungerReleased = await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-plunger]'), '[data-pinball-plunger]', 'plunger', 13, 160);
+    ensure(plungerReleased.gameState === 'playing' && plungerReleased.launchPower >= 0.3 && plungerReleased.ballInLauncherLane, `El lanzador no disparo la bola al soltar el control tactil (${JSON.stringify(plungerReleased)})`);
+    ensure(await page.locator('clippy-character').count() === 0, 'Clippy reaparecio durante la sesion movil');
+
+    return 'Movil real: Clippy deshabilitado y Pinball con dock tactil, touch press/release y lanzamiento';
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   const server = await createStaticServer();
   const { port } = server.address();
@@ -921,6 +1222,9 @@ async function main() {
     await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
     await page.waitForFunction(() => Boolean(window.zarateXP?.appManager?.windowManager), null, { timeout: 12000 });
 
+    const exercised = [];
+    exercised.push(await exerciseClippy(page));
+
     const positioning = await page.evaluate(() => {
       const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent || '{}');
       return {
@@ -935,7 +1239,6 @@ async function main() {
     ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
 
     const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball']);
-    const exercised = [];
     exercised.push(await exerciseMlopsLifecycle(page));
     for (const appId of ['about-me', 'projects', 'pdf-studio', 'contact']) await openApp(page, appId);
 
@@ -944,6 +1247,7 @@ async function main() {
     exercised.push(await exerciseSolitaire(page));
     exercised.push(await exerciseMinesweeper(page));
     exercised.push(await exercisePinball(page));
+    exercised.push(await exerciseMobileClippyAndPinball(browser, baseUrl));
 
     const openedWindows = await page.locator('#windows-container .window').evaluateAll((nodes) => nodes.map((node) => node.dataset.windowId));
     const missingWindows = [...expectedWindows].filter((id) => !openedWindows.includes(id));

@@ -485,6 +485,13 @@
     }
 }
 
+@media (max-width: 768px), (hover: none) and (pointer: coarse) {
+    .tray-clippy-icon {
+        display: none !important;
+        pointer-events: none !important;
+    }
+}
+
 /* Taskbar Context Menu */
 .taskbar-context-menu {
     position: absolute;
