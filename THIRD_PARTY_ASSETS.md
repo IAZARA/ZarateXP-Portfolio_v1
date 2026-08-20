@@ -25,9 +25,16 @@ Copyright in the recordings and compositions remains with the respective rights 
 
 The documents under `assets/certificates/originals/` were supplied by Ivan Agustin
 Zarate as evidence of his completed training. Logos, certificate artwork and issuer marks
-remain the property of Google, Coursera, aulaGIS, Aeroterra and Esri. The WebP files under
+remain the property of Google, Coursera, SAP, aulaGIS, Aeroterra, Esri, ASIS International
+and UNODC. The WebP files under
 `assets/certificates/previews/` are optimized previews derived from those documents and
 are used only to present the credentials in this portfolio.
+
+Public verification pages for the three SAP Learning badges:
+
+- Introducing AI Fundamentals: https://badger.learning.sap.com/verify/xobal-hikug-nesog-guvap-kunuh
+- Exploring SAP Sports One - Medical & Return to Play: https://badger.learning.sap.com/verify/xurig-fovyr-ripig-vacov-hidal
+- Introducing Joule: https://badger.learning.sap.com/verify/xysag-gibyv-podal-sebyf-musuk
 
 ## Project identity and preview assets
 

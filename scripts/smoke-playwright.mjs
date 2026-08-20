@@ -213,9 +213,22 @@ async function exerciseCertificates(page) {
     verification: rootNode.querySelector('[data-certificate-verification]')?.getAttribute('href'),
     previewLoaded: rootNode.querySelector('[data-certificate-preview]')?.naturalWidth > 0
   }));
-  ensure(initial.items === 9 && initial.selected === 1 && initial.filters === 4, `Certificados no expuso el catálogo completo (${JSON.stringify(initial)})`);
+  ensure(initial.items === 14 && initial.selected === 1 && initial.filters === 5, `Certificados no expuso el catálogo completo (${JSON.stringify(initial)})`);
   ensure(initial.previewLoaded && /google-ai-professional-certificate\.pdf/.test(initial.source || ''), 'La credencial destacada no cargó su evidencia original');
   ensure(/DYU79Z46B5D0/.test(initial.verification || ''), 'Google AI no conserva su enlace público de verificación');
+
+  await root.locator('[data-certificate-filter="ai-data"]').click();
+  ensure(await root.locator('[data-certificate-id]:visible').count() === 5, 'El filtro IA y Datos no mostró sus 5 credenciales');
+  const sapVerificationCases = [
+    ['sap-ai-fundamentals', 'xobal-hikug-nesog-guvap-kunuh'],
+    ['sap-introducing-joule', 'xysag-gibyv-podal-sebyf-musuk'],
+    ['sap-sports-one-medical', 'xurig-fovyr-ripig-vacov-hidal']
+  ];
+  for (const [id, token] of sapVerificationCases) {
+    await root.locator(`[data-certificate-id="${id}"]`).click();
+    ensure((await root.locator('[data-certificate-verification]').getAttribute('href'))?.includes(token), `La insignia ${id} no conserva su enlace SAP correcto`);
+    ensure((await root.locator('[data-certificate-verification]').innerText()) === 'Verificar en SAP Learning', `La insignia ${id} no identifica a SAP Learning`);
+  }
 
   await root.locator('[data-certificate-filter="gis"]').click();
   const visibleGis = await root.locator('[data-certificate-id]:visible').count();
@@ -223,6 +236,13 @@ async function exerciseCertificates(page) {
   await root.locator('[data-certificate-id="arcgis-experience-builder"]').click();
   ensure((await root.locator('[data-certificate-source]').getAttribute('href'))?.includes('#page=5'), 'Experience Builder no abre la página correcta del PDF ArcGIS');
   ensure(await root.locator('[data-certificate-verification]').isHidden(), 'Una credencial ArcGIS mostró un enlace de verificación Coursera incorrecto');
+
+  await root.locator('[data-certificate-filter="security"]').click();
+  ensure(await root.locator('[data-certificate-id]:visible').count() === 2, 'El filtro Seguridad no mostró ASIS y UNODC');
+  await root.locator('[data-certificate-id="asis-security-defense"]').click();
+  ensure((await root.locator('[data-certificate-source]').getAttribute('href'))?.includes('asis-security-defense-virtuality.png'), 'ASIS no abrió su certificado original');
+  await root.locator('[data-certificate-id="unodc-online-terrorism-investigation"]').click();
+  ensure((await root.locator('[data-certificate-source]').getAttribute('href'))?.includes('unodc-online-terrorism-investigation-workshop.png'), 'UNODC no abrió su certificado original');
 
   await root.locator('[data-certificate-filter="management"]').click();
   await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
@@ -268,7 +288,7 @@ async function exerciseCertificates(page) {
   await appWindow.waitFor({ state: 'detached' });
   await page.setViewportSize(originalViewport);
   await openApp(page, 'certificates');
-  return 'Certificados: 9 credenciales, filtros, evidencia, traducción y layout móvil';
+  return 'Certificados: 14 credenciales, enlaces SAP, seguridad, traducción y layout móvil';
 }
 
 function ensure(condition, message) {

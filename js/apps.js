@@ -1,5 +1,5 @@
 import { getProjectsData } from './data/projects.js?v=zaratexp-20260712-i18n2';
-import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260820-certificates1';
+import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260820-certificates2';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -133,7 +133,7 @@ export class AppManager {
             name: 'Mis Certificados',
             icon: `${hd}/documents.svg`,
             category: 'documents',
-            description: 'Credenciales verificables en IA, datos, gestión y GIS',
+            description: 'Credenciales verificables en IA, datos, gestión, GIS y seguridad',
             handler: () => this._openCertificates()
         });
         
@@ -600,7 +600,7 @@ export class AppManager {
                             <article class="about-section about-section-education">
                                 <div class="about-text">
                                     <h3>Formación e idiomas</h3>
-                                    <p><strong>Analista de Sistemas, ORT Argentina</strong> (título obtenido). Licenciatura en Seguridad con orientación en Investigación Criminal. Certificados profesionales de Google en IA y Data Analytics, fundamentos de gestión de proyectos y seis cursos aplicados de ArcGIS. Español nativo e inglés intermedio, con comprensión técnica y experiencia en reuniones con proveedores.</p>
+                                    <p><strong>Analista de Sistemas, ORT Argentina</strong> (título obtenido). Licenciatura en Seguridad con orientación en Investigación Criminal. Credenciales de Google y SAP Learning en IA, datos y soluciones empresariales, formación aplicada en ArcGIS y capacitación especializada de ASIS International y UNODC. Español nativo e inglés intermedio, con comprensión técnica y experiencia en reuniones con proveedores.</p>
                                 </div>
                             </article>
                         </div>
@@ -1978,7 +1978,7 @@ export class AppManager {
                         <button type="button" class="xp-folder-item important" data-doc-open="certificates">
                             <img src="./assets/images/hd-icons/documents.svg" alt="">
                             <span>Certificados verificados</span>
-                            <small>9 credenciales en IA, datos, gestión y GIS</small>
+                            <small>14 credenciales en IA, datos, gestión, GIS y seguridad</small>
                         </button>
                         <button type="button" class="xp-folder-item" data-doc-open="projects">
                             <img src="./assets/images/hd-icons/projects.svg" alt="">
@@ -2083,8 +2083,9 @@ export class AppManager {
                         <button type="button" data-certificate-filter="ai-data" aria-pressed="false">IA y Datos <span>${categoryCounts['ai-data'] || 0}</span></button>
                         <button type="button" data-certificate-filter="management" aria-pressed="false">Gestión <span>${categoryCounts.management || 0}</span></button>
                         <button type="button" data-certificate-filter="gis" aria-pressed="false">GIS <span>${categoryCounts.gis || 0}</span></button>
+                        <button type="button" data-certificate-filter="security" aria-pressed="false">Seguridad <span>${categoryCounts.security || 0}</span></button>
                     </div>
-                    <strong>9 credenciales verificadas</strong>
+                    <strong>${certificates.length} credenciales verificadas</strong>
                 </div>
                 <div class="xp-certificates-layout">
                     <aside class="xp-certificates-index">
@@ -2092,7 +2093,7 @@ export class AppManager {
                             <img src="./assets/images/hd-icons/documents.svg" alt="" width="48" height="48">
                             <div>
                                 <h2>Mis Certificados</h2>
-                                <p>Evidencia de aprendizaje aplicado en IA, datos, gestión de proyectos y tecnologías geoespaciales.</p>
+                                <p>Evidencia de aprendizaje aplicado en IA, datos, gestión, tecnologías geoespaciales y seguridad.</p>
                             </div>
                         </header>
                         <div class="xp-certificate-list" role="listbox" aria-label="Certificados disponibles" tabindex="0">
@@ -2121,7 +2122,7 @@ export class AppManager {
                 </div>
                 <div class="xp-certificates-status" role="status" aria-live="polite">
                     <span data-certificate-status>Seleccioná una credencial para ver su evidencia.</span>
-                    <span>Google, Coursera, aulaGIS, Aeroterra y Esri</span>
+                    <span>Google, Coursera, SAP Learning, aulaGIS, Aeroterra, Esri, ASIS y UNODC</span>
                 </div>
             </div>
         `;
@@ -2143,7 +2144,8 @@ export class AppManager {
                 const categoryLabels = {
                     'ai-data': 'IA y Datos',
                     management: 'Gestión de proyectos',
-                    gis: 'GIS y tecnología geoespacial'
+                    gis: 'GIS y tecnología geoespacial',
+                    security: 'Seguridad y formación especializada'
                 };
                 let selectedId = certificates[0]?.id || '';
 
@@ -2182,6 +2184,7 @@ export class AppManager {
                     const verificationLink = detail.querySelector('[data-certificate-verification]');
                     if (certificate.verification) {
                         verificationLink.href = certificate.verification;
+                        verificationLink.textContent = certificate.verificationLabel || 'Verificar en Coursera';
                         verificationLink.hidden = false;
                     } else {
                         verificationLink.hidden = true;
@@ -2336,8 +2339,10 @@ export class AppManager {
                             <p><strong>Licenciatura en Seguridad</strong><br>Orientación en Investigación Criminal, 2020-2025.</p>
                             <p><strong>Google AI Professional Certificate</strong><br>Certificación profesional de 7 cursos, 2026.</p>
                             <p><strong>Google Data Analytics</strong><br>Certificación profesional de 8 cursos, 2024.</p>
+                            <p><strong>SAP Learning</strong><br>AI Fundamentals, Joule y SAP Sports One, 2026.</p>
                             <p><strong>Formación aplicada en ArcGIS</strong><br>6 cursos en flujos GIS, aplicaciones web, tableros, captura de datos y drones, 2025.</p>
-                            <button type="button" class="xp-fde-credential-link" data-route-app="certificates">Ver las 9 credenciales</button>
+                            <p><strong>Seguridad internacional</strong><br>ASIS International, 7 CPE, y taller especializado de UNODC.</p>
+                            <button type="button" class="xp-fde-credential-link" data-route-app="certificates">Ver las 14 credenciales</button>
                         </div>
                         <div>
                             <h3>Idiomas y ubicación</h3>

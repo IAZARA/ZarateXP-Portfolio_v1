@@ -102,12 +102,17 @@ const sizeBudgets = [
   ['assets/certificates/previews/google-ai.webp', 160 * 1024],
   ['assets/certificates/previews/google-project-management.webp', 100 * 1024],
   ['assets/certificates/previews/google-data-analytics.webp', 160 * 1024],
+  ['assets/certificates/previews/sap-introducing-ai-fundamentals.webp', 60 * 1024],
+  ['assets/certificates/previews/sap-introducing-joule.webp', 60 * 1024],
+  ['assets/certificates/previews/sap-sports-one-medical-return-to-play.webp', 60 * 1024],
   ['assets/certificates/previews/arcgis-pro-workflows.webp', 100 * 1024],
   ['assets/certificates/previews/arcgis-survey123.webp', 100 * 1024],
   ['assets/certificates/previews/arcgis-storymaps.webp', 100 * 1024],
   ['assets/certificates/previews/arcgis-dashboards.webp', 100 * 1024],
   ['assets/certificates/previews/arcgis-experience-builder.webp', 100 * 1024],
-  ['assets/certificates/previews/arcgis-drone-operator.webp', 160 * 1024]
+  ['assets/certificates/previews/arcgis-drone-operator.webp', 160 * 1024],
+  ['assets/certificates/previews/asis-security-defense-virtuality.webp', 80 * 1024],
+  ['assets/certificates/previews/unodc-online-terrorism-investigation-workshop.webp', 80 * 1024]
 ];
 
 const failures = [];

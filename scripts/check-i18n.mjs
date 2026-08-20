@@ -80,8 +80,8 @@ for (const marker of ['data-language-switcher', 'data-language-option="es"', 'da
 
 const certificatesSource = fs.readFileSync(path.join(root, 'js/data/certificates.js'), 'utf8');
 const certificateIds = [...certificatesSource.matchAll(/\bid:\s*'([^']+)'/g)].map((match) => match[1]);
-if (certificateIds.length !== 9 || new Set(certificateIds).size !== 9) {
-    errors.push(`Certificate catalog must contain 9 unique credentials, found ${certificateIds.length}`);
+if (certificateIds.length !== 14 || new Set(certificateIds).size !== 14) {
+    errors.push(`Certificate catalog must contain 14 unique credentials, found ${certificateIds.length}`);
 }
 
 for (const file of [
@@ -89,7 +89,12 @@ for (const file of [
     'assets/certificates/originals/google-project-management-foundations.pdf',
     'assets/certificates/originals/google-data-analytics-professional-certificate.pdf',
     'assets/certificates/originals/arcgis-learning-path.pdf',
-    'assets/certificates/originals/arcgis-drone-operator.jpg'
+    'assets/certificates/originals/arcgis-drone-operator.jpg',
+    'assets/certificates/originals/sap-introducing-ai-fundamentals.png',
+    'assets/certificates/originals/sap-introducing-joule.png',
+    'assets/certificates/originals/sap-sports-one-medical-return-to-play.png',
+    'assets/certificates/originals/asis-security-defense-virtuality.png',
+    'assets/certificates/originals/unodc-online-terrorism-investigation-workshop.png'
 ]) {
     if (!fs.existsSync(path.join(root, file)) || fs.statSync(path.join(root, file)).size < 20_000) {
         errors.push(`Certificate evidence is missing or unexpectedly small: ${file}`);
