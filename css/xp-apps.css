@@ -1012,13 +1012,17 @@
         overflow-x: auto;
         overflow-y: hidden;
         scroll-snap-type: x proximity;
+        overscroll-behavior-x: contain;
     }
 
     .xp-certificate-item {
-        width: 214px;
-        min-width: 214px;
+        box-sizing: border-box;
+        width: clamp(232px, 76vw, 280px);
+        min-width: clamp(232px, 76vw, 280px);
+        height: 83px;
         min-height: 83px;
         grid-template-columns: 78px minmax(0, 1fr);
+        overflow: hidden;
         scroll-snap-align: start;
     }
 
@@ -1029,6 +1033,30 @@
     .xp-certificate-item img {
         width: 78px;
         height: 60px;
+    }
+
+    .xp-certificate-item-copy {
+        max-height: 69px;
+        display: grid;
+        grid-template-rows: minmax(0, auto) auto auto;
+        gap: 1px;
+        overflow: hidden;
+    }
+
+    .xp-certificate-item-copy strong {
+        display: -webkit-box;
+        margin-bottom: 1px;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+    }
+
+    .xp-certificate-item-copy span,
+    .xp-certificate-item-copy time {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .xp-certificate-detail {

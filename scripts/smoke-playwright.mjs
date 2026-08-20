@@ -431,27 +431,57 @@ async function exerciseCertificates(page) {
   await waitForWindowAnimation(page, 'certificates');
   const mobileRoot = appWindow.locator('[data-certificates-root]');
   await mobileRoot.locator('[data-certificate-preview]').waitFor({ state: 'visible' });
+  await mobileRoot.locator('[data-certificate-filter="security"]').click();
+  await mobileRoot.locator('[data-certificate-id="asis-security-defense"]').click();
+  await page.waitForFunction(() => {
+    const detail = document.querySelector('.window[data-window-id="certificates"] [data-certificate-detail]');
+    return detail && detail.getAnimations({ subtree: true }).every((animation) => animation.playState === 'finished');
+  });
   const mobile = await mobileRoot.evaluate((rootNode) => {
     const appRect = rootNode.getBoundingClientRect();
     const filters = rootNode.querySelector('.xp-certificate-filters');
+    const list = rootNode.querySelector('.xp-certificate-list');
     const detail = rootNode.querySelector('[data-certificate-detail]');
     const preview = rootNode.querySelector('[data-certificate-preview]');
     const caption = rootNode.querySelector('.xp-certificate-preview figcaption');
     const actions = Array.from(rootNode.querySelectorAll('.xp-certificate-actions a:not([hidden])'));
+    const visibleItems = Array.from(rootNode.querySelectorAll('[data-certificate-id]'))
+      .filter((item) => getComputedStyle(item).display !== 'none');
     const previewRect = preview.getBoundingClientRect();
     const captionRect = caption.getBoundingClientRect();
     const detailRect = detail.getBoundingClientRect();
+    const listRect = list.getBoundingClientRect();
+    const cardsContained = visibleItems.every((item) => {
+      const itemRect = item.getBoundingClientRect();
+      const copyRect = item.querySelector('.xp-certificate-item-copy').getBoundingClientRect();
+      return itemRect.top >= listRect.top - 1
+        && itemRect.bottom <= listRect.bottom + 1
+        && copyRect.top >= itemRect.top - 1
+        && copyRect.bottom <= itemRect.bottom + 1
+        && getComputedStyle(item).overflow === 'hidden';
+    });
     return {
       noPageOverflow: document.documentElement.scrollWidth <= window.innerWidth + 1,
       appContained: appRect.left >= -1 && appRect.right <= window.innerWidth + 1,
       appRect: { left: appRect.left, right: appRect.right, width: appRect.width, viewport: window.innerWidth },
       filtersScrollable: filters.scrollWidth >= filters.clientWidth,
+      securityCards: visibleItems.length,
+      cardsContained,
+      listSeparated: listRect.bottom <= detailRect.top + 1,
       previewContained: previewRect.left >= detailRect.left - 1 && previewRect.right <= detailRect.right + 1,
       captionSeparated: previewRect.bottom <= captionRect.top + 0.5 && captionRect.height >= 23.5,
       actionsReachable: actions.every((action) => action.getBoundingClientRect().height >= 39.5)
     };
   });
-  ensure(mobile.noPageOverflow && mobile.appContained && mobile.filtersScrollable && mobile.previewContained && mobile.captionSeparated && mobile.actionsReachable, `Certificados no se adaptó al viewport móvil (${JSON.stringify(mobile)})`);
+  ensure(mobile.noPageOverflow
+    && mobile.appContained
+    && mobile.filtersScrollable
+    && mobile.securityCards === 2
+    && mobile.cardsContained
+    && mobile.listSeparated
+    && mobile.previewContained
+    && mobile.captionSeparated
+    && mobile.actionsReachable, `Certificados no se adaptó al viewport móvil (${JSON.stringify(mobile)})`);
 
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('certificates'));
   await appWindow.waitFor({ state: 'detached' });
