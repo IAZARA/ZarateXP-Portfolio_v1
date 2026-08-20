@@ -247,8 +247,10 @@ async function exerciseCertificates(page) {
     const filters = rootNode.querySelector('.xp-certificate-filters');
     const detail = rootNode.querySelector('[data-certificate-detail]');
     const preview = rootNode.querySelector('[data-certificate-preview]');
+    const caption = rootNode.querySelector('.xp-certificate-preview figcaption');
     const actions = Array.from(rootNode.querySelectorAll('.xp-certificate-actions a:not([hidden])'));
     const previewRect = preview.getBoundingClientRect();
+    const captionRect = caption.getBoundingClientRect();
     const detailRect = detail.getBoundingClientRect();
     return {
       noPageOverflow: document.documentElement.scrollWidth <= window.innerWidth + 1,
@@ -256,10 +258,11 @@ async function exerciseCertificates(page) {
       appRect: { left: appRect.left, right: appRect.right, width: appRect.width, viewport: window.innerWidth },
       filtersScrollable: filters.scrollWidth >= filters.clientWidth,
       previewContained: previewRect.left >= detailRect.left - 1 && previewRect.right <= detailRect.right + 1,
+      captionSeparated: previewRect.bottom <= captionRect.top + 0.5 && captionRect.height >= 23.5,
       actionsReachable: actions.every((action) => action.getBoundingClientRect().height >= 39.5)
     };
   });
-  ensure(mobile.noPageOverflow && mobile.appContained && mobile.filtersScrollable && mobile.previewContained && mobile.actionsReachable, `Certificados no se adaptó al viewport móvil (${JSON.stringify(mobile)})`);
+  ensure(mobile.noPageOverflow && mobile.appContained && mobile.filtersScrollable && mobile.previewContained && mobile.captionSeparated && mobile.actionsReachable, `Certificados no se adaptó al viewport móvil (${JSON.stringify(mobile)})`);
 
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('certificates'));
   await appWindow.waitFor({ state: 'detached' });
