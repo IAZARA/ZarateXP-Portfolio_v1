@@ -30,6 +30,9 @@ const requiredTranslations = new Map([
     ['Restaurar ventanas', 'Restore windows'],
     ['Mis Proyectos', 'My Projects'],
     ['Buscaminas', 'Minesweeper'],
+    ['Mis Certificados', 'My Certificates'],
+    ['Fundamentos de la gestión de proyectos', 'Foundations of Project Management'],
+    ['Operador de Drones en ArcGIS', 'Drone Operator in ArcGIS'],
     ['Catálogo online de insumos profesionales para tattoo en Argentina', 'Online catalog of professional tattoo supplies in Argentina'],
     ['Sitio institucional jurídico-contable para profesionales y empresas', 'Legal and accounting institutional site for professionals and businesses']
 ]);
@@ -73,6 +76,24 @@ if (!fs.existsSync(englishCv) || fs.statSync(englishCv).size < 20_000) {
 const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 for (const marker of ['data-language-switcher', 'data-language-option="es"', 'data-language-option="en"', 'id="show-desktop-button"']) {
     if (!index.includes(marker)) errors.push(`Missing interface marker: ${marker}`);
+}
+
+const certificatesSource = fs.readFileSync(path.join(root, 'js/data/certificates.js'), 'utf8');
+const certificateIds = [...certificatesSource.matchAll(/\bid:\s*'([^']+)'/g)].map((match) => match[1]);
+if (certificateIds.length !== 9 || new Set(certificateIds).size !== 9) {
+    errors.push(`Certificate catalog must contain 9 unique credentials, found ${certificateIds.length}`);
+}
+
+for (const file of [
+    'assets/certificates/originals/google-ai-professional-certificate.pdf',
+    'assets/certificates/originals/google-project-management-foundations.pdf',
+    'assets/certificates/originals/google-data-analytics-professional-certificate.pdf',
+    'assets/certificates/originals/arcgis-learning-path.pdf',
+    'assets/certificates/originals/arcgis-drone-operator.jpg'
+]) {
+    if (!fs.existsSync(path.join(root, file)) || fs.statSync(path.join(root, file)).size < 20_000) {
+        errors.push(`Certificate evidence is missing or unexpectedly small: ${file}`);
+    }
 }
 
 if (errors.length) {

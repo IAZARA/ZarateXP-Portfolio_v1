@@ -29,6 +29,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - Perfil orientado a FDE con experiencia, modelo de trabajo, casos, capacidades, formación, idiomas y contacto.
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Visor de CV actualizado en PDF.
+- Explorador bilingüe de certificados con nueve credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de Coursera.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.
 - Casos destacados: CUFRE, SIFEBU, CRIACO y OSINTArgy, además de ZarateXP, ForzaTech, WJPC Capitulo Argentino y sistemas full stack.
@@ -59,6 +60,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
+- **Mis Certificados:** evidencia verificable en IA, Data Analytics, gestión de proyectos y seis cursos aplicados de ArcGIS.
 - **Flujos n8n:** caso demostrativo de entrega de software e IA. n8n coordina eventos, APIs, jobs y decisiones humanas; las herramientas especializadas ejecutan CI/CD, entrenamiento, registry y serving. Incluye quality gate, rollback conceptual, drift y reentrenamiento.
 - **Panel de control:** personalizacion persistente del escritorio.
 
@@ -106,6 +108,7 @@ Los iconos de Buscaminas y Pinball son composiciones SVG originales del portfoli
 ├── components/
 ├── assets/
 │   ├── images/
+│   ├── certificates/
 │   ├── readme/
 │   └── sounds/
 ├── images/
@@ -117,6 +120,8 @@ Los iconos de Buscaminas y Pinball son composiciones SVG originales del portfoli
 ## CV y proyectos
 
 El CV principal versionado es `Ivan_Zarate_CV.pdf`. La app de CV lo muestra directamente desde el PDF para evitar capturas desactualizadas.
+
+Los certificados se conservan en su formato original dentro de `assets/certificates/originals/`. Las miniaturas WebP solo aceleran la vista previa; cada ficha mantiene acceso al documento fuente y, cuando existe, a la verificación pública del emisor.
 
 Los proyectos con URL publica pueden mostrarse embebidos dentro del explorador. Si un navegador bloquea una vista, el detalle incluye boton para abrir el sitio en una pestana nueva.
 

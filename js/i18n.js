@@ -1,5 +1,5 @@
 import { CORE_TRANSLATIONS } from './i18n/catalog-core.js?v=zaratexp-20260712-i18n2';
-import { APP_TRANSLATIONS } from './i18n/catalog-apps.js?v=zaratexp-20260713-pinball-touch1';
+import { APP_TRANSLATIONS } from './i18n/catalog-apps.js?v=zaratexp-20260820-certificates1';
 import { PROJECT_TRANSLATIONS } from './i18n/catalog-projects.js?v=zaratexp-20260712-i18n2';
 
 const STORAGE_KEY = 'zarateXP.locale';
@@ -128,6 +128,10 @@ export class I18nManager {
             [/^(\d+) correctas$/, '$1 successful'],
             [/^(\d+) con error$/, '$1 with errors'],
             [/^(\d+) canceladas$/, '$1 canceled'],
+            [/^Curso aprobado, (\d+) horas$/, 'Completed course, $1 hours'],
+            [/^Colección ArcGIS, página (\d+) de (\d+)$/, 'ArcGIS collection, page $1 of $2'],
+            [/^Vista previa del certificado (.+)$/, (_match, title) => `${this.translateString(title)} certificate preview`],
+            [/^(.+) seleccionado\. Documento listo para abrir\.$/, (_match, title) => `${this.translateString(title)} selected. Document ready to open.`],
             [/^Guardado (.+)$/, 'Saved $1'],
             [/^(\d+) de (\d+) etapas$/, '$1 of $2 stages'],
             [/^Etapa (\d+) de (\d+): (.+)$/, (_match, current, total, rest) => `Stage ${current} of ${total}: ${this.translateStageDescription(rest)}`],

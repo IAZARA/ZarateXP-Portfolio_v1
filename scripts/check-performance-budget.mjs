@@ -12,10 +12,11 @@ const contact = read('components/contacto.html');
 const projectsExplorer = read('components/proyectos-explorer.html');
 const desktopCss = read('css/desktop.css');
 const appsCss = read('css/xp-apps.css');
+const certificates = read('js/data/certificates.js');
 const manifest = read('site.webmanifest');
 const mipc = read('mipc.html');
 
-const checkedSources = [index, apps, startMenu, contact, projectsExplorer, desktopCss, appsCss, manifest, mipc];
+const checkedSources = [index, apps, certificates, startMenu, contact, projectsExplorer, desktopCss, appsCss, manifest, mipc];
 
 const forbiddenEagerReferences = [
   ['wallpaper PNG prefetch', /rel="prefetch"\s+href="\.\/assets\/images\/zaratexp-hd-wallpaper\.png"/],
@@ -54,7 +55,9 @@ const requiredReferences = [
   ['app small critical icon', apps, /assets\/images\/xp-small-icons\/critical\.png/],
   ['app small information icon', apps, /assets\/images\/xp-small-icons\/information\.png/],
   ['app small folder icons', apps, /assets\/images\/xp-small-icons\/folder-opened\.png/],
-  ['resume small print icon', apps, /assets\/images\/xp-small-icons\/print-to-file\.png/]
+  ['resume small print icon', apps, /assets\/images\/xp-small-icons\/print-to-file\.png/],
+  ['certificate WebP previews', certificates, /assets\/certificates\/previews\/google-ai\.webp[\s\S]*arcgis-drone-operator\.webp/],
+  ['lazy certificate thumbnails', apps, /xp-certificate-item[\s\S]*loading="lazy"/]
 ];
 
 const sizeBudgets = [
@@ -95,7 +98,16 @@ const sizeBudgets = [
   ['images/sobremi/ai-automation.webp', 40 * 1024],
   ['images/sobremi/forzatech-founder.webp', 40 * 1024],
   ['images/sobremi/privacy-data-products.webp', 40 * 1024],
-  ['images/sobremi/shipping-projects.webp', 40 * 1024]
+  ['images/sobremi/shipping-projects.webp', 40 * 1024],
+  ['assets/certificates/previews/google-ai.webp', 160 * 1024],
+  ['assets/certificates/previews/google-project-management.webp', 100 * 1024],
+  ['assets/certificates/previews/google-data-analytics.webp', 160 * 1024],
+  ['assets/certificates/previews/arcgis-pro-workflows.webp', 100 * 1024],
+  ['assets/certificates/previews/arcgis-survey123.webp', 100 * 1024],
+  ['assets/certificates/previews/arcgis-storymaps.webp', 100 * 1024],
+  ['assets/certificates/previews/arcgis-dashboards.webp', 100 * 1024],
+  ['assets/certificates/previews/arcgis-experience-builder.webp', 100 * 1024],
+  ['assets/certificates/previews/arcgis-drone-operator.webp', 160 * 1024]
 ];
 
 const failures = [];

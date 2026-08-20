@@ -21,6 +21,14 @@ The following recordings were supplied by the repository owner, who confirmed on
 
 Copyright in the recordings and compositions remains with the respective rights holders.
 
+## Certificates supplied by the portfolio owner
+
+The documents under `assets/certificates/originals/` were supplied by Ivan Agustin
+Zarate as evidence of his completed training. Logos, certificate artwork and issuer marks
+remain the property of Google, Coursera, aulaGIS, Aeroterra and Esri. The WebP files under
+`assets/certificates/previews/` are optimized previews derived from those documents and
+are used only to present the credentials in this portfolio.
+
 ## Project identity and preview assets
 
 Most files in `assets/images/project-icons/` are resized or square-cropped versions of

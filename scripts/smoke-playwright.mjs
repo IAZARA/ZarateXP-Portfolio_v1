@@ -195,6 +195,79 @@ async function openApp(page, appId) {
   return appWindow;
 }
 
+async function exerciseCertificates(page) {
+  const originalViewport = page.viewportSize();
+  let appWindow = await openApp(page, 'certificates');
+  const root = appWindow.locator('[data-certificates-root]');
+  await root.locator('[data-certificate-preview]').waitFor({ state: 'visible' });
+  await page.waitForFunction(() => {
+    const image = document.querySelector('.window[data-window-id="certificates"] [data-certificate-preview]');
+    return image?.complete && image.naturalWidth > 0;
+  });
+
+  const initial = await root.evaluate((rootNode) => ({
+    items: rootNode.querySelectorAll('[data-certificate-id]').length,
+    selected: rootNode.querySelectorAll('[data-certificate-id][aria-selected="true"]').length,
+    filters: rootNode.querySelectorAll('[data-certificate-filter]').length,
+    source: rootNode.querySelector('[data-certificate-source]')?.getAttribute('href'),
+    verification: rootNode.querySelector('[data-certificate-verification]')?.getAttribute('href'),
+    previewLoaded: rootNode.querySelector('[data-certificate-preview]')?.naturalWidth > 0
+  }));
+  ensure(initial.items === 9 && initial.selected === 1 && initial.filters === 4, `Certificados no expuso el catálogo completo (${JSON.stringify(initial)})`);
+  ensure(initial.previewLoaded && /google-ai-professional-certificate\.pdf/.test(initial.source || ''), 'La credencial destacada no cargó su evidencia original');
+  ensure(/DYU79Z46B5D0/.test(initial.verification || ''), 'Google AI no conserva su enlace público de verificación');
+
+  await root.locator('[data-certificate-filter="gis"]').click();
+  const visibleGis = await root.locator('[data-certificate-id]:visible').count();
+  ensure(visibleGis === 6, `El filtro GIS mostró ${visibleGis}/6 credenciales`);
+  await root.locator('[data-certificate-id="arcgis-experience-builder"]').click();
+  ensure((await root.locator('[data-certificate-source]').getAttribute('href'))?.includes('#page=5'), 'Experience Builder no abre la página correcta del PDF ArcGIS');
+  ensure(await root.locator('[data-certificate-verification]').isHidden(), 'Una credencial ArcGIS mostró un enlace de verificación Coursera incorrecto');
+
+  await root.locator('[data-certificate-filter="management"]').click();
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="certificates"] [data-certificate-title]')?.textContent === 'Foundations of Project Management');
+  const english = await root.evaluate((rootNode) => ({
+    title: rootNode.querySelector('[data-certificate-title]')?.textContent,
+    action: rootNode.querySelector('[data-certificate-source]')?.textContent,
+    category: rootNode.querySelector('[data-certificate-category-label]')?.textContent
+  }));
+  ensure(english.title === 'Foundations of Project Management' && english.action === 'View original document' && english.category === 'Project Management', `La vista inglesa de certificados quedó incompleta (${JSON.stringify(english)})`);
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
+
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('certificates'));
+  await appWindow.waitFor({ state: 'detached' });
+  await page.setViewportSize({ width: 390, height: 740 });
+  appWindow = await openApp(page, 'certificates');
+  await waitForWindowAnimation(page, 'certificates');
+  const mobileRoot = appWindow.locator('[data-certificates-root]');
+  await mobileRoot.locator('[data-certificate-preview]').waitFor({ state: 'visible' });
+  const mobile = await mobileRoot.evaluate((rootNode) => {
+    const appRect = rootNode.getBoundingClientRect();
+    const filters = rootNode.querySelector('.xp-certificate-filters');
+    const detail = rootNode.querySelector('[data-certificate-detail]');
+    const preview = rootNode.querySelector('[data-certificate-preview]');
+    const actions = Array.from(rootNode.querySelectorAll('.xp-certificate-actions a:not([hidden])'));
+    const previewRect = preview.getBoundingClientRect();
+    const detailRect = detail.getBoundingClientRect();
+    return {
+      noPageOverflow: document.documentElement.scrollWidth <= window.innerWidth + 1,
+      appContained: appRect.left >= -1 && appRect.right <= window.innerWidth + 1,
+      appRect: { left: appRect.left, right: appRect.right, width: appRect.width, viewport: window.innerWidth },
+      filtersScrollable: filters.scrollWidth >= filters.clientWidth,
+      previewContained: previewRect.left >= detailRect.left - 1 && previewRect.right <= detailRect.right + 1,
+      actionsReachable: actions.every((action) => action.getBoundingClientRect().height >= 39.5)
+    };
+  });
+  ensure(mobile.noPageOverflow && mobile.appContained && mobile.filtersScrollable && mobile.previewContained && mobile.actionsReachable, `Certificados no se adaptó al viewport móvil (${JSON.stringify(mobile)})`);
+
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('certificates'));
+  await appWindow.waitFor({ state: 'detached' });
+  await page.setViewportSize(originalViewport);
+  await openApp(page, 'certificates');
+  return 'Certificados: 9 credenciales, filtros, evidencia, traducción y layout móvil';
+}
+
 function ensure(condition, message) {
   if (!condition) throw new Error(message);
 }
@@ -1352,10 +1425,11 @@ async function main() {
     ensure(positioning.jobTitle === 'Software Analyst & Project Manager', 'El Schema.org presenta un cargo FDE no ejercido');
     ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
 
-    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball']);
+    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball']);
     exercised.push(await exerciseMlopsLifecycle(page));
     for (const appId of ['about-me', 'projects', 'pdf-studio', 'contact']) await openApp(page, appId);
 
+    exercised.push(await exerciseCertificates(page));
     exercised.push(await exerciseApiCenter(page));
     exercised.push(await exerciseWinamp(page));
     exercised.push(await exerciseSolitaire(page));

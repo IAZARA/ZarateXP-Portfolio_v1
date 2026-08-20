@@ -53,6 +53,35 @@
         "n8n",
         "REST APIs",
         "Automation"
+      ],
+      "hasCredential": [
+        {
+          "@type": "EducationalOccupationalCredential",
+          "name": "Google AI Professional Certificate",
+          "credentialCategory": "Professional Certificate",
+          "recognizedBy": { "@type": "Organization", "name": "Google" },
+          "url": "https://coursera.org/verify/professional-cert/DYU79Z46B5D0"
+        },
+        {
+          "@type": "EducationalOccupationalCredential",
+          "name": "Google Data Analytics Professional Certificate",
+          "credentialCategory": "Professional Certificate",
+          "recognizedBy": { "@type": "Organization", "name": "Google" },
+          "url": "https://coursera.org/verify/professional-cert/WHLKPKLWLRWJ"
+        },
+        {
+          "@type": "EducationalOccupationalCredential",
+          "name": "Fundamentos de la gestión de proyectos",
+          "credentialCategory": "Course Certificate",
+          "recognizedBy": { "@type": "Organization", "name": "Google" },
+          "url": "https://coursera.org/verify/T29Z4TO57M3H"
+        },
+        {
+          "@type": "EducationalOccupationalCredential",
+          "name": "Formación aplicada en ArcGIS",
+          "credentialCategory": "Professional Training",
+          "recognizedBy": { "@type": "Organization", "name": "aulaGIS / Aeroterra / Esri" }
+        }
       ]
     }
     </script>
@@ -80,7 +109,7 @@
     <link rel="stylesheet" href="css/about-me.css">
     <link rel="stylesheet" href="css/contacto.css">
     <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260712-i18n2">
-    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260713-pinball-mobile-fit1">
+    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260820-certificates1">
     <link rel="stylesheet" href="css/clippy.css?v=zaratexp-20260712-clippy-mobile1">
     <link rel="stylesheet" href="css/crtEffect.css">
     
@@ -168,6 +197,10 @@
             <div class="desktop-icon" data-program-name="resume">
                 <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV" loading="eager">
                 <span>Mi CV</span>
+            </div>
+            <div class="desktop-icon" data-program-name="certificates">
+                <img src="./assets/images/hd-icons/documents.svg" alt="Mis Certificados" loading="eager">
+                <span>Mis Certificados</span>
             </div>
             <div class="desktop-icon" data-program-name="recruiter-route">
                 <img src="./assets/images/hd-icons/cv.svg" alt="Perfil orientado a FDE" loading="eager">
@@ -263,8 +296,8 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module" src="js/main.js?v=zaratexp-20260712-clippy-mobile1"></script>
-    <script type="module" src="js/apps.js?v=zaratexp-20260713-pinball-touch1"></script>
+    <script type="module" src="js/main.js?v=zaratexp-20260820-certificates1"></script>
+    <script type="module" src="js/apps.js?v=zaratexp-20260820-certificates1"></script>
     <!-- CRT Effect - ALL DISABLED -->
     <div class="crt-effect" style="display: none;"></div>
     <div class="crt-scanline" style="display: none;"></div>
@@ -363,6 +396,13 @@
                         <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV">
                         <div class="item-content">
                             <span class="item-title">Mi CV</span>
+                        </div>
+                    </li>
+                    <li class="menu-item" id="menu-certificates" data-action="open-program" data-program-name="certificates">
+                        <img src="./assets/images/hd-icons/documents.svg" alt="Mis Certificados">
+                        <div class="item-content">
+                            <span class="item-title">Mis Certificados</span>
+                            <span class="item-description">IA, datos, gestión y GIS</span>
                         </div>
                     </li>
                     <li class="menu-item" id="menu-documents" data-action="open-program" data-program-name="documents">
@@ -522,6 +562,10 @@
             <li class="all-programs-item" data-action="open-program" data-program-name="documents">
                 <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos">
                 Mis Documentos
+            </li>
+            <li class="all-programs-item" data-action="open-program" data-program-name="certificates">
+                <img src="./assets/images/hd-icons/documents.svg" alt="Mis Certificados">
+                Mis Certificados
             </li>
             <li class="all-programs-item" data-action="open-program" data-program-name="contact">
                 <img src="./assets/images/hd-icons/contact.svg" alt="Contacto">
