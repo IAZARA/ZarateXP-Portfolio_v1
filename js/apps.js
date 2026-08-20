@@ -1964,67 +1964,82 @@ export class AppManager {
                             <p>Software Analyst &amp; Project Manager con portfolio orientado a oportunidades FDE, MLOps, plataformas y datos sensibles.</p>
                         </section>
                     </aside>
-                    <main class="xp-folder-grid">
-                        <button type="button" class="xp-folder-item important" data-doc-open="resume">
-                            <img src="./assets/images/hd-icons/cv.svg" alt="">
-                            <span data-localized-cv-name data-no-i18n>${cv.fileName}</span>
-                            <small>CV actualizado</small>
-                        </button>
-                        <button type="button" class="xp-folder-item important" data-doc-open="recruiter-route">
-                            <img src="./assets/images/hd-icons/cv.svg" alt="">
-                            <span>Perfil orientado a FDE.lnk</span>
-                            <small>Experiencia, casos, capacidades y contacto</small>
-                        </button>
-                        <button type="button" class="xp-folder-item important" data-doc-open="certificates">
-                            <img src="./assets/images/hd-icons/documents.svg" alt="">
-                            <span>Certificados verificados</span>
-                            <small>14 credenciales en IA, datos, gestión, GIS y seguridad</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="projects">
-                            <img src="./assets/images/hd-icons/projects.svg" alt="">
-                            <span>Proyectos destacados</span>
-                            <small>CUFRE, SIFEBU, CRIACO, OSINTArgy y más</small>
-                        </button>
-                        <button type="button" class="xp-folder-item important" data-doc-open="api-center">
-                            <img src="./assets/images/hd-icons/api.svg" alt="">
-                            <span>API Center.lnk</span>
-                            <small>Clima, GitHub y datos publicos en vivo</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="pdf-studio">
-                            <img src="./assets/images/hd-icons/pdf-studio.svg" alt="">
-                            <span>PDF Studio.exe</span>
-                            <small>File API, Blob URL y anotaciones</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="about-me">
-                            <img src="./assets/images/hd-icons/about.svg" alt="">
-                            <span>Perfil profesional</span>
-                            <small>Software, Data &amp; AI + orientación FDE</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
-                            <img src="./assets/images/hd-icons/n8n.svg" alt="">
-                            <span>Flujos n8n</span>
-                            <small>Orquestación, gates, drift y feedback</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="notepad">
-                            <img src="./assets/images/hd-icons/notepad.svg" alt="">
-                            <span>Notas de entrevista.txt</span>
-                            <small>Editable localmente</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="wordpad">
-                            <img src="./assets/images/hd-icons/wordpad.svg" alt="">
-                            <span>Carta de presentacion.rtf</span>
-                            <small>Editor enriquecido</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="solitaire">
-                            <img src="./assets/images/hd-icons/solitaire.svg" alt="">
-                            <span>Solitario XP</span>
-                            <small>Logica Klondike propia</small>
-                        </button>
-                        <button type="button" class="xp-folder-item" data-doc-open="pinball">
-                            <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="">
-                            <span>Pinball XP Lab</span>
-                            <small>Canvas, fisica y teclado</small>
-                        </button>
+                    <main class="xp-folder-grid" aria-label="Mis Documentos">
+                        <section class="xp-folder-group" data-document-group="profile" aria-labelledby="documents-profile-heading">
+                            <h2 id="documents-profile-heading" class="xp-folder-group-title">Perfil y credenciales</h2>
+                            <div class="xp-folder-group-grid">
+                                <button type="button" class="xp-folder-item important" data-doc-open="recruiter-route">
+                                    <img src="./assets/images/hd-icons/cv.svg" alt="">
+                                    <span>Perfil orientado a FDE.lnk</span>
+                                    <small>Experiencia, casos, capacidades y contacto</small>
+                                </button>
+                                <button type="button" class="xp-folder-item important" data-doc-open="resume">
+                                    <img src="./assets/images/hd-icons/cv.svg" alt="">
+                                    <span data-localized-cv-name data-no-i18n>${cv.fileName}</span>
+                                    <small>CV actualizado</small>
+                                </button>
+                                <button type="button" class="xp-folder-item important" data-doc-open="certificates">
+                                    <img src="./assets/images/hd-icons/documents.svg" alt="">
+                                    <span>Certificados verificados</span>
+                                    <small>14 credenciales en IA, datos, gestión, GIS y seguridad</small>
+                                </button>
+                                <button type="button" class="xp-folder-item" data-doc-open="about-me">
+                                    <img src="./assets/images/hd-icons/about.svg" alt="">
+                                    <span>Perfil profesional</span>
+                                    <small>Software, Data &amp; AI + orientación FDE</small>
+                                </button>
+                            </div>
+                        </section>
+                        <section class="xp-folder-group" data-document-group="solutions" aria-labelledby="documents-solutions-heading">
+                            <h2 id="documents-solutions-heading" class="xp-folder-group-title">Proyectos y soluciones</h2>
+                            <div class="xp-folder-group-grid">
+                                <button type="button" class="xp-folder-item" data-doc-open="projects">
+                                    <img src="./assets/images/hd-icons/projects.svg" alt="">
+                                    <span>Proyectos destacados</span>
+                                    <small>CUFRE, SIFEBU, CRIACO, OSINTArgy y más</small>
+                                </button>
+                                <button type="button" class="xp-folder-item important" data-doc-open="api-center">
+                                    <img src="./assets/images/hd-icons/api.svg" alt="">
+                                    <span>API Center.lnk</span>
+                                    <small>Clima, GitHub y datos publicos en vivo</small>
+                                </button>
+                                <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
+                                    <img src="./assets/images/hd-icons/n8n.svg" alt="">
+                                    <span>Flujos n8n</span>
+                                    <small>Orquestación, gates, drift y feedback</small>
+                                </button>
+                                <button type="button" class="xp-folder-item" data-doc-open="pdf-studio">
+                                    <img src="./assets/images/hd-icons/pdf-studio.svg" alt="">
+                                    <span>PDF Studio.exe</span>
+                                    <small>File API, Blob URL y anotaciones</small>
+                                </button>
+                            </div>
+                        </section>
+                        <section class="xp-folder-group" data-document-group="utilities" aria-labelledby="documents-utilities-heading">
+                            <h2 id="documents-utilities-heading" class="xp-folder-group-title">Utilidades y demos</h2>
+                            <div class="xp-folder-group-grid">
+                                <button type="button" class="xp-folder-item" data-doc-open="notepad">
+                                    <img src="./assets/images/hd-icons/notepad.svg" alt="">
+                                    <span>Notas de entrevista.txt</span>
+                                    <small>Editable localmente</small>
+                                </button>
+                                <button type="button" class="xp-folder-item" data-doc-open="wordpad">
+                                    <img src="./assets/images/hd-icons/wordpad.svg" alt="">
+                                    <span>Carta de presentacion.rtf</span>
+                                    <small>Editor enriquecido</small>
+                                </button>
+                                <button type="button" class="xp-folder-item" data-doc-open="solitaire">
+                                    <img src="./assets/images/hd-icons/solitaire.svg" alt="">
+                                    <span>Solitario XP</span>
+                                    <small>Logica Klondike propia</small>
+                                </button>
+                                <button type="button" class="xp-folder-item" data-doc-open="pinball">
+                                    <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="">
+                                    <span>Pinball XP Lab</span>
+                                    <small>Canvas, fisica y teclado</small>
+                                </button>
+                            </div>
+                        </section>
                     </main>
                 </div>
             </div>

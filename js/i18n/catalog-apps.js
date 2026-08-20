@@ -917,6 +917,11 @@ export const APP_TRANSLATIONS = Object.freeze({
     "Salir de pantalla completa": "Exit fullscreen",
     "Pantalla completa": "Fullscreen",
 
+    // My Documents grouping.
+    "Perfil y credenciales": "Profile and credentials",
+    "Proyectos y soluciones": "Projects and solutions",
+    "Utilidades y demos": "Utilities and demos",
+
     // Certificates explorer and verified education.
     "Mis Certificados": "My Certificates",
     "Mis Certificados - Ivan Agustin Zarate": "My Certificates - Ivan Agustin Zarate",

@@ -131,6 +131,14 @@
         --icon-scale: 0.8;
         grid-template-rows: repeat(auto-fill, 80px);
     }
+
+    .desktop-icon:not([data-mobile-home="true"]) {
+        display: none;
+    }
+
+    .desktop-icon[data-mobile-home="true"] {
+        display: flex;
+    }
     
     .desktop-icon span {
         font-size: 10px;

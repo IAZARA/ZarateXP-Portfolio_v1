@@ -195,6 +195,175 @@ async function openApp(page, appId) {
   return appWindow;
 }
 
+const MOBILE_HOME_IDS = [
+  'recruiter-route',
+  'resume',
+  'projects',
+  'contact',
+  'documents',
+  'api-center',
+  'n8n-flows',
+  'my-computer',
+  'pinball'
+];
+
+const MOBILE_GROUPED_IDS = [
+  'about-me',
+  'certificates',
+  'winamp',
+  'notepad',
+  'control-panel',
+  'pdf-studio',
+  'minesweeper',
+  'solitaire'
+];
+
+async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
+  const context = await browser.newContext({
+    viewport,
+    isMobile: true,
+    hasTouch: true,
+    deviceScaleFactor: 2
+  });
+
+  try {
+    await context.addInitScript(() => {
+      try {
+        localStorage.setItem('zarateXP_session', 'active');
+      } catch (error) {
+        // about:blank no expone localStorage; la inicializacion se repite al navegar.
+      }
+    });
+    const page = await context.newPage();
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => Boolean(window.zarateXP?.desktopManager && window.zarateXP?.appManager?.windowManager), null, { timeout: 12000 });
+
+    const desktopAudit = await page.evaluate(({ expectedHome, expectedGrouped }) => {
+      const icons = Array.from(document.querySelectorAll('.desktop-icons > .desktop-icon'));
+      const visible = icons.filter((icon) => getComputedStyle(icon).display !== 'none');
+      const visibleByOrder = [...visible].sort((left, right) => Number(left.dataset.mobileOrder) - Number(right.dataset.mobileOrder));
+      const taskbarRect = document.querySelector('.taskbar').getBoundingClientRect();
+      const rects = visible.map((icon) => ({ id: icon.dataset.programName, rect: icon.getBoundingClientRect() }));
+      const overlapPairs = [];
+      for (let leftIndex = 0; leftIndex < rects.length; leftIndex += 1) {
+        for (let rightIndex = leftIndex + 1; rightIndex < rects.length; rightIndex += 1) {
+          const left = rects[leftIndex];
+          const right = rects[rightIndex];
+          const overlaps = left.rect.left < right.rect.right
+            && left.rect.right > right.rect.left
+            && left.rect.top < right.rect.bottom
+            && left.rect.bottom > right.rect.top;
+          if (overlaps) overlapPairs.push(`${left.id}:${right.id}`);
+        }
+      }
+
+      return {
+        visibleIds: visibleByOrder.map((icon) => icon.dataset.programName),
+        groupedHidden: expectedGrouped.every((id) => {
+          const icon = icons.find((candidate) => candidate.dataset.programName === id);
+          return icon && getComputedStyle(icon).display === 'none';
+        }),
+        declarativeOrder: visibleByOrder.every((icon, index) => Number(icon.dataset.mobileOrder) === index + 1),
+        twoColumns: new Set(rects.map(({ rect }) => Math.round(rect.left))).size === 2,
+        contained: rects.every(({ rect }) => rect.left >= -1
+          && rect.right <= window.innerWidth + 1
+          && rect.top >= -1
+          && rect.bottom <= taskbarRect.top + 1),
+        overlapPairs,
+        expectedHome
+      };
+    }, { expectedHome: MOBILE_HOME_IDS, expectedGrouped: MOBILE_GROUPED_IDS });
+
+    ensure(desktopAudit.visibleIds.join(',') === MOBILE_HOME_IDS.join(','), `La portada móvil no respetó los 9 accesos y su orden (${JSON.stringify(desktopAudit)})`);
+    ensure(desktopAudit.groupedHidden && desktopAudit.declarativeOrder, `La portada móvil mostró accesos agrupados o perdió su contrato declarativo (${JSON.stringify(desktopAudit)})`);
+    ensure(desktopAudit.twoColumns && desktopAudit.contained && desktopAudit.overlapPairs.length === 0, `Los iconos móviles se superponen, desbordan o no forman dos columnas (${JSON.stringify(desktopAudit)})`);
+
+    const documentsWindow = await openApp(page, 'documents');
+    const groups = documentsWindow.locator('[data-document-group]');
+    ensure(await groups.count() === 3, 'Mis Documentos no expuso sus tres grupos');
+    ensure(await documentsWindow.locator('[data-document-group="profile"] [data-doc-open="certificates"]').isVisible(), 'Certificados no quedó visible dentro de Perfil y credenciales');
+
+    const spanishHeadings = await groups.locator('.xp-folder-group-title').allInnerTexts();
+    ensure(spanishHeadings.join('|') === 'Perfil y credenciales|Proyectos y soluciones|Utilidades y demos', `Los grupos de Mis Documentos no tienen los títulos acordados (${spanishHeadings.join('|')})`);
+    await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
+    await page.waitForFunction(() => document.querySelector('[data-document-group="profile"] .xp-folder-group-title')?.textContent === 'Profile and credentials');
+    const englishHeadings = await groups.locator('.xp-folder-group-title').allInnerTexts();
+    ensure(englishHeadings.join('|') === 'Profile and credentials|Projects and solutions|Utilities and demos', `Los grupos de Mis Documentos no se tradujeron al inglés (${englishHeadings.join('|')})`);
+
+    await documentsWindow.locator('[data-document-group="profile"] [data-doc-open="certificates"]').click();
+    await page.locator('.window[data-window-id="certificates"] [data-certificates-root]').waitFor({ state: 'visible', timeout: 12000 });
+    ensure(await page.locator('.window[data-window-id="certificates"] [data-certificate-id]').count() === 14, 'Certificados no abrió el catálogo completo desde Mis Documentos');
+
+    ensure(await page.locator('#menu-certificates[data-program-name="certificates"]').count() === 1, 'Certificados dejó de estar disponible desde Inicio');
+    ensure(await page.locator('.all-programs-item[data-program-name="minesweeper"]').count() === 1, 'Buscaminas dejó de estar disponible en Todos los programas');
+    return `${viewport.width}x${viewport.height}`;
+  } finally {
+    await context.close();
+  }
+}
+
+async function auditDesktopPositionPreservation(browser, baseUrl) {
+  const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+  try {
+    await context.addInitScript(() => {
+      try {
+        localStorage.setItem('zarateXP_session', 'active');
+        localStorage.setItem('zarateXP.desktopIconPositions', JSON.stringify({
+          'recruiter-route': { x: 310, y: 120 }
+        }));
+      } catch (error) {
+        // about:blank no expone localStorage; la inicializacion se repite al navegar.
+      }
+    });
+    const page = await context.newPage();
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => Boolean(window.zarateXP?.desktopManager), null, { timeout: 12000 });
+    await page.evaluate(() => {
+      localStorage.setItem('zarateXP.desktopIconPositions', JSON.stringify({
+        'recruiter-route': { x: 310, y: 120 }
+      }));
+      window.zarateXP.desktopManager.applyIconPositions();
+    });
+
+    const desktopIcon = page.locator('.desktop-icon[data-program-name="recruiter-route"]');
+    ensure(Math.round(await desktopIcon.evaluate((icon) => Number.parseFloat(icon.style.left))) === 310, 'El escritorio no restauró la posición guardada inicialmente');
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.waitForFunction(() => {
+      const icon = document.querySelector('.desktop-icon[data-program-name="recruiter-route"]');
+      return window.matchMedia('(max-width: 768px)').matches && Number.parseFloat(icon?.style.left) !== 310;
+    });
+    ensure(Math.round(await desktopIcon.evaluate((icon) => Number.parseFloat(icon.style.left))) !== 310, 'El escritorio móvil reutilizó una coordenada guardada de desktop');
+
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.waitForFunction(() => {
+      const icon = document.querySelector('.desktop-icon[data-program-name="recruiter-route"]');
+      return !window.matchMedia('(max-width: 768px)').matches
+        && Number.parseFloat(icon?.style.left) === 310
+        && Number.parseFloat(icon?.style.top) === 120;
+    });
+    const restored = await desktopIcon.evaluate((icon) => ({
+      left: Number.parseFloat(icon.style.left),
+      top: Number.parseFloat(icon.style.top)
+    }));
+    ensure(Math.round(restored.left) === 310 && Math.round(restored.top) === 120, `La posición desktop no sobrevivió al cambio responsive (${JSON.stringify(restored)})`);
+    ensure(await page.locator('.desktop-icons > .desktop-icon:visible').count() === 17, 'El escritorio grande no restauró sus 17 accesos');
+  } finally {
+    await context.close();
+  }
+}
+
+async function exerciseResponsiveDesktop(browser, baseUrl) {
+  const viewports = [];
+  for (const viewport of [{ width: 390, height: 844 }, { width: 430, height: 932 }]) {
+    viewports.push(await auditMobileDesktopViewport(browser, baseUrl, viewport));
+  }
+  await auditDesktopPositionPreservation(browser, baseUrl);
+  return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, carpetas bilingües y posiciones desktop preservadas`;
+}
+
 async function exerciseCertificates(page) {
   const originalViewport = page.viewportSize();
   let appWindow = await openApp(page, 'certificates');
@@ -1434,6 +1603,7 @@ async function main() {
 
     const exercised = [];
     exercised.push(await exerciseClippy(page));
+    exercised.push(await exerciseResponsiveDesktop(browser, baseUrl));
 
     const positioning = await page.evaluate(() => {
       const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent || '{}');

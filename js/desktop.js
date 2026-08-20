@@ -8,6 +8,7 @@ export class DesktopManager {
         this.isDragging = false;
         this.dragStart = { x: 0, y: 0 };
         this.iconPositionsKey = 'zarateXP.desktopIconPositions';
+        this.mobileLayoutQuery = window.matchMedia('(max-width: 768px)');
         this.contextMenu = null;
     }
     
@@ -129,6 +130,7 @@ export class DesktopManager {
         
         icon.addEventListener('mousedown', (e) => {
             if (e.button !== 0) return; // Only left click
+            if (this.isMobileLayout()) return;
             
             isPotentialDrag = true;
             startX = e.clientX;
@@ -200,14 +202,53 @@ export class DesktopManager {
 
     getIconGridMetrics() {
         const scale = parseFloat(getComputedStyle(this.iconsContainer).getPropertyValue('--icon-scale')) || 1;
+        const isMobile = this.isMobileLayout();
         return {
             padding: 12,
-            columnWidth: Math.round(102 * scale),
-            rowHeight: Math.round(102 * scale)
+            columnWidth: Math.round((isMobile ? 110 : 102) * scale),
+            rowHeight: Math.round((isMobile ? 118 : 102) * scale)
         };
     }
 
+    isMobileLayout() {
+        return this.mobileLayoutQuery.matches;
+    }
+
+    getLayoutIcons() {
+        const icons = Array.from(this.iconsContainer.querySelectorAll('.desktop-icon'));
+        if (!this.isMobileLayout()) return icons;
+
+        return icons
+            .filter((icon) => icon.dataset.mobileHome === 'true')
+            .sort((left, right) => Number(left.dataset.mobileOrder) - Number(right.dataset.mobileOrder));
+    }
+
+    applyMobileIconPositions() {
+        const icons = this.getLayoutIcons();
+        const metrics = this.getIconGridMetrics();
+        const fittingRows = Math.max(1, Math.floor((this.iconsContainer.clientHeight - metrics.padding) / metrics.rowHeight));
+        const maxRows = Math.min(5, fittingRows);
+
+        icons.forEach((icon, index) => {
+            const column = Math.floor(index / maxRows);
+            const row = index % maxRows;
+            const maxX = this.iconsContainer.clientWidth - icon.offsetWidth - 8;
+            const maxY = this.iconsContainer.clientHeight - icon.offsetHeight - 8;
+            const x = metrics.padding + column * metrics.columnWidth;
+            const y = metrics.padding + row * metrics.rowHeight;
+
+            icon.style.left = `${Math.min(x, Math.max(8, maxX))}px`;
+            icon.style.top = `${Math.min(y, Math.max(8, maxY))}px`;
+            icon.style.position = 'absolute';
+        });
+    }
+
     applyIconPositions() {
+        if (this.isMobileLayout()) {
+            this.applyMobileIconPositions();
+            return;
+        }
+
         const icons = Array.from(this.iconsContainer.querySelectorAll('.desktop-icon'));
         const saved = this.readIconPositions();
         const metrics = this.getIconGridMetrics();
@@ -230,6 +271,8 @@ export class DesktopManager {
     }
 
     saveIconPositions() {
+        if (this.isMobileLayout()) return;
+
         const positions = {};
         this.iconsContainer.querySelectorAll('.desktop-icon').forEach((icon) => {
             positions[icon.dataset.programName] = {
@@ -303,7 +346,7 @@ export class DesktopManager {
     
     updateSelection() {
         const selectionRect = this.selectionOverlay.getBoundingClientRect();
-        const icons = this.iconsContainer.querySelectorAll('.desktop-icon');
+        const icons = this.getLayoutIcons();
         
         icons.forEach(icon => {
             const iconRect = icon.getBoundingClientRect();
@@ -406,7 +449,7 @@ export class DesktopManager {
         if (action === 'arrange') this.arrangeIcons();
         if (action === 'refresh') this.refreshDesktop();
         if (action === 'reset-icons') {
-            localStorage.removeItem(this.iconPositionsKey);
+            if (!this.isMobileLayout()) localStorage.removeItem(this.iconPositionsKey);
             this.applyIconPositions();
         }
         if (action === 'cv') openProgram('resume');
@@ -415,7 +458,7 @@ export class DesktopManager {
     }
     
     animateIcons() {
-        const icons = this.iconsContainer.querySelectorAll('.desktop-icon');
+        const icons = this.getLayoutIcons();
         icons.forEach((icon, index) => {
             icon.style.animationDelay = `${index * 0.1}s`;
         });
@@ -432,6 +475,11 @@ export class DesktopManager {
     }
     
     arrangeIcons() {
+        if (this.isMobileLayout()) {
+            this.applyMobileIconPositions();
+            return;
+        }
+
         const icons = this.iconsContainer.querySelectorAll('.desktop-icon');
         const metrics = this.getIconGridMetrics();
         const maxRows = Math.max(1, Math.floor((this.iconsContainer.clientHeight - metrics.padding) / metrics.rowHeight));
