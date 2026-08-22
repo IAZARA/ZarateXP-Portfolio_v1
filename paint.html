@@ -1,25 +1,28 @@
-<div class="xp-paint-app" data-paint-root>
-    <div class="xp-menu-strip">
+<div class="xp-paint-app" data-paint-root tabindex="-1">
+    <div class="xp-menu-strip xp-paint-commandbar" aria-label="Comandos de Paint">
         <button type="button" data-paint-command="new">Nuevo</button>
-        <button type="button" data-paint-command="undo">Deshacer</button>
-        <button type="button" data-paint-command="redo">Rehacer</button>
+        <button type="button" data-paint-command="open">Abrir imagen</button>
+        <button type="button" data-paint-command="undo" disabled>Deshacer</button>
+        <button type="button" data-paint-command="redo" disabled>Rehacer</button>
         <button type="button" data-paint-command="download">Guardar PNG</button>
+        <input type="file" data-paint-file accept="image/png,image/jpeg,image/webp" hidden>
     </div>
 
     <div class="xp-paint-workspace">
         <aside class="xp-paint-tools" aria-label="Herramientas de Paint">
-            <button type="button" class="active" data-tool="pencil" title="Lapiz">P</button>
-            <button type="button" data-tool="brush" title="Pincel">B</button>
-            <button type="button" data-tool="eraser" title="Borrador">E</button>
-            <button type="button" data-tool="fill" title="Relleno">F</button>
-            <button type="button" data-tool="picker" title="Cuentagotas">I</button>
-            <button type="button" data-tool="text" title="Texto">A</button>
-            <button type="button" data-tool="line" title="Linea">/</button>
-            <button type="button" data-tool="rect" title="Rectangulo">[]</button>
-            <button type="button" data-tool="ellipse" title="Elipse">O</button>
+            <button type="button" class="active" data-tool="pencil" title="Lapiz" aria-label="Lapiz"><span>✎</span></button>
+            <button type="button" data-tool="brush" title="Pincel" aria-label="Pincel"><span>▰</span></button>
+            <button type="button" data-tool="eraser" title="Borrador" aria-label="Borrador"><span>▱</span></button>
+            <button type="button" data-tool="fill" title="Relleno" aria-label="Relleno"><span>◩</span></button>
+            <button type="button" data-tool="picker" title="Cuentagotas" aria-label="Cuentagotas"><span>⌾</span></button>
+            <button type="button" data-tool="text" title="Texto" aria-label="Texto"><span>A</span></button>
+            <button type="button" data-tool="line" title="Linea" aria-label="Linea"><span>╱</span></button>
+            <button type="button" data-tool="rect" title="Rectangulo" aria-label="Rectangulo"><span>□</span></button>
+            <button type="button" data-tool="ellipse" title="Elipse" aria-label="Elipse"><span>○</span></button>
             <div class="xp-paint-size">
                 <label for="paint-size">Tamano</label>
                 <input id="paint-size" type="range" min="1" max="18" value="3" data-paint-size>
+                <output data-paint-size-output>3 px</output>
             </div>
         </aside>
 
@@ -29,11 +32,24 @@
     </div>
 
     <div class="xp-paint-palette" aria-label="Paleta de colores">
-        <div class="xp-paint-current">
-            <span data-current-color></span>
-            <small>Color</small>
-        </div>
+        <div class="xp-paint-current"><span data-current-color></span><small>Color</small></div>
         <div class="xp-paint-colors" data-paint-colors></div>
     </div>
     <div class="xp-statusbar"><span data-paint-status>Listo</span><span>Paint XP</span></div>
+
+    <div class="xp-paint-modal" data-paint-text-dialog hidden role="dialog" aria-modal="true" aria-label="Insertar texto">
+        <div class="xp-paint-dialog">
+            <strong>Insertar texto</strong>
+            <label>Texto para insertar:<input type="text" maxlength="100" data-paint-text-input></label>
+            <div><button type="button" data-paint-text-apply>Aceptar</button><button type="button" data-paint-text-cancel>Cancelar</button></div>
+        </div>
+    </div>
+
+    <div class="xp-paint-modal" data-paint-confirm-dialog hidden role="alertdialog" aria-modal="true" aria-label="Nuevo dibujo">
+        <div class="xp-paint-dialog">
+            <strong>Nuevo dibujo</strong>
+            <p>¿Querés limpiar el lienzo actual?</p>
+            <div><button type="button" data-paint-confirm-accept>Aceptar</button><button type="button" data-paint-confirm-cancel>Cancelar</button></div>
+        </div>
+    </div>
 </div>

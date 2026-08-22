@@ -160,7 +160,7 @@ export class AppManager {
         this.registerApp({
             id: 'paint',
             name: 'Paint',
-            icon: `${hd}/paint.svg`,
+            icon: `${hd}/paint-xp.png`,
             category: 'accessories',
             description: 'Editor de imágenes Paint',
             handler: () => this._openPaint()
@@ -2945,7 +2945,7 @@ export class AppManager {
             width: 820,
             height: 540,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/api-center.js?v=zaratexp-20260712-i18n2', 'initApiCenterApp')
+                this._loadScriptOnce('js/api-center.js?v=zaratexp-20260822-paint-menu1', 'initApiCenterApp')
                     .then(() => window.initApiCenterApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar API Center: ${error.message}`));
             },
@@ -3232,116 +3232,32 @@ export class AppManager {
     }
 
     async _openPaint() {
-        // Prevenir que se abra más de una ventana de Paint
-        if (this.runningApps.has('paint')) {
-            debugLog('Paint is already running');
-            if (this.windowManager && this.windowManager.focusWindow) {
-                this.windowManager.focusWindow('paint');
-            }
-            return;
-        }
-        
+        if (this._focusIfRunning('paint')) return null;
         try {
-            // Verificar que WindowManager esté disponible
-            if (!this.windowManager) {
-                throw new Error('WindowManager no está disponible');
-            }
-            
-            // Cargar el contenido de Paint
-            debugLog('Loading paint.html...');
-            const response = await fetch('./paint.html');
-            if (!response.ok) {
-                throw new Error(`Error al cargar paint.html: ${response.statusText} (${response.status})`);
-            }
-            const htmlContent = await response.text();
-            
-            // Crear la ventana usando el WindowManager
-            const paintWindow = this.windowManager.createWindow({
+            const response = await fetch('./paint.html?v=zaratexp-20260822-paint-menu1');
+            if (!response.ok) throw new Error(`Error al cargar paint.html (${response.status})`);
+            const content = await response.text();
+            if (this._focusIfRunning('paint')) return null;
+            return this._createSingleInstanceWindow({
                 id: 'paint',
                 title: 'Paint',
-                icon: './assets/images/hd-icons/paint.svg',
-                content: htmlContent,
+                icon: './assets/images/hd-icons/paint-xp.png',
+                content,
                 width: 860,
                 height: 620,
                 resizable: true,
-                maximizable: true
+                maximizable: true,
+                onReady: (appWindow) => {
+                    this._loadScriptOnce('js/paint.js?v=zaratexp-20260822-paint-menu1', 'initPaintApp')
+                        .then(() => window.initPaintApp?.(appWindow))
+                        .catch((error) => this.showError(`No se pudo iniciar Paint: ${error.message}`));
+                },
+                onClose: (appWindow) => window.destroyPaintApp?.(appWindow)
             });
-            
-            // Cargar dinámicamente el script de Paint
-            setTimeout(() => {
-                const windowElement = document.querySelector('[data-window-id="paint"]');
-                if (windowElement) {
-                    // Verificar si ya se ha cargado el script
-                    if (!document.querySelector('script[src="js/paint.js"]')) {
-                        const script = document.createElement('script');
-                        script.src = 'js/paint.js';
-                        script.type = 'text/javascript';
-                        
-                        script.onload = () => {
-                            debugLog('Paint script loaded, initializing app...');
-                            if (typeof initPaintApp === 'function') {
-                                try {
-                                    initPaintApp(windowElement);
-                                    debugLog('Paint app initialized successfully');
-                                } catch (error) {
-                                    console.error('Error initializing paint app:', error);
-                                }
-                            }
-                        };
-                        
-                        script.onerror = (error) => {
-                            console.error('Error loading paint script:', error);
-                        };
-                        
-                        document.head.appendChild(script);
-                    } else {
-                        debugLog('Paint script already loaded, initializing app...');
-                        if (typeof initPaintApp === 'function') {
-                            try {
-                                initPaintApp(windowElement);
-                                debugLog('Paint app initialized successfully');
-                            } catch (error) {
-                                console.error('Error initializing paint app:', error);
-                            }
-                        }
-                    }
-                } else {
-                    debugLog('Paint window element not found');
-                }
-            }, 300);
-            
-            // Configurar observer para detectar cuando se cierra la ventana
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.type === 'childList') {
-                        mutation.removedNodes.forEach((node) => {
-                            if (node.dataset && node.dataset.windowId === 'paint') {
-                                debugLog('Paint window closed');
-                                if (typeof destroyPaintApp === 'function') {
-                                    destroyPaintApp(node);
-                                }
-                                this.closeApp('paint');
-                                observer.disconnect();
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Observar cambios en el contenedor de ventanas
-            if (paintWindow.parentNode) {
-                observer.observe(paintWindow.parentNode, { childList: true });
-            }
-            
-            // Marcar como aplicación en ejecución
-            this.runningApps.set('paint', 'paint');
-            
-            debugLog('Paint window created successfully');
-            return paintWindow;
-            
         } catch (error) {
             console.error('Error al abrir Paint:', error);
             this.showError(`Error al abrir Paint: ${error.message}`);
+            return null;
         }
     }
 

@@ -3,7 +3,6 @@ export class StartMenuManager {
     constructor() {
         this.startMenu = document.querySelector('.startmenu');
         this.allProgramsMenu = document.querySelector('.all-programs-menu');
-        this.recentlyUsedMenu = document.querySelector('.recently-used-menu');
         this.isOpen = false;
         this.currentSubmenu = null;
         this.closeTimer = null;
@@ -13,6 +12,7 @@ export class StartMenuManager {
         this.setupMenuItems();
         this.setupSubmenus();
         this.setupFooterButtons();
+        this.setupKeyboardNavigation();
     }
     
     prepareInteractiveItem(element, options = {}) {
@@ -47,8 +47,8 @@ export class StartMenuManager {
             const action = item.getAttribute('data-action');
             this.prepareInteractiveItem(item, {
                 disabled: isDisabled,
-                hasPopup: action === 'toggle-recently-used' ? 'menu' : null,
-                expanded: action === 'toggle-recently-used' ? false : null
+                hasPopup: null,
+                expanded: null
             });
             if (isDisabled) return;
             
@@ -64,17 +64,8 @@ export class StartMenuManager {
                     this.openUrl(url);
                 } else if (action === 'toggle-all-programs') {
                     this.toggleAllPrograms();
-                } else if (action === 'toggle-recently-used') {
-                    this.toggleRecentlyUsed();
                 }
             });
-            
-            // Hover effect for submenus
-            if (item.getAttribute('data-action') === 'toggle-recently-used') {
-                item.addEventListener('mouseenter', () => {
-                    this.showRecentlyUsed();
-                });
-            }
         });
         
         // All programs button
@@ -90,6 +81,7 @@ export class StartMenuManager {
     
     setupSubmenus() {
         // All Programs Menu
+        if (!this.allProgramsMenu) return;
         const allProgramsItems = this.allProgramsMenu.querySelectorAll('.all-programs-item');
         allProgramsItems.forEach(item => {
             const isDisabled = item.classList.contains('disabled');
@@ -111,19 +103,6 @@ export class StartMenuManager {
             });
         });
         
-        // Recently Used Menu
-        const recentlyUsedItems = this.recentlyUsedMenu.querySelectorAll('.recently-used-item');
-        recentlyUsedItems.forEach(item => {
-            const isDisabled = item.classList.contains('disabled');
-            this.prepareInteractiveItem(item, { disabled: isDisabled });
-            if (isDisabled) return;
-            
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Disabled items don't do anything
-            });
-        });
-        
         // Hide submenus when clicking outside
         document.addEventListener('click', () => {
             this.hideAllSubmenus();
@@ -136,6 +115,43 @@ export class StartMenuManager {
                     this.hideAllSubmenus();
                 }
             }, 100);
+        });
+    }
+
+    setupKeyboardNavigation() {
+        const moveFocus = (event, scope, selector) => {
+            if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+            const items = Array.from(scope.querySelectorAll(selector)).filter((item) => {
+                return item.getAttribute('aria-disabled') !== 'true' && item.offsetParent !== null;
+            });
+            if (!items.length) return;
+            event.preventDefault();
+            const current = Math.max(0, items.indexOf(document.activeElement));
+            let next = current;
+            if (event.key === 'ArrowDown') next = (current + 1) % items.length;
+            if (event.key === 'ArrowUp') next = (current - 1 + items.length) % items.length;
+            if (event.key === 'Home') next = 0;
+            if (event.key === 'End') next = items.length - 1;
+            items[next].focus();
+        };
+
+        this.startMenu?.addEventListener('keydown', (event) => {
+            moveFocus(event, this.startMenu, '.menu-item, .all-programs-button, .footer-button');
+        });
+        this.allProgramsMenu?.addEventListener('keydown', (event) => {
+            moveFocus(event, this.allProgramsMenu, '.all-programs-item');
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            if (this.currentSubmenu) {
+                event.preventDefault();
+                this.hideAllSubmenus();
+                document.getElementById('menu-all-programs')?.focus();
+            } else if (this.isOpen) {
+                event.preventDefault();
+                this.close();
+                document.getElementById('start-button')?.focus();
+            }
         });
     }
     
@@ -196,50 +212,28 @@ export class StartMenuManager {
     }
     
     toggleAllPrograms() {
+        if (!this.allProgramsMenu) return;
         if (this.allProgramsMenu.classList.contains('show')) {
-            this.allProgramsMenu.classList.remove('show');
-            this.currentSubmenu = null;
-            document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'false');
+            this.hideAllSubmenus();
+            document.getElementById('menu-all-programs')?.focus();
         } else {
             this.hideAllSubmenus();
             this.allProgramsMenu.classList.add('show');
+            this.allProgramsMenu.setAttribute('aria-hidden', 'false');
             this.currentSubmenu = this.allProgramsMenu;
             this.positionSubmenu(this.allProgramsMenu);
             document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'true');
-        }
-    }
-    
-    toggleRecentlyUsed() {
-        if (this.recentlyUsedMenu.classList.contains('show')) {
-            this.recentlyUsedMenu.classList.remove('show');
-            this.currentSubmenu = null;
-            document.getElementById('menu-program4')?.setAttribute('aria-expanded', 'false');
-        } else {
-            this.showRecentlyUsed();
-        }
-    }
-    
-    showRecentlyUsed() {
-        this.hideAllSubmenus();
-        this.recentlyUsedMenu.classList.add('show');
-        this.currentSubmenu = this.recentlyUsedMenu;
-        document.getElementById('menu-program4')?.setAttribute('aria-expanded', 'true');
-        
-        // Position the submenu
-        const menuItem = document.getElementById('menu-program4');
-        if (menuItem) {
-            const rect = menuItem.getBoundingClientRect();
-            const menuRect = this.startMenu.getBoundingClientRect();
-            this.recentlyUsedMenu.style.top = (rect.top - menuRect.top) + 'px';
+            window.requestAnimationFrame(() => {
+                this.allProgramsMenu.querySelector('.all-programs-item[tabindex="0"]')?.focus();
+            });
         }
     }
     
     hideAllSubmenus() {
-        this.allProgramsMenu.classList.remove('show');
-        this.recentlyUsedMenu.classList.remove('show');
+        this.allProgramsMenu?.classList.remove('show');
+        this.allProgramsMenu?.setAttribute('aria-hidden', 'true');
         this.currentSubmenu = null;
         document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'false');
-        document.getElementById('menu-program4')?.setAttribute('aria-expanded', 'false');
     }
     
     positionSubmenu(submenu) {
@@ -276,35 +270,36 @@ export class StartMenuManager {
 
     addRecentProgram(programName) {
         const app = window.zarateXP?.appManager?.getApp(programName);
-        if (!app || !this.recentlyUsedMenu) return;
+        const list = this.allProgramsMenu?.querySelector('[data-recent-programs]');
+        if (!app || !list) return;
 
-        const list = this.recentlyUsedMenu.querySelector('.recently-used-items');
-        if (!list) return;
-
-        list.querySelectorAll('.recently-used-item.disabled').forEach((item) => item.remove());
+        list.querySelectorAll('.recently-used-empty').forEach((item) => item.remove());
         list.querySelector(`[data-program-name="${programName}"]`)?.remove();
 
         const item = document.createElement('li');
-        item.className = 'recently-used-item';
+        item.className = 'all-programs-item recently-used-item';
         item.dataset.action = 'open-program';
         item.dataset.programName = programName;
         const icon = document.createElement('img');
         icon.src = this.safeResourceUrl(app.icon);
         icon.alt = String(app.name || programName);
         item.append(icon, document.createTextNode(String(app.name || programName)));
+        this.prepareInteractiveItem(item);
         this.addClickAndTouchEvent(item, (event) => {
             event.stopPropagation();
             this.openProgram(programName);
         });
         list.prepend(item);
 
-        Array.from(list.querySelectorAll('.recently-used-item')).slice(6).forEach((itemToRemove) => itemToRemove.remove());
+        Array.from(list.querySelectorAll('.recently-used-item')).slice(4).forEach((itemToRemove) => itemToRemove.remove());
     }
 
     safeResourceUrl(value, fallback = './assets/images/hd-icons/projects.svg') {
         try {
             const parsed = new URL(String(value || ''), window.location.href);
-            return ['http:', 'https:', 'blob:'].includes(parsed.protocol) ? String(value) : fallback;
+            const allowedProtocol = ['http:', 'https:', 'blob:'].includes(parsed.protocol);
+            const sameOrigin = parsed.origin === window.location.origin;
+            return allowedProtocol && (sameOrigin || parsed.protocol === 'blob:') ? String(value) : fallback;
         } catch (error) {
             return fallback;
         }

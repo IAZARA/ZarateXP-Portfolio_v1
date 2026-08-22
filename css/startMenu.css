@@ -3,7 +3,7 @@
     position: absolute;
     bottom: var(--taskbar-height);
     left: 0;
-    width: 320px; /* Ancho aumentado para más contenido */
+    width: 470px;
     background: #ECE9D8; /* Fondo gris claro de XP */
     border: 1px solid #000000; /* Borde negro */
     border-right: 1px solid #FFFFFF; /* Borde blanco a la derecha */
@@ -453,5 +453,97 @@
     .all-programs-menu,
     .recently-used-menu {
         transform: translateX(-50%);
+    }
+}
+
+/* Balanced, accessible programs catalogue */
+.all-programs-menu {
+    width: 330px;
+    max-height: min(650px, calc(100vh - var(--taskbar-height) - 12px));
+    z-index: 1002;
+    overflow: hidden;
+}
+
+.all-programs-header {
+    padding: 8px 10px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    text-shadow: 1px 1px #123a83;
+    background: linear-gradient(#316ac5, #0054e3);
+    border-bottom: 1px solid #003c9d;
+}
+
+.all-programs-scroll {
+    max-height: calc(min(650px, 100vh - var(--taskbar-height) - 12px) - 34px);
+    overflow-y: auto;
+    scrollbar-color: #316ac5 #ece9d8;
+}
+
+.all-programs-group {
+    padding: 4px 3px 3px;
+    border-bottom: 1px solid #aca899;
+    box-shadow: 0 1px #fff;
+}
+
+.all-programs-group:last-child {
+    border-bottom: 0;
+    box-shadow: none;
+}
+
+.all-programs-group h2 {
+    margin: 0;
+    padding: 3px 7px 2px;
+    color: #164f9c;
+    font: 700 10px Tahoma, Arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+
+.all-programs-items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.all-programs-item {
+    min-height: 29px;
+    padding: 4px 8px;
+}
+
+.all-programs-item img {
+    object-fit: contain;
+}
+
+.recently-used-items {
+    min-height: 26px;
+}
+
+.recently-used-empty {
+    padding: 5px 8px 6px;
+    color: #666;
+    font-size: 10px;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .all-programs-menu {
+        position: fixed;
+        left: 50% !important;
+        bottom: calc(var(--taskbar-height) + 60px);
+        width: min(350px, calc(100vw - 20px));
+        max-height: calc(100dvh - var(--taskbar-height) - 78px);
+        margin-left: 0;
+        transform: translateX(-50%);
+    }
+
+    .all-programs-scroll {
+        max-height: calc(100dvh - var(--taskbar-height) - 112px);
+        overscroll-behavior: contain;
+    }
+
+    .all-programs-item {
+        min-height: 36px;
+        font-size: 12px;
     }
 }

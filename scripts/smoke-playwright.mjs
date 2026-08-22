@@ -364,6 +364,98 @@ async function exerciseResponsiveDesktop(browser, baseUrl) {
   return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, carpetas bilingües y posiciones desktop preservadas`;
 }
 
+async function exerciseStartMenuAndPaint(page) {
+  await page.locator('#start-button').click();
+  const startMenu = page.locator('.startmenu');
+  await startMenu.waitFor({ state: 'visible' });
+  const primaryPrograms = await startMenu.locator('.menu-item[data-program-name]').evaluateAll((items) => items.map((item) => item.dataset.programName));
+  ensure(primaryPrograms.join(',') === 'recruiter-route,projects,resume,certificates,contact,documents,paint,api-center,n8n-flows,pinball,minesweeper,my-computer,control-panel', `Inicio no conserva el orden equilibrado (${primaryPrograms.join(',')})`);
+
+  await page.locator('#menu-all-programs').click();
+  const catalogue = page.locator('.all-programs-menu');
+  await catalogue.waitFor({ state: 'visible' });
+  ensure(await catalogue.locator('.all-programs-group').count() === 6, 'Todos los programas no presenta sus seis grupos');
+  ensure(await catalogue.getAttribute('aria-hidden') === 'false', 'Todos los programas no comunica su estado abierto');
+  await page.keyboard.press('ArrowDown');
+  ensure(await catalogue.locator('.all-programs-item:focus').count() === 1, 'La navegación por teclado no mueve el foco en Todos los programas');
+
+  await page.evaluate(() => window.__zarateXPI18nManager?.setLocale('en', { announce: false }));
+  await page.waitForFunction(() => document.querySelector('[data-program-group="profile"] h2')?.textContent.trim() === 'Profile and career');
+  await page.evaluate(() => window.__zarateXPI18nManager?.setLocale('es', { announce: false }));
+  await page.keyboard.press('Escape');
+  ensure(await catalogue.getAttribute('aria-hidden') === 'true', 'Escape no cerró Todos los programas');
+
+  if (!(await startMenu.evaluate((menu) => menu.classList.contains('show')))) await page.locator('#start-button').click();
+  await startMenu.waitFor({ state: 'visible' });
+  await page.waitForTimeout(220);
+  await page.locator('#menu-paint').click();
+  const appWindow = page.locator('#windows-container .window[data-window-id="paint"]');
+  await appWindow.waitFor({ state: 'visible', timeout: 12000 });
+  const rootNode = appWindow.locator('[data-paint-root]');
+  await page.waitForFunction(() => Boolean(document.querySelector('[data-paint-root]')?._paintXP), null, { timeout: 12000 });
+
+  const controlLayout = await rootNode.evaluate((root) => ({
+    tools: Array.from(root.querySelectorAll('[data-tool]')).map((button) => button.getBoundingClientRect().width),
+    colors: Array.from(root.querySelectorAll('.xp-paint-color')).map((button) => button.getBoundingClientRect().width)
+  }));
+  ensure(controlLayout.tools.every((width) => width >= 23 && width <= 26), `Las herramientas de Paint están deformadas (${controlLayout.tools.join(',')})`);
+  ensure(controlLayout.colors.length === 24 && controlLayout.colors.every((width) => width >= 18 && width <= 21), 'La paleta de Paint está deformada o incompleta');
+
+  await rootNode.locator('[data-color="#ed1c24"]').click();
+  const canvas = rootNode.locator('#paintCanvas');
+  const bounds = await canvas.boundingBox();
+  ensure(Boolean(bounds), 'El lienzo de Paint no tiene dimensiones');
+  await page.mouse.move(bounds.x + 35, bounds.y + 35);
+  await page.mouse.down();
+  await page.mouse.move(bounds.x + 130, bounds.y + 90, { steps: 8 });
+  await page.mouse.up();
+  const changedPixels = await canvas.evaluate((node) => {
+    const data = node.getContext('2d').getImageData(0, 0, node.width, node.height).data;
+    let changed = 0;
+    for (let index = 0; index < data.length; index += 4) {
+      if (data[index] !== 255 || data[index + 1] !== 255 || data[index + 2] !== 255) changed += 1;
+    }
+    return changed;
+  });
+  ensure(changedPixels > 20, 'El lápiz de Paint no modificó el lienzo');
+  await rootNode.locator('[data-paint-command="undo"]').click();
+  const afterUndo = await canvas.evaluate((node) => Array.from(node.getContext('2d').getImageData(0, 0, node.width, node.height).data).some((value, index) => index % 4 !== 3 && value !== 255));
+  ensure(!afterUndo, 'Deshacer no restauró el lienzo');
+  await rootNode.locator('[data-paint-command="redo"]').click();
+  ensure(!(await rootNode.locator('[data-paint-command="undo"]').isDisabled()), 'Rehacer no restauró el historial de Paint');
+
+  await rootNode.locator('[data-tool="text"]').click();
+  await canvas.click({ position: { x: 190, y: 110 } });
+  await rootNode.locator('[data-paint-text-input]').fill('ZarateXP');
+  await rootNode.locator('[data-paint-text-apply]').click();
+  await page.waitForFunction(() => document.querySelector('[data-paint-status]')?.textContent === 'Texto insertado');
+
+  await rootNode.locator('[data-paint-file]').setInputFiles(path.join(root, 'assets/images/hd-icons/paint-xp.png'));
+  await page.waitForFunction(() => document.querySelector('[data-paint-status]')?.textContent === 'Imagen importada');
+  const downloadPromise = page.waitForEvent('download');
+  await rootNode.locator('[data-paint-command="download"]').click();
+  const download = await downloadPromise;
+  ensure(download.suggestedFilename() === 'zaratexp-paint.png', 'Paint no descargó el PNG esperado');
+  await page.waitForFunction(() => Boolean(localStorage.getItem('zarateXP.paint.draft.v1')));
+
+  const originalViewport = page.viewportSize();
+  await page.setViewportSize({ width: 390, height: 844 });
+  const mobile = await rootNode.evaluate((root) => {
+    const canvasNode = root.querySelector('#paintCanvas');
+    const wrap = root.querySelector('.xp-paint-canvas-wrap');
+    const tool = root.querySelector('[data-tool]');
+    return {
+      canvasWidth: canvasNode.getBoundingClientRect().width,
+      wrapWidth: wrap.getBoundingClientRect().width,
+      toolWidth: tool.getBoundingClientRect().width,
+      paletteVisible: root.querySelector('.xp-paint-palette').getBoundingClientRect().height > 40
+    };
+  });
+  ensure(mobile.canvasWidth <= mobile.wrapWidth && mobile.toolWidth >= 34 && mobile.paletteVisible, `Paint no se adaptó al celular (${JSON.stringify(mobile)})`);
+  await page.setViewportSize(originalViewport);
+  return 'Inicio: catálogo agrupado y accesible; Paint: dibujo, historial, texto, importación, descarga, borrador y móvil';
+}
+
 async function exerciseCertificates(page) {
   const originalViewport = page.viewportSize();
   let appWindow = await openApp(page, 'certificates');
@@ -605,9 +697,15 @@ async function exerciseApiCenter(page) {
   await appWindow.locator('[data-country-result] .xp-country-card').waitFor({ timeout: 12000 });
   ensure((await appWindow.locator('[data-country-result]').innerText()).includes('República Argentina'), 'API Center no renderizó los datos del país');
 
+  await page.waitForFunction(() => Boolean(localStorage.getItem('zarateXP.apiCache.country.population.arg')));
+  await page.waitForFunction(() => document.querySelector('[data-api-root]')?.__apiCenterApp?.requests.size === 0);
+  await page.waitForTimeout(500);
   await appWindow.locator('.xp-api-sidebar [data-api-clear-cache]').click();
-  const cachedAfterClear = await page.evaluate(() => Object.keys(localStorage).filter((key) => key.startsWith('zarateXP.apiCache.')).length);
-  ensure(cachedAfterClear === 0, 'API Center no limpió su caché');
+  const cacheState = await page.evaluate(() => ({
+    keys: Object.keys(localStorage).filter((key) => key.startsWith('zarateXP.apiCache.')),
+    log: document.querySelector('[data-api-log]')?.textContent || ''
+  }));
+  ensure(cacheState.keys.length === 0, `API Center no limpió su caché (${JSON.stringify(cacheState)})`);
 
   await appWindow.locator('.xp-api-sidebar [data-api-run-all]').click();
   await page.waitForFunction(() => {
@@ -1648,7 +1746,8 @@ async function main() {
     ensure(positioning.jobTitle === 'Software Analyst & Project Manager', 'El Schema.org presenta un cargo FDE no ejercido');
     ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
 
-    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball']);
+    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball', 'paint']);
+    exercised.push(await exerciseStartMenuAndPaint(page));
     exercised.push(await exerciseMlopsLifecycle(page));
     for (const appId of ['about-me', 'projects', 'pdf-studio', 'contact']) await openApp(page, appId);
 

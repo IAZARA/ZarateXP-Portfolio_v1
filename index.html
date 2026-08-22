@@ -135,14 +135,14 @@
     <link rel="stylesheet" href="css/boot.css?v=zaratexp-20260712-release">
     <link rel="stylesheet" href="css/desktop.css?v=zaratexp-20260820-mobile-home1">
     <link rel="stylesheet" href="css/taskbar.css?v=zaratexp-20260712-clippy-mobile1">
-    <link rel="stylesheet" href="css/startMenu.css">
+    <link rel="stylesheet" href="css/startMenu.css?v=zaratexp-20260822-paint-menu1">
     <link rel="stylesheet" href="css/windows.css">
     <link rel="stylesheet" href="css/mipc.css">
     <link rel="stylesheet" href="css/minesweeper.css?v=zaratexp-20260712-release">
     <link rel="stylesheet" href="css/about-me.css">
     <link rel="stylesheet" href="css/contacto.css">
     <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260712-i18n2">
-    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260820-mobile-certificates2">
+    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260822-paint-menu1">
     <link rel="stylesheet" href="css/clippy.css?v=zaratexp-20260712-clippy-mobile1">
     <link rel="stylesheet" href="css/crtEffect.css">
     
@@ -329,8 +329,8 @@
     </div>
 
     <!-- Scripts -->
-    <script type="module" src="js/main.js?v=zaratexp-20260820-mobile-home1"></script>
-    <script type="module" src="js/apps.js?v=zaratexp-20260820-mobile-home1"></script>
+    <script type="module" src="js/main.js?v=zaratexp-20260822-paint-menu1"></script>
+    <script type="module" src="js/apps.js?v=zaratexp-20260822-paint-menu1"></script>
     <!-- CRT Effect - ALL DISABLED -->
     <div class="crt-effect" style="display: none;"></div>
     <div class="crt-scanline" style="display: none;"></div>
@@ -397,85 +397,25 @@
         <div class="start-menu-middle">
             <div class="middle-section middle-left">
                 <ul class="menu-items">
-                    <li class="menu-item" id="menu-projects" data-action="open-program" data-program-name="projects">
-                        <img src="./assets/images/hd-icons/projects.svg" alt="Mis Proyectos">
-                        <div class="item-content">
-                            <span class="item-title projects-bold">Mis Proyectos</span>
-                            <span class="item-description">Ver mi trabajo</span>
-                        </div>
-                    </li>
                     <li class="menu-item" id="menu-recruiter-route" data-action="open-program" data-program-name="recruiter-route">
                         <img src="./assets/images/hd-icons/cv.svg" alt="Perfil orientado a FDE">
-                        <div class="item-content">
-                            <span class="item-title projects-bold">Perfil orientado a FDE</span>
-                            <span class="item-description">Experiencia, casos y contacto</span>
-                        </div>
+                        <div class="item-content"><span class="item-title projects-bold">Perfil orientado a FDE</span><span class="item-description">Experiencia, casos y contacto</span></div>
                     </li>
-                    <li class="menu-item" id="menu-contact" data-action="open-program" data-program-name="contact">
-                        <img src="./assets/images/hd-icons/contact.svg" alt="Contacto">
-                        <div class="item-content">
-                            <span class="item-title">Contacto</span>
-                            <span class="item-description">Envíame un mensaje</span>
-                        </div>
-                    </li>
-                    <li class="menu-divider"><hr class="divider"></li>
-                    <li class="menu-item" id="menu-about" data-action="open-program" data-program-name="about-me">
-                        <img src="./assets/images/hd-icons/about.svg" alt="Sobre Mí">
-                        <div class="item-content">
-                            <span class="item-title">Sobre Mí</span>
-                        </div>
+                    <li class="menu-item" id="menu-projects" data-action="open-program" data-program-name="projects">
+                        <img src="./assets/images/hd-icons/projects.svg" alt="Mis Proyectos">
+                        <div class="item-content"><span class="item-title projects-bold">Mis Proyectos</span><span class="item-description">Soluciones y casos reales</span></div>
                     </li>
                     <li class="menu-item" id="menu-resume" data-action="open-program" data-program-name="resume">
-                        <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV">
-                        <div class="item-content">
-                            <span class="item-title">Mi CV</span>
-                        </div>
+                        <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV"><div class="item-content"><span class="item-title">Mi CV</span></div>
                     </li>
                     <li class="menu-item" id="menu-certificates" data-action="open-program" data-program-name="certificates">
-                        <img src="./assets/images/hd-icons/documents.svg" alt="Mis Certificados">
-                        <div class="item-content">
-                            <span class="item-title">Mis Certificados</span>
-                            <span class="item-description">IA, datos, gestión, GIS y seguridad</span>
-                        </div>
+                        <img src="./assets/images/hd-icons/documents.svg" alt="Mis Certificados"><div class="item-content"><span class="item-title">Mis Certificados</span><span class="item-description">IA, datos, gestión, GIS y seguridad</span></div>
+                    </li>
+                    <li class="menu-item" id="menu-contact" data-action="open-program" data-program-name="contact">
+                        <img src="./assets/images/hd-icons/contact.svg" alt="Contacto"><div class="item-content"><span class="item-title">Contacto</span><span class="item-description">Envíame un mensaje</span></div>
                     </li>
                     <li class="menu-item" id="menu-documents" data-action="open-program" data-program-name="documents">
-                        <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos">
-                        <div class="item-content">
-                            <span class="item-title">Mis Documentos</span>
-                        </div>
-                    </li>
-                    <li class="menu-item" id="menu-pdf-studio" data-action="open-program" data-program-name="pdf-studio">
-                        <img src="./assets/images/hd-icons/pdf-studio.svg" alt="PDF Studio">
-                        <div class="item-content">
-                            <span class="item-title">PDF Studio</span>
-                            <span class="item-description">Abrir y anotar PDFs</span>
-                        </div>
-                    </li>
-                    <li class="menu-item" id="menu-api-center" data-action="open-program" data-program-name="api-center">
-                        <img src="./assets/images/hd-icons/api.svg" alt="API Center">
-                        <div class="item-content">
-                            <span class="item-title">API Center</span>
-                            <span class="item-description">APIs en vivo</span>
-                        </div>
-                    </li>
-                    <li class="menu-divider"><hr class="divider"></li>
-                    <li class="menu-item disabled" id="menu-photos">
-                        <img src="./assets/images/hd-icons/documents.svg" alt="Mis Fotos">
-                        <div class="item-content">
-                            <span class="item-title">Mis Fotos</span>
-                        </div>
-                    </li>
-                    <li class="menu-item" id="menu-music" data-action="open-program" data-program-name="winamp">
-                        <img src="./assets/images/hd-icons/winamp.svg" alt="Winamp">
-                        <div class="item-content">
-                            <span class="item-title">Winamp</span>
-                        </div>
-                    </li>
-                    <li class="menu-item disabled" id="menu-video">
-                        <img src="./assets/images/computer.png" alt="Reproductor de Video">
-                        <div class="item-content">
-                            <span class="item-title">Reproductor de Video</span>
-                        </div>
+                        <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos"><div class="item-content"><span class="item-title">Mis Documentos</span></div>
                     </li>
                 </ul>
                 <div class="all-programs-container">
@@ -487,74 +427,30 @@
             </div>
             <div class="middle-section middle-right">
                 <ul class="menu-items">
-                    <li class="menu-item" id="menu-minesweeper" data-action="open-program" data-program-name="minesweeper">
-                        <img src="./assets/images/hd-icons/minesweeper.svg?v=20260712" alt="Buscaminas">
-                        <div class="item-content">
-                            <span class="item-title">Buscaminas</span>
-                        </div>
-                    </li>
                     <li class="menu-item" id="menu-paint" data-action="open-program" data-program-name="paint">
-                        <img src="./assets/images/hd-icons/paint.svg" alt="Paint">
-                        <div class="item-content">
-                            <span class="item-title">Paint</span>
-                        </div>
+                        <img src="./assets/images/hd-icons/paint-xp.png" alt="Paint"><div class="item-content"><span class="item-title projects-bold">Paint</span><span class="item-description">Dibujo y edición de imágenes</span></div>
                     </li>
-                    <li class="menu-item" id="menu-notepad" data-action="open-program" data-program-name="notepad">
-                        <img src="./assets/images/hd-icons/notepad.svg" alt="Bloc de notas">
-                        <div class="item-content">
-                            <span class="item-title">Bloc de notas</span>
-                        </div>
-                    </li>
-                    <li class="menu-item" id="menu-wordpad" data-action="open-program" data-program-name="wordpad">
-                        <img src="./assets/images/hd-icons/wordpad.svg" alt="WordPad">
-                        <div class="item-content">
-                            <span class="item-title">WordPad</span>
-                        </div>
-                    </li>
-                    <li class="menu-item" id="menu-solitaire" data-action="open-program" data-program-name="solitaire">
-                        <img src="./assets/images/hd-icons/solitaire.svg" alt="Solitario">
-                        <div class="item-content">
-                            <span class="item-title">Solitario</span>
-                        </div>
-                    </li>
-                    <li class="menu-item" id="menu-pinball" data-action="open-program" data-program-name="pinball">
-                        <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="Pinball XP">
-                        <div class="item-content">
-                            <span class="item-title">Pinball XP</span>
-                        </div>
+                    <li class="menu-item" id="menu-api-center" data-action="open-program" data-program-name="api-center">
+                        <img src="./assets/images/hd-icons/api.svg" alt="API Center"><div class="item-content"><span class="item-title">API Center</span><span class="item-description">APIs en vivo</span></div>
                     </li>
                     <li class="menu-item" id="menu-n8n-flows" data-action="open-program" data-program-name="n8n-flows">
-                        <img src="./assets/images/hd-icons/n8n.svg" alt="Flujos n8n">
-                        <div class="item-content">
-                            <span class="item-title">Flujos n8n</span>
-                        </div>
+                        <img src="./assets/images/hd-icons/n8n.svg" alt="Flujos n8n"><div class="item-content"><span class="item-title">Flujos n8n</span><span class="item-description">Automatización visual</span></div>
+                    </li>
+                    <li class="menu-item" id="menu-pinball" data-action="open-program" data-program-name="pinball">
+                        <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="Pinball XP"><div class="item-content"><span class="item-title">Pinball XP</span></div>
+                    </li>
+                    <li class="menu-item" id="menu-minesweeper" data-action="open-program" data-program-name="minesweeper">
+                        <img src="./assets/images/hd-icons/minesweeper.svg?v=20260712" alt="Buscaminas"><div class="item-content"><span class="item-title">Buscaminas</span></div>
                     </li>
                     <li class="menu-item" id="menu-github" data-action="open-url" data-url="https://github.com/IAZARA">
-                        <img src="./assets/images/github.png" alt="Github">
-                        <div class="item-content">
-                            <span class="item-title">Github</span>
-                        </div>
-                    </li>
-                    <li class="menu-item" id="menu-linkedin" data-action="open-url" data-url="https://www.linkedin.com/in/ivan-agustin-zarate/">
-                        <img src="./assets/images/linkedin.png" alt="LinkedIn">
-                        <div class="item-content">
-                            <span class="item-title">LinkedIn</span>
-                        </div>
+                        <img src="./assets/images/github.png" alt="GitHub"><div class="item-content"><span class="item-title">GitHub</span></div>
                     </li>
                     <li class="menu-divider divider-darkblue"><hr class="divider"></li>
+                    <li class="menu-item" id="menu-my-computer" data-action="open-program" data-program-name="my-computer">
+                        <img src="./assets/images/hd-icons/my-computer.svg" alt="Mi PC"><div class="item-content"><span class="item-title">Mi PC</span></div>
+                    </li>
                     <li class="menu-item" id="menu-control-panel" data-action="open-program" data-program-name="control-panel">
-                        <img src="./assets/images/hd-icons/control-panel.svg" alt="Panel de control">
-                        <div class="item-content">
-                            <span class="item-title">Panel de control</span>
-                        </div>
-                    </li>
-                    <li class="menu-divider divider-darkblue"><hr class="divider"></li>
-                    <li class="menu-item" id="menu-program4" data-action="toggle-recently-used" style="position: relative; width: 100%;">
-                        <img src="./assets/images/hd-icons/projects.svg" alt="Recently Used">
-                        <div class="item-content">
-                            <span class="item-title">Usados recientemente</span>
-                        </div>
-                        <span class="mut-menu-arrow" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%) scaleX(0.5); font-size: 10px;">►</span>
+                        <img src="./assets/images/hd-icons/control-panel.svg" alt="Panel de control"><div class="item-content"><span class="item-title">Panel de control</span></div>
                     </li>
                 </ul>
             </div>
@@ -574,23 +470,25 @@
     </div>
 
     <!-- All Programs Menu -->
-    <div class="all-programs-menu" style="display: none;">
-        <ul class="all-programs-items">
+    <div class="all-programs-menu" aria-hidden="true" aria-label="Todos los programas">
+        <div class="all-programs-header">Todos los programas</div>
+        <div class="all-programs-scroll">
+        <section class="all-programs-group" data-program-group="recent">
+            <h2>Recientes</h2>
+            <ul class="all-programs-items recently-used-items" data-recent-programs>
+                <li class="recently-used-empty">Todavía no abriste ningún programa.</li>
+            </ul>
+        </section>
+        <section class="all-programs-group" data-program-group="profile">
+            <h2>Perfil y carrera</h2><ul class="all-programs-items">
+            <li class="all-programs-item" data-action="open-program" data-program-name="recruiter-route"><img src="./assets/images/hd-icons/cv.svg" alt="">Perfil orientado a FDE</li>
             <li class="all-programs-item" data-action="open-program" data-program-name="about-me">
                 <img src="./assets/images/hd-icons/about.svg" alt="Sobre Mí">
                 Sobre Mí
             </li>
-            <li class="all-programs-item" data-action="open-program" data-program-name="projects">
-                <img src="./assets/images/hd-icons/projects.svg" alt="Mis Proyectos">
-                Mis Proyectos
-            </li>
             <li class="all-programs-item" data-action="open-program" data-program-name="resume">
                 <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV">
                 Mi CV
-            </li>
-            <li class="all-programs-item" data-action="open-program" data-program-name="recruiter-route">
-                <img src="./assets/images/hd-icons/cv.svg" alt="Perfil orientado a FDE">
-                Perfil orientado a FDE
             </li>
             <li class="all-programs-item" data-action="open-program" data-program-name="documents">
                 <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos">
@@ -604,7 +502,17 @@
                 <img src="./assets/images/hd-icons/contact.svg" alt="Contacto">
                 Contacto
             </li>
-            <li class="all-programs-separator"></li>
+            </ul></section>
+        <section class="all-programs-group" data-program-group="solutions">
+            <h2>Proyectos y soluciones</h2><ul class="all-programs-items">
+            <li class="all-programs-item" data-action="open-program" data-program-name="projects"><img src="./assets/images/hd-icons/projects.svg" alt="">Mis Proyectos</li>
+            <li class="all-programs-item" data-action="open-program" data-program-name="api-center"><img src="./assets/images/hd-icons/api.svg" alt="">API Center</li>
+            <li class="all-programs-item" data-action="open-program" data-program-name="n8n-flows"><img src="./assets/images/hd-icons/n8n.svg" alt="">Flujos n8n</li>
+            <li class="all-programs-item" data-action="open-program" data-program-name="pdf-studio"><img src="./assets/images/hd-icons/pdf-studio.svg" alt="">PDF Studio</li>
+            </ul></section>
+        <section class="all-programs-group" data-program-group="accessories">
+            <h2>Accesorios</h2><ul class="all-programs-items">
+            <li class="all-programs-item" data-action="open-program" data-program-name="paint"><img src="./assets/images/hd-icons/paint-xp.png" alt="">Paint</li>
             <li class="all-programs-item" data-action="open-program" data-program-name="notepad">
                 <img src="./assets/images/hd-icons/notepad.svg" alt="Bloc de notas">
                 Bloc de notas
@@ -613,18 +521,10 @@
                 <img src="./assets/images/hd-icons/wordpad.svg" alt="WordPad">
                 WordPad
             </li>
-            <li class="all-programs-item" data-action="open-program" data-program-name="paint">
-                <img src="./assets/images/hd-icons/paint.svg" alt="Paint">
-                Paint
-            </li>
-            <li class="all-programs-item" data-action="open-program" data-program-name="api-center">
-                <img src="./assets/images/hd-icons/api.svg" alt="API Center">
-                API Center
-            </li>
-            <li class="all-programs-item" data-action="open-program" data-program-name="pdf-studio">
-                <img src="./assets/images/hd-icons/pdf-studio.svg" alt="PDF Studio">
-                PDF Studio
-            </li>
+            <li class="all-programs-item" data-action="open-program" data-program-name="winamp"><img src="./assets/images/hd-icons/winamp.svg" alt="">Winamp</li>
+            </ul></section>
+        <section class="all-programs-group" data-program-group="games">
+            <h2>Juegos</h2><ul class="all-programs-items">
             <li class="all-programs-item" data-action="open-program" data-program-name="minesweeper">
                 <img src="./assets/images/hd-icons/minesweeper.svg?v=20260712" alt="Buscaminas">
                 Buscaminas
@@ -637,42 +537,15 @@
                 <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="Pinball XP">
                 Pinball XP
             </li>
-            <li class="all-programs-item" data-action="open-program" data-program-name="n8n-flows">
-                <img src="./assets/images/hd-icons/n8n.svg" alt="Flujos n8n">
-                Flujos n8n
-            </li>
-            <li class="all-programs-item" data-action="open-program" data-program-name="control-panel">
-                <img src="./assets/images/hd-icons/control-panel.svg" alt="Panel de control">
-                Panel de control
-            </li>
-            <li class="all-programs-separator"></li>
-            <li class="all-programs-item" data-action="open-url" data-url="https://github.com/IAZARA">
-                <img src="./assets/images/github.png" alt="Github">
-                Github
-            </li>
-            <li class="all-programs-item" data-action="open-url" data-url="https://www.linkedin.com/in/ivan-agustin-zarate/">
-                <img src="./assets/images/linkedin.png" alt="LinkedIn">
-                LinkedIn
-            </li>
-        </ul>
-    </div>
-
-    <!-- Recently Used Menu -->
-    <div class="recently-used-menu" style="display: none;">
-        <ul class="recently-used-items">
-            <li class="recently-used-item disabled" data-action="open-program" data-program-name="vscode">
-                <img src="./assets/images/tools.png" alt="VS Code">
-                Visual Studio Code
-            </li>
-            <li class="recently-used-item disabled" data-action="open-program" data-program-name="chrome">
-                <img src="./assets/images/internet-explorer.png" alt="Chrome">
-                Google Chrome
-            </li>
-            <li class="recently-used-item disabled" data-action="open-program" data-program-name="terminal">
-                <img src="./assets/images/hd-icons/notepad.svg" alt="Terminal">
-                Terminal
-            </li>
-        </ul>
+            </ul></section>
+        <section class="all-programs-group" data-program-group="system">
+            <h2>Sistema y enlaces</h2><ul class="all-programs-items">
+            <li class="all-programs-item" data-action="open-program" data-program-name="my-computer"><img src="./assets/images/hd-icons/my-computer.svg" alt="">Mi PC</li>
+            <li class="all-programs-item" data-action="open-program" data-program-name="control-panel"><img src="./assets/images/hd-icons/control-panel.svg" alt="">Panel de control</li>
+            <li class="all-programs-item" data-action="open-url" data-url="https://github.com/IAZARA"><img src="./assets/images/github.png" alt="">GitHub</li>
+            <li class="all-programs-item" data-action="open-url" data-url="https://www.linkedin.com/in/ivan-agustin-zarate/"><img src="./assets/images/linkedin.png" alt="">LinkedIn</li>
+            </ul></section>
+        </div>
     </div>
 </body>
 </html>

@@ -46,6 +46,8 @@
             this.loaded = new Set();
             this.activeTab = root.querySelector('[data-api-tab].active')?.dataset.apiTab || 'weather';
             this.eventController = new AbortController();
+            this.cacheGeneration = 0;
+            this.cacheWritesEnabled = true;
             this.runAllGeneration = 0;
             this.runAllActive = false;
             this.initialized = false;
@@ -319,6 +321,7 @@
         }
 
         runChannel(channel, options = {}) {
+            this.cacheWritesEnabled = true;
             if (channel === 'weather') return this.loadWeather(options);
             if (channel === 'github') return this.loadGithub(options);
             if (channel === 'countries') return this.loadCountry(options);
@@ -752,6 +755,7 @@
                 validate = () => true
             } = options;
             const namespacedKey = `${CACHE_PREFIX}${cacheKey}`;
+            const cacheGeneration = this.cacheGeneration;
             const cached = this.readCache(namespacedKey, ttlMs, validate);
 
             if (signal?.aborted) throw this.abortError();
@@ -799,7 +803,8 @@
                 if (signal?.aborted) throw this.abortError();
 
                 const savedAt = Date.now();
-                const cachePersisted = this.writeCache(namespacedKey, { data, savedAt, ttlMs, version: 2 });
+                const cachePersisted = this.cacheWritesEnabled && cacheGeneration === this.cacheGeneration
+                    && this.writeCache(namespacedKey, { data, savedAt, ttlMs, version: 2 });
                 return {
                     data,
                     meta: {
@@ -910,13 +915,18 @@
 
         clearCache() {
             let removed = 0;
+            this.cacheGeneration += 1;
+            this.cacheWritesEnabled = false;
             try {
-                for (let index = localStorage.length - 1; index >= 0; index -= 1) {
+                const keys = [];
+                for (let index = 0; index < localStorage.length; index += 1) {
                     const key = localStorage.key(index);
-                    if (!key?.startsWith(CACHE_PREFIX)) continue;
+                    if (key?.startsWith(CACHE_PREFIX)) keys.push(key);
+                }
+                keys.forEach((key) => {
                     localStorage.removeItem(key);
                     removed += 1;
-                }
+                });
                 this.setLog(removed
                     ? `Caché eliminada: ${removed} ${removed === 1 ? 'respuesta' : 'respuestas'}.`
                     : 'La caché de API Center ya estaba vacía.');
