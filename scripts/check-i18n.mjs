@@ -41,7 +41,8 @@ const requiredTranslations = new Map([
     ['Catálogo online de insumos profesionales para tattoo en Argentina', 'Online catalog of professional tattoo supplies in Argentina'],
     ['Sitio institucional jurídico-contable para profesionales y empresas', 'Legal and accounting institutional site for professionals and businesses'],
     ['Plataforma de soporte con IA, Redmine y validación humana', 'Support platform with AI, Redmine and human validation'],
-    ['Repositorio público', 'Public repository']
+    ['Agente para Redmine', 'Redmine Agent'],
+    ['Código abierto (MIT)', 'Open source (MIT)']
 ]);
 
 for (const [source, expected] of requiredTranslations) {
@@ -62,7 +63,7 @@ const requiredRepositories = [
     'https://github.com/IAZARA/Juego_Ciberseguridad',
     'https://github.com/IAZARA/Radar_Empleo',
     'https://github.com/IAZARA/workflow-black-box',
-    'https://github.com/IAZARA/Proyecto_agente_Redmi'
+    'https://github.com/IAZARA/Agente-para-Redmine'
 ];
 
 for (const url of requiredRepositories) {

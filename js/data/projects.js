@@ -99,21 +99,21 @@ const projects = [
     },
     {
         id: 'art-redmine',
-        name: 'ART Redmine',
+        name: 'Agente para Redmine',
         type: 'project',
         icon: './assets/images/project-icons/art-redmine-icon.webp',
         detailImage: './assets/images/project-icons/art-redmine-icon.webp',
         showcaseImage: './assets/images/project-icons/art-redmine-banner.webp',
-        showcaseAlt: 'Vista general de ART Redmine',
+        showcaseAlt: 'Vista general de Agente para Redmine',
         showcaseWidth: 1693,
         showcaseHeight: 929,
         description: 'Plataforma de soporte con IA, Redmine y validación humana',
-        url: 'https://github.com/IAZARA/Proyecto_agente_Redmi',
-        repositoryUrl: 'https://github.com/IAZARA/Proyecto_agente_Redmi',
-        technologies: ['Python 3.12', 'FastAPI', 'React 19', 'PostgreSQL', 'Redmine API', 'Docker', 'Railway', 'TOTP'],
-        category: 'IA aplicada / Support Ops',
-        status: 'Repositorio público',
-        details: 'Plataforma operativa para equipos de soporte que sincroniza tickets desde Redmine, clasifica prioridad y completitud, recupera conocimiento y redacta respuestas propuestas con IA. Mantiene la revisión humana antes de publicar, suma autenticación por roles y TOTP, auditoría, adjuntos, OCR, Kanban, métricas y despliegue con Docker y PostgreSQL.'
+        url: 'https://github.com/IAZARA/Agente-para-Redmine',
+        repositoryUrl: 'https://github.com/IAZARA/Agente-para-Redmine',
+        technologies: ['Python 3.12', 'FastAPI', 'React 19', 'PostgreSQL', 'Redmine API', 'Docker', 'TOTP'],
+        category: 'IA aplicada / Operaciones de soporte',
+        status: 'Código abierto (MIT)',
+        details: 'ART Redmine es una plataforma operativa abierta para equipos de soporte. Sincroniza tickets desde Redmine, clasifica prioridad y completitud, recupera conocimiento y redacta respuestas propuestas con IA. Mantiene la revisión humana antes de publicar y suma inteligencia de servicio sobre incidentes repetidos, calidad, brechas de conocimiento y riesgo SLA, además de roles, TOTP, auditoría, adjuntos, OCR, Kanban, métricas y despliegue con Docker y PostgreSQL.'
     },
     {
         id: 'seo-evaluate',
@@ -318,7 +318,7 @@ const projectEvidence = {
         role: { es: 'Diseño de producto, arquitectura full stack, integración Redmine, seguridad y despliegue.', en: 'Product design, full-stack architecture, Redmine integration, security and deployment.' },
         problem: { es: 'Los equipos de soporte necesitan reunir contexto, priorizar y redactar respuestas sin perder control, trazabilidad ni criterio humano.', en: 'Support teams need to gather context, prioritize and draft replies without losing control, traceability or human judgment.' },
         solution: { es: 'Construí una plataforma que sincroniza Redmine, recupera conocimiento, propone respuestas y exige validación humana antes de publicar.', en: 'I built a platform that synchronizes Redmine, retrieves knowledge, proposes replies and requires human validation before publishing.' },
-        evidence: { es: ['Repositorio público con documentación técnica', 'FastAPI, React, PostgreSQL y Docker', 'Roles, TOTP, auditoría, OCR e integración Redmine'], en: ['Public repository with technical documentation', 'FastAPI, React, PostgreSQL and Docker', 'Roles, TOTP, auditing, OCR and Redmine integration'] }
+        evidence: { es: ['Repositorio abierto con licencia MIT y documentación técnica', 'FastAPI, React, PostgreSQL y Docker', 'Inteligencia de servicio, roles, TOTP, auditoría, OCR e integración Redmine'], en: ['Open repository with an MIT license and technical documentation', 'FastAPI, React, PostgreSQL and Docker', 'Service intelligence, roles, TOTP, auditing, OCR and Redmine integration'] }
     },
     'seo-evaluate': {
         role: { es: 'Producto, análisis técnico, frontend y motor de auditoría.', en: 'Product, technical analysis, frontend and audit engine.' },

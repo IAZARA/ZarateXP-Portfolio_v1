@@ -1,6 +1,6 @@
 import { CORE_TRANSLATIONS } from './i18n/catalog-core.js?v=zaratexp-20260712-i18n2';
 import { APP_TRANSLATIONS } from './i18n/catalog-apps.js?v=zaratexp-20260822-art-redmine1';
-import { PROJECT_TRANSLATIONS } from './i18n/catalog-projects.js?v=zaratexp-20260822-art-redmine1';
+import { PROJECT_TRANSLATIONS } from './i18n/catalog-projects.js?v=zaratexp-20260822-redmine-open2';
 
 const STORAGE_KEY = 'zarateXP.locale';
 const DEFAULT_LOCALE = 'es';
@@ -209,7 +209,7 @@ export class I18nManager {
             [/^El proveedor tiene un problema temporal \(HTTP (\d+)\)\.$/, 'The provider has a temporary problem (HTTP $1).'],
             [/^La API rechazó la consulta \(HTTP (\d+)\)\.$/, 'The API rejected the request (HTTP $1).'],
             [/^(.+) \((.+)\) seleccionada$/, (_match, name, type) => `${name} (${this.translateString(type)}) selected`],
-            [/^(.+) - Detalles$/, '$1 - Details'],
+            [/^(.+) - Detalles$/, (_match, name) => `${this.translateString(name)} - Details`],
             [/^Pista: (.+)$/, (_match, hint) => `Hint: ${this.translateString(hint)}`],
             [/^(.+) descubierta$/, (_match, card) => `${this.translateCardLabel(card)} revealed`],
             [/^(.+) y (\d+) cartas más seleccionada$/, (_match, card, count) => `${this.translateCardLabel(card)} and ${count} more cards selected`],

@@ -1,4 +1,4 @@
-import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-art-redmine1';
+import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-redmine-open2';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
 import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-github-activity1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
@@ -62,8 +62,9 @@ export class AppManager {
 
     _refreshOpenProjectDetails() {
         if (!this.windowManager) return;
-        const openProjectIds = Array.from(document.querySelectorAll('.window[data-window-id^="project-details-"]'))
-            .map((windowNode) => windowNode.dataset.windowId.replace('project-details-', ''));
+        const openProjectIds = Array.from(this.windowManager.windows.entries())
+            .filter(([windowId, windowData]) => windowId.startsWith('project-details-') && !windowData.isClosing)
+            .map(([windowId]) => windowId.replace('project-details-', ''));
         if (!openProjectIds.length) return;
         const projects = this._getAllProjects();
         for (const projectId of openProjectIds) {

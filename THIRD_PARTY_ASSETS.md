@@ -49,7 +49,7 @@ They do not embed the source screenshots or wordmarks.
 - CAP-21 logo: https://www.cap21.com.ar/brand/cap21-logo.png
 - Estudio Luttini identity: https://www.estudioluttini.com/iconoL-l.png
 - Auto-Inbox: https://github.com/IAZARA/Auto-Inbox
-- ART Redmine icon and project banner: https://github.com/IAZARA/Proyecto_agente_Redmi
+- Agente para Redmine icon and project banner: https://github.com/IAZARA/Agente-para-Redmine
 - SEO Evaluate: https://github.com/IAZARA/SEO-Evaluate
 - CyberDetective Academy: https://github.com/IAZARA/cyberdetective-academy
 - DesanjuntarPDF: https://github.com/IAZARA/DesanjuntarPDF

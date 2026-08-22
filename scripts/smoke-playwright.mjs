@@ -431,9 +431,9 @@ async function exerciseProjectExplorer(page) {
   const artDetails = page.locator('.window[data-window-id="project-details-art-redmine"]');
   await artDetails.waitFor({ state: 'visible' });
   ensure((await artDetails.innerText()).includes('sincroniza Redmine'), 'ART Redmine no mostró su solución específica');
-  ensure((await artDetails.innerText()).includes('Repositorio público con documentación técnica'), 'ART Redmine no mostró evidencia verificable');
+  ensure((await artDetails.innerText()).includes('Repositorio abierto con licencia MIT y documentación técnica'), 'Agente para Redmine no mostró evidencia verificable');
   ensure(await artDetails.locator('.xp-project-showcase img').count() === 1, 'ART Redmine no mostró su imagen de caso');
-  ensure(await artDetails.locator('[data-project-open-url="https://github.com/IAZARA/Proyecto_agente_Redmi"]').count() === 1, 'ART Redmine no enlazó el repositorio público');
+  ensure(await artDetails.locator('[data-project-open-url="https://github.com/IAZARA/Agente-para-Redmine"]').count() === 1, 'Agente para Redmine no enlazó el repositorio público');
 
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-art-redmine'));
   await artDetails.waitFor({ state: 'detached' });
@@ -448,12 +448,15 @@ async function exerciseProjectExplorer(page) {
   });
   await privateDetails.waitFor({ state: 'detached' });
   await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] .search-panel-title')?.textContent === 'Search projects');
+  await page.waitForTimeout(360);
+  ensure(await privateDetails.count() === 0, 'Una ficha de proyecto cerrada reapareció al cambiar el idioma');
   await appWindow.locator('[data-project-id="art-redmine"]').dblclick();
   const englishDetails = page.locator('.window[data-window-id="project-details-art-redmine"]');
   await englishDetails.waitFor({ state: 'visible' });
   ensure((await englishDetails.innerText()).includes('Role and contribution:'), 'La ficha de proyecto no tradujo su estructura al inglés');
   ensure((await englishDetails.innerText()).includes('requires human validation'), 'ART Redmine no utilizó su contenido inglés');
-  ensure((await englishDetails.innerText()).includes('Public repository'), 'ART Redmine no tradujo su estado al inglés');
+  ensure((await englishDetails.innerText()).includes('Redmine Agent - Details'), 'Agente para Redmine no tradujo su nombre al inglés');
+  ensure((await englishDetails.innerText()).includes('Open source (MIT)'), 'Agente para Redmine no tradujo su estado al inglés');
   await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
   await page.waitForFunction(() => document.querySelector('.window[data-window-id="project-details-art-redmine"]')?.textContent.includes('validación humana antes de publicar'));
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-art-redmine'));
