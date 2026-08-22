@@ -334,6 +334,26 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
     ensure(await page.locator('.window[data-window-id="recruiter-route"]').count() === 1, 'Un toque móvil no abrió el Perfil orientado a FDE');
     await page.evaluate(() => window.zarateXP.windowManager.closeWindow('recruiter-route'));
 
+    const myComputerWindow = await openApp(page, 'my-computer');
+    await myComputerWindow.locator('.maximize-btn').tap();
+    await page.waitForTimeout(280);
+    const mobileComputer = await myComputerWindow.evaluate((windowNode) => {
+      const root = windowNode.querySelector('#mipc-window');
+      const content = root.querySelector('.mipc-right-panel');
+      const drive = root.querySelector('[data-mipc-entry="drive"]');
+      const rect = drive.getBoundingClientRect();
+      return {
+        sidebarHidden: getComputedStyle(root.querySelector('.mipc-left-panel')).display === 'none',
+        noHorizontalOverflow: content.scrollWidth <= content.clientWidth + 1,
+        targetLargeEnough: rect.width >= 44 && rect.height >= 44
+      };
+    });
+    ensure(mobileComputer.sidebarHidden && mobileComputer.noHorizontalOverflow && mobileComputer.targetLargeEnough, `Mi PC no quedó utilizable en móvil (${JSON.stringify(mobileComputer)})`);
+    await myComputerWindow.locator('[data-mipc-entry="drive"]').tap();
+    ensure(await myComputerWindow.locator('[data-mipc-kind="folder"]').count() === 2, 'El disco F: no mostró sus dos carpetas con toque móvil');
+    await page.evaluate(() => window.zarateXP.windowManager.closeWindow('my-computer'));
+    await myComputerWindow.waitFor({ state: 'detached' });
+
     const documentsWindow = await openApp(page, 'documents');
     ensure(await documentsWindow.locator('[data-documents-content]').getAttribute('data-view-mode') === 'list', 'Mis Documentos no eligió Lista como vista móvil inicial');
     ensure(await documentsWindow.locator('.xp-document-list-row').count() === 13, 'La lista móvil de Mis Documentos no mostró los 13 accesos');
@@ -372,7 +392,8 @@ async function auditDesktopPositionPreservation(browser, baseUrl) {
     await context.addInitScript(() => {
       try {
         localStorage.setItem('zarateXP_session', 'active');
-        localStorage.setItem('zarateXP.desktopIconPositions', JSON.stringify({
+        localStorage.setItem('zarateXP.desktopIconPositions.v2', JSON.stringify({
+          __layout: { width: 1366, height: 738 },
           'recruiter-route': { x: 310, y: 120 }
         }));
       } catch (error) {
@@ -384,7 +405,8 @@ async function auditDesktopPositionPreservation(browser, baseUrl) {
     await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
     await page.waitForFunction(() => Boolean(window.zarateXP?.desktopManager), null, { timeout: 12000 });
     await page.evaluate(() => {
-      localStorage.setItem('zarateXP.desktopIconPositions', JSON.stringify({
+      localStorage.setItem('zarateXP.desktopIconPositions.v2', JSON.stringify({
+        __layout: { width: 1366, height: 738 },
         'recruiter-route': { x: 310, y: 120 }
       }));
       window.zarateXP.desktopManager.applyIconPositions();
@@ -404,15 +426,66 @@ async function auditDesktopPositionPreservation(browser, baseUrl) {
     await page.waitForFunction(() => {
       const icon = document.querySelector('.desktop-icon[data-program-name="recruiter-route"]');
       return !window.matchMedia('(max-width: 768px)').matches
-        && Number.parseFloat(icon?.style.left) === 310
-        && Number.parseFloat(icon?.style.top) === 120;
+        && Number.parseFloat(icon?.style.left) > 310
+        && Number.parseFloat(icon?.style.top) > 120;
     });
     const restored = await desktopIcon.evaluate((icon) => ({
       left: Number.parseFloat(icon.style.left),
       top: Number.parseFloat(icon.style.top)
     }));
-    ensure(Math.round(restored.left) === 310 && Math.round(restored.top) === 120, `La posición desktop no sobrevivió al cambio responsive (${JSON.stringify(restored)})`);
+    ensure(restored.left > 310 && restored.top > 120, `La posición desktop no se adaptó proporcionalmente al viewport mayor (${JSON.stringify(restored)})`);
     ensure(await page.locator('.desktop-icons > .desktop-icon:visible').count() === 17, 'El escritorio grande no restauró sus 17 accesos');
+  } finally {
+    await context.close();
+  }
+}
+
+async function auditDesktopIconDensity(browser, baseUrl, viewport) {
+  const context = await browser.newContext({ viewport });
+  try {
+    await context.addInitScript(() => {
+      try {
+        localStorage.setItem('zarateXP_session', 'active');
+        localStorage.removeItem('zarateXP.desktopIconPositions.v2');
+      } catch (error) {
+        // about:blank no expone localStorage; se ejecuta otra vez al navegar.
+      }
+    });
+    const page = await context.newPage();
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => Boolean(window.zarateXP?.appManager?.windowManager)
+      && getComputedStyle(document.querySelector('.desktop')).opacity === '1', null, { timeout: 12000 });
+    await page.waitForTimeout(120);
+
+    const audit = await page.evaluate(() => {
+      const taskbar = document.querySelector('.taskbar').getBoundingClientRect();
+      const icons = Array.from(document.querySelectorAll('.desktop-icons > .desktop-icon'))
+        .filter((icon) => getComputedStyle(icon).display !== 'none')
+        .map((icon) => ({ id: icon.dataset.programName, rect: icon.getBoundingClientRect() }));
+      const overlaps = [];
+      for (let leftIndex = 0; leftIndex < icons.length; leftIndex += 1) {
+        for (let rightIndex = leftIndex + 1; rightIndex < icons.length; rightIndex += 1) {
+          const left = icons[leftIndex];
+          const right = icons[rightIndex];
+          if (left.rect.left < right.rect.right && left.rect.right > right.rect.left
+            && left.rect.top < right.rect.bottom && left.rect.bottom > right.rect.top) {
+            overlaps.push(`${left.id}:${right.id}`);
+          }
+        }
+      }
+      const maxBottom = Math.max(...icons.map(({ rect }) => rect.bottom));
+      return {
+        count: icons.length,
+        gap: taskbar.top - maxBottom,
+        contained: icons.every(({ rect }) => rect.top >= 0 && rect.bottom <= taskbar.top + 1),
+        overlaps
+      };
+    });
+
+    ensure(audit.count === 17 && audit.contained && audit.overlaps.length === 0, `El escritorio ${viewport.width}x${viewport.height} perdió iconos, contención o separación (${JSON.stringify(audit)})`);
+    ensure(audit.gap >= 8 && audit.gap <= 64, `El escritorio ${viewport.width}x${viewport.height} dejó un margen inferior incorrecto (${JSON.stringify(audit)})`);
+    return `${viewport.width}x${viewport.height}`;
   } finally {
     await context.close();
   }
@@ -424,7 +497,11 @@ async function exerciseResponsiveDesktop(browser, baseUrl) {
     viewports.push(await auditMobileDesktopViewport(browser, baseUrl, viewport));
   }
   await auditDesktopPositionPreservation(browser, baseUrl);
-  return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, toque único, carpetas bilingües y posiciones desktop preservadas`;
+  const desktopViewports = [];
+  for (const viewport of [{ width: 1044, height: 1294 }, { width: 1366, height: 768 }, { width: 1440, height: 900 }]) {
+    desktopViewports.push(await auditDesktopIconDensity(browser, baseUrl, viewport));
+  }
+  return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, densidad XP en ${desktopViewports.join(', ')} y posiciones desktop adaptativas`;
 }
 
 async function exerciseBootSkip(browser, baseUrl) {
@@ -446,11 +523,115 @@ async function exerciseBootSkip(browser, baseUrl) {
   }
 }
 
+async function exerciseMyComputer(page) {
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
+  let appWindow = await openApp(page, 'my-computer');
+  const root = appWindow.locator('#mipc-window');
+  const initialText = await root.innerText();
+  ensure(await root.locator('[data-mipc-entry="drive"]').count() === 1, 'Mi PC no mostró exactamente el Disco extraíble (F:)');
+  ensure(await root.locator('[data-open-program]').count() === 0, 'Mi PC conservó extensiones de aplicaciones del portfolio');
+  ensure(!/Full Stack \(C:\)|Automations \(N:\)|Games \(S:\)|Canvas Lab \(P:\)|Settings \(XP:\)/.test(initialText), 'Mi PC conservó unidades virtuales anteriores');
+
+  const drive = root.locator('[data-mipc-entry="drive"]');
+  await drive.click();
+  ensure(await drive.getAttribute('aria-selected') === 'true', 'El clic simple no seleccionó el disco F:');
+  ensure(await root.locator('[data-mipc-address]').innerText() === 'Mi PC', 'El clic simple abrió el disco cuando solo debía seleccionarlo');
+  await drive.dblclick();
+  ensure(await root.locator('[data-mipc-kind="folder"]').count() === 2, 'El disco F: no mostró Documentos y Fotos varias');
+  ensure((await root.locator('[data-mipc-entry="documents"]').innerText()) === 'Documentos', 'F: no mostró la carpeta Documentos');
+  ensure((await root.locator('[data-mipc-entry="photos"]').innerText()) === 'Fotos varias', 'F: no mostró la carpeta Fotos varias');
+
+  await root.locator('[data-mipc-entry="documents"]').dblclick();
+  ensure((await root.locator('.mipc-empty-state').innerText()) === 'Esta carpeta está vacía.', 'Documentos no mostró su estado vacío');
+  ensure((await root.locator('[data-mipc-status]').innerText()) === '0 objetos', 'Documentos no actualizó la barra de estado');
+  await root.locator('[data-mipc-action="back"]').click();
+  ensure(await root.locator('[data-mipc-kind="folder"]').count() === 2, 'Atrás no regresó de Documentos a F:');
+  await root.locator('[data-mipc-action="forward"]').click();
+  ensure(await root.locator('.mipc-empty-state').isVisible(), 'Adelante no volvió a Documentos');
+  await root.locator('[data-mipc-action="up"]').click();
+  await root.locator('[data-mipc-entry="photos"]').dblclick();
+  ensure((await root.locator('.mipc-empty-state').innerText()) === 'Esta carpeta está vacía.', 'Fotos varias no mostró su estado vacío');
+
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
+  await page.waitForFunction(() => document.querySelector('[data-window-id="my-computer"] .mipc-section-heading')?.textContent === 'Miscellaneous Pictures');
+  ensure((await root.locator('.mipc-empty-state').innerText()) === 'This folder is empty.', 'Las carpetas vacías de Mi PC no se tradujeron al inglés');
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
+  await page.waitForFunction(() => document.querySelector('[data-window-id="my-computer"] .mipc-section-heading')?.textContent === 'Fotos varias');
+
+  await appWindow.locator('.maximize-btn').click();
+  await page.waitForTimeout(280);
+  const geometry = await appWindow.evaluate((windowNode) => {
+    const rect = (selector) => windowNode.querySelector(selector).getBoundingClientRect();
+    const windowRect = windowNode.getBoundingClientRect();
+    const body = rect(':scope > .window-body');
+    const appRoot = rect('#mipc-window');
+    const main = rect('.mipc-main-content');
+    const left = rect('.mipc-left-panel');
+    const right = rect('.mipc-right-panel');
+    return {
+      windowBottom: windowRect.bottom,
+      bodyBottom: body.bottom,
+      rootBottom: appRoot.bottom,
+      mainBottom: main.bottom,
+      leftBottom: left.bottom,
+      rightBottom: right.bottom,
+      noPageOverflow: document.documentElement.scrollHeight <= document.documentElement.clientHeight + 1
+    };
+  });
+  ensure(Math.abs(geometry.windowBottom - geometry.rootBottom) <= 1 && Math.abs(geometry.mainBottom - geometry.leftBottom) <= 1 && Math.abs(geometry.mainBottom - geometry.rightBottom) <= 1, `Mi PC no extendió sus paneles hasta el borde maximizado (${JSON.stringify(geometry)})`);
+  ensure(geometry.noPageOverflow, `Mi PC maximizado generó scroll de página (${JSON.stringify(geometry)})`);
+
+  const trayButton = page.locator('.tray-removable-button');
+  ensure(await trayButton.isVisible(), 'El icono para expulsar F: no estaba visible en la bandeja');
+  await trayButton.click();
+  ensure(await trayButton.isHidden(), 'El icono de F: no desapareció de la bandeja tras expulsarlo');
+  ensure(await root.locator('[data-mipc-entry="drive"]').count() === 0, 'F: siguió visible en Mi PC después de expulsarlo');
+  ensure((await root.locator('[data-mipc-address]').innerText()) === 'Mi PC', 'Mi PC no regresó a la raíz tras expulsar F: desde una carpeta');
+  const balloon = page.locator('.notification-balloon[role="status"]');
+  await balloon.waitFor({ state: 'visible' });
+  ensure((await balloon.innerText()).includes('Es seguro quitar el hardware'), 'La expulsión no mostró la confirmación XP');
+  const balloonContained = await balloon.evaluate((node) => {
+    const rect = node.getBoundingClientRect();
+    const taskbarTop = document.querySelector('.taskbar').getBoundingClientRect().top;
+    return rect.left >= 0 && rect.right <= window.innerWidth && rect.bottom <= taskbarTop;
+  });
+  ensure(balloonContained, 'La notificación de expulsión quedó fuera del viewport o sobre la taskbar');
+
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('my-computer'));
+  await appWindow.waitFor({ state: 'detached' });
+  appWindow = await openApp(page, 'my-computer');
+  ensure(await appWindow.locator('[data-mipc-entry="drive"]').count() === 0, 'F: reapareció al cerrar y reabrir Mi PC en la misma sesión');
+  ensure((await appWindow.locator('.mipc-empty-state').innerText()) === 'No hay dispositivos con almacenamiento extraíble.', 'Mi PC no explicó el estado posterior a la expulsión');
+  return 'Mi PC: unidad F:, carpetas vacías, navegación, panel maximizado y expulsión XP bilingüe';
+}
+
 async function exerciseProjectExplorer(page) {
   const originalViewport = page.viewportSize();
   const appWindow = await openApp(page, 'projects');
   await appWindow.locator('#explorer-content .project-item').first().waitFor({ state: 'visible' });
   ensure(await appWindow.locator('#explorer-content .project-item').count() === 19, 'El Explorador no abrió con los 19 proyectos');
+
+  const locationSelect = appWindow.locator('#project-location');
+  const addressBeforeHover = await locationSelect.evaluate((select) => {
+    const rect = select.getBoundingClientRect();
+    return { width: rect.width, height: rect.height };
+  });
+  await locationSelect.hover({ position: { x: 20, y: 10 } });
+  const addressAfterHover = await locationSelect.evaluate((select) => {
+    const style = getComputedStyle(select);
+    const rect = select.getBoundingClientRect();
+    const bar = select.closest('.explorer-address-bar');
+    return {
+      width: rect.width,
+      height: rect.height,
+      repeat: style.backgroundRepeat,
+      position: style.backgroundPosition,
+      layers: (style.backgroundImage.match(/url\(/g) || []).length,
+      noOverflow: bar.scrollWidth <= bar.clientWidth + 1
+    };
+  });
+  ensure(addressAfterHover.repeat === 'no-repeat' && addressAfterHover.layers === 1 && /2px/.test(addressAfterHover.position), `La flecha de Dirección volvió a repetirse en hover (${JSON.stringify(addressAfterHover)})`);
+  ensure(addressBeforeHover.width === addressAfterHover.width && addressBeforeHover.height === addressAfterHover.height && addressAfterHover.noOverflow, `La barra Dirección cambió de geometría o desbordó en hover (${JSON.stringify({ addressBeforeHover, addressAfterHover })})`);
 
   await appWindow.locator('[data-view-trigger]').click();
   await appWindow.locator('[data-view-choice="list"]').click();
@@ -2025,7 +2206,8 @@ async function main() {
     const defaultDesktopOrder = await page.locator('.desktop-icons > .desktop-icon').evaluateAll((icons) => icons.slice(0, 6).map((icon) => icon.dataset.programName));
     ensure(defaultDesktopOrder.join(',') === 'recruiter-route,resume,projects,contact,documents,certificates', `El escritorio inicial no priorizó el recorrido recruiter (${defaultDesktopOrder.join(',')})`);
 
-    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'recruiter-route', 'github-activity', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball', 'paint']);
+    const expectedWindows = new Set(['my-computer', 'about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'recruiter-route', 'github-activity', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball', 'paint']);
+    exercised.push(await exerciseMyComputer(page));
     exercised.push(await exerciseStartMenuAndPaint(page));
     exercised.push(await exerciseProjectExplorer(page));
     exercised.push(await exerciseMlopsLifecycle(page));

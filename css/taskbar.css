@@ -336,6 +336,43 @@
     gap: 5px;
 }
 
+.tray-removable-button {
+    width: 20px;
+    min-width: 20px;
+    max-width: 20px;
+    height: 22px;
+    min-height: 22px;
+    padding: 1px;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+.tray-removable-button:hover,
+.tray-removable-button:focus-visible {
+    border-top-color: rgba(211, 235, 255, 0.82);
+    border-left-color: rgba(211, 235, 255, 0.82);
+    border-right-color: rgba(5, 72, 135, 0.82);
+    border-bottom-color: rgba(5, 72, 135, 0.82);
+    background: rgba(255, 255, 255, 0.13);
+    outline: 1px dotted rgba(255, 255, 255, 0.92);
+    outline-offset: -3px;
+}
+
+.tray-removable-button img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
+.tray-removable-button[hidden] {
+    display: none;
+}
+
 .tray-icon,
 .tray-network-icon,
 .tray-clippy-icon,
@@ -519,24 +556,50 @@
 /* Notification Area */
 .notification-balloon {
     position: absolute;
-    bottom: 100%;
-    right: 0;
-    background: #FFFFE1;
-    border: 1px solid #000;
+    z-index: 1200;
+    right: 4px;
+    bottom: calc(100% + 8px);
+    width: max-content;
+    max-width: min(285px, calc(100vw - 16px));
+    padding: 8px 10px 9px;
+    color: #111;
+    background: #ffffe1;
+    border: 1px solid #003c74;
     border-radius: 5px;
-    padding: 8px;
-    margin-bottom: 5px;
-    font-size: 11px;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    display: none;
-    max-width: 200px;
+    box-shadow: 2px 3px 7px rgba(0, 0, 0, 0.35);
+    font: 11px/1.35 Tahoma, sans-serif;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.notification-balloon-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    color: #003c74;
+}
+
+.notification-balloon-header img {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    object-fit: contain;
+}
+
+.notification-balloon-header strong {
+    font-weight: 700;
+}
+
+.notification-balloon-body {
+    overflow-wrap: anywhere;
 }
 
 .notification-balloon::after {
     content: '';
     position: absolute;
     bottom: -6px;
-    right: 20px;
+    right: 22px;
     width: 0;
     height: 0;
     border-left: 6px solid transparent;

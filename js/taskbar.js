@@ -106,6 +106,26 @@ export class TaskbarManager {
                 clippyManager?.showTip(Math.floor(Math.random() * 4));
             });
         }
+
+        const removableButton = this.systemTray.querySelector('.tray-removable-button');
+        if (removableButton) {
+            removableButton.addEventListener('click', () => {
+                window.zarateXP?.appManager?.ejectRemovableDrive?.();
+            });
+
+            window.addEventListener('zaratexp:removable-drive-ejected', () => {
+                removableButton.hidden = true;
+                this.showNotification(
+                    'Ahora puede quitar de forma segura Disco extraíble (F:) del equipo.',
+                    5000,
+                    {
+                        title: 'Es seguro quitar el hardware',
+                        icon: './assets/images/xp-small-icons/information.png'
+                    }
+                );
+                window.zarateXP?.soundManager?.play('information');
+            });
+        }
         
         // Fullscreen toggle (desktop only)
         const fullscreenIcon = this.systemTray.querySelector('.tray-fullscreen-icon');
@@ -227,23 +247,47 @@ export class TaskbarManager {
         }
     }
     
-    showNotification(message, duration = 3000) {
-        // Create notification balloon
+    showNotification(message, duration = 3000, options = {}) {
+        this.activeNotification?.remove();
+        clearTimeout(this.notificationTimer);
+
         const balloon = document.createElement('div');
         balloon.className = 'notification-balloon';
-        balloon.textContent = message;
+        balloon.setAttribute('role', 'status');
+        balloon.setAttribute('aria-live', 'polite');
+
+        if (options.title) {
+            const header = document.createElement('div');
+            header.className = 'notification-balloon-header';
+            if (options.icon) {
+                const image = document.createElement('img');
+                image.src = this.safeResourceUrl(options.icon, './assets/images/xp-small-icons/information.png');
+                image.alt = '';
+                header.appendChild(image);
+            }
+            const title = document.createElement('strong');
+            title.textContent = window.zarateXP?.i18nManager?.t(options.title) || options.title;
+            header.appendChild(title);
+            balloon.appendChild(header);
+        }
+
+        const body = document.createElement('div');
+        body.className = 'notification-balloon-body';
+        body.textContent = window.zarateXP?.i18nManager?.t(message) || message;
+        balloon.appendChild(body);
         
-        // Position near system tray
         this.systemTray.appendChild(balloon);
-        balloon.style.display = 'block';
+        this.activeNotification = balloon;
         
-        // Auto hide after duration
-        setTimeout(() => {
+        this.notificationTimer = window.setTimeout(() => {
             balloon.style.opacity = '0';
-            setTimeout(() => {
+            window.setTimeout(() => {
                 balloon.remove();
+                if (this.activeNotification === balloon) this.activeNotification = null;
             }, 300);
         }, duration);
+
+        return balloon;
     }
     
     updateClock() {
@@ -291,34 +335,6 @@ style.textContent = `
         50% { opacity: 0.5; }
     }
     
-    .notification-balloon {
-        position: absolute;
-        bottom: 100%;
-        right: 0;
-        background: #FFFFE1;
-        border: 1px solid #000;
-        border-radius: 5px;
-        padding: 8px 12px;
-        margin-bottom: 5px;
-        font-size: 11px;
-        box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        display: none;
-        max-width: 200px;
-        opacity: 1;
-        transition: opacity 0.3s;
-    }
-    
-    .notification-balloon::after {
-        content: '';
-        position: absolute;
-        bottom: -6px;
-        right: 20px;
-        width: 0;
-        height: 0;
-        border-left: 6px solid transparent;
-        border-right: 6px solid transparent;
-        border-top: 6px solid #FFFFE1;
-    }
 `;
 document.head.appendChild(style);
 

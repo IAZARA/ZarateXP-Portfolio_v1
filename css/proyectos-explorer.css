@@ -141,7 +141,9 @@
 .address-input {
     flex: 1;
     border: none;
-    background: transparent;
+    /* Keep XP.css' single dropdown glyph. The background shorthand used here
+       reset background-repeat, which made Chromium tile the arrow on hover. */
+    background-color: transparent;
     font-family: 'Tahoma', sans-serif;
     font-size: 11px;
     color: #000;
@@ -152,6 +154,16 @@
 .address-select {
     cursor: pointer;
     min-width: 0;
+    padding-right: 32px;
+    background-repeat: no-repeat;
+    background-position: top 2px right 2px;
+}
+
+.address-select:hover,
+.address-select:focus,
+.address-select:active {
+    background-repeat: no-repeat;
+    background-position: top 2px right 2px;
 }
 
 .address-dropdown {

@@ -1,6 +1,7 @@
 import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-redmine-open2';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
 import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-verified2';
+import { initMyComputerApp } from './my-computer.js?v=zaratexp-20260822-removable-drive1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -14,6 +15,8 @@ export class AppManager {
         this.runningApps = new Map();
         this.scriptPromises = new Map();
         this.projectExplorerState = new WeakMap();
+        this.removableDriveMounted = true;
+        this.myComputerController = null;
         this.windowManager = null; // Se asignará en init()
         
         // Register built-in applications
@@ -333,7 +336,7 @@ export class AppManager {
         try {
             // 1. Esperar a que se cargue el contenido del archivo
             debugLog('Loading mipc.html...');
-            const response = await fetch('./mipc.html');
+            const response = await fetch('./mipc.html?v=zaratexp-20260822-removable-drive1');
             if (!response.ok) {
                 throw new Error(`Error al cargar mipc.html: ${response.statusText} (${response.status})`);
             }
@@ -377,10 +380,11 @@ export class AppManager {
             // 4. Marcar como aplicación en ejecución
             this.runningApps.set('my-computer', 'my-computer');
 
-            window.querySelectorAll('[data-open-program]').forEach((item) => {
-                const openTarget = () => this.openApp(item.dataset.openProgram);
-                item.addEventListener('click', openTarget);
-                item.addEventListener('dblclick', openTarget);
+            this.myComputerController?.destroy?.();
+            this.myComputerController = initMyComputerApp(window.querySelector('#mipc-window'), {
+                driveMounted: this.removableDriveMounted,
+                openProgram: (programName) => this.openApp(programName),
+                ejectDrive: () => this.ejectRemovableDrive()
             });
 
             // 5. Configurar cleanup cuando se cierre la ventana
@@ -433,6 +437,16 @@ export class AppManager {
                 alert(`Error: No se pudo abrir Mi PC. ${error.message}`);
             }
         }
+    }
+
+    ejectRemovableDrive() {
+        if (!this.removableDriveMounted) return false;
+        this.removableDriveMounted = false;
+        this.myComputerController?.setDriveMounted(false);
+        window.dispatchEvent(new CustomEvent('zaratexp:removable-drive-ejected', {
+            detail: { drive: 'F:' }
+        }));
+        return true;
     }
     
     async _openWinamp() {
@@ -3969,7 +3983,8 @@ export class AppManager {
             }
         } else if (appId === 'my-computer') {
             debugLog('Cleaning up Mi PC application');
-            // Aquí se puede añadir cleanup específico para Mi PC si es necesario
+            this.myComputerController?.destroy?.();
+            this.myComputerController = null;
         } else if (appId === 'contact') {
             debugLog('Cleaning up Contact application');
             // Limpiar cualquier event listener específico si es necesario

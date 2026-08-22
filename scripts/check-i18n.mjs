@@ -26,6 +26,9 @@ for (const [source, target] of entries) {
 
 const requiredTranslations = new Map([
     ['Mi PC', 'My Computer'],
+    ['Disco extraíble (F:)', 'Removable Disk (F:)'],
+    ['Fotos varias', 'Miscellaneous Pictures'],
+    ['Es seguro quitar el hardware', 'Safe to Remove Hardware'],
     ['Mostrar escritorio', 'Show Desktop'],
     ['Restaurar ventanas', 'Restore windows'],
     ['Mis Proyectos', 'My Projects'],

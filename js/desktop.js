@@ -7,7 +7,9 @@ export class DesktopManager {
         this.selectedIcons = new Set();
         this.isDragging = false;
         this.dragStart = { x: 0, y: 0 };
-        this.iconPositionsKey = 'zarateXP.desktopIconPositions';
+        // v2 invalidates the old fixed-height coordinates that left a large
+        // empty band above the taskbar on taller screens.
+        this.iconPositionsKey = 'zarateXP.desktopIconPositions.v2';
         this.mobileLayoutQuery = window.matchMedia('(max-width: 768px)');
         this.contextMenu = null;
     }
@@ -26,9 +28,21 @@ export class DesktopManager {
             this.animateIcons();
         });
 
+        let resizeFrame = 0;
         window.addEventListener('resize', () => {
-            this.applyIconPositions();
+            window.cancelAnimationFrame(resizeFrame);
+            resizeFrame = window.requestAnimationFrame(() => this.applyIconPositions());
         });
+
+        // --real-vh is updated on a later animation frame. Observing the actual
+        // icon canvas prevents the automatic grid from keeping the old height.
+        if ('ResizeObserver' in window) {
+            this.layoutResizeObserver = new ResizeObserver(() => {
+                window.cancelAnimationFrame(resizeFrame);
+                resizeFrame = window.requestAnimationFrame(() => this.applyIconPositions());
+            });
+            this.layoutResizeObserver.observe(this.iconsContainer);
+        }
     }
     
     setupIconHandlers() {
@@ -178,10 +192,21 @@ export class DesktopManager {
     getIconGridMetrics() {
         const scale = parseFloat(getComputedStyle(this.iconsContainer).getPropertyValue('--icon-scale')) || 1;
         const isMobile = this.isMobileLayout();
+        const desktopIcons = Array.from(this.iconsContainer.querySelectorAll('.desktop-icon'));
+        const measuredIconHeight = desktopIcons[0]?.offsetHeight || Math.round(92 * scale);
+        const padding = 12;
+        const fittingRows = Math.max(1, Math.floor((this.iconsContainer.clientHeight - (padding * 2)) / measuredIconHeight));
+        const desktopRows = Math.min(5, Math.max(1, desktopIcons.length), fittingRows);
+        const availableRowTravel = Math.max(0, this.iconsContainer.clientHeight - (padding * 2) - measuredIconHeight);
+
         return {
-            padding: 12,
+            padding,
             columnWidth: Math.round((isMobile ? 110 : 102) * scale),
-            rowHeight: Math.round((isMobile ? 118 : 102) * scale)
+            rowHeight: isMobile || desktopRows <= 1
+                ? Math.round((isMobile ? 118 : 102) * scale)
+                : availableRowTravel / (desktopRows - 1),
+            desktopRows,
+            measuredIconHeight
         };
     }
 
@@ -227,17 +252,30 @@ export class DesktopManager {
         const icons = Array.from(this.iconsContainer.querySelectorAll('.desktop-icon'));
         const saved = this.readIconPositions();
         const metrics = this.getIconGridMetrics();
-        const maxRows = Math.max(1, Math.floor((this.iconsContainer.clientHeight - metrics.padding) / metrics.rowHeight));
+        const maxRows = metrics.desktopRows;
+        const savedLayout = saved.__layout;
 
         icons.forEach((icon, index) => {
             const key = icon.dataset.programName;
             const savedPosition = saved[key];
             const defaultX = metrics.padding + Math.floor(index / maxRows) * metrics.columnWidth;
             const defaultY = metrics.padding + (index % maxRows) * metrics.rowHeight;
-            const x = Number.isFinite(savedPosition?.x) ? savedPosition.x : defaultX;
-            const y = Number.isFinite(savedPosition?.y) ? savedPosition.y : defaultY;
-            const maxX = this.iconsContainer.clientWidth - 92;
-            const maxY = this.iconsContainer.clientHeight - 96;
+            const maxX = this.iconsContainer.clientWidth - icon.offsetWidth - 8;
+            const maxY = this.iconsContainer.clientHeight - icon.offsetHeight - 8;
+            const hasSavedPosition = Number.isFinite(savedPosition?.x) && Number.isFinite(savedPosition?.y);
+            let x = hasSavedPosition ? savedPosition.x : defaultX;
+            let y = hasSavedPosition ? savedPosition.y : defaultY;
+
+            // Scale user-arranged positions when the desktop changes size so
+            // their relationship with the taskbar is preserved.
+            if (hasSavedPosition && Number.isFinite(savedLayout?.width) && Number.isFinite(savedLayout?.height)) {
+                const previousMaxX = Math.max(8, savedLayout.width - icon.offsetWidth - 8);
+                const previousMaxY = Math.max(8, savedLayout.height - icon.offsetHeight - 8);
+                const xRatio = previousMaxX > 8 ? (savedPosition.x - 8) / (previousMaxX - 8) : 0;
+                const yRatio = previousMaxY > 8 ? (savedPosition.y - 8) / (previousMaxY - 8) : 0;
+                x = 8 + Math.min(1, Math.max(0, xRatio)) * Math.max(0, maxX - 8);
+                y = 8 + Math.min(1, Math.max(0, yRatio)) * Math.max(0, maxY - 8);
+            }
 
             icon.style.left = `${Math.min(Math.max(x, 8), Math.max(8, maxX))}px`;
             icon.style.top = `${Math.min(Math.max(y, 8), Math.max(8, maxY))}px`;
@@ -248,7 +286,12 @@ export class DesktopManager {
     saveIconPositions() {
         if (this.isMobileLayout()) return;
 
-        const positions = {};
+        const positions = {
+            __layout: {
+                width: this.iconsContainer.clientWidth,
+                height: this.iconsContainer.clientHeight
+            }
+        };
         this.iconsContainer.querySelectorAll('.desktop-icon').forEach((icon) => {
             positions[icon.dataset.programName] = {
                 x: Math.round(parseFloat(icon.style.left) || 0),
@@ -457,7 +500,7 @@ export class DesktopManager {
 
         const icons = this.iconsContainer.querySelectorAll('.desktop-icon');
         const metrics = this.getIconGridMetrics();
-        const maxRows = Math.max(1, Math.floor((this.iconsContainer.clientHeight - metrics.padding) / metrics.rowHeight));
+        const maxRows = metrics.desktopRows;
         let row = 0;
         let col = 0;
         

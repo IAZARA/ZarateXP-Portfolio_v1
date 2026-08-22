@@ -1,5 +1,5 @@
 <div class="window-body">
-    <div class="mipc-menu-bar">
+    <div class="mipc-menu-bar" role="menubar" aria-label="Menú de Mi PC">
         <span><u>A</u>rchivo</span>
         <span><u>E</u>dicion</span>
         <span><u>V</u>er</span>
@@ -8,101 +8,66 @@
         <span>A<u>y</u>uda</span>
     </div>
 
-    <div class="mipc-function-bar">
-        <button disabled><img src="assets/images/xp-small-icons/back.png" alt="Atras"> Atras</button>
-        <button disabled><img src="assets/images/xp-small-icons/forward.png" alt="Adelante"></button>
-        <button data-open-program="documents"><img src="assets/images/hd-icons/documents.svg" alt="Arriba"> Documentos</button>
-        <div class="separator"></div>
-        <button data-open-program="projects"><img src="assets/images/hd-icons/projects.svg" alt="Busqueda"> Buscar</button>
-        <button data-open-program="documents"><img src="assets/images/hd-icons/documents.svg" alt="Carpetas"> Carpetas</button>
+    <div class="mipc-function-bar" role="toolbar" aria-label="Navegación de Mi PC">
+        <button type="button" data-mipc-action="back" disabled>
+            <img src="assets/images/xp-small-icons/back.png" alt=""><span>Atrás</span>
+        </button>
+        <button type="button" class="mipc-icon-button" data-mipc-action="forward" aria-label="Adelante" disabled>
+            <img src="assets/images/xp-small-icons/forward.png" alt="">
+        </button>
+        <button type="button" class="mipc-icon-button" data-mipc-action="up" aria-label="Arriba" disabled>
+            <img src="assets/images/xp-small-icons/up.png" alt="">
+        </button>
+        <div class="separator" aria-hidden="true"></div>
+        <button type="button" data-mipc-action="folders" aria-pressed="true">
+            <img src="assets/images/xp-small-icons/folder-closed.png" alt=""><span>Carpetas</span>
+        </button>
     </div>
 
     <div class="mipc-address-bar">
-        <span>Direccion</span>
-        <div class="address-input">
-            <img src="assets/images/hd-icons/my-computer.svg" alt="Mi PC Icon">
-            <span>Mi PC</span>
+        <span>Dirección</span>
+        <div class="address-input" aria-live="polite">
+            <img src="assets/images/hd-icons/my-computer.svg" alt="Mi PC Icon" data-mipc-address-icon>
+            <span data-mipc-address>Mi PC</span>
         </div>
     </div>
 
     <div class="mipc-main-content">
-        <div class="mipc-left-panel">
-            <div class="panel-section">
-                <div class="panel-header">Tareas del sistema</div>
-                <ul class="panel-content">
-                    <li data-open-program="control-panel"><img src="assets/images/hd-icons/control-panel.svg" alt=""> Cambiar una configuracion</li>
-                    <li data-open-program="about-me"><img src="assets/images/hd-icons/about.svg" alt=""> Ver perfil profesional</li>
-                    <li data-open-program="api-center"><img src="assets/images/hd-icons/api.svg" alt=""> Probar APIs publicas</li>
-                    <li data-open-program="n8n-flows"><img src="assets/images/hd-icons/n8n.svg" alt=""> Ejecutar flujos n8n</li>
-                </ul>
-            </div>
-            <div class="panel-section">
-                <div class="panel-header">Otros sitios</div>
-                <ul class="panel-content">
-                    <li data-open-program="documents"><img src="assets/images/hd-icons/documents.svg" alt=""> Mis documentos</li>
-                    <li data-open-program="projects"><img src="assets/images/hd-icons/projects.svg" alt=""> Mis proyectos</li>
-                    <li data-open-program="pdf-studio"><img src="assets/images/hd-icons/pdf-studio.svg" alt=""> PDF Studio</li>
-                    <li data-open-program="contact"><img src="assets/images/hd-icons/contact.svg" alt=""> Mi contacto</li>
-                    <li data-open-program="control-panel"><img src="assets/images/hd-icons/control-panel.svg" alt=""> Panel de control</li>
-                </ul>
-            </div>
-        </div>
+        <aside class="mipc-left-panel" aria-label="Tareas de Mi PC">
+            <section class="panel-section">
+                <h2 class="panel-header">Tareas del sistema</h2>
+                <button type="button" class="mipc-task-link" data-mipc-program="system-properties">
+                    <img src="assets/images/xp-small-icons/control-panel.png" alt=""><span>Ver información del sistema</span>
+                </button>
+                <button type="button" class="mipc-task-link" data-mipc-program="control-panel">
+                    <img src="assets/images/xp-small-icons/control-panel.png" alt=""><span>Cambiar una configuración</span>
+                </button>
+                <button type="button" class="mipc-task-link" data-mipc-eject>
+                    <img src="assets/images/xp-small-icons/removable-drive.png" alt=""><span>Expulsar este disco</span>
+                </button>
+            </section>
 
-        <div class="mipc-right-panel">
-            <div class="panel-section">
-                <div class="panel-header">Archivos guardados en este equipo</div>
-                <div class="panel-content-icons">
-                    <div class="icon important" data-open-program="resume">
-                        <img src="assets/images/hd-icons/cv.svg" alt="CV">
-                        <span>Ivan_Zarate_CV.pdf</span>
-                    </div>
-                    <div class="icon" data-open-program="documents">
-                        <img src="assets/images/hd-icons/documents.svg" alt="Documentos">
-                        <span>Ivan's Documents</span>
-                    </div>
-                    <div class="icon" data-open-program="projects">
-                        <img src="assets/images/hd-icons/projects.svg" alt="Proyectos">
-                        <span>Portfolio Projects</span>
-                    </div>
-                    <div class="icon" data-open-program="notepad">
-                        <img src="assets/images/hd-icons/notepad.svg" alt="Notas">
-                        <span>Notas de entrevista.txt</span>
-                    </div>
-                    <div class="icon" data-open-program="pdf-studio">
-                        <img src="assets/images/hd-icons/pdf-studio.svg" alt="PDF Studio">
-                        <span>PDF Studio</span>
-                    </div>
-                    <div class="icon" data-open-program="api-center">
-                        <img src="assets/images/hd-icons/api.svg" alt="API Center">
-                        <span>API Center</span>
-                    </div>
-                </div>
-            </div>
-            <div class="panel-section">
-                <div class="panel-header">Unidades de trabajo</div>
-                <div class="panel-content-icons">
-                    <div class="icon" data-open-program="about-me">
-                        <img src="assets/images/hd-icons/about.svg" alt="Perfil">
-                        <span>Full Stack (C:)</span>
-                    </div>
-                    <div class="icon" data-open-program="n8n-flows">
-                        <img src="assets/images/hd-icons/n8n.svg" alt="n8n">
-                        <span>Automations (N:)</span>
-                    </div>
-                    <div class="icon" data-open-program="solitaire">
-                        <img src="assets/images/hd-icons/solitaire.svg" alt="Solitario">
-                        <span>Games (S:)</span>
-                    </div>
-                    <div class="icon" data-open-program="pinball">
-                        <img src="assets/images/hd-icons/pinball.svg?v=20260712" alt="Pinball">
-                        <span>Canvas Lab (P:)</span>
-                    </div>
-                    <div class="icon" data-open-program="control-panel">
-                        <img src="assets/images/hd-icons/control-panel.svg" alt="Config">
-                        <span>Settings (XP:)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <section class="panel-section">
+                <h2 class="panel-header">Otros sitios</h2>
+                <button type="button" class="mipc-task-link" data-mipc-path="computer">
+                    <img src="assets/images/hd-icons/my-computer.svg" alt=""><span>Mi PC</span>
+                </button>
+                <button type="button" class="mipc-task-link" data-mipc-path="drive" data-mipc-drive-link>
+                    <img src="assets/images/xp-small-icons/removable-drive.png" alt=""><span>Disco extraíble (F:)</span>
+                </button>
+            </section>
+
+            <section class="panel-section mipc-details-section">
+                <h2 class="panel-header">Detalles</h2>
+                <p data-mipc-details>Mi PC muestra las unidades conectadas a este equipo.</p>
+            </section>
+        </aside>
+
+        <main class="mipc-right-panel" data-mipc-content tabindex="-1" aria-label="Contenido de Mi PC"></main>
+    </div>
+
+    <div class="mipc-status-bar" role="status" aria-live="polite">
+        <span data-mipc-status>1 objeto</span>
+        <span>Mi PC</span>
     </div>
 </div>
