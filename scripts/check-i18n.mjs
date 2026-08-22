@@ -95,19 +95,30 @@ if (certificateIds.length !== 16 || new Set(certificateIds).size !== 16) {
 
 const githubActivity = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/github-activity.json'), 'utf8'));
 const githubDays = githubActivity.weeks?.flatMap((week) => week.days || []) || [];
-if (githubActivity.schemaVersion !== 2 || githubActivity.profile?.username !== 'IAZARA') {
+if (githubActivity.schemaVersion !== 3 || githubActivity.profile?.username !== 'IAZARA') {
     errors.push('GitHub activity snapshot has an invalid schema or profile');
+}
+if (Object.hasOwn(githubActivity.summary || {}, 'restrictedContributions')) {
+    errors.push('GitHub activity snapshot must not publish the exact private contribution count');
 }
 if (githubActivity.source?.valid) {
     const total = githubDays.reduce((sum, day) => sum + Number(day.count || 0), 0);
     if (githubActivity.source.scope !== 'authenticated-owner' || githubActivity.source.viewerLogin !== 'IAZARA') {
         errors.push('GitHub activity snapshot is not owner-authenticated');
     }
+    if (typeof githubActivity.source.privateActivityIncluded !== 'boolean') {
+        errors.push('GitHub activity snapshot must expose only a boolean private activity indicator');
+    }
     if ((githubActivity.weeks?.length || 0) < 52 || githubDays.length < 365 || total !== githubActivity.summary?.totalContributions) {
         errors.push(`Verified GitHub activity snapshot is incomplete: ${githubActivity.weeks?.length || 0} weeks, ${githubDays.length} days`);
     }
 } else if (githubActivity.source?.scope !== 'unavailable' || githubDays.length !== 0 || githubActivity.summary !== null) {
     errors.push('Unavailable GitHub activity must not expose partial metrics');
+}
+
+const githubUpdater = fs.readFileSync(path.join(root, 'scripts/update-github-activity.mjs'), 'utf8');
+for (const privateDetailField of ['contributionsByRepository', 'commitContributionsByRepository', 'issueContributionsByRepository', 'pullRequestContributionsByRepository']) {
+    if (githubUpdater.includes(privateDetailField)) errors.push(`GitHub updater must not request private repository details: ${privateDetailField}`);
 }
 
 for (const file of [

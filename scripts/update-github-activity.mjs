@@ -107,7 +107,7 @@ try {
 } catch (error) {
   previousSnapshot = null;
 }
-const previousIsVerified = previousSnapshot?.schemaVersion === 2
+const previousIsVerified = previousSnapshot?.schemaVersion === 3
   && previousSnapshot?.source?.valid === true
   && previousSnapshot?.source?.scope === 'authenticated-owner'
   && String(previousSnapshot?.source?.viewerLogin).toLowerCase() === username.toLowerCase()
@@ -153,13 +153,14 @@ const weeks = calendar.weeks.map((week) => ({
 }));
 
 const activity = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   generatedAt: new Date().toISOString(),
   source: {
     provider: 'GitHub GraphQL API',
     scope: 'authenticated-owner',
     viewerLogin,
     privateCountsAnonymized: true,
+    privateActivityIncluded: user.contributionsCollection.restrictedContributionsCount > 0,
     valid: true
   },
   profile: {
@@ -178,7 +179,6 @@ const activity = {
     activeDays: activeDays.length,
     longestStreak,
     currentStreak,
-    restrictedContributions: user.contributionsCollection.restrictedContributionsCount,
     busiestDay,
     latestActiveDay
   },

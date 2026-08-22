@@ -1,11 +1,12 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "generatedAt": null,
   "source": {
     "provider": "GitHub GraphQL API",
     "scope": "unavailable",
     "viewerLogin": null,
     "privateCountsAnonymized": true,
+    "privateActivityIncluded": false,
     "valid": false
   },
   "profile": {

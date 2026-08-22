@@ -1,4 +1,4 @@
-const DATA_URL = './assets/data/github-activity.json?v=zaratexp-20260822-verified2';
+const DATA_URL = './assets/data/github-activity.json?v=zaratexp-20260822-private-safe';
 const MAX_SNAPSHOT_AGE_MS = 72 * 60 * 60 * 1000;
 let activityPromise = null;
 
@@ -21,7 +21,8 @@ const COPY = {
     contribution: 'contribución',
     contributionsPlural: 'contribuciones',
     calendarLabel: 'Calendario anual verificado de contribuciones de GitHub',
-    disclosure: 'Actividad verificada con acceso del titular. Las contribuciones privadas se presentan únicamente como conteos anónimos.',
+    disclosure: 'Incluye actividad anónima en repositorios privados. No se publican nombres, commits ni detalles de esos repositorios.',
+    publicDisclosure: 'Actividad verificada con acceso del titular. No se detectó actividad privada en este período.',
     automatic: 'Sincronización automática diaria y verificada.'
   },
   en: {
@@ -42,7 +43,8 @@ const COPY = {
     contribution: 'contribution',
     contributionsPlural: 'contributions',
     calendarLabel: 'Verified annual GitHub contribution calendar',
-    disclosure: 'Activity verified with owner access. Private contributions are shown only as anonymous counts.',
+    disclosure: 'Includes anonymous activity from private repositories. Their names, commits, and details are never published.',
+    publicDisclosure: 'Activity verified with owner access. No private activity was detected during this period.',
     automatic: 'Verified automatically every day.'
   }
 };
@@ -84,7 +86,7 @@ function loadActivity() {
         const generatedAt = Date.parse(data?.generatedAt || '');
         const snapshotAge = Date.now() - generatedAt;
         const sum = days.reduce((total, day) => total + Number(day.count || 0), 0);
-        const verified = data?.schemaVersion === 2
+        const verified = data?.schemaVersion === 3
           && data?.source?.valid === true
           && data?.source?.scope === 'authenticated-owner'
           && String(data?.source?.viewerLogin).toLowerCase() === 'iazara'
@@ -182,6 +184,7 @@ function appMarkup(data, locale) {
   const safeProfileUrl = String(data.profile.url || '').startsWith('https://github.com/')
     ? data.profile.url
     : 'https://github.com/IAZARA';
+  const privacyDisclosure = data.source.privateActivityIncluded ? copy.disclosure : copy.publicDisclosure;
   return `
     <header class="xp-gh-app-header">
       <img src="./assets/images/github.png" alt="" width="52" height="52">
@@ -205,7 +208,7 @@ function appMarkup(data, locale) {
       <p><strong>${escapeHtml(copy.busiestDay)}</strong><span>${escapeHtml(busiest ? `${formatDate(busiest.date, locale, { dateStyle: 'long' })} · ${formatNumber(busiest.count, locale)}` : '-')}</span></p>
       <p><strong>${escapeHtml(copy.updated)}</strong><span>${escapeHtml(formatDate(data.generatedAt.slice(0, 10), locale, { dateStyle: 'long' }))}</span></p>
     </section>
-    <footer class="xp-gh-app-note">${escapeHtml(copy.disclosure)}</footer>
+    <footer class="xp-gh-app-note">${escapeHtml(privacyDisclosure)}</footer>
   `;
 }
 
