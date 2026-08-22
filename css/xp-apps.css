@@ -1602,6 +1602,23 @@
     border-radius: 2px;
 }
 
+.xp-project-showcase {
+    margin: 0 0 12px;
+    padding: 5px;
+    border: 1px solid #7f9db9;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #d8e4f4;
+}
+
+.xp-project-showcase img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 360px;
+    object-fit: contain;
+    background: #061827;
+}
+
 .xp-project-body div {
     margin-top: 8px;
     color: #333;

@@ -98,6 +98,24 @@ const projects = [
         details: 'Asistente de bandeja de entrada para equipos de soporte. Clasifica correos, consulta una base de conocimiento y prepara respuestas con IA, manteniendo siempre la revisión y el envío final en manos de una persona. La aplicación de escritorio integra Gmail, Google Sheets y proveedores de IA configurables.'
     },
     {
+        id: 'art-redmine',
+        name: 'ART Redmine',
+        type: 'project',
+        icon: './assets/images/project-icons/art-redmine-icon.webp',
+        detailImage: './assets/images/project-icons/art-redmine-icon.webp',
+        showcaseImage: './assets/images/project-icons/art-redmine-banner.webp',
+        showcaseAlt: 'Vista general de ART Redmine',
+        showcaseWidth: 1693,
+        showcaseHeight: 929,
+        description: 'Plataforma de soporte con IA, Redmine y validación humana',
+        url: 'https://github.com/IAZARA/Proyecto_agente_Redmi',
+        repositoryUrl: 'https://github.com/IAZARA/Proyecto_agente_Redmi',
+        technologies: ['Python 3.12', 'FastAPI', 'React 19', 'PostgreSQL', 'Redmine API', 'Docker', 'Railway', 'TOTP'],
+        category: 'IA aplicada / Support Ops',
+        status: 'Repositorio público',
+        details: 'Plataforma operativa para equipos de soporte que sincroniza tickets desde Redmine, clasifica prioridad y completitud, recupera conocimiento y redacta respuestas propuestas con IA. Mantiene la revisión humana antes de publicar, suma autenticación por roles y TOTP, auditoría, adjuntos, OCR, Kanban, métricas y despliegue con Docker y PostgreSQL.'
+    },
+    {
         id: 'seo-evaluate',
         name: 'SEO Evaluate',
         type: 'project',
@@ -295,6 +313,13 @@ const projectEvidence = {
         solution: { es: 'Construí un asistente que clasifica correos, consulta conocimiento y prepara borradores con revisión humana obligatoria.', en: 'I built an assistant that classifies email, retrieves knowledge and prepares drafts with mandatory human review.' },
         evidence: { es: ['Repositorio open source', 'Integraciones Gmail API y Google Sheets', 'Proveedores de IA configurables y human-in-the-loop'], en: ['Open-source repository', 'Gmail API and Google Sheets integrations', 'Configurable AI providers and human-in-the-loop workflow'] }
     },
+    'art-redmine': {
+        featured: true,
+        role: { es: 'Diseño de producto, arquitectura full stack, integración Redmine, seguridad y despliegue.', en: 'Product design, full-stack architecture, Redmine integration, security and deployment.' },
+        problem: { es: 'Los equipos de soporte necesitan reunir contexto, priorizar y redactar respuestas sin perder control, trazabilidad ni criterio humano.', en: 'Support teams need to gather context, prioritize and draft replies without losing control, traceability or human judgment.' },
+        solution: { es: 'Construí una plataforma que sincroniza Redmine, recupera conocimiento, propone respuestas y exige validación humana antes de publicar.', en: 'I built a platform that synchronizes Redmine, retrieves knowledge, proposes replies and requires human validation before publishing.' },
+        evidence: { es: ['Repositorio público con documentación técnica', 'FastAPI, React, PostgreSQL y Docker', 'Roles, TOTP, auditoría, OCR e integración Redmine'], en: ['Public repository with technical documentation', 'FastAPI, React, PostgreSQL and Docker', 'Roles, TOTP, auditing, OCR and Redmine integration'] }
+    },
     'seo-evaluate': {
         role: { es: 'Producto, análisis técnico, frontend y motor de auditoría.', en: 'Product, technical analysis, frontend and audit engine.' },
         problem: { es: 'Las auditorías SEO suelen ser opacas y no contemplan cómo los asistentes de IA interpretan un sitio.', en: 'SEO audits are often opaque and do not address how AI assistants interpret a site.' },
@@ -370,7 +395,7 @@ for (const project of projects) {
 }
 
 const folderProjectIds = {
-    featured: ['zaratexp', 'osintargy', 'auto-inbox', 'workflow-black-box', 'cufre'],
+    featured: ['zaratexp', 'osintargy', 'auto-inbox', 'art-redmine', 'workflow-black-box', 'cufre'],
     web: [
         'forzatech',
         'estudio-luttini',
@@ -379,6 +404,7 @@ const folderProjectIds = {
         'osintargy',
         'zaratexp',
         'auto-inbox',
+        'art-redmine',
         'seo-evaluate',
         'cyberdetective',
         'juego-ciberseguridad',
@@ -387,6 +413,7 @@ const folderProjectIds = {
     ],
     ai: [
         'auto-inbox',
+        'art-redmine',
         'seo-evaluate',
         'cyberdetective',
         'osintargy',

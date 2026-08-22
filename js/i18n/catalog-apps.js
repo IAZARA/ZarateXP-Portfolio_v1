@@ -189,7 +189,7 @@ export const APP_TRANSLATIONS = Object.freeze({
     "Nombre, tecnología o categoría": "Name, technology or category",
     "Ej.: Java, IA, Oracle": "E.g. Java, AI, Oracle",
     "Limpiar búsqueda": "Clear search",
-    "La búsqueda revisa los 18 proyectos.": "Search covers all 18 projects.",
+    "La búsqueda revisa los 19 proyectos.": "Search covers all 19 projects.",
     "No se encontraron proyectos": "No projects found",
     "Probá con otro nombre, tecnología o categoría.": "Try another name, technology or category.",
     "Nombre": "Name",

@@ -1,4 +1,4 @@
-import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-recruiter-ux1';
+import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-art-redmine1';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
 import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-github-activity1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
@@ -1078,7 +1078,7 @@ export class AppManager {
 
             // Cargar el contenido del componente de proyectos
             debugLog('Loading proyectos-explorer.html...');
-            const response = await fetch('./components/proyectos-explorer.html?v=zaratexp-20260712-i18n2');
+            const response = await fetch('./components/proyectos-explorer.html?v=zaratexp-20260822-art-redmine1');
             if (!response.ok) {
                 throw new Error(`Error al cargar proyectos-explorer.html: ${response.statusText} (${response.status})`);
             }
@@ -1689,6 +1689,12 @@ export class AppManager {
             const role = this._escapeHtml(project.role?.[locale] || 'Producto, implementación y entrega según alcance.');
             const problem = this._escapeHtml(project.problem?.[locale] || project.description);
             const solution = this._escapeHtml(project.solution?.[locale] || project.details || project.description);
+            const safeShowcaseImage = project.showcaseImage
+                ? this._escapeHtml(this._safeImageSrc(project.showcaseImage))
+                : '';
+            const safeShowcaseAlt = this._escapeHtml(project.showcaseAlt || project.name);
+            const showcaseWidth = Math.max(1, Math.trunc(Number(project.showcaseWidth) || 1600));
+            const showcaseHeight = Math.max(1, Math.trunc(Number(project.showcaseHeight) || 900));
             const techBadges = (project.technologies || [])
                 .map((technology) => `<span class="xp-project-chip">${this._escapeHtml(technology)}</span>`)
                 .join('');
@@ -1718,6 +1724,19 @@ export class AppManager {
                     </div>
                 `
                 : '';
+            const showcaseContent = safeShowcaseImage
+                ? `
+                    <figure class="xp-project-showcase">
+                        <img
+                            src="${safeShowcaseImage}"
+                            alt="${safeShowcaseAlt}"
+                            width="${showcaseWidth}"
+                            height="${showcaseHeight}"
+                            loading="lazy"
+                            decoding="async">
+                    </figure>
+                `
+                : '';
 
             const detailsContent = `
                 <div class="xp-project-details">
@@ -1740,6 +1759,8 @@ export class AppManager {
                         <div><strong>Rol y contribución:</strong> ${role}</div>
                         ${techBadges ? `<div class="xp-project-chips">${techBadges}</div>` : ''}
                     </div>
+
+                    ${showcaseContent}
 
                     ${previewContent}
 

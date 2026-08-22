@@ -39,7 +39,9 @@ const requiredTranslations = new Map([
     ['Fundamentos de la gestión de proyectos', 'Foundations of Project Management'],
     ['Operador de Drones en ArcGIS', 'Drone Operator in ArcGIS'],
     ['Catálogo online de insumos profesionales para tattoo en Argentina', 'Online catalog of professional tattoo supplies in Argentina'],
-    ['Sitio institucional jurídico-contable para profesionales y empresas', 'Legal and accounting institutional site for professionals and businesses']
+    ['Sitio institucional jurídico-contable para profesionales y empresas', 'Legal and accounting institutional site for professionals and businesses'],
+    ['Plataforma de soporte con IA, Redmine y validación humana', 'Support platform with AI, Redmine and human validation'],
+    ['Repositorio público', 'Public repository']
 ]);
 
 for (const [source, expected] of requiredTranslations) {
@@ -59,7 +61,8 @@ const requiredRepositories = [
     'https://github.com/IAZARA/DesanjuntarPDF',
     'https://github.com/IAZARA/Juego_Ciberseguridad',
     'https://github.com/IAZARA/Radar_Empleo',
-    'https://github.com/IAZARA/workflow-black-box'
+    'https://github.com/IAZARA/workflow-black-box',
+    'https://github.com/IAZARA/Proyecto_agente_Redmi'
 ];
 
 for (const url of requiredRepositories) {

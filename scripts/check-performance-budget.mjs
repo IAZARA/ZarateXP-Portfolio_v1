@@ -7,6 +7,7 @@ const statSize = (file) => fs.statSync(path.join(root, file)).size;
 
 const index = read('index.html');
 const apps = read('js/apps.js');
+const projects = read('js/data/projects.js');
 const startMenu = read('js/startMenu.js');
 const contact = read('components/contacto.html');
 const projectsExplorer = read('components/proyectos-explorer.html');
@@ -16,7 +17,7 @@ const certificates = read('js/data/certificates.js');
 const manifest = read('site.webmanifest');
 const mipc = read('mipc.html');
 
-const checkedSources = [index, apps, certificates, startMenu, contact, projectsExplorer, desktopCss, appsCss, manifest, mipc];
+const checkedSources = [index, apps, projects, certificates, startMenu, contact, projectsExplorer, desktopCss, appsCss, manifest, mipc];
 
 const forbiddenEagerReferences = [
   ['wallpaper PNG prefetch', /rel="prefetch"\s+href="\.\/assets\/images\/zaratexp-hd-wallpaper\.png"/],
@@ -55,6 +56,7 @@ const requiredReferences = [
   ['contact small toolbar icons', contact, /assets\/images\/xp-small-icons\/email\.png/],
   ['project explorer small navigation icons', projectsExplorer, /assets\/images\/xp-small-icons\/back\.png/],
   ['about-me WebP images', apps, /images\/sobremi\/fullstack-developer\.webp/],
+  ['ART Redmine optimized project assets', projects, /art-redmine-icon\.webp[\s\S]*art-redmine-banner\.webp/],
   ['app small critical icon', apps, /assets\/images\/xp-small-icons\/critical\.png/],
   ['app small information icon', apps, /assets\/images\/xp-small-icons\/information\.png/],
   ['app small folder icons', apps, /assets\/images\/xp-small-icons\/folder-opened\.png/],
@@ -104,6 +106,8 @@ const sizeBudgets = [
   ['images/sobremi/forzatech-founder.webp', 40 * 1024],
   ['images/sobremi/privacy-data-products.webp', 40 * 1024],
   ['images/sobremi/shipping-projects.webp', 40 * 1024],
+  ['assets/images/project-icons/art-redmine-icon.webp', 50 * 1024],
+  ['assets/images/project-icons/art-redmine-banner.webp', 300 * 1024],
   ['assets/certificates/previews/google-ai.webp', 160 * 1024],
   ['assets/certificates/previews/google-project-management.webp', 100 * 1024],
   ['assets/certificates/previews/google-data-analytics.webp', 160 * 1024],

@@ -395,12 +395,12 @@ async function exerciseBootSkip(browser, baseUrl) {
 async function exerciseProjectExplorer(page) {
   const appWindow = await openApp(page, 'projects');
   await appWindow.locator('#explorer-content .project-item').first().waitFor({ state: 'visible' });
-  ensure(await appWindow.locator('#explorer-content .project-item').count() === 18, 'El Explorador no abrió con los 18 proyectos');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 19, 'El Explorador no abrió con los 19 proyectos');
 
   await appWindow.locator('#project-location').selectOption('featured');
   await appWindow.locator('#address-go').click();
-  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '5 elementos');
-  ensure(await appWindow.locator('#explorer-content .project-item').count() === 5, 'Destacados FDE no mostró los cinco proyectos curados');
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '6 elementos');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 6, 'Destacados FDE no mostró los seis proyectos curados');
   ensure(!(await appWindow.locator('#btn-back').isDisabled()) && !(await appWindow.locator('#btn-up').isDisabled()), 'La navegación no habilitó Atrás y Arriba');
 
   await appWindow.locator('#btn-back').click();
@@ -426,6 +426,17 @@ async function exerciseProjectExplorer(page) {
   ensure((await publicDetails.innerText()).includes('Repositorio open source'), 'Auto-Inbox no mostró evidencia verificable');
 
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-auto-inbox'));
+  await publicDetails.waitFor({ state: 'detached' });
+  await appWindow.locator('[data-project-id="art-redmine"]').dblclick();
+  const artDetails = page.locator('.window[data-window-id="project-details-art-redmine"]');
+  await artDetails.waitFor({ state: 'visible' });
+  ensure((await artDetails.innerText()).includes('sincroniza Redmine'), 'ART Redmine no mostró su solución específica');
+  ensure((await artDetails.innerText()).includes('Repositorio público con documentación técnica'), 'ART Redmine no mostró evidencia verificable');
+  ensure(await artDetails.locator('.xp-project-showcase img').count() === 1, 'ART Redmine no mostró su imagen de caso');
+  ensure(await artDetails.locator('[data-project-open-url="https://github.com/IAZARA/Proyecto_agente_Redmi"]').count() === 1, 'ART Redmine no enlazó el repositorio público');
+
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-art-redmine'));
+  await artDetails.waitFor({ state: 'detached' });
   await appWindow.locator('[data-project-id="cufre"]').dblclick();
   const privateDetails = page.locator('.window[data-window-id="project-details-cufre"]');
   await privateDetails.waitFor({ state: 'visible' });
@@ -435,15 +446,17 @@ async function exerciseProjectExplorer(page) {
     window.zarateXP.windowManager.closeWindow('project-details-cufre');
     window.zarateXP.i18nManager.setLocale('en', { announce: false });
   });
+  await privateDetails.waitFor({ state: 'detached' });
   await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] .search-panel-title')?.textContent === 'Search projects');
-  await appWindow.locator('[data-project-id="auto-inbox"]').dblclick();
-  const englishDetails = page.locator('.window[data-window-id="project-details-auto-inbox"]');
+  await appWindow.locator('[data-project-id="art-redmine"]').dblclick();
+  const englishDetails = page.locator('.window[data-window-id="project-details-art-redmine"]');
   await englishDetails.waitFor({ state: 'visible' });
   ensure((await englishDetails.innerText()).includes('Role and contribution:'), 'La ficha de proyecto no tradujo su estructura al inglés');
-  ensure((await englishDetails.innerText()).includes('mandatory human review'), 'La solución del proyecto no utilizó su contenido inglés');
+  ensure((await englishDetails.innerText()).includes('requires human validation'), 'ART Redmine no utilizó su contenido inglés');
+  ensure((await englishDetails.innerText()).includes('Public repository'), 'ART Redmine no tradujo su estado al inglés');
   await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
-  await page.waitForFunction(() => document.querySelector('.window[data-window-id="project-details-auto-inbox"]')?.textContent.includes('revisión humana obligatoria'));
-  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-auto-inbox'));
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="project-details-art-redmine"]')?.textContent.includes('validación humana antes de publicar'));
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-art-redmine'));
   await englishDetails.waitFor({ state: 'detached' });
   return 'Proyectos: destacados FDE, búsqueda global, historial, vistas, teclado y evidencia específica';
 }
