@@ -376,6 +376,7 @@ async function exerciseStartMenuAndPaint(page) {
   await catalogue.waitFor({ state: 'visible' });
   ensure(await catalogue.locator('.all-programs-group').count() === 6, 'Todos los programas no presenta sus seis grupos');
   ensure(await catalogue.getAttribute('aria-hidden') === 'false', 'Todos los programas no comunica su estado abierto');
+  await page.waitForFunction(() => document.activeElement?.classList.contains('all-programs-item'));
   await page.keyboard.press('ArrowDown');
   ensure(await catalogue.locator('.all-programs-item:focus').count() === 1, 'La navegación por teclado no mueve el foco en Todos los programas');
 
