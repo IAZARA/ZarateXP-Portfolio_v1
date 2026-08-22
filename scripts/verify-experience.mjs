@@ -20,6 +20,7 @@ const source = [
   'js/startMenu.js',
   'js/sounds.js',
   'js/apps.js',
+  'js/github-activity.js',
   'js/data/certificates.js',
   'js/data/projects.js',
   'js/api-center.js',
@@ -39,6 +40,8 @@ const source = [
   'css/minesweeper.css',
   'css/proyectos-explorer.css',
   'scripts/smoke-playwright.mjs',
+  'scripts/update-github-activity.mjs',
+  '.github/workflows/update-github-activity.yml',
   'assets/images/hd-icons/minesweeper.svg',
   'assets/images/hd-icons/pinball.svg'
 ].map(read).join('\n');
@@ -84,6 +87,10 @@ const checks = [
   ['contact validation', /Por favor completa todos los campos/],
   ['contact mail fallback', /mailto:ivan\.agustin\.95@gmail\.com/],
   ['API Center live integrations', /Open-Meteo[\s\S]*GitHub REST[\s\S]*(?:Countries \+ Banco Mundial|mledoze Countries)/],
+  ['GitHub contribution calendar app', /data-github-activity-summary[\s\S]*data-github-activity-app[\s\S]*xp-gh-day/],
+  ['GitHub activity static snapshot', /assets\/data\/github-activity\.json[\s\S]*schemaVersion/],
+  ['GitHub activity token-safe automation', /(?=[\s\S]*schedule:)(?=[\s\S]*update-github-activity\.mjs)(?=[\s\S]*GITHUB_TOKEN)/],
+  ['GitHub activity no browser token', /(?=[\s\S]*fetch\(DATA_URL)(?=[\s\S]*Public activity reported by GitHub)/],
   ['API cache/error states', /zarateXP\.apiCache[\s\S]*errorMarkup/],
   ['API cancellation and stale-response guard', /AbortController[\s\S]*assertCurrent[\s\S]*cancelAll/],
   ['API parallel execution and freshness', /Promise\.all\([\s\S]*preferFreshCache[\s\S]*data-api-last-updated/],

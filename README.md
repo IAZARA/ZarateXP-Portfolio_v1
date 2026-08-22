@@ -29,11 +29,12 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - Perfil orientado a FDE con experiencia, modelo de trabajo, casos, capacidades, formación, idiomas y contacto.
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Visor de CV actualizado en PDF.
-- Explorador bilingüe de certificados con nueve credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de Coursera.
+- Explorador bilingüe de certificados con 16 credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de Claude Academy, Coursera y SAP Learning.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.
 - Casos destacados: CUFRE, SIFEBU, CRIACO y OSINTArgy, además de ZarateXP, ForzaTech, WJPC Capitulo Argentino y sistemas full stack.
 - API Center con Open-Meteo, wttr.in, GitHub REST, Countries y Banco Mundial, cache con TTL, cancelación, estados de frescura y recuperación offline.
+- Actividad GitHub con resumen dentro del perfil FDE y calendario anual público actualizado diariamente por GitHub Actions, sin exponer tokens en el navegador.
 - Apps retro: Winamp Pro, Paint mejorado, Buscaminas robusto, Solitario, Pinball, Bloc de notas y WordPad.
 - PDF Studio para abrir PDFs locales, revisar el CV, anotar observaciones y usar File/Blob APIs.
 - Panel de control para personalizar fondo, tema, iconos, efecto CRT y taskbar.
@@ -53,6 +54,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 ## Apps destacadas
 
 - **API Center:** consumo REST real de clima, repositorios y datos publicos con cache, proveedor secundario y manejo de errores.
+- **Actividad GitHub:** snapshot verificable de contribuciones públicas, días activos, repositorios y rachas, con vista compacta y aplicación XP completa.
 - **Winamp XP Pro:** reproductor de MP3 locales y loops Web Audio con playlist, visualizador Canvas, controles completos, balance y ecualizador de tres bandas.
 - **PDF Studio:** visor de CV/PDF local con zoom, rotacion, descarga, impresion y notas persistentes.
 - **Perfil orientado a FDE:** recorrido ejecutivo para evaluar experiencia profesional, forma de trabajo, casos, stack, formación e idiomas.
@@ -94,6 +96,8 @@ npm run smoke
 
 `npm test` valida sintaxis JavaScript, referencias locales de assets y checks de experiencia. `npm run smoke` levanta un servidor temporal y abre ventanas clave con Playwright.
 
+El workflow `Actualizar actividad GitHub` consulta la API GraphQL cada día y versiona `assets/data/github-activity.json`. Para actualizarlo localmente se puede ejecutar `GH_TOKEN=... npm run update:github-activity`; el token solo se usa durante la generación y nunca llega al frontend.
+
 El check de performance protege la carga inicial: valida que los fondos y dialogos pesados usen WebP/lazy loading y que los iconos pequeños de la ventana de contacto no vuelvan a depender de PNGs gigantes.
 
 Los iconos de Buscaminas y Pinball son composiciones SVG originales del portfolio; su procedencia y referencias CC0 están documentadas en [`THIRD_PARTY_ASSETS.md`](THIRD_PARTY_ASSETS.md).
@@ -108,6 +112,7 @@ Los iconos de Buscaminas y Pinball son composiciones SVG originales del portfoli
 ├── components/
 ├── assets/
 │   ├── images/
+│   ├── data/
 │   ├── certificates/
 │   ├── readme/
 │   └── sounds/

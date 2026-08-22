@@ -31,6 +31,7 @@ const requiredTranslations = new Map([
     ['Mis Proyectos', 'My Projects'],
     ['Buscaminas', 'Minesweeper'],
     ['Mis Certificados', 'My Certificates'],
+    ['Actividad GitHub', 'GitHub Activity'],
     ['Destacados FDE', 'FDE Highlights'],
     ['IA, Datos y Dev', 'AI, Data & Dev'],
     ['Claude Code 101', 'Claude Code 101'],
@@ -86,6 +87,18 @@ const certificatesSource = fs.readFileSync(path.join(root, 'js/data/certificates
 const certificateIds = [...certificatesSource.matchAll(/\bid:\s*'([^']+)'/g)].map((match) => match[1]);
 if (certificateIds.length !== 16 || new Set(certificateIds).size !== 16) {
     errors.push(`Certificate catalog must contain 16 unique credentials, found ${certificateIds.length}`);
+}
+
+const githubActivity = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/github-activity.json'), 'utf8'));
+const githubDays = githubActivity.weeks?.flatMap((week) => week.days || []) || [];
+if (githubActivity.schemaVersion !== 1 || githubActivity.profile?.username !== 'IAZARA') {
+    errors.push('GitHub activity snapshot has an invalid schema or profile');
+}
+if ((githubActivity.weeks?.length || 0) < 52 || githubDays.length < 365) {
+    errors.push(`GitHub activity snapshot is incomplete: ${githubActivity.weeks?.length || 0} weeks, ${githubDays.length} days`);
+}
+if (!githubDays.some((day) => day.count > 0) || githubActivity.summary?.totalContributions < 1) {
+    errors.push('GitHub activity snapshot has no public contribution data');
 }
 
 for (const file of [

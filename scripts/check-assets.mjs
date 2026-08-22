@@ -3,7 +3,7 @@ import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
 const sourceExtensions = new Set(['.html', '.css', '.js', '.mjs']);
-const assetExtensions = '(?:png|jpe?g|gif|webp|svg|mp3|pdf|html|css|js|mjs|woff2?|ico)';
+const assetExtensions = '(?:png|jpe?g|gif|webp|svg|mp3|pdf|json|html|css|js|mjs|woff2?|ico)';
 const ignoredDirs = new Set(['.git', 'node_modules', 'output']);
 
 function listSourceFiles(dir) {

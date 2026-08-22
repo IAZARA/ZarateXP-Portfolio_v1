@@ -8,6 +8,7 @@ const contentTypes = {
   '.css': 'text/css; charset=utf-8',
   '.gif': 'image/gif',
   '.html': 'text/html; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
   '.jpeg': 'image/jpeg',
   '.jpg': 'image/jpeg',
   '.js': 'text/javascript; charset=utf-8',
@@ -23,6 +24,8 @@ const contentTypes = {
   '.woff2': 'font/woff2',
   '.xml': 'application/xml; charset=utf-8'
 };
+
+const githubActivityFixture = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/github-activity.json'), 'utf8'));
 
 function createStaticServer() {
   const server = http.createServer((request, response) => {
@@ -613,6 +616,59 @@ async function exerciseCertificates(page) {
   await page.setViewportSize(originalViewport);
   await openApp(page, 'certificates');
   return 'Certificados: 16 credenciales, destacados FDE, enlaces Claude/SAP, traducción y layout móvil';
+}
+
+async function exerciseGitHubActivity(page) {
+  const originalViewport = page.viewportSize();
+  const recruiterWindow = await openApp(page, 'recruiter-route');
+  const summary = recruiterWindow.locator('[data-github-activity-summary]');
+  await summary.locator('.xp-gh-day').first().waitFor({ state: 'visible', timeout: 12000 });
+  const compact = await summary.evaluate((node) => ({
+    metrics: node.querySelectorAll('.xp-gh-summary-metrics > div').length,
+    days: node.querySelectorAll('.xp-gh-day').length,
+    active: node.querySelectorAll('.xp-gh-day:not(.level-0)').length,
+    text: node.textContent
+  }));
+  ensure(compact.metrics === 3 && compact.days >= 240 && compact.active > 0, `El resumen FDE de GitHub quedó incompleto (${JSON.stringify(compact)})`);
+  ensure(compact.text.includes(String(githubActivityFixture.summary.totalContributions)), 'El resumen FDE no refleja el snapshot versionado');
+
+  await recruiterWindow.locator('[data-route-app="github-activity"]').last().click();
+  const appWindow = page.locator('#windows-container .window[data-window-id="github-activity"]');
+  await appWindow.waitFor({ state: 'visible', timeout: 12000 });
+  const appRoot = appWindow.locator('[data-github-activity-root]');
+  await appRoot.locator('.xp-gh-day').first().waitFor({ state: 'visible', timeout: 12000 });
+  const full = await appRoot.evaluate((node) => ({
+    metrics: node.querySelectorAll('.xp-gh-app-metrics > div').length,
+    days: node.querySelectorAll('.xp-gh-days .xp-gh-day').length,
+    active: node.querySelectorAll('.xp-gh-days .xp-gh-day:not(.level-0)').length,
+    profile: node.querySelector('.xp-gh-app-header a')?.getAttribute('href')
+  }));
+  const fixtureDays = githubActivityFixture.weeks.flatMap((week) => week.days).length;
+  ensure(full.metrics === 4 && full.days === fixtureDays && full.active > 0, `La aplicación GitHub no renderizó el año completo (${JSON.stringify(full)})`);
+  ensure(full.profile === 'https://github.com/IAZARA', 'La aplicación GitHub no enlaza al perfil público correcto');
+
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
+  await page.waitForFunction(() => Array.from(document.querySelectorAll('.window[data-window-id="github-activity"] .xp-gh-app-metrics span')).some((node) => node.textContent === 'Contributions'));
+  ensure(await appRoot.getByText('Open GitHub profile', { exact: true }).count() === 1, 'La aplicación GitHub no tradujo su acción principal al inglés');
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(150);
+  const mobile = await appWindow.evaluate((windowNode) => {
+    const rect = windowNode.getBoundingClientRect();
+    const taskbarTop = document.querySelector('.taskbar')?.getBoundingClientRect().top || window.innerHeight;
+    const calendar = windowNode.querySelector('.xp-gh-calendar-scroll');
+    const metrics = Array.from(windowNode.querySelectorAll('.xp-gh-app-metrics > div')).map((node) => node.getBoundingClientRect());
+    return {
+      contained: rect.left >= 7 && rect.right <= window.innerWidth - 7 && rect.top >= 7 && rect.bottom <= taskbarTop - 7,
+      calendarScrollable: calendar.scrollWidth > calendar.clientWidth,
+      twoColumns: metrics.length === 4 && Math.abs(metrics[0].top - metrics[1].top) < 2 && metrics[2].top > metrics[0].top,
+      pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
+    };
+  });
+  ensure(mobile.contained && mobile.calendarScrollable && mobile.twoColumns && !mobile.pageOverflow, `La actividad GitHub no se adaptó al celular (${JSON.stringify(mobile)})`);
+  await page.setViewportSize(originalViewport);
+  return `GitHub: snapshot de ${fixtureDays} días, resumen FDE, app completa, ES/EN y calendario móvil desplazable`;
 }
 
 function ensure(condition, message) {
@@ -1779,12 +1835,13 @@ async function main() {
     ensure(positioning.jobTitle === 'Software Analyst & Project Manager', 'El Schema.org presenta un cargo FDE no ejercido');
     ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
 
-    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball', 'paint']);
+    const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'recruiter-route', 'github-activity', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball', 'paint']);
     exercised.push(await exerciseStartMenuAndPaint(page));
     exercised.push(await exerciseMlopsLifecycle(page));
     for (const appId of ['about-me', 'projects', 'pdf-studio', 'contact']) await openApp(page, appId);
 
     exercised.push(await exerciseCertificates(page));
+    exercised.push(await exerciseGitHubActivity(page));
     exercised.push(await exerciseApiCenter(page));
     exercised.push(await exerciseWinamp(page));
     exercised.push(await exerciseSolitaire(page));

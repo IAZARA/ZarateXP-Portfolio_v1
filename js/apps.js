@@ -1,5 +1,6 @@
 import { getProjectsData } from './data/projects.js?v=zaratexp-20260712-i18n2';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
+import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-github-activity1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -218,6 +219,15 @@ export class AppManager {
             category: 'development',
             description: 'Integraciones en vivo con APIs publicas',
             handler: () => this._openApiCenter()
+        });
+
+        this.registerApp({
+            id: 'github-activity',
+            name: 'Actividad GitHub',
+            icon: './assets/images/github.png',
+            category: 'development',
+            description: 'Calendario público actualizado automáticamente',
+            handler: () => this._openGitHubActivity()
         });
 
         this.registerApp({
@@ -1957,6 +1967,7 @@ export class AppManager {
                             <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
                             <button type="button" data-doc-open="projects">Ver proyectos web</button>
                             <button type="button" data-doc-open="api-center">Abrir API Center</button>
+                            <button type="button" data-doc-open="github-activity">Ver actividad GitHub</button>
                             <button type="button" data-doc-open="n8n-flows">Ver ciclo SDLC + MLOps</button>
                         </section>
                         <section>
@@ -2002,6 +2013,11 @@ export class AppManager {
                                     <img src="./assets/images/hd-icons/api.svg" alt="">
                                     <span>API Center.lnk</span>
                                     <small>Clima, GitHub y datos publicos en vivo</small>
+                                </button>
+                                <button type="button" class="xp-folder-item important" data-doc-open="github-activity">
+                                    <img src="./assets/images/github.png" alt="">
+                                    <span>Actividad GitHub.lnk</span>
+                                    <small>Calendario anual actualizado automáticamente</small>
                                 </button>
                                 <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
                                     <img src="./assets/images/hd-icons/n8n.svg" alt="">
@@ -2278,6 +2294,7 @@ export class AppManager {
                         <button type="button" data-route-app="resume">Abrir CV PDF</button>
                         <button type="button" data-route-app="certificates">Revisar certificados</button>
                         <button type="button" data-route-app="projects">Explorar proyectos</button>
+                        <button type="button" data-route-app="github-activity">Ver actividad GitHub</button>
                     </section>
                     <section>
                         <h3>Disponibilidad</h3>
@@ -2353,6 +2370,19 @@ export class AppManager {
                         </div>
                     </section>
 
+                    <section class="xp-fde-section xp-fde-github">
+                        <div class="xp-fde-section-heading">
+                            <div>
+                                <h3>Actividad técnica pública</h3>
+                                <p>Contribuciones, días activos y constancia durante el último año, con datos verificables de GitHub.</p>
+                            </div>
+                            <button type="button" data-route-app="github-activity">Abrir calendario</button>
+                        </div>
+                        <div class="xp-gh-summary" data-github-activity-summary role="status" aria-live="polite">
+                            <div class="xp-gh-loading"><span aria-hidden="true"></span>Cargando actividad pública de GitHub...</div>
+                        </div>
+                    </section>
+
                     <section class="xp-fde-section xp-fde-credentials">
                         <div>
                             <h3>Formación</h3>
@@ -2383,6 +2413,7 @@ export class AppManager {
             </div>
         `;
 
+        let disposeGitHubSummary = () => {};
         return this._createSingleInstanceWindow({
             id: 'recruiter-route',
             title: 'Perfil orientado a FDE - Ivan Agustin Zarate',
@@ -2394,7 +2425,36 @@ export class AppManager {
                 appWindow.querySelectorAll('[data-route-app]').forEach((button) => {
                     button.addEventListener('click', () => this.openApp(button.dataset.routeApp));
                 });
-            }
+                disposeGitHubSummary = initGitHubActivitySummary(appWindow.querySelector('[data-github-activity-summary]'));
+            },
+            onClose: () => disposeGitHubSummary()
+        });
+    }
+
+    _openGitHubActivity() {
+        const content = `
+            <div class="xp-gh-shell" data-github-activity-app>
+                <div class="xp-explorer-menubar">
+                    <span>Archivo</span><span>Ver</span><span>Favoritos</span><span>Ayuda</span>
+                </div>
+                <main class="xp-gh-app-body" data-github-activity-root role="status" aria-live="polite">
+                    <div class="xp-gh-loading"><span aria-hidden="true"></span>Cargando actividad pública de GitHub...</div>
+                </main>
+                <footer class="xp-gh-status"><span>Fuente: GitHub GraphQL API</span><span>Snapshot público, sin tokens en el navegador.</span></footer>
+            </div>
+        `;
+        let disposeGitHubActivity = () => {};
+        return this._createSingleInstanceWindow({
+            id: 'github-activity',
+            title: 'Actividad GitHub - IAZARA',
+            icon: './assets/images/github.png',
+            content,
+            width: 830,
+            height: 520,
+            onReady: (appWindow) => {
+                disposeGitHubActivity = initGitHubActivityApp(appWindow.querySelector('[data-github-activity-root]'));
+            },
+            onClose: () => disposeGitHubActivity()
         });
     }
 
