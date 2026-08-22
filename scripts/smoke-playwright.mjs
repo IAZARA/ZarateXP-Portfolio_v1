@@ -583,11 +583,11 @@ async function exerciseStartMenuAndPaint(page) {
   await page.waitForFunction(() => Boolean(document.querySelector('[data-paint-root]')?._paintXP), null, { timeout: 12000 });
 
   const controlLayout = await rootNode.evaluate((root) => ({
-    tools: Array.from(root.querySelectorAll('[data-tool]')).map((button) => button.getBoundingClientRect().width),
-    colors: Array.from(root.querySelectorAll('.xp-paint-color')).map((button) => button.getBoundingClientRect().width)
+    tools: Array.from(root.querySelectorAll('[data-tool]')).map((button) => button.offsetWidth),
+    colors: Array.from(root.querySelectorAll('.xp-paint-color')).map((button) => button.offsetWidth)
   }));
   ensure(controlLayout.tools.every((width) => width >= 22.5 && width <= 26), `Las herramientas de Paint están deformadas (${controlLayout.tools.join(',')})`);
-  ensure(controlLayout.colors.length === 24 && controlLayout.colors.every((width) => width >= 18 && width <= 21), 'La paleta de Paint está deformada o incompleta');
+  ensure(controlLayout.colors.length === 24 && controlLayout.colors.every((width) => width >= 18 && width <= 21), `La paleta de Paint está deformada o incompleta (${controlLayout.colors.join(',')})`);
 
   await rootNode.locator('[data-color="#ed1c24"]').click();
   const canvas = rootNode.locator('#paintCanvas');
