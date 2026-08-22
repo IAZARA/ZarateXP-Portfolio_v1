@@ -95,7 +95,7 @@ const checks = [
   ['GitHub contribution calendar app', /data-github-activity-summary[\s\S]*data-github-activity-app[\s\S]*xp-gh-day/],
   ['GitHub activity static snapshot', /assets\/data\/github-activity\.json[\s\S]*schemaVersion/],
   ['GitHub activity token-safe automation', /(?=[\s\S]*schedule:)(?=[\s\S]*update-github-activity\.mjs)(?=[\s\S]*GH_ACTIVITY_TOKEN)/],
-  ['GitHub activity no browser token', /(?=[\s\S]*fetch\(DATA_URL)(?=[\s\S]*Activity verified with owner access)/],
+  ['GitHub activity no browser token', /(?=[\s\S]*fetch\(DATA_URL)(?=[\s\S]*Private repository activity is included only as anonymous counts)/],
   ['API cache/error states', /zarateXP\.apiCache[\s\S]*errorMarkup/],
   ['API cancellation and stale-response guard', /AbortController[\s\S]*assertCurrent[\s\S]*cancelAll/],
   ['API parallel execution and freshness', /Promise\.all\([\s\S]*preferFreshCache[\s\S]*data-api-last-updated/],

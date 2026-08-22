@@ -106,8 +106,8 @@ if (githubActivity.source?.valid) {
     if (githubActivity.source.scope !== 'authenticated-owner' || githubActivity.source.viewerLogin !== 'IAZARA') {
         errors.push('GitHub activity snapshot is not owner-authenticated');
     }
-    if (typeof githubActivity.source.privateActivityIncluded !== 'boolean') {
-        errors.push('GitHub activity snapshot must expose only a boolean private activity indicator');
+    if (githubActivity.source.privateCountsAnonymized !== true) {
+        errors.push('GitHub activity snapshot must mark private counts as anonymized');
     }
     if ((githubActivity.weeks?.length || 0) < 52 || githubDays.length < 365 || total !== githubActivity.summary?.totalContributions) {
         errors.push(`Verified GitHub activity snapshot is incomplete: ${githubActivity.weeks?.length || 0} weeks, ${githubDays.length} days`);

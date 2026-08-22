@@ -28,7 +28,6 @@ const query = `
       avatarUrl
       repositories(privacy: PUBLIC) { totalCount }
       contributionsCollection(from: $from, to: $to) {
-        restrictedContributionsCount
         contributionCalendar {
           totalContributions
           colors
@@ -160,7 +159,6 @@ const activity = {
     scope: 'authenticated-owner',
     viewerLogin,
     privateCountsAnonymized: true,
-    privateActivityIncluded: user.contributionsCollection.restrictedContributionsCount > 0,
     valid: true
   },
   profile: {

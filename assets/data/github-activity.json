@@ -6,7 +6,6 @@
     "scope": "authenticated-owner",
     "viewerLogin": "IAZARA",
     "privateCountsAnonymized": true,
-    "privateActivityIncluded": false,
     "valid": true
   },
   "profile": {

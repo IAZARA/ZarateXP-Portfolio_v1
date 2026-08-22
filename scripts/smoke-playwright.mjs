@@ -55,7 +55,7 @@ function createVerifiedGitHubFixture() {
   return {
     schemaVersion: 3,
     generatedAt: new Date().toISOString(),
-    source: { provider: 'GitHub GraphQL API', scope: 'authenticated-owner', viewerLogin: 'IAZARA', privateCountsAnonymized: true, privateActivityIncluded: true, valid: true },
+    source: { provider: 'GitHub GraphQL API', scope: 'authenticated-owner', viewerLogin: 'IAZARA', privateCountsAnonymized: true, valid: true },
     profile: { username: 'IAZARA', name: 'Ivan Agustin Zarate', url: 'https://github.com/IAZARA', avatarUrl: '', publicRepositories: 15 },
     period: { from: days[0].date, to: days.at(-1).date },
     summary: {
@@ -831,12 +831,12 @@ async function exerciseGitHubActivity(page) {
   ensure(full.metrics === 4 && full.days === fixtureDays && full.active > 0, `La aplicación GitHub no renderizó el año completo (${JSON.stringify(full)})`);
   ensure(full.profile === 'https://github.com/IAZARA', 'La aplicación GitHub no enlaza al perfil público correcto');
   const privacyNote = await appRoot.locator('.xp-gh-app-note').innerText();
-  ensure(privacyNote.includes('actividad anónima en repositorios privados') && !privacyNote.includes('548'), 'La aplicación GitHub no protege correctamente la actividad privada');
+  ensure(privacyNote.includes('repositorios privados') && privacyNote.includes('conteos anónimos') && !privacyNote.includes('548'), 'La aplicación GitHub no protege correctamente la actividad privada');
 
   await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
   await page.waitForFunction(() => Array.from(document.querySelectorAll('.window[data-window-id="github-activity"] .xp-gh-app-metrics span')).some((node) => node.textContent === 'Contributions'));
   ensure(await appRoot.getByText('Open GitHub profile', { exact: true }).count() === 1, 'La aplicación GitHub no tradujo su acción principal al inglés');
-  ensure((await appRoot.locator('.xp-gh-app-note').innerText()).includes('anonymous activity from private repositories'), 'La nota de privacidad de GitHub no se tradujo al inglés');
+  ensure((await appRoot.locator('.xp-gh-app-note').innerText()).includes('Private repository activity is included only as anonymous counts'), 'La nota de privacidad de GitHub no se tradujo al inglés');
   await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
 
   await page.setViewportSize({ width: 390, height: 844 });

@@ -21,8 +21,7 @@ const COPY = {
     contribution: 'contribución',
     contributionsPlural: 'contribuciones',
     calendarLabel: 'Calendario anual verificado de contribuciones de GitHub',
-    disclosure: 'Incluye actividad anónima en repositorios privados. No se publican nombres, commits ni detalles de esos repositorios.',
-    publicDisclosure: 'Actividad verificada con acceso del titular. No se detectó actividad privada en este período.',
+    disclosure: 'La actividad de repositorios privados se incluye únicamente como conteos anónimos. No se publican nombres, commits ni detalles.',
     automatic: 'Sincronización automática diaria y verificada.'
   },
   en: {
@@ -43,8 +42,7 @@ const COPY = {
     contribution: 'contribution',
     contributionsPlural: 'contributions',
     calendarLabel: 'Verified annual GitHub contribution calendar',
-    disclosure: 'Includes anonymous activity from private repositories. Their names, commits, and details are never published.',
-    publicDisclosure: 'Activity verified with owner access. No private activity was detected during this period.',
+    disclosure: 'Private repository activity is included only as anonymous counts. Names, commits, and details are never published.',
     automatic: 'Verified automatically every day.'
   }
 };
@@ -184,7 +182,6 @@ function appMarkup(data, locale) {
   const safeProfileUrl = String(data.profile.url || '').startsWith('https://github.com/')
     ? data.profile.url
     : 'https://github.com/IAZARA';
-  const privacyDisclosure = data.source.privateActivityIncluded ? copy.disclosure : copy.publicDisclosure;
   return `
     <header class="xp-gh-app-header">
       <img src="./assets/images/github.png" alt="" width="52" height="52">
@@ -208,7 +205,7 @@ function appMarkup(data, locale) {
       <p><strong>${escapeHtml(copy.busiestDay)}</strong><span>${escapeHtml(busiest ? `${formatDate(busiest.date, locale, { dateStyle: 'long' })} · ${formatNumber(busiest.count, locale)}` : '-')}</span></p>
       <p><strong>${escapeHtml(copy.updated)}</strong><span>${escapeHtml(formatDate(data.generatedAt.slice(0, 10), locale, { dateStyle: 'long' }))}</span></p>
     </section>
-    <footer class="xp-gh-app-note">${escapeHtml(privacyDisclosure)}</footer>
+    <footer class="xp-gh-app-note">${escapeHtml(copy.disclosure)}</footer>
   `;
 }
 
