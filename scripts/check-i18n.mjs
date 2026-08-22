@@ -31,6 +31,10 @@ const requiredTranslations = new Map([
     ['Mis Proyectos', 'My Projects'],
     ['Buscaminas', 'Minesweeper'],
     ['Mis Certificados', 'My Certificates'],
+    ['Destacados FDE', 'FDE Highlights'],
+    ['IA, Datos y Dev', 'AI, Data & Dev'],
+    ['Claude Code 101', 'Claude Code 101'],
+    ['AI Capabilities and Limitations', 'AI Capabilities and Limitations'],
     ['Fundamentos de la gestión de proyectos', 'Foundations of Project Management'],
     ['Operador de Drones en ArcGIS', 'Drone Operator in ArcGIS'],
     ['Catálogo online de insumos profesionales para tattoo en Argentina', 'Online catalog of professional tattoo supplies in Argentina'],
@@ -80,11 +84,13 @@ for (const marker of ['data-language-switcher', 'data-language-option="es"', 'da
 
 const certificatesSource = fs.readFileSync(path.join(root, 'js/data/certificates.js'), 'utf8');
 const certificateIds = [...certificatesSource.matchAll(/\bid:\s*'([^']+)'/g)].map((match) => match[1]);
-if (certificateIds.length !== 14 || new Set(certificateIds).size !== 14) {
-    errors.push(`Certificate catalog must contain 14 unique credentials, found ${certificateIds.length}`);
+if (certificateIds.length !== 16 || new Set(certificateIds).size !== 16) {
+    errors.push(`Certificate catalog must contain 16 unique credentials, found ${certificateIds.length}`);
 }
 
 for (const file of [
+    'assets/certificates/originals/claude-code-101.jpg',
+    'assets/certificates/originals/claude-ai-capabilities-limitations.jpg',
     'assets/certificates/originals/google-ai-professional-certificate.pdf',
     'assets/certificates/originals/google-project-management-foundations.pdf',
     'assets/certificates/originals/google-data-analytics-professional-certificate.pdf',

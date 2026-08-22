@@ -293,7 +293,7 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
 
     await documentsWindow.locator('[data-document-group="profile"] [data-doc-open="certificates"]').click();
     await page.locator('.window[data-window-id="certificates"] [data-certificates-root]').waitFor({ state: 'visible', timeout: 12000 });
-    ensure(await page.locator('.window[data-window-id="certificates"] [data-certificate-id]').count() === 14, 'Certificados no abrió el catálogo completo desde Mis Documentos');
+    ensure(await page.locator('.window[data-window-id="certificates"] [data-certificate-id]').count() === 16, 'Certificados no abrió el catálogo completo desde Mis Documentos');
 
     ensure(await page.locator('#menu-certificates[data-program-name="certificates"]').count() === 1, 'Certificados dejó de estar disponible desde Inicio');
     ensure(await page.locator('.all-programs-item[data-program-name="minesweeper"]').count() === 1, 'Buscaminas dejó de estar disponible en Todos los programas');
@@ -470,16 +470,30 @@ async function exerciseCertificates(page) {
     items: rootNode.querySelectorAll('[data-certificate-id]').length,
     selected: rootNode.querySelectorAll('[data-certificate-id][aria-selected="true"]').length,
     filters: rootNode.querySelectorAll('[data-certificate-filter]').length,
+    selectedId: rootNode.querySelector('[data-certificate-id][aria-selected="true"]')?.dataset.certificateId,
     source: rootNode.querySelector('[data-certificate-source]')?.getAttribute('href'),
     verification: rootNode.querySelector('[data-certificate-verification]')?.getAttribute('href'),
     previewLoaded: rootNode.querySelector('[data-certificate-preview]')?.naturalWidth > 0
   }));
-  ensure(initial.items === 14 && initial.selected === 1 && initial.filters === 5, `Certificados no expuso el catálogo completo (${JSON.stringify(initial)})`);
-  ensure(initial.previewLoaded && /google-ai-professional-certificate\.pdf/.test(initial.source || ''), 'La credencial destacada no cargó su evidencia original');
-  ensure(/DYU79Z46B5D0/.test(initial.verification || ''), 'Google AI no conserva su enlace público de verificación');
+  ensure(initial.items === 16 && initial.selected === 1 && initial.filters === 6, `Certificados no expuso el catálogo completo (${JSON.stringify(initial)})`);
+  ensure(initial.selectedId === 'claude-code-101', 'El catálogo no abrió con la credencial más reciente');
+  ensure(initial.previewLoaded && /claude-code-101\.jpg/.test(initial.source || ''), 'Claude Code 101 no cargó su evidencia original');
+  ensure(/e759d3c0-b384-4295-ae87-8dd66724db6f/.test(initial.verification || ''), 'Claude Code 101 no conserva su enlace de verificación');
+
+  await root.locator('[data-certificate-filter="featured"]').click();
+  ensure(await root.locator('[data-certificate-id]:visible').count() === 5, 'Destacados FDE no mostró sus 5 credenciales curadas');
+  const claudeVerificationCases = [
+    ['claude-code-101', 'e759d3c0-b384-4295-ae87-8dd66724db6f'],
+    ['claude-ai-capabilities-limitations', 'a410f5a6-bede-48ad-9128-720a1f6802a3']
+  ];
+  for (const [id, token] of claudeVerificationCases) {
+    await root.locator(`[data-certificate-id="${id}"]`).click();
+    ensure((await root.locator('[data-certificate-verification]').getAttribute('href'))?.includes(token), `La insignia ${id} no conserva su enlace Claude Academy correcto`);
+    ensure((await root.locator('[data-certificate-verification]').innerText()) === 'Verificar en Claude Academy', `La insignia ${id} no identifica a Claude Academy`);
+  }
 
   await root.locator('[data-certificate-filter="ai-data"]').click();
-  ensure(await root.locator('[data-certificate-id]:visible').count() === 5, 'El filtro IA y Datos no mostró sus 5 credenciales');
+  ensure(await root.locator('[data-certificate-id]:visible').count() === 7, 'El filtro IA, Datos y Dev no mostró sus 7 credenciales');
   const sapVerificationCases = [
     ['sap-ai-fundamentals', 'xobal-hikug-nesog-guvap-kunuh'],
     ['sap-introducing-joule', 'xysag-gibyv-podal-sebyf-musuk'],
@@ -515,6 +529,24 @@ async function exerciseCertificates(page) {
   }));
   ensure(english.title === 'Foundations of Project Management' && english.action === 'View original document' && english.category === 'Project Management', `La vista inglesa de certificados quedó incompleta (${JSON.stringify(english)})`);
   await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForFunction(() => {
+    const node = document.querySelector('.window[data-window-id="certificates"]');
+    if (!node) return false;
+    const rect = node.getBoundingClientRect();
+    const taskbar = document.querySelector('.taskbar')?.getBoundingClientRect();
+    return rect.left >= 7
+      && rect.right <= window.innerWidth - 7
+      && rect.top >= 7
+      && rect.bottom <= (taskbar?.top || window.innerHeight) - 7;
+  });
+  const resizedWindow = await appWindow.evaluate((node) => {
+    const rect = node.getBoundingClientRect();
+    return { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom };
+  });
+  ensure(resizedWindow.left >= 7 && resizedWindow.right <= 383, `La ventana abierta quedó recortada al pasar a móvil (${JSON.stringify(resizedWindow)})`);
+  await page.setViewportSize(originalViewport);
 
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('certificates'));
   await appWindow.waitFor({ state: 'detached' });
@@ -579,7 +611,7 @@ async function exerciseCertificates(page) {
   await appWindow.waitFor({ state: 'detached' });
   await page.setViewportSize(originalViewport);
   await openApp(page, 'certificates');
-  return 'Certificados: 14 credenciales, enlaces SAP, seguridad, traducción y layout móvil';
+  return 'Certificados: 16 credenciales, destacados FDE, enlaces Claude/SAP, traducción y layout móvil';
 }
 
 function ensure(condition, message) {

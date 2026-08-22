@@ -60,7 +60,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
-- **Mis Certificados:** 14 credenciales con evidencia en IA, Data Analytics, SAP, gestión de proyectos, ArcGIS y seguridad internacional, con enlaces verificables de Coursera y SAP Learning.
+- **Mis Certificados:** 16 credenciales con evidencia en IA, desarrollo agéntico, Data Analytics, SAP, gestión de proyectos, ArcGIS y seguridad internacional, con enlaces verificables de Claude Academy, Coursera y SAP Learning.
 - **Flujos n8n:** caso demostrativo de entrega de software e IA. n8n coordina eventos, APIs, jobs y decisiones humanas; las herramientas especializadas ejecutan CI/CD, entrenamiento, registry y serving. Incluye quality gate, rollback conceptual, drift y reentrenamiento.
 - **Panel de control:** personalizacion persistente del escritorio.
 

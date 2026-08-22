@@ -7,6 +7,7 @@ export class WindowManager {
         this.windowsContainer = document.getElementById('windows-container');
         this.taskbarManager = null; // Se establecerá desde main.js
         this.soundManager = null; // Se establecerá desde main.js
+        this.compactViewport = globalThis.innerWidth <= 768;
     }
     
     init() {
@@ -54,6 +55,62 @@ export class WindowManager {
                 this.focusWindow(windowId);
             }
         });
+
+        let resizeFrame = 0;
+        globalThis.addEventListener('resize', () => {
+            globalThis.cancelAnimationFrame(resizeFrame);
+            resizeFrame = globalThis.requestAnimationFrame(() => this.fitWindowsToViewport());
+        });
+    }
+
+    fitWindowsToViewport() {
+        const margin = 8;
+        const availableWidth = Math.max(200, globalThis.innerWidth - margin * 2);
+        const availableHeight = Math.max(150, globalThis.innerHeight - this.getTaskbarHeight() - margin * 2);
+        const compactViewport = globalThis.innerWidth <= 768;
+        const enteringCompactViewport = compactViewport && !this.compactViewport;
+        const leavingCompactViewport = !compactViewport && this.compactViewport;
+
+        this.windows.forEach((windowData) => {
+            if (windowData.isMaximized) return;
+            const windowElement = windowData.element;
+            const rect = windowElement.getBoundingClientRect();
+
+            if (enteringCompactViewport) {
+                windowData.viewportRestore = {
+                    left: windowElement.style.left,
+                    top: windowElement.style.top,
+                    width: windowElement.style.width,
+                    height: windowElement.style.height
+                };
+            }
+
+            if (leavingCompactViewport && windowData.viewportRestore) {
+                const restore = windowData.viewportRestore;
+                const restoredWidth = Math.min(Number.parseFloat(restore.width), availableWidth);
+                const restoredHeight = Math.min(Number.parseFloat(restore.height), availableHeight);
+                const restoredLeft = Math.min(Math.max(Number.parseFloat(restore.left), margin), globalThis.innerWidth - restoredWidth - margin);
+                const restoredTop = Math.min(Math.max(Number.parseFloat(restore.top), margin), globalThis.innerHeight - this.getTaskbarHeight() - restoredHeight - margin);
+                windowElement.style.width = `${restoredWidth}px`;
+                windowElement.style.height = `${restoredHeight}px`;
+                windowElement.style.left = `${restoredLeft}px`;
+                windowElement.style.top = `${restoredTop}px`;
+                windowData.viewportRestore = null;
+                return;
+            }
+
+            const width = Math.min(rect.width || Number.parseFloat(windowElement.style.width), availableWidth);
+            const height = Math.min(rect.height || Number.parseFloat(windowElement.style.height), availableHeight);
+            const maxLeft = Math.max(margin, globalThis.innerWidth - width - margin);
+            const maxTop = Math.max(margin, globalThis.innerHeight - this.getTaskbarHeight() - height - margin);
+
+            windowElement.style.width = `${width}px`;
+            windowElement.style.height = `${height}px`;
+            windowElement.style.left = `${Math.min(Math.max(rect.left, margin), maxLeft)}px`;
+            windowElement.style.top = `${Math.min(Math.max(rect.top, margin), maxTop)}px`;
+        });
+
+        this.compactViewport = compactViewport;
     }
     
     createWindow(options) {

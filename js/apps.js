@@ -1,5 +1,5 @@
 import { getProjectsData } from './data/projects.js?v=zaratexp-20260712-i18n2';
-import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260820-certificates2';
+import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -1981,7 +1981,7 @@ export class AppManager {
                                 <button type="button" class="xp-folder-item important" data-doc-open="certificates">
                                     <img src="./assets/images/hd-icons/documents.svg" alt="">
                                     <span>Certificados verificados</span>
-                                    <small>14 credenciales en IA, datos, gestión, GIS y seguridad</small>
+                                    <small>16 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad</small>
                                 </button>
                                 <button type="button" class="xp-folder-item" data-doc-open="about-me">
                                     <img src="./assets/images/hd-icons/about.svg" alt="">
@@ -2064,6 +2064,7 @@ export class AppManager {
 
     _openCertificates() {
         const certificates = getCertificatesData();
+        const featuredCount = certificates.filter((certificate) => certificate.featured).length;
         const categoryCounts = certificates.reduce((counts, certificate) => {
             counts[certificate.category] = (counts[certificate.category] || 0) + 1;
             return counts;
@@ -2077,6 +2078,7 @@ export class AppManager {
                 aria-selected="${index === 0 ? 'true' : 'false'}"
                 data-certificate-id="${safe(certificate.id)}"
                 data-certificate-category="${safe(certificate.category)}"
+                data-certificate-featured="${certificate.featured ? 'true' : 'false'}"
             >
                 <img src="${safe(certificate.preview)}" alt="" width="92" height="71" loading="lazy" decoding="async">
                 <span class="xp-certificate-item-copy">
@@ -2095,7 +2097,8 @@ export class AppManager {
                 <div class="xp-certificates-toolbar" role="toolbar" aria-label="Filtrar certificados">
                     <div class="xp-certificate-filters">
                         <button type="button" class="active" data-certificate-filter="all" aria-pressed="true">Todos <span>${certificates.length}</span></button>
-                        <button type="button" data-certificate-filter="ai-data" aria-pressed="false">IA y Datos <span>${categoryCounts['ai-data'] || 0}</span></button>
+                        <button type="button" data-certificate-filter="featured" aria-pressed="false">Destacados FDE <span>${featuredCount}</span></button>
+                        <button type="button" data-certificate-filter="ai-data" aria-pressed="false">IA, Datos y Dev <span>${categoryCounts['ai-data'] || 0}</span></button>
                         <button type="button" data-certificate-filter="management" aria-pressed="false">Gestión <span>${categoryCounts.management || 0}</span></button>
                         <button type="button" data-certificate-filter="gis" aria-pressed="false">GIS <span>${categoryCounts.gis || 0}</span></button>
                         <button type="button" data-certificate-filter="security" aria-pressed="false">Seguridad <span>${categoryCounts.security || 0}</span></button>
@@ -2108,7 +2111,7 @@ export class AppManager {
                             <img src="./assets/images/hd-icons/documents.svg" alt="" width="48" height="48">
                             <div>
                                 <h2>Mis Certificados</h2>
-                                <p>Evidencia de aprendizaje aplicado en IA, datos, gestión, tecnologías geoespaciales y seguridad.</p>
+                                <p>Evidencia de aprendizaje aplicado en IA, desarrollo, datos, gestión, tecnologías geoespaciales y seguridad.</p>
                             </div>
                         </header>
                         <div class="xp-certificate-list" role="listbox" aria-label="Certificados disponibles" tabindex="0">
@@ -2137,7 +2140,7 @@ export class AppManager {
                 </div>
                 <div class="xp-certificates-status" role="status" aria-live="polite">
                     <span data-certificate-status>Seleccioná una credencial para ver su evidencia.</span>
-                    <span>Google, Coursera, SAP Learning, aulaGIS, Aeroterra, Esri, ASIS y UNODC</span>
+                    <span>Claude Academy, Anthropic, Google, Coursera, SAP Learning, Esri, ASIS y UNODC</span>
                 </div>
             </div>
         `;
@@ -2157,7 +2160,7 @@ export class AppManager {
 
                 const byId = new Map(certificates.map((certificate) => [certificate.id, certificate]));
                 const categoryLabels = {
-                    'ai-data': 'IA y Datos',
+                    'ai-data': 'IA, Datos y Desarrollo',
                     management: 'Gestión de proyectos',
                     gis: 'GIS y tecnología geoespacial',
                     security: 'Seguridad y formación especializada'
@@ -2244,7 +2247,10 @@ export class AppManager {
                             candidate.setAttribute('aria-pressed', String(active));
                         });
                         list.querySelectorAll('[data-certificate-id]').forEach((item) => {
-                            item.hidden = filter !== 'all' && item.dataset.certificateCategory !== filter;
+                            item.hidden = filter !== 'all'
+                                && (filter === 'featured'
+                                    ? item.dataset.certificateFeatured !== 'true'
+                                    : item.dataset.certificateCategory !== filter);
                         });
                         const selectedItem = list.querySelector(`[data-certificate-id="${selectedId}"]`);
                         if (selectedItem?.hidden) {
@@ -2352,12 +2358,13 @@ export class AppManager {
                             <h3>Formación</h3>
                             <p><strong>Analista de Sistemas</strong><br>Instituto Superior ORT Argentina, 2024-2026. Título obtenido.</p>
                             <p><strong>Licenciatura en Seguridad</strong><br>Orientación en Investigación Criminal, 2020-2025.</p>
+                            <p><strong>Claude Academy / Anthropic</strong><br>Claude Code 101 y AI Capabilities and Limitations, 2026.</p>
                             <p><strong>Google AI Professional Certificate</strong><br>Certificación profesional de 7 cursos, 2026.</p>
                             <p><strong>Google Data Analytics</strong><br>Certificación profesional de 8 cursos, 2024.</p>
                             <p><strong>SAP Learning</strong><br>AI Fundamentals, Joule y SAP Sports One, 2026.</p>
                             <p><strong>Formación aplicada en ArcGIS</strong><br>6 cursos en flujos GIS, aplicaciones web, tableros, captura de datos y drones, 2025.</p>
                             <p><strong>Seguridad internacional</strong><br>ASIS International, 7 CPE, y taller especializado de UNODC.</p>
-                            <button type="button" class="xp-fde-credential-link" data-route-app="certificates">Ver las 14 credenciales</button>
+                            <button type="button" class="xp-fde-credential-link" data-route-app="certificates">Ver las 16 credenciales</button>
                         </div>
                         <div>
                             <h3>Idiomas y ubicación</h3>

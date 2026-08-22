@@ -1,7 +1,44 @@
 const CERTIFICATES = Object.freeze([
     {
+        id: 'claude-code-101',
+        category: 'ai-data',
+        featured: true,
+        title: 'Claude Code 101',
+        issuer: 'Claude Academy / Anthropic',
+        date: '21 de agosto de 2026',
+        dateTime: '2026-08-21',
+        credential: 'Curso completado, 12 lecciones, 1 evaluación, 1 hora',
+        summary: 'Formación práctica en desarrollo agéntico con Claude Code: exploración, planificación, implementación, control de contexto y extensiones mediante subagentes, skills, MCP y hooks.',
+        skills: ['Claude Code', 'Desarrollo agéntico', 'Gestión de contexto', 'MCP'],
+        preview: './assets/certificates/previews/claude-code-101.webp',
+        source: './assets/certificates/originals/claude-code-101.jpg',
+        download: './assets/certificates/originals/claude-code-101.jpg',
+        verification: 'https://academy.claude.com/badges/e759d3c0-b384-4295-ae87-8dd66724db6f',
+        verificationLabel: 'Verificar en Claude Academy',
+        documentLabel: 'Insignia original de Claude Academy'
+    },
+    {
+        id: 'claude-ai-capabilities-limitations',
+        category: 'ai-data',
+        featured: true,
+        title: 'AI Capabilities and Limitations',
+        issuer: 'Claude Academy / Anthropic',
+        date: '21 de agosto de 2026',
+        dateTime: '2026-08-21',
+        credential: 'Curso completado, 13 lecciones, 1 evaluación, 3 h 30 min',
+        summary: 'Fundamentos para comprender cómo funcionan los modelos generativos, qué pueden resolver, dónde fallan y cómo evaluar sus resultados para adoptar IA de manera responsable.',
+        skills: ['IA generativa', 'Capacidades de LLM', 'Limitaciones de LLM', 'IA responsable'],
+        preview: './assets/certificates/previews/claude-ai-capabilities-limitations.webp',
+        source: './assets/certificates/originals/claude-ai-capabilities-limitations.jpg',
+        download: './assets/certificates/originals/claude-ai-capabilities-limitations.jpg',
+        verification: 'https://academy.claude.com/badges/a410f5a6-bede-48ad-9128-720a1f6802a3',
+        verificationLabel: 'Verificar en Claude Academy',
+        documentLabel: 'Insignia original de Claude Academy'
+    },
+    {
         id: 'google-ai',
         category: 'ai-data',
+        featured: true,
         title: 'Google AI Professional Certificate',
         issuer: 'Google / Coursera',
         date: '10 de julio de 2026',
@@ -49,6 +86,7 @@ const CERTIFICATES = Object.freeze([
     {
         id: 'sap-introducing-joule',
         category: 'ai-data',
+        featured: true,
         title: 'Introducing Joule',
         issuer: 'SAP Learning',
         date: '2 de mayo de 2026',
@@ -83,6 +121,7 @@ const CERTIFICATES = Object.freeze([
     {
         id: 'project-management-foundations',
         category: 'management',
+        featured: true,
         title: 'Fundamentos de la gestión de proyectos',
         issuer: 'Google / Coursera',
         date: '5 de agosto de 2026',
@@ -223,8 +262,11 @@ const CERTIFICATES = Object.freeze([
 ]);
 
 export function getCertificatesData() {
-    return CERTIFICATES.map((certificate) => ({
-        ...certificate,
-        skills: [...certificate.skills]
-    }));
+    return CERTIFICATES
+        .map((certificate) => ({
+            ...certificate,
+            featured: Boolean(certificate.featured),
+            skills: [...certificate.skills]
+        }))
+        .sort((left, right) => right.dateTime.localeCompare(left.dateTime));
 }
