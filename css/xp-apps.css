@@ -5451,3 +5451,33 @@ body.xp-no-animations .xp-mlops-statusbar progress::-moz-progress-bar {
     animation: none !important;
     transition: none !important;
 }
+.xp-project-case-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.xp-project-case-grid section {
+    padding: 10px;
+    border: 1px solid #9eb6d8;
+    background: #f4f8ff;
+    color: #1d2c46;
+}
+
+.xp-project-case-grid p {
+    margin: 5px 0 0;
+    line-height: 1.45;
+}
+
+.xp-project-private-note {
+    align-self: center;
+    color: #555;
+    font: 11px Tahoma, sans-serif;
+}
+
+@media (max-width: 620px) {
+    .xp-project-case-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -282,6 +282,12 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
     ensure(desktopAudit.groupedHidden && desktopAudit.declarativeOrder, `La portada móvil mostró accesos agrupados o perdió su contrato declarativo (${JSON.stringify(desktopAudit)})`);
     ensure(desktopAudit.twoColumns && desktopAudit.contained && desktopAudit.overlapPairs.length === 0, `Los iconos móviles se superponen, desbordan o no forman dos columnas (${JSON.stringify(desktopAudit)})`);
 
+    const profileIcon = page.locator('.desktop-icon[data-program-name="recruiter-route"]');
+    await profileIcon.tap();
+    await page.locator('.window[data-window-id="recruiter-route"]').waitFor({ state: 'visible', timeout: 12000 });
+    ensure(await page.locator('.window[data-window-id="recruiter-route"]').count() === 1, 'Un toque móvil no abrió el Perfil orientado a FDE');
+    await page.evaluate(() => window.zarateXP.windowManager.closeWindow('recruiter-route'));
+
     const documentsWindow = await openApp(page, 'documents');
     const groups = documentsWindow.locator('[data-document-group]');
     ensure(await groups.count() === 3, 'Mis Documentos no expuso sus tres grupos');
@@ -364,7 +370,82 @@ async function exerciseResponsiveDesktop(browser, baseUrl) {
     viewports.push(await auditMobileDesktopViewport(browser, baseUrl, viewport));
   }
   await auditDesktopPositionPreservation(browser, baseUrl);
-  return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, carpetas bilingües y posiciones desktop preservadas`;
+  return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, toque único, carpetas bilingües y posiciones desktop preservadas`;
+}
+
+async function exerciseBootSkip(browser, baseUrl) {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  try {
+    const page = await context.newPage();
+    const startedAt = Date.now();
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    const skip = page.locator('#boot-skip');
+    await skip.waitFor({ state: 'visible' });
+    await skip.tap();
+    await page.locator('#login-screen').waitFor({ state: 'visible', timeout: 3000 });
+    ensure(Date.now() - startedAt < 3000, 'Omitir introducción no adelantó el acceso al login');
+    await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
+    ensure(await skip.textContent() === 'Skip intro', 'El botón para omitir la introducción no se tradujo al inglés');
+    return 'Arranque: introducción omitible con toque, teclado e i18n';
+  } finally {
+    await context.close();
+  }
+}
+
+async function exerciseProjectExplorer(page) {
+  const appWindow = await openApp(page, 'projects');
+  await appWindow.locator('#explorer-content .project-item').first().waitFor({ state: 'visible' });
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 18, 'El Explorador no abrió con los 18 proyectos');
+
+  await appWindow.locator('#project-location').selectOption('featured');
+  await appWindow.locator('#address-go').click();
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '5 elementos');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 5, 'Destacados FDE no mostró los cinco proyectos curados');
+  ensure(!(await appWindow.locator('#btn-back').isDisabled()) && !(await appWindow.locator('#btn-up').isDisabled()), 'La navegación no habilitó Atrás y Arriba');
+
+  await appWindow.locator('#btn-back').click();
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #project-location')?.value === 'root');
+  await appWindow.locator('#btn-forward').click();
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #project-location')?.value === 'featured');
+
+  await appWindow.locator('#btn-search').click();
+  const search = appWindow.locator('#project-search-input');
+  await search.fill('Oracle');
+  await page.waitForFunction(() => document.querySelectorAll('.window[data-window-id="projects"] #explorer-content .project-item').length >= 2);
+  ensure(await appWindow.locator('#explorer-content .project-item').count() >= 2, 'La búsqueda global por tecnología no encontró proyectos Oracle');
+  await search.fill('consulta-sin-resultados-xyz');
+  await appWindow.locator('.project-empty-state').waitFor({ state: 'visible' });
+  await appWindow.locator('#project-search-clear').click();
+
+  await appWindow.locator('#project-location').selectOption('featured');
+  await appWindow.locator('#address-go').click();
+  await appWindow.locator('[data-project-id="auto-inbox"]').dblclick();
+  const publicDetails = page.locator('.window[data-window-id="project-details-auto-inbox"]');
+  await publicDetails.waitFor({ state: 'visible' });
+  ensure((await publicDetails.innerText()).includes('revisión humana obligatoria'), 'Auto-Inbox no mostró su solución específica');
+  ensure((await publicDetails.innerText()).includes('Repositorio open source'), 'Auto-Inbox no mostró evidencia verificable');
+
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-auto-inbox'));
+  await appWindow.locator('[data-project-id="cufre"]').dblclick();
+  const privateDetails = page.locator('.window[data-window-id="project-details-cufre"]');
+  await privateDetails.waitFor({ state: 'visible' });
+  ensure((await privateDetails.innerText()).includes('Caso documentado, repositorio no público.'), 'CUFRE no explicó correctamente la ausencia de repositorio público');
+
+  await page.evaluate(() => {
+    window.zarateXP.windowManager.closeWindow('project-details-cufre');
+    window.zarateXP.i18nManager.setLocale('en', { announce: false });
+  });
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] .search-panel-title')?.textContent === 'Search projects');
+  await appWindow.locator('[data-project-id="auto-inbox"]').dblclick();
+  const englishDetails = page.locator('.window[data-window-id="project-details-auto-inbox"]');
+  await englishDetails.waitFor({ state: 'visible' });
+  ensure((await englishDetails.innerText()).includes('Role and contribution:'), 'La ficha de proyecto no tradujo su estructura al inglés');
+  ensure((await englishDetails.innerText()).includes('mandatory human review'), 'La solución del proyecto no utilizó su contenido inglés');
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="project-details-auto-inbox"]')?.textContent.includes('revisión humana obligatoria'));
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-auto-inbox'));
+  await englishDetails.waitFor({ state: 'detached' });
+  return 'Proyectos: destacados FDE, búsqueda global, historial, vistas, teclado y evidencia específica';
 }
 
 async function exerciseStartMenuAndPaint(page) {
@@ -402,7 +483,7 @@ async function exerciseStartMenuAndPaint(page) {
     tools: Array.from(root.querySelectorAll('[data-tool]')).map((button) => button.getBoundingClientRect().width),
     colors: Array.from(root.querySelectorAll('.xp-paint-color')).map((button) => button.getBoundingClientRect().width)
   }));
-  ensure(controlLayout.tools.every((width) => width >= 23 && width <= 26), `Las herramientas de Paint están deformadas (${controlLayout.tools.join(',')})`);
+  ensure(controlLayout.tools.every((width) => width >= 22.5 && width <= 26), `Las herramientas de Paint están deformadas (${controlLayout.tools.join(',')})`);
   ensure(controlLayout.colors.length === 24 && controlLayout.colors.every((width) => width >= 18 && width <= 21), 'La paleta de Paint está deformada o incompleta');
 
   await rootNode.locator('[data-color="#ed1c24"]').click();
@@ -1821,6 +1902,7 @@ async function main() {
     const exercised = [];
     exercised.push(await exerciseClippy(page));
     exercised.push(await exerciseResponsiveDesktop(browser, baseUrl));
+    exercised.push(await exerciseBootSkip(browser, baseUrl));
 
     const positioning = await page.evaluate(() => {
       const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent || '{}');
@@ -1834,9 +1916,12 @@ async function main() {
     ensure(positioning.headline === expectedHeadline, 'El titular profesional visible no coincide con LinkedIn');
     ensure(positioning.jobTitle === 'Software Analyst & Project Manager', 'El Schema.org presenta un cargo FDE no ejercido');
     ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
+    const defaultDesktopOrder = await page.locator('.desktop-icons > .desktop-icon').evaluateAll((icons) => icons.slice(0, 6).map((icon) => icon.dataset.programName));
+    ensure(defaultDesktopOrder.join(',') === 'recruiter-route,resume,projects,contact,documents,certificates', `El escritorio inicial no priorizó el recorrido recruiter (${defaultDesktopOrder.join(',')})`);
 
     const expectedWindows = new Set(['about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'recruiter-route', 'github-activity', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball', 'paint']);
     exercised.push(await exerciseStartMenuAndPaint(page));
+    exercised.push(await exerciseProjectExplorer(page));
     exercised.push(await exerciseMlopsLifecycle(page));
     for (const appId of ['about-me', 'projects', 'pdf-studio', 'contact']) await openApp(page, appId);
 

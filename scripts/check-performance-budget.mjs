@@ -31,12 +31,15 @@ const forbiddenEagerReferences = [
   ['eager high resolution shutdown icon', /assets\/images\/shutdown\.png/],
   ['eager high resolution logout icon', /images\/icons\/logout\.png/],
   ['eager oversized XP metadata icon', /assets\/images\/windows-xp-icon\.png/],
-  ['about-me oversized PNG image', /images\/sobremi\/[^"')\s]+\.png/]
+  ['about-me oversized PNG image', /images\/sobremi\/[^"')\s]+\.png/],
+  ['eager EmailJS SDK', /<script[^>]+email\.min\.js/]
 ];
 
 const requiredReferences = [
   ['wallpaper WebP prefetch', index, /assets\/images\/zaratexp-hd-wallpaper\.webp/],
   ['login WebP background', index, /fondo_windows\.webp\?v=6/],
+  ['boot WebP logo', index, /logo_ivanxp\.webp/],
+  ['optimized social image', index, /zaratexp-social\.jpg/],
   ['desktop WebP image-set', desktopCss, /zaratexp-hd-wallpaper\.webp/],
   ['clean wallpaper WebP image-set', appsCss, /fondo_windows\.webp/],
   ['lazy shutdown WebP', index, /data-lazy-src="images\/off\.webp"/],
@@ -64,6 +67,8 @@ const sizeBudgets = [
   ['assets/music/acdc-thunderstruck.mp3', 8 * 1024 * 1024],
   ['assets/music/soda-stereo-tratame-suavemente.mp3', 6 * 1024 * 1024],
   ['assets/images/zaratexp-hd-wallpaper.webp', 400 * 1024],
+  ['logo_ivanxp.webp', 60 * 1024],
+  ['assets/readme/zaratexp-social.jpg', 300 * 1024],
   ['fondo_windows.webp', 80 * 1024],
   ['images/tarjeta_windos.webp', 80 * 1024],
   ['images/off.webp', 500 * 1024],

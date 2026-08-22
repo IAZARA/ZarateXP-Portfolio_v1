@@ -1,4 +1,4 @@
-import { getProjectsData } from './data/projects.js?v=zaratexp-20260712-i18n2';
+import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-recruiter-ux1';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
 import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-github-activity1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
@@ -13,6 +13,7 @@ export class AppManager {
         this.apps = new Map();
         this.runningApps = new Map();
         this.scriptPromises = new Map();
+        this.projectExplorerState = new WeakMap();
         this.windowManager = null; // Se asignará en init()
         
         // Register built-in applications
@@ -29,7 +30,10 @@ export class AppManager {
         // Aplicar preferencias del escritorio antes de abrir ventanas
         this.applyPersonalization();
 
-        this.localeChangeHandler = () => this._syncLocalizedCvAssets(document);
+        this.localeChangeHandler = () => {
+            this._syncLocalizedCvAssets(document);
+            this._refreshOpenProjectDetails();
+        };
         window.addEventListener('zaratexp:localechange', this.localeChangeHandler);
     }
 
@@ -54,6 +58,20 @@ export class AppManager {
         root.querySelectorAll?.('[data-localized-cv-link]').forEach((element) => {
             element.setAttribute('href', cv.url);
         });
+    }
+
+    _refreshOpenProjectDetails() {
+        if (!this.windowManager) return;
+        const openProjectIds = Array.from(document.querySelectorAll('.window[data-window-id^="project-details-"]'))
+            .map((windowNode) => windowNode.dataset.windowId.replace('project-details-', ''));
+        if (!openProjectIds.length) return;
+        const projects = this._getAllProjects();
+        for (const projectId of openProjectIds) {
+            const project = projects.find((candidate) => candidate.id === projectId);
+            if (!project) continue;
+            this.windowManager.closeWindow(`project-details-${projectId}`);
+            window.setTimeout(() => this._showProjectDetails(project), 280);
+        }
     }
     
     loadAppScripts() {
@@ -724,6 +742,13 @@ export class AppManager {
             // Marcar como aplicación en ejecución
             this.runningApps.set('contact', 'contact');
 
+            // EmailJS se descarga únicamente cuando el usuario abre Contacto.
+            if (this._canUseEmailJs()) {
+                this._loadScriptOnce('assets/vendor/email.min.js', 'emailjs').catch((error) => {
+                    debugLog('EmailJS no pudo precargarse; se mantendrá el fallback mailto.', error);
+                });
+            }
+
             // Configurar la funcionalidad del formulario
             setTimeout(() => {
                 debugLog('Esperando para configurar formulario de contacto...');
@@ -840,6 +865,8 @@ export class AppManager {
                     if (!this._canUseEmailJs()) {
                         throw new Error('EmailJS deshabilitado para este dominio');
                     }
+
+                    await this._loadScriptOnce('assets/vendor/email.min.js', 'emailjs');
 
                     // Inicializar EmailJS si no está inicializado
                     if (!window.emailjs) {
@@ -1130,6 +1157,14 @@ export class AppManager {
 
     _setupProjectsExplorer(projectsWindow) {
         try {
+            this.projectExplorerState.set(projectsWindow, {
+                currentFolder: 'root',
+                history: ['root'],
+                historyIndex: 0,
+                viewMode: 'icons',
+                searchQuery: '',
+                loadToken: 0
+            });
             // Configurar navegación del árbol de carpetas
             this._setupTreeNavigation(projectsWindow);
             
@@ -1140,7 +1175,7 @@ export class AppManager {
             this._setupContentView(projectsWindow);
             
             // Cargar contenido inicial
-            this._loadFolderContent(projectsWindow, 'root');
+            this._navigateToFolder(projectsWindow, 'root', { pushHistory: false });
 
             debugLog('Projects Explorer configured successfully');
 
@@ -1160,25 +1195,8 @@ export class AppManager {
             content.addEventListener('click', (e) => {
                 e.stopPropagation();
                 
-                // Remover selección anterior
-                projectsWindow.querySelectorAll('.tree-item.selected').forEach(el => {
-                    el.classList.remove('selected');
-                });
-                
-                // Seleccionar el item actual
-                item.classList.add('selected');
-                
-                // Actualizar barra de direcciones
-                const path = item.getAttribute('data-path') || 'Mis Proyectos';
-                const pathInput = projectsWindow.querySelector('#current-path');
-                if (pathInput) {
-                    pathInput.dataset.i18nValue = path;
-                    pathInput.value = window.zarateXP?.i18nManager?.t(path) || path;
-                }
-                
-                // Cargar contenido de la carpeta
                 const folder = item.getAttribute('data-folder');
-                this._loadFolderContent(projectsWindow, folder);
+                this._navigateToFolder(projectsWindow, folder);
             });
             
             // Click en el botón de expandir/contraer
@@ -1213,6 +1231,8 @@ export class AppManager {
         
         if (iconViewBtn) {
             iconViewBtn.addEventListener('click', () => {
+                const state = this.projectExplorerState.get(projectsWindow);
+                if (state) state.viewMode = 'icons';
                 iconViewBtn.classList.add('active');
                 if (listViewBtn) listViewBtn.classList.remove('active');
                 this._switchView(projectsWindow, 'icons');
@@ -1221,11 +1241,58 @@ export class AppManager {
         
         if (listViewBtn) {
             listViewBtn.addEventListener('click', () => {
+                const state = this.projectExplorerState.get(projectsWindow);
+                if (state) state.viewMode = 'list';
                 listViewBtn.classList.add('active');
                 if (iconViewBtn) iconViewBtn.classList.remove('active');
                 this._switchView(projectsWindow, 'list');
             });
         }
+
+        const state = this.projectExplorerState.get(projectsWindow);
+        const backBtn = projectsWindow.querySelector('#btn-back');
+        const forwardBtn = projectsWindow.querySelector('#btn-forward');
+        const upBtn = projectsWindow.querySelector('#btn-up');
+        const viewsBtn = projectsWindow.querySelector('#btn-views');
+        const searchBtn = projectsWindow.querySelector('#btn-search');
+        const searchPanel = projectsWindow.querySelector('#search-panel');
+        const searchInput = projectsWindow.querySelector('#project-search-input');
+        const searchClear = projectsWindow.querySelector('#project-search-clear');
+        const locationSelect = projectsWindow.querySelector('#project-location');
+        const goBtn = projectsWindow.querySelector('#address-go');
+
+        backBtn?.addEventListener('click', () => this._moveProjectHistory(projectsWindow, -1));
+        forwardBtn?.addEventListener('click', () => this._moveProjectHistory(projectsWindow, 1));
+        upBtn?.addEventListener('click', () => this._navigateToFolder(projectsWindow, 'root'));
+        viewsBtn?.addEventListener('click', () => {
+            const nextView = state.viewMode === 'icons' ? 'list' : 'icons';
+            const nextButton = projectsWindow.querySelector(`[data-view="${nextView}"]`);
+            nextButton?.click();
+        });
+
+        searchBtn?.addEventListener('click', () => {
+            const opening = searchPanel?.hasAttribute('hidden');
+            searchPanel?.toggleAttribute('hidden', !opening);
+            searchBtn.classList.toggle('active', Boolean(opening));
+            if (opening) window.setTimeout(() => searchInput?.focus(), 0);
+        });
+
+        searchInput?.addEventListener('input', () => {
+            state.searchQuery = searchInput.value.trim();
+            this._renderCurrentProjectView(projectsWindow);
+        });
+
+        searchClear?.addEventListener('click', () => {
+            if (searchInput) searchInput.value = '';
+            state.searchQuery = '';
+            this._renderCurrentProjectView(projectsWindow);
+            searchInput?.focus();
+        });
+
+        goBtn?.addEventListener('click', () => this._navigateToFolder(projectsWindow, locationSelect?.value || 'root'));
+        locationSelect?.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') this._navigateToFolder(projectsWindow, locationSelect.value);
+        });
 
         // Botón de carpetas (toggle panel izquierdo)
         const foldersBtn = projectsWindow.querySelector('#btn-folders');
@@ -1256,7 +1323,7 @@ export class AppManager {
 
         // Configurar eventos de doble clic para abrir proyectos
         contentArea.addEventListener('dblclick', (e) => {
-            const projectItem = e.target.closest('.project-item');
+            const projectItem = e.target.closest('.project-item, .list-row');
             if (projectItem) {
                 const projectId = projectItem.getAttribute('data-project-id');
                 if (projectId) {
@@ -1267,11 +1334,11 @@ export class AppManager {
 
         // Configurar selección de elementos
         contentArea.addEventListener('click', (e) => {
-            const projectItem = e.target.closest('.project-item');
+            const projectItem = e.target.closest('.project-item, .list-row');
             
             if (projectItem) {
                 // Remover selección anterior
-                contentArea.querySelectorAll('.project-item.selected').forEach(el => {
+                contentArea.querySelectorAll('.project-item.selected, .list-row.selected').forEach(el => {
                     el.classList.remove('selected');
                 });
                 
@@ -1282,11 +1349,27 @@ export class AppManager {
                 this._updateStatusBar(projectsWindow, projectItem);
             } else {
                 // Click en área vacía, deseleccionar todo
-                contentArea.querySelectorAll('.project-item.selected').forEach(el => {
+                contentArea.querySelectorAll('.project-item.selected, .list-row.selected').forEach(el => {
                     el.classList.remove('selected');
                 });
                 this._updateStatusBar(projectsWindow);
             }
+        });
+
+        contentArea.addEventListener('pointerup', (e) => {
+            if (e.pointerType !== 'touch') return;
+            const projectItem = e.target.closest('.project-item, .list-row');
+            const projectId = projectItem?.getAttribute('data-project-id');
+            if (projectId) this._openProjectDetails(projectsWindow, projectId);
+        });
+
+        contentArea.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const projectItem = e.target.closest('.project-item, .list-row');
+            const projectId = projectItem?.getAttribute('data-project-id');
+            if (!projectId) return;
+            e.preventDefault();
+            this._openProjectDetails(projectsWindow, projectId);
         });
     }
 
@@ -1295,6 +1378,9 @@ export class AppManager {
         const statusCount = projectsWindow.querySelector('#items-count');
         
         if (!contentArea) return;
+
+        const state = this.projectExplorerState.get(projectsWindow);
+        const loadToken = state ? ++state.loadToken : 0;
 
         // Mostrar indicador de carga
         contentArea.innerHTML = `
@@ -1306,8 +1392,11 @@ export class AppManager {
 
         // Simular carga asíncrona
         setTimeout(() => {
-            const projects = this._getProjectsData(folder);
-            const viewMode = projectsWindow.querySelector('.view-btn.active').getAttribute('data-view') || 'icons';
+            const currentState = this.projectExplorerState.get(projectsWindow);
+            if (currentState && currentState.loadToken !== loadToken) return;
+            const baseFolder = currentState?.searchQuery ? 'root' : folder;
+            const projects = this._filterProjects(this._getProjectsData(baseFolder), currentState?.searchQuery || '');
+            const viewMode = currentState?.viewMode || 'icons';
             
             this._renderProjects(contentArea, projects, viewMode);
             
@@ -1318,11 +1407,50 @@ export class AppManager {
         }, 300);
     }
 
+    _filterProjects(projects, query) {
+        const normalized = String(query || '').trim().toLocaleLowerCase();
+        if (!normalized) return projects;
+        return projects.filter((project) => {
+            const searchable = [
+                project.name,
+                project.description,
+                project.category,
+                project.status,
+                project.details,
+                ...(project.technologies || [])
+            ].join(' ').toLocaleLowerCase();
+            return searchable.includes(normalized);
+        });
+    }
+
+    _renderCurrentProjectView(projectsWindow) {
+        const state = this.projectExplorerState.get(projectsWindow);
+        if (!state) return;
+        const contentArea = projectsWindow.querySelector('#explorer-content');
+        const statusCount = projectsWindow.querySelector('#items-count');
+        state.loadToken += 1;
+        const baseFolder = state.searchQuery ? 'root' : state.currentFolder;
+        const projects = this._filterProjects(this._getProjectsData(baseFolder), state.searchQuery);
+        this._renderProjects(contentArea, projects, state.viewMode);
+        if (statusCount) statusCount.textContent = `${projects.length} elemento${projects.length !== 1 ? 's' : ''}`;
+        this._updateStatusBar(projectsWindow);
+    }
+
     _getProjectsData(folder) {
         return getProjectsData(folder);
     }
 
     _renderProjects(contentArea, projects, viewMode) {
+        if (!projects.length) {
+            contentArea.innerHTML = `
+                <div class="project-empty-state" role="status">
+                    <img src="./assets/images/hd-icons/projects.svg" width="48" height="48" alt="">
+                    <strong>No se encontraron proyectos</strong>
+                    <span>Probá con otro nombre, tecnología o categoría.</span>
+                </div>
+            `;
+            return;
+        }
         if (viewMode === 'icons') {
             this._renderIconView(contentArea, projects);
         } else {
@@ -1340,7 +1468,7 @@ export class AppManager {
             const iconHtml = this._renderProjectIcon(project, 32);
             
             return `
-                <div class="project-item" data-project-id="${safeId}" data-type="${safeType}" title="${safeDescription}">
+                <div class="project-item" data-project-id="${safeId}" data-type="${safeType}" title="${safeDescription}" role="button" tabindex="0">
                     <div class="project-icon">
                         ${iconHtml}
                     </div>
@@ -1374,7 +1502,7 @@ export class AppManager {
                         const iconHtml = this._renderProjectIcon(project, 16);
                         
                         return `
-                            <div class="list-row" data-project-id="${safeId}" data-type="${safeType}">
+                            <div class="list-row" data-project-id="${safeId}" data-type="${safeType}" role="button" tabindex="0">
                                 <div class="list-cell">
                                     <span class="list-cell-icon">${iconHtml}</span>
                                     ${safeName}
@@ -1393,23 +1521,22 @@ export class AppManager {
     }
 
     _switchView(projectsWindow, viewMode) {
-        const contentArea = projectsWindow.querySelector('#explorer-content');
-        const currentFolder = projectsWindow.querySelector('.tree-item.selected')?.getAttribute('data-folder') || 'root';
-        const projects = this._getProjectsData(currentFolder);
-        
-        this._renderProjects(contentArea, projects, viewMode);
+        const state = this.projectExplorerState.get(projectsWindow);
+        if (state) state.viewMode = viewMode;
+        this._renderCurrentProjectView(projectsWindow);
     }
 
     _updateStatusBar(projectsWindow, selectedItem = null) {
         const selectionInfo = projectsWindow.querySelector('#selection-info');
         
         if (selectedItem && selectionInfo) {
-            const projectName = selectedItem.querySelector('.project-name')?.textContent || '';
+            const projectName = selectedItem.querySelector('.project-name')?.textContent || selectedItem.querySelector('.list-cell')?.textContent?.trim() || '';
             const projectType = selectedItem.getAttribute('data-type') || '';
             selectionInfo.textContent = `${projectName} (${projectType === 'folder' ? 'Carpeta' : 'Proyecto'})`;
         } else if (selectionInfo) {
-            const currentPath = projectsWindow.querySelector('#current-path')?.value || 'Mis Proyectos';
-            selectionInfo.textContent = currentPath;
+            const state = this.projectExplorerState.get(projectsWindow);
+            const currentPath = this._projectFolderPath(state?.currentFolder || 'root');
+            selectionInfo.textContent = window.zarateXP?.i18nManager?.t(currentPath) || currentPath;
         }
     }
 
@@ -1422,6 +1549,7 @@ export class AppManager {
         if (project.type === 'folder') {
             // Si es carpeta, navegar a ella
             const folderMap = {
+                'featured-folder': 'featured',
                 'web-folder': 'web',
                 'ai-folder': 'ai'
             };
@@ -1438,7 +1566,7 @@ export class AppManager {
 
     _getAllProjects() {
         const allProjects = [];
-        const folders = ['root', 'web', 'ai'];
+        const folders = ['root', 'featured', 'web', 'ai'];
         
         folders.forEach(folder => {
             allProjects.push(...this._getProjectsData(folder));
@@ -1447,19 +1575,59 @@ export class AppManager {
         return allProjects;
     }
 
-    _navigateToFolder(projectsWindow, folder) {
-        // Seleccionar el item del árbol correspondiente
-        const treeItem = projectsWindow.querySelector(`[data-folder="${folder}"]`);
-        if (treeItem) {
-            // Simular click en el item del árbol
-            const content = treeItem.querySelector('.tree-item-content');
-            if (content) {
-                content.click();
-            }
+    _navigateToFolder(projectsWindow, folder, { pushHistory = true } = {}) {
+        const state = this.projectExplorerState.get(projectsWindow);
+        if (!state || !['root', 'featured', 'web', 'ai'].includes(folder)) return;
+
+        if (pushHistory && state.currentFolder !== folder) {
+            state.history = state.history.slice(0, state.historyIndex + 1);
+            state.history.push(folder);
+            state.historyIndex = state.history.length - 1;
         }
+        state.currentFolder = folder;
+
+        projectsWindow.querySelectorAll('.tree-item.selected').forEach((item) => item.classList.remove('selected'));
+        projectsWindow.querySelector(`[data-folder="${folder}"]`)?.classList.add('selected');
+        const location = projectsWindow.querySelector('#project-location');
+        if (location) location.value = folder;
+
+        this._loadFolderContent(projectsWindow, folder);
+        this._updateProjectNavigationButtons(projectsWindow);
+        this._updateStatusBar(projectsWindow);
+    }
+
+    _moveProjectHistory(projectsWindow, delta) {
+        const state = this.projectExplorerState.get(projectsWindow);
+        if (!state) return;
+        const targetIndex = state.historyIndex + delta;
+        if (targetIndex < 0 || targetIndex >= state.history.length) return;
+        state.historyIndex = targetIndex;
+        this._navigateToFolder(projectsWindow, state.history[targetIndex], { pushHistory: false });
+    }
+
+    _updateProjectNavigationButtons(projectsWindow) {
+        const state = this.projectExplorerState.get(projectsWindow);
+        if (!state) return;
+        const back = projectsWindow.querySelector('#btn-back');
+        const forward = projectsWindow.querySelector('#btn-forward');
+        const up = projectsWindow.querySelector('#btn-up');
+        if (back) back.disabled = state.historyIndex <= 0;
+        if (forward) forward.disabled = state.historyIndex >= state.history.length - 1;
+        if (up) up.disabled = state.currentFolder === 'root';
+    }
+
+    _projectFolderPath(folder) {
+        return {
+            root: 'Mis Proyectos',
+            featured: 'Mis Proyectos\\Destacados FDE',
+            web: 'Mis Proyectos\\Desarrollo Web',
+            ai: 'Mis Proyectos\\IA y Automatización'
+        }[folder] || 'Mis Proyectos';
     }
 
     _getProjectImpact(project) {
+        const locale = window.zarateXP?.i18nManager?.locale === 'en' ? 'en' : 'es';
+        if (project.evidence?.[locale]) return project.evidence[locale];
         const impacts = {
             zaratexp: [
                 'Demuestra una experiencia completa tipo sistema operativo con ventanas, estado, taskbar y apps.',
@@ -1517,6 +1685,10 @@ export class AppManager {
             const safeProjectId = this._safeDomId(project.id);
             const safeName = this._escapeHtml(project.name);
             const safeDescription = this._escapeHtml(project.description);
+            const locale = window.zarateXP?.i18nManager?.locale === 'en' ? 'en' : 'es';
+            const role = this._escapeHtml(project.role?.[locale] || 'Producto, implementación y entrega según alcance.');
+            const problem = this._escapeHtml(project.problem?.[locale] || project.description);
+            const solution = this._escapeHtml(project.solution?.[locale] || project.details || project.description);
             const techBadges = (project.technologies || [])
                 .map((technology) => `<span class="xp-project-chip">${this._escapeHtml(technology)}</span>`)
                 .join('');
@@ -1565,19 +1737,30 @@ export class AppManager {
                     <div class="xp-project-facts">
                         <div><strong>Categoría:</strong> ${this._escapeHtml(project.category || 'Proyecto')}</div>
                         <div><strong>Estado:</strong> ${this._escapeHtml(project.status || 'Documentado')}</div>
-                        <div><strong>Rol visible:</strong> Producto, frontend, backend, integraciones y despliegue según alcance.</div>
+                        <div><strong>Rol y contribución:</strong> ${role}</div>
                         ${techBadges ? `<div class="xp-project-chips">${techBadges}</div>` : ''}
                     </div>
 
                     ${previewContent}
 
+                    <div class="xp-project-case-grid">
+                        <section>
+                            <strong>Problema:</strong>
+                            <p>${problem}</p>
+                        </section>
+                        <section>
+                            <strong>Solución implementada:</strong>
+                            <p>${solution}</p>
+                        </section>
+                    </div>
+
                     <div class="xp-project-impact">
-                        <strong>Impacto visible:</strong>
+                        <strong>Evidencia verificable:</strong>
                         <ul>${impactItems}</ul>
                     </div>
                     
                     <div class="xp-project-body">
-                        <strong>Descripción detallada:</strong><br>
+                        <strong>Contexto del proyecto:</strong><br>
                         <div>
                             ${this._escapeHtml(project.details || project.description)}
                         </div>
@@ -1586,7 +1769,7 @@ export class AppManager {
                     <div class="xp-project-actions">
                         ${hasUrl ?
                             `<button type="button" data-project-open-url="${safeUrl}">Visitar sitio</button>` :
-                            ''
+                            '<span class="xp-project-private-note">Caso documentado, repositorio no público.</span>'
                         }
                         <button type="button" data-project-open-app="resume">Ver CV</button>
                         <button type="button" data-project-open-app="contact">Contactar</button>
@@ -1600,10 +1783,10 @@ export class AppManager {
                 title: `${project.name} - Detalles`,
                 icon: './assets/images/hd-icons/projects.svg',
                 content: detailsContent,
-                width: project.preview ? 920 : 500,
-                height: project.preview ? 720 : 400,
+                width: project.preview ? 920 : 640,
+                height: project.preview ? 720 : 620,
                 resizable: true,
-                maximizable: Boolean(project.preview)
+                maximizable: true
             });
 
             detailsWindow?.querySelectorAll('[data-project-open-url]').forEach((button) => {

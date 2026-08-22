@@ -148,10 +148,46 @@
     position: absolute;
     bottom: 30px; /* Ajustar la posición del texto inferior izquierdo */
     left: 30px;
-    color: #888;
+    color: #b9b9b9;
     font-family: 'Arial', sans-serif;
     font-size: 14px;
     line-height: 1.4;
+}
+
+.boot-skip {
+    position: absolute;
+    left: 50%;
+    bottom: 28px;
+    z-index: 2;
+    min-height: 32px;
+    padding: 6px 16px;
+    transform: translateX(-50%);
+    border: 1px solid #8aa8d8;
+    border-radius: 3px;
+    background: linear-gradient(#ffffff, #dce8f8);
+    box-shadow: inset 1px 1px #fff, 0 1px 2px rgba(0, 0, 0, 0.55);
+    color: #08235d;
+    font: 12px Tahoma, sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.boot-skip:hover,
+.boot-skip:focus-visible {
+    border-color: #f3b33d;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.boot-skip:active {
+    transform: translateX(-50%) translateY(1px);
+    box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 600px) {
+    .boot-skip {
+        bottom: 82px;
+    }
 }
 
 .boot-bottom-left span {

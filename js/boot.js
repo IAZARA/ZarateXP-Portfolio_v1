@@ -9,7 +9,10 @@ export class BootManager {
         this.loginScreen = document.getElementById('login-screen');
         this.desktop = document.querySelector('.desktop');
         this.fadeoutOverlay = document.getElementById('boot-fadeout-overlay');
+        this.skipButton = document.getElementById('boot-skip');
         this.loginHandlersSet = false;
+        this.bootSkipResolver = null;
+        this.skipHandlerSet = false;
     }
     
     async startBoot() {
@@ -33,13 +36,16 @@ export class BootManager {
         // Show boot screen
         this.bootScreen.style.display = 'flex';
         this.bootScreen.style.opacity = '1';
+        this.bootScreen.removeAttribute('aria-hidden');
+        this.bootScreen.inert = false;
+        this.setupSkipHandler();
         
         const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         const bootDelay = reduceMotion ? 500 : 2400;
         debugLog('Boot screen shown...');
         
         // Breve secuencia de marca sin bloquear el acceso al contenido.
-        await this.delay(bootDelay);
+        await this.waitForBootOrSkip(bootDelay);
         
         debugLog('Fading out boot screen...');
         
@@ -52,12 +58,37 @@ export class BootManager {
         // Show login screen
         await this.showLoginScreen();
     }
+
+    setupSkipHandler() {
+        if (!this.skipButton || this.skipHandlerSet) return;
+        this.skipHandlerSet = true;
+        this.skipButton.addEventListener('click', () => {
+            if (this.bootSkipResolver) this.bootSkipResolver();
+        });
+    }
+
+    waitForBootOrSkip(ms) {
+        return new Promise((resolve) => {
+            let completed = false;
+            const finish = () => {
+                if (completed) return;
+                completed = true;
+                window.clearTimeout(timer);
+                this.bootSkipResolver = null;
+                resolve();
+            };
+            const timer = window.setTimeout(finish, ms);
+            this.bootSkipResolver = finish;
+        });
+    }
     
     async showLoginScreen() {
         debugLog('showLoginScreen called');
         debugLog('Login screen element:', this.loginScreen);
         
         this.loginScreen.style.display = 'flex';
+        this.loginScreen.removeAttribute('aria-hidden');
+        this.loginScreen.inert = false;
         await this.delay(100);
         this.loginScreen.style.opacity = '1';
         
@@ -292,6 +323,8 @@ export class BootManager {
     
     // Utility functions
     async fadeOut(element, duration = 800) {
+        element.setAttribute('aria-hidden', 'true');
+        element.inert = true;
         element.style.transition = `opacity ${duration / 1000}s ease-out`;
         element.style.opacity = '0';
         await this.delay(duration);
@@ -300,6 +333,8 @@ export class BootManager {
     
     async fadeIn(element, duration = 800) {
         element.style.display = 'block';
+        element.removeAttribute('aria-hidden');
+        element.inert = false;
         element.style.opacity = '0';
         await this.delay(100);
         element.style.transition = `opacity ${duration / 1000}s ease-in`;

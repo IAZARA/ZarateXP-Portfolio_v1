@@ -4,7 +4,7 @@ const projects = [
         name: 'Zárate XP',
         type: 'project',
         icon: './assets/images/hd-icons/my-computer.svg',
-        detailImage: './logo_ivanxp.png',
+        detailImage: './logo_ivanxp.webp',
         description: 'Portfolio interactivo estilo Windows XP',
         url: '#',
         repositoryUrl: 'https://github.com/IAZARA/ZarateXP-Portfolio_v1',
@@ -46,7 +46,7 @@ const projects = [
         name: 'ForzaTech',
         type: 'project',
         icon: './assets/images/hd-icons/projects.svg',
-        detailImage: './assets/readme/zaratexp-banner.png',
+        detailImage: './assets/readme/zaratexp-social.jpg',
         description: 'Marketing, sistemas e IA para PYMEs en Argentina',
         url: 'https://forzatech.com.ar/',
         preview: true,
@@ -249,7 +249,128 @@ const projects = [
     }
 ];
 
+const projectEvidence = {
+    zaratexp: {
+        featured: true,
+        role: { es: 'Diseño de producto, arquitectura frontend, implementación, QA y despliegue.', en: 'Product design, frontend architecture, implementation, QA and deployment.' },
+        problem: { es: 'Un CV tradicional no mostraba la amplitud técnica, de producto y de gestión del perfil.', en: 'A traditional resume did not demonstrate the profile\'s technical, product and management breadth.' },
+        solution: { es: 'Construí un portfolio explorable inspirado en Windows XP, con aplicaciones reales, estado persistente, accesibilidad, responsive design y despliegue continuo.', en: 'I built an explorable Windows XP-inspired portfolio with real applications, persistent state, accessibility, responsive design and continuous deployment.' },
+        evidence: { es: ['Repositorio público y GitHub Pages', 'Pruebas automatizadas y smoke tests con Playwright', 'Aplicaciones Canvas, File API, Web Audio y APIs públicas'], en: ['Public repository and GitHub Pages', 'Automated checks and Playwright smoke tests', 'Canvas, File API, Web Audio and public API applications'] }
+    },
+    osintargy: {
+        featured: true,
+        role: { es: 'Producto, experiencia de usuario, frontend, backend y despliegue de la plataforma.', en: 'Product, user experience, frontend, backend and platform deployment.' },
+        problem: { es: 'Las herramientas OSINT en español estaban dispersas y resultaban difíciles de abordar para nuevos usuarios.', en: 'Spanish-language OSINT tools were fragmented and difficult for new users to approach.' },
+        solution: { es: 'Centralicé utilidades, visualizaciones y contenidos educativos en una plataforma orientada a investigaciones éticas.', en: 'I centralized utilities, visualizations and educational content in a platform focused on ethical investigations.' },
+        evidence: { es: ['Plataforma pública en producción', 'Repositorio open source', 'Visualizaciones, generador de dorks y recursos educativos'], en: ['Public production platform', 'Open-source repository', 'Visualizations, dork generator and educational resources'] }
+    },
+    'wjpc-capituloargentino': {
+        role: { es: 'Implementación full stack, panel administrativo, seguridad y despliegue cloud.', en: 'Full-stack implementation, admin panel, security and cloud deployment.' },
+        problem: { es: 'La organización necesitaba presencia institucional y autonomía para gestionar noticias y eventos.', en: 'The organization needed an institutional presence and autonomy to manage news and events.' },
+        solution: { es: 'Desarrollé un sitio público con administración autenticada, almacenamiento de imágenes y CI/CD en Google Cloud.', en: 'I developed a public site with authenticated administration, image storage and CI/CD on Google Cloud.' },
+        evidence: { es: ['Sitio institucional publicado', 'Panel administrativo y autenticación JWT', 'Despliegue serverless con Docker y Google Cloud'], en: ['Published institutional site', 'Admin panel and JWT authentication', 'Serverless deployment with Docker and Google Cloud'] }
+    },
+    forzatech: {
+        role: { es: 'Definición de producto, propuesta de servicios y experiencia comercial.', en: 'Product definition, service offering and commercial experience.' },
+        problem: { es: 'Las PYMEs necesitan entender rápidamente qué soluciones digitales pueden mejorar su operación.', en: 'Small and midsize businesses need to quickly understand which digital solutions can improve operations.' },
+        solution: { es: 'Organicé sistemas, automatización, marketing e IA en una oferta clara y orientada a necesidades concretas.', en: 'I organized systems, automation, marketing and AI into a clear offering focused on concrete needs.' },
+        evidence: { es: ['Sitio comercial publicado', 'Oferta de sistemas a medida y automatización', 'Canales de conversión y contacto directo'], en: ['Published commercial site', 'Custom systems and automation offering', 'Conversion paths and direct contact'] }
+    },
+    'estudio-luttini': {
+        role: { es: 'Diseño responsive, implementación frontend, SEO y publicación.', en: 'Responsive design, frontend implementation, SEO and publishing.' },
+        problem: { es: 'El estudio necesitaba comunicar servicios jurídicos y contables complejos con claridad y confianza.', en: 'The firm needed to communicate complex legal and accounting services with clarity and trust.' },
+        solution: { es: 'Desarrollé una presencia institucional responsive con jerarquía de contenidos y contacto directo.', en: 'I developed a responsive institutional presence with clear content hierarchy and direct contact.' },
+        evidence: { es: ['Sitio público activo', 'Contenido organizado por áreas de servicio', 'Responsive design y SEO técnico básico'], en: ['Active public site', 'Content organized by service areas', 'Responsive design and foundational technical SEO'] }
+    },
+    cap21: {
+        role: { es: 'Arquitectura de catálogo, implementación frontend e integración comercial.', en: 'Catalog architecture, frontend implementation and commercial integration.' },
+        problem: { es: 'El negocio necesitaba exhibir un catálogo amplio y convertir consultas en pedidos sin sumar fricción.', en: 'The business needed to present a broad catalog and turn inquiries into orders without adding friction.' },
+        solution: { es: 'Implementé un catálogo responsive que permite seleccionar productos y continuar el pedido por WhatsApp.', en: 'I implemented a responsive catalog that lets customers select products and continue the order through WhatsApp.' },
+        evidence: { es: ['Catálogo público en producción', 'Navegación por categorías', 'Flujo de pedido conectado con WhatsApp'], en: ['Public production catalog', 'Category-based navigation', 'Ordering flow connected to WhatsApp'] }
+    },
+    'auto-inbox': {
+        featured: true,
+        role: { es: 'Diseño de producto, arquitectura de integraciones e implementación de escritorio.', en: 'Product design, integration architecture and desktop implementation.' },
+        problem: { es: 'Los equipos de soporte repiten clasificación y redacción, pero no deben perder control sobre el envío.', en: 'Support teams repeat classification and drafting work but must retain control over sending.' },
+        solution: { es: 'Construí un asistente que clasifica correos, consulta conocimiento y prepara borradores con revisión humana obligatoria.', en: 'I built an assistant that classifies email, retrieves knowledge and prepares drafts with mandatory human review.' },
+        evidence: { es: ['Repositorio open source', 'Integraciones Gmail API y Google Sheets', 'Proveedores de IA configurables y human-in-the-loop'], en: ['Open-source repository', 'Gmail API and Google Sheets integrations', 'Configurable AI providers and human-in-the-loop workflow'] }
+    },
+    'seo-evaluate': {
+        role: { es: 'Producto, análisis técnico, frontend y motor de auditoría.', en: 'Product, technical analysis, frontend and audit engine.' },
+        problem: { es: 'Las auditorías SEO suelen ser opacas y no contemplan cómo los asistentes de IA interpretan un sitio.', en: 'SEO audits are often opaque and do not address how AI assistants interpret a site.' },
+        solution: { es: 'Desarrollé una auditoría sin registro que transforma HTML y robots.txt en prioridades explicadas y accionables.', en: 'I developed a no-signup audit that turns HTML and robots.txt into explained, actionable priorities.' },
+        evidence: { es: ['Aplicación pública desplegada', 'Repositorio open source', 'Análisis de schema, rastreo, SEO y citabilidad'], en: ['Deployed public application', 'Open-source repository', 'Schema, crawlability, SEO and citability analysis'] }
+    },
+    cyberdetective: {
+        role: { es: 'Arquitectura full stack y diseño de una experiencia educativa gamificada.', en: 'Full-stack architecture and design of a gamified learning experience.' },
+        problem: { es: 'Practicar investigación digital requiere entornos guiados, evidencia verificable y feedback inmediato.', en: 'Practicing digital investigation requires guided environments, verifiable evidence and immediate feedback.' },
+        solution: { es: 'Diseñé una academia por retos con validación automática, equipos, rankings y administración.', en: 'I designed a challenge-based academy with automatic validation, teams, rankings and administration.' },
+        evidence: { es: ['Repositorio open source', 'Frontend y backend dockerizados', 'Retos, rankings, equipos y modo conferencia'], en: ['Open-source repository', 'Dockerized frontend and backend', 'Challenges, rankings, teams and conference mode'] }
+    },
+    'desanjuntar-pdf': {
+        role: { es: 'Diseño de herramienta, aplicación desktop y automatización de pruebas.', en: 'Tool design, desktop application and test automation.' },
+        problem: { es: 'Extraer adjuntos embebidos en PDFs requiere herramientas técnicas poco accesibles para usuarios finales.', en: 'Extracting embedded PDF attachments requires technical tools that are not accessible to most users.' },
+        solution: { es: 'Construí una aplicación gráfica que detecta y extrae adjuntos con validaciones y manejo seguro de archivos.', en: 'I built a graphical application that detects and extracts attachments with validation and safe file handling.' },
+        evidence: { es: ['Repositorio open source', 'Interfaz PyQt6', 'pytest e integración continua'], en: ['Open-source repository', 'PyQt6 interface', 'pytest and continuous integration'] }
+    },
+    'juego-ciberseguridad': {
+        role: { es: 'Diseño educativo, experiencia mobile-first e implementación full stack liviana.', en: 'Learning design, mobile-first experience and lightweight full-stack implementation.' },
+        problem: { es: 'La higiene digital se aprende mejor mediante decisiones concretas que con contenido exclusivamente teórico.', en: 'Digital hygiene is learned more effectively through concrete decisions than theory alone.' },
+        solution: { es: 'Creé una experiencia bilingüe de siete niveles sobre amenazas cotidianas y buenas prácticas.', en: 'I created a bilingual seven-level experience about everyday threats and good practices.' },
+        evidence: { es: ['Repositorio open source', 'Siete niveles interactivos', 'Experiencia bilingüe mobile-first y Docker'], en: ['Open-source repository', 'Seven interactive levels', 'Bilingual mobile-first experience and Docker'] }
+    },
+    'radar-empleo': {
+        role: { es: 'Diseño de producto, modelo de scoring e implementación frontend.', en: 'Product design, scoring model and frontend implementation.' },
+        problem: { es: 'Las búsquedas laborales dispersan información y dificultan priorizar oportunidades por encaje real.', en: 'Job searches fragment information and make it difficult to prioritize opportunities by actual fit.' },
+        solution: { es: 'Diseñé un radar que explica el match, ordena oportunidades y mantiene un pipeline local de postulaciones.', en: 'I designed a radar that explains match quality, ranks opportunities and keeps a local application pipeline.' },
+        evidence: { es: ['Repositorio open source', 'Scoring determinístico explicable', 'Shortlist y pipeline persistidos localmente'], en: ['Open-source repository', 'Explainable deterministic scoring', 'Locally persisted shortlist and pipeline'] }
+    },
+    'workflow-black-box': {
+        featured: true,
+        role: { es: 'Producto, motor de diagnóstico, experiencia de análisis e integración MCP.', en: 'Product, diagnostic engine, analysis experience and MCP integration.' },
+        problem: { es: 'Los fallos en automatizaciones distribuidas son difíciles de explicar cuando logs y configuración están separados.', en: 'Failures in distributed automations are difficult to explain when logs and configuration are separated.' },
+        solution: { es: 'Construí una consola que relaciona workflows, ejecuciones, riesgos, causas probables y evidencia accionable.', en: 'I built a console that connects workflows, executions, risks, likely causes and actionable evidence.' },
+        evidence: { es: ['Repositorio open source', 'Soporte para n8n, Make y Zapier', 'Servidor MCP y pruebas Playwright'], en: ['Open-source repository', 'Support for n8n, Make and Zapier', 'MCP server and Playwright tests'] }
+    },
+    cufre: {
+        featured: true,
+        role: { es: 'Relevamiento, definición funcional, coordinación técnica, implementación y puesta en producción.', en: 'Discovery, functional definition, technical coordination, implementation and production rollout.' },
+        problem: { es: 'Las áreas usuarias necesitaban priorizar registros críticos y mantener trazabilidad sobre su seguimiento.', en: 'User teams needed to prioritize critical records and preserve traceability throughout follow-up.' },
+        solution: { es: 'Participé de punta a punta en una plataforma CRUD con controles de privacidad, calidad del dato y operación institucional.', en: 'I contributed end to end to a CRUD platform with privacy, data quality and institutional operation controls.' },
+        evidence: { es: ['Caso institucional en producción', 'Stack Java, Spring Boot, React y Oracle', 'Trabajo directo con usuarios y áreas técnicas'], en: ['Institutional case in production', 'Java, Spring Boot, React and Oracle stack', 'Direct work with users and technical teams'] }
+    },
+    sifebu: {
+        role: { es: 'Descubrimiento con usuarios, traducción funcional e integración de datos institucionales.', en: 'User discovery, functional translation and institutional data integration.' },
+        problem: { es: 'Un sistema federal requiere disponibilidad, resguardo y criterios compartidos de calidad de información.', en: 'A federal system requires availability, protection and shared information quality criteria.' },
+        solution: { es: 'Acompañé la definición y construcción de funcionalidades conectando necesidades operativas, datos y equipos técnicos.', en: 'I supported feature definition and delivery by connecting operational needs, data and technical teams.' },
+        evidence: { es: ['Caso institucional en producción', 'Integración con datos institucionales', 'Acompañamiento a áreas usuarias'], en: ['Institutional case in production', 'Institutional data integration', 'Support for user teams'] }
+    },
+    criaco: {
+        role: { es: 'Análisis funcional, modelado de capas y experiencia de visualización territorial.', en: 'Functional analysis, layer modeling and territorial visualization experience.' },
+        problem: { es: 'El análisis territorial requiere combinar contexto operativo con múltiples capas de información.', en: 'Territorial analysis requires combining operational context with multiple information layers.' },
+        solution: { es: 'Contribuí a una plataforma GIS que organiza mapas, capas y visualizaciones para apoyar el análisis.', en: 'I contributed to a GIS platform that organizes maps, layers and visualizations to support analysis.' },
+        evidence: { es: ['Caso institucional en producción', 'Mapas y capas de datos', 'Visualización orientada a decisiones operativas'], en: ['Institutional case in production', 'Maps and data layers', 'Visualization focused on operational decisions'] }
+    },
+    'sistema-enterprise-java': {
+        role: { es: 'Arquitectura full stack, seguridad, APIs y configuración de despliegue.', en: 'Full-stack architecture, security, APIs and deployment configuration.' },
+        problem: { es: 'La gestión de expedientes sensibles necesita permisos, auditoría e integraciones confiables.', en: 'Sensitive case management requires permissions, auditing and reliable integrations.' },
+        solution: { es: 'Implementé una arquitectura Java y React con Oracle, JWT, roles, 2FA, auditoría y contenedores.', en: 'I implemented a Java and React architecture with Oracle, JWT, roles, 2FA, auditing and containers.' },
+        evidence: { es: ['Arquitectura Java 17 y Spring Boot 3', 'Seguridad por roles, 2FA y auditoría', 'APIs, dashboards y Docker'], en: ['Java 17 and Spring Boot 3 architecture', 'Role-based security, 2FA and auditing', 'APIs, dashboards and Docker'] }
+    },
+    'n8n-workflows-atencion': {
+        role: { es: 'Diseño de procesos, integraciones, manejo de errores y observabilidad.', en: 'Process design, integrations, error handling and observability.' },
+        problem: { es: 'La atención omnicanal pierde trazabilidad cuando cada canal y registro se opera por separado.', en: 'Omnichannel support loses traceability when each channel and record is operated separately.' },
+        solution: { es: 'Diseñé workflows que clasifican, escalan, sincronizan y registran consultas con recuperación ante fallos.', en: 'I designed workflows that classify, escalate, synchronize and record inquiries with failure recovery.' },
+        evidence: { es: ['Integraciones Gmail, Slack, Sheets y WhatsApp', 'Validaciones y manejo de errores', 'Trazabilidad y registro de métricas'], en: ['Gmail, Slack, Sheets and WhatsApp integrations', 'Validation and error handling', 'Traceability and metric recording'] }
+    }
+};
+
+for (const project of projects) {
+    Object.assign(project, projectEvidence[project.id] || {});
+}
+
 const folderProjectIds = {
+    featured: ['zaratexp', 'osintargy', 'auto-inbox', 'workflow-black-box', 'cufre'],
     web: [
         'forzatech',
         'estudio-luttini',

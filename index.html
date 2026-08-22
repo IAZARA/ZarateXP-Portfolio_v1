@@ -21,12 +21,14 @@
     <meta property="og:site_name" content="ZarateXP Portfolio">
     <meta property="og:title" content="Ivan Zarate | Software Analyst &amp; Project Manager">
     <meta property="og:description" content="Portfolio orientado a oportunidades de Forward Deployed Engineer: software, datos, IA, MLOps y plataformas digitales.">
-    <meta property="og:image" content="https://iazara.github.io/ZarateXP-Portfolio_v1/assets/readme/zaratexp-banner.png">
+    <meta property="og:image" content="https://iazara.github.io/ZarateXP-Portfolio_v1/assets/readme/zaratexp-social.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="ZarateXP Portfolio de Ivan Agustin Zarate">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Ivan Zarate | Software Analyst &amp; Project Manager">
     <meta name="twitter:description" content="Software Analyst &amp; Project Manager con portfolio orientado a oportunidades FDE y soluciones de software, datos e IA.">
-    <meta name="twitter:image" content="https://iazara.github.io/ZarateXP-Portfolio_v1/assets/readme/zaratexp-banner.png">
+    <meta name="twitter:image" content="https://iazara.github.io/ZarateXP-Portfolio_v1/assets/readme/zaratexp-social.jpg">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -121,7 +123,7 @@
     <title>Ivan Zarate | Software Analyst &amp; Project Manager</title>
     
     <!-- Assets críticos y candidatos de navegación -->
-    <link rel="preload" href="./logo_ivanxp.png" as="image" fetchpriority="high">
+    <link rel="preload" href="./logo_ivanxp.webp" as="image" type="image/webp" fetchpriority="high">
     <link rel="prefetch" href="./assets/images/zaratexp-hd-wallpaper.webp" as="image" type="image/webp">
     <link rel="prefetch" href="./fondo_windows.webp?v=6" as="image" type="image/webp">
     <link rel="prefetch" href="images/foto-nuevo-usuario.jpeg" as="image">
@@ -141,20 +143,19 @@
     <link rel="stylesheet" href="css/minesweeper.css?v=zaratexp-20260712-release">
     <link rel="stylesheet" href="css/about-me.css">
     <link rel="stylesheet" href="css/contacto.css">
-    <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260712-i18n2">
-    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260822-github-activity1">
+    <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260822-recruiter-ux1">
+    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260822-recruiter-ux1">
     <link rel="stylesheet" href="css/clippy.css?v=zaratexp-20260712-clippy-mobile1">
     <link rel="stylesheet" href="css/crtEffect.css">
     
-    <!-- EmailJS SDK -->
-    <script defer src="assets/vendor/email.min.js"></script>
 </head>
 <body>
+    <main id="zaratexp-shell" aria-label="ZarateXP Portfolio">
     <!-- Boot Screen -->
     <div id="boot-screen" class="boot-screen" style="display: flex; opacity: 1;">
         <div class="loading-container">
             <div class="windows-logo">
-                <img id="boot-logo" src="logo_ivanxp.png" alt="IvanZarate XP Loading" draggable="false">
+                <img id="boot-logo" src="logo_ivanxp.webp" width="662" height="449" alt="IvanZarate XP Loading" draggable="false">
             </div>
             <div class="loading-bar-container">
                 <div class="loading-bar">
@@ -171,6 +172,7 @@
         <div class="boot-bottom-right">
             <span class="boot-wordmark">Ivan Zarate</span>
         </div>
+        <button id="boot-skip" class="boot-skip" type="button">Omitir introducción</button>
     </div>
 
     <!-- Boot fadeout overlay -->
@@ -182,7 +184,7 @@
             <div class="login-screen-inner">
                 <div class="login-screen-center">
                     <div class="left">
-                        <img class="custom-logo" src="logo_ivanxp.png" alt="IvanZarate XP" draggable="false">
+                        <img class="custom-logo" src="logo_ivanxp.webp" width="662" height="449" alt="IvanZarate XP" draggable="false">
                         <div class="left-text">
                             <span class="desktop-login-instruction">Para comenzar, haz clic en <span class="login-instruction-name">Ivan Agustin Zarate</span> para iniciar sesión</span>
                         </div>
@@ -216,9 +218,41 @@
     </div>
 
     <!-- Desktop -->
-    <div class="desktop wallpaper-default" style="display: none;">
+    <div class="desktop wallpaper-default" style="display: none;" aria-label="Escritorio ZarateXP">
         <div class="selection-overlay"></div>
         <div class="desktop-icons" style="--icon-scale: 1;">
+            <div class="desktop-icon" data-program-name="recruiter-route" data-mobile-home="true" data-mobile-order="1">
+                <img src="./assets/images/hd-icons/cv.svg" alt="Perfil orientado a FDE" loading="eager">
+                <span>Perfil orientado a FDE</span>
+            </div>
+            <div class="desktop-icon" data-program-name="resume" data-mobile-home="true" data-mobile-order="2">
+                <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV" loading="eager">
+                <span>Mi CV</span>
+            </div>
+            <div class="desktop-icon" data-program-name="projects" data-mobile-home="true" data-mobile-order="3">
+                <img src="./assets/images/hd-icons/projects.svg" alt="Mis Proyectos" loading="eager">
+                <span>Mis Proyectos</span>
+            </div>
+            <div class="desktop-icon" data-program-name="contact" data-mobile-home="true" data-mobile-order="4">
+                <img src="./assets/images/hd-icons/contact.svg" alt="Mi Contacto" loading="eager">
+                <span>Mi Contacto</span>
+            </div>
+            <div class="desktop-icon" data-program-name="documents" data-mobile-home="true" data-mobile-order="5">
+                <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos" loading="eager">
+                <span>Mis Documentos</span>
+            </div>
+            <div class="desktop-icon" data-program-name="certificates">
+                <img src="./assets/images/hd-icons/documents.svg" alt="Mis Certificados" loading="eager">
+                <span>Mis Certificados</span>
+            </div>
+            <div class="desktop-icon" data-program-name="api-center" data-mobile-home="true" data-mobile-order="6">
+                <img src="./assets/images/hd-icons/api.svg" alt="API Center" loading="lazy">
+                <span>API Center</span>
+            </div>
+            <div class="desktop-icon" data-program-name="n8n-flows" data-mobile-home="true" data-mobile-order="7">
+                <img src="./assets/images/hd-icons/n8n.svg" alt="Flujos n8n" loading="lazy">
+                <span>Flujos n8n</span>
+            </div>
             <div class="desktop-icon" data-program-name="my-computer" data-mobile-home="true" data-mobile-order="8">
                 <img src="./assets/images/hd-icons/my-computer.svg" alt="Mi PC" loading="eager">
                 <span>Mi PC</span>
@@ -227,37 +261,9 @@
                 <img src="./assets/images/hd-icons/about.svg" alt="Sobre Mí" loading="eager">
                 <span>Sobre Mí</span>
             </div>
-            <div class="desktop-icon" data-program-name="resume" data-mobile-home="true" data-mobile-order="2">
-                <img src="./assets/images/hd-icons/cv.svg" alt="Mi CV" loading="eager">
-                <span>Mi CV</span>
-            </div>
-            <div class="desktop-icon" data-program-name="certificates">
-                <img src="./assets/images/hd-icons/documents.svg" alt="Mis Certificados" loading="eager">
-                <span>Mis Certificados</span>
-            </div>
-            <div class="desktop-icon" data-program-name="recruiter-route" data-mobile-home="true" data-mobile-order="1">
-                <img src="./assets/images/hd-icons/cv.svg" alt="Perfil orientado a FDE" loading="eager">
-                <span>Perfil orientado a FDE</span>
-            </div>
-            <div class="desktop-icon" data-program-name="documents" data-mobile-home="true" data-mobile-order="5">
-                <img src="./assets/images/hd-icons/documents.svg" alt="Mis Documentos" loading="eager">
-                <span>Mis Documentos</span>
-            </div>
-            <div class="desktop-icon" data-program-name="contact" data-mobile-home="true" data-mobile-order="4">
-                <img src="./assets/images/hd-icons/contact.svg" alt="Mi Contacto" loading="eager">
-                <span>Mi Contacto</span>
-            </div>
             <div id="winamp-desktop-icon" class="desktop-icon" data-program-name="winamp">
                 <img src="./assets/images/hd-icons/winamp.svg" alt="Winamp" loading="eager">
                 <span>Winamp</span>
-            </div>
-            <div class="desktop-icon" data-program-name="projects" data-mobile-home="true" data-mobile-order="3">
-                <img src="./assets/images/hd-icons/projects.svg" alt="Mis Proyectos" loading="eager">
-                <span>Mis Proyectos</span>
-            </div>
-            <div class="desktop-icon" data-program-name="n8n-flows" data-mobile-home="true" data-mobile-order="7">
-                <img src="./assets/images/hd-icons/n8n.svg" alt="Flujos n8n" loading="lazy">
-                <span>Flujos n8n</span>
             </div>
             <div class="desktop-icon" data-program-name="notepad">
                 <img src="./assets/images/hd-icons/notepad.svg" alt="Bloc de notas" loading="lazy">
@@ -266,10 +272,6 @@
             <div class="desktop-icon" data-program-name="control-panel">
                 <img src="./assets/images/hd-icons/control-panel.svg" alt="Panel de control" loading="lazy">
                 <span>Panel de control</span>
-            </div>
-            <div class="desktop-icon" data-program-name="api-center" data-mobile-home="true" data-mobile-order="6">
-                <img src="./assets/images/hd-icons/api.svg" alt="API Center" loading="lazy">
-                <span>API Center</span>
             </div>
             <div class="desktop-icon" data-program-name="pdf-studio">
                 <img src="./assets/images/hd-icons/pdf-studio.svg" alt="PDF Studio" loading="lazy">
@@ -328,9 +330,11 @@
         </div>
     </div>
 
+    </main>
+
     <!-- Scripts -->
-    <script type="module" src="js/main.js?v=zaratexp-20260822-github-activity1"></script>
-    <script type="module" src="js/apps.js?v=zaratexp-20260822-github-activity1"></script>
+    <script type="module" src="js/main.js?v=zaratexp-20260822-recruiter-ux1"></script>
+    <script type="module" src="js/apps.js?v=zaratexp-20260822-recruiter-ux1"></script>
     <!-- CRT Effect - ALL DISABLED -->
     <div class="crt-effect" style="display: none;"></div>
     <div class="crt-scanline" style="display: none;"></div>
