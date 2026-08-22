@@ -1,6 +1,6 @@
 import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-redmine-open2';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
-import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-github-activity1';
+import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-verified2';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
 // --- AppManager Class para compatibilidad con el sistema existente ---
@@ -1061,6 +1061,99 @@ export class AppManager {
         }
     }
 
+    _getPreferredExplorerView(storageKey) {
+        const allowed = new Set(['icons', 'list', 'details']);
+        try {
+            const stored = localStorage.getItem(storageKey);
+            if (allowed.has(stored)) return stored;
+        } catch (error) {
+            debugLog('View preference could not be read', error);
+        }
+        return window.matchMedia('(max-width: 768px)').matches ? 'list' : 'icons';
+    }
+
+    _saveExplorerView(storageKey, viewMode) {
+        try {
+            localStorage.setItem(storageKey, viewMode);
+        } catch (error) {
+            debugLog('View preference could not be saved', error);
+        }
+    }
+
+    _setupViewPicker(root, initialView, onChange) {
+        const picker = root.querySelector('[data-view-picker]');
+        const trigger = picker?.querySelector('[data-view-trigger]');
+        const menu = picker?.querySelector('[data-view-menu]');
+        const choices = Array.from(picker?.querySelectorAll('[data-view-choice]') || []);
+        if (!picker || !trigger || !menu || !choices.length) return;
+
+        let currentView = initialView;
+        const setOpen = (open, { focusChoice = false } = {}) => {
+            menu.hidden = !open;
+            trigger.setAttribute('aria-expanded', String(open));
+            picker.classList.toggle('open', open);
+            if (open && focusChoice) {
+                (choices.find((choice) => choice.dataset.viewChoice === currentView) || choices[0])?.focus();
+            }
+        };
+        const sync = (nextView) => {
+            currentView = nextView;
+            choices.forEach((choice) => {
+                const selected = choice.dataset.viewChoice === nextView;
+                choice.setAttribute('aria-checked', String(selected));
+                choice.classList.toggle('active', selected);
+            });
+            root.dataset.viewMode = nextView;
+        };
+        const select = (nextView) => {
+            if (!['icons', 'list', 'details'].includes(nextView)) return;
+            sync(nextView);
+            setOpen(false);
+            onChange(nextView);
+            trigger.focus();
+        };
+
+        sync(initialView);
+        trigger.addEventListener('click', () => setOpen(menu.hidden, { focusChoice: menu.hidden }));
+        trigger.addEventListener('keydown', (event) => {
+            if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+            event.preventDefault();
+            setOpen(true, { focusChoice: true });
+        });
+        choices.forEach((choice) => choice.addEventListener('click', () => select(choice.dataset.viewChoice)));
+        menu.addEventListener('keydown', (event) => {
+            const currentIndex = Math.max(0, choices.indexOf(document.activeElement));
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                setOpen(false);
+                trigger.focus();
+                return;
+            }
+            if (event.key === 'Home' || event.key === 'End') {
+                event.preventDefault();
+                choices[event.key === 'Home' ? 0 : choices.length - 1]?.focus();
+                return;
+            }
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const delta = event.key === 'ArrowDown' ? 1 : -1;
+                choices[(currentIndex + delta + choices.length) % choices.length]?.focus();
+                return;
+            }
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                select(document.activeElement?.dataset?.viewChoice);
+            }
+        });
+        picker.addEventListener('focusout', () => {
+            window.setTimeout(() => {
+                if (!picker.contains(document.activeElement)) setOpen(false);
+            }, 0);
+        });
+
+        return { sync, close: () => setOpen(false) };
+    }
+
     async _openProjectsExplorer() {
         // Prevenir que se abra más de una ventana de "Mis Proyectos"
         if (this.runningApps.has('projects')) {
@@ -1079,7 +1172,7 @@ export class AppManager {
 
             // Cargar el contenido del componente de proyectos
             debugLog('Loading proyectos-explorer.html...');
-            const response = await fetch('./components/proyectos-explorer.html?v=zaratexp-20260822-art-redmine1');
+            const response = await fetch('./components/proyectos-explorer.html?v=zaratexp-20260822-explorer-views2');
             if (!response.ok) {
                 throw new Error(`Error al cargar proyectos-explorer.html: ${response.statusText} (${response.status})`);
             }
@@ -1158,11 +1251,12 @@ export class AppManager {
 
     _setupProjectsExplorer(projectsWindow) {
         try {
+            const preferredView = this._getPreferredExplorerView('zarateXP.projects.viewMode');
             this.projectExplorerState.set(projectsWindow, {
                 currentFolder: 'root',
                 history: ['root'],
                 historyIndex: 0,
-                viewMode: 'icons',
+                viewMode: preferredView,
                 searchQuery: '',
                 loadToken: 0
             });
@@ -1226,35 +1320,10 @@ export class AppManager {
     }
 
     _setupExplorerToolbar(projectsWindow) {
-        // Botón de vista de íconos
-        const iconViewBtn = projectsWindow.querySelector('[data-view="icons"]');
-        const listViewBtn = projectsWindow.querySelector('[data-view="list"]');
-        
-        if (iconViewBtn) {
-            iconViewBtn.addEventListener('click', () => {
-                const state = this.projectExplorerState.get(projectsWindow);
-                if (state) state.viewMode = 'icons';
-                iconViewBtn.classList.add('active');
-                if (listViewBtn) listViewBtn.classList.remove('active');
-                this._switchView(projectsWindow, 'icons');
-            });
-        }
-        
-        if (listViewBtn) {
-            listViewBtn.addEventListener('click', () => {
-                const state = this.projectExplorerState.get(projectsWindow);
-                if (state) state.viewMode = 'list';
-                listViewBtn.classList.add('active');
-                if (iconViewBtn) iconViewBtn.classList.remove('active');
-                this._switchView(projectsWindow, 'list');
-            });
-        }
-
         const state = this.projectExplorerState.get(projectsWindow);
         const backBtn = projectsWindow.querySelector('#btn-back');
         const forwardBtn = projectsWindow.querySelector('#btn-forward');
         const upBtn = projectsWindow.querySelector('#btn-up');
-        const viewsBtn = projectsWindow.querySelector('#btn-views');
         const searchBtn = projectsWindow.querySelector('#btn-search');
         const searchPanel = projectsWindow.querySelector('#search-panel');
         const searchInput = projectsWindow.querySelector('#project-search-input');
@@ -1265,11 +1334,7 @@ export class AppManager {
         backBtn?.addEventListener('click', () => this._moveProjectHistory(projectsWindow, -1));
         forwardBtn?.addEventListener('click', () => this._moveProjectHistory(projectsWindow, 1));
         upBtn?.addEventListener('click', () => this._navigateToFolder(projectsWindow, 'root'));
-        viewsBtn?.addEventListener('click', () => {
-            const nextView = state.viewMode === 'icons' ? 'list' : 'icons';
-            const nextButton = projectsWindow.querySelector(`[data-view="${nextView}"]`);
-            nextButton?.click();
-        });
+        this._setupViewPicker(projectsWindow, state.viewMode, (viewMode) => this._switchView(projectsWindow, viewMode));
 
         searchBtn?.addEventListener('click', () => {
             const opening = searchPanel?.hasAttribute('hidden');
@@ -1297,25 +1362,25 @@ export class AppManager {
 
         // Botón de carpetas (toggle panel izquierdo)
         const foldersBtn = projectsWindow.querySelector('#btn-folders');
+        const foldersScrim = projectsWindow.querySelector('[data-folders-scrim]');
+        const setFoldersOpen = (open) => {
+            projectsWindow.querySelector('.explorer-container')?.classList.toggle('folders-open', open);
+            foldersBtn?.classList.toggle('active', open);
+            foldersBtn?.setAttribute('aria-expanded', String(open));
+            if (foldersScrim) foldersScrim.hidden = !open;
+        };
         if (foldersBtn) {
+            foldersBtn.setAttribute('aria-controls', 'folders-panel');
+            foldersBtn.setAttribute('aria-expanded', 'false');
             foldersBtn.addEventListener('click', () => {
-                const leftPanel = projectsWindow.querySelector('.explorer-left-panel');
-                const splitter = projectsWindow.querySelector('.explorer-splitter');
-                
-                if (leftPanel && splitter) {
-                    const isVisible = leftPanel.style.display !== 'none';
-                    leftPanel.style.display = isVisible ? 'none' : 'flex';
-                    splitter.style.display = isVisible ? 'none' : 'block';
-                    
-                    // Cambiar estado del botón
-                    if (isVisible) {
-                        foldersBtn.classList.remove('active');
-                    } else {
-                        foldersBtn.classList.add('active');
-                    }
-                }
+                const container = projectsWindow.querySelector('.explorer-container');
+                setFoldersOpen(!container?.classList.contains('folders-open'));
             });
         }
+        foldersScrim?.addEventListener('click', () => setFoldersOpen(false));
+        projectsWindow.querySelector('.folder-tree')?.addEventListener('click', () => {
+            if (window.matchMedia('(max-width: 600px)').matches) setFoldersOpen(false);
+        });
     }
 
     _setupContentView(projectsWindow) {
@@ -1324,7 +1389,7 @@ export class AppManager {
 
         // Configurar eventos de doble clic para abrir proyectos
         contentArea.addEventListener('dblclick', (e) => {
-            const projectItem = e.target.closest('.project-item, .list-row');
+            const projectItem = e.target.closest('.project-item, .list-row, .details-row');
             if (projectItem) {
                 const projectId = projectItem.getAttribute('data-project-id');
                 if (projectId) {
@@ -1335,11 +1400,11 @@ export class AppManager {
 
         // Configurar selección de elementos
         contentArea.addEventListener('click', (e) => {
-            const projectItem = e.target.closest('.project-item, .list-row');
+            const projectItem = e.target.closest('.project-item, .list-row, .details-row');
             
             if (projectItem) {
                 // Remover selección anterior
-                contentArea.querySelectorAll('.project-item.selected, .list-row.selected').forEach(el => {
+                contentArea.querySelectorAll('.project-item.selected, .list-row.selected, .details-row.selected').forEach(el => {
                     el.classList.remove('selected');
                 });
                 
@@ -1350,7 +1415,7 @@ export class AppManager {
                 this._updateStatusBar(projectsWindow, projectItem);
             } else {
                 // Click en área vacía, deseleccionar todo
-                contentArea.querySelectorAll('.project-item.selected, .list-row.selected').forEach(el => {
+                contentArea.querySelectorAll('.project-item.selected, .list-row.selected, .details-row.selected').forEach(el => {
                     el.classList.remove('selected');
                 });
                 this._updateStatusBar(projectsWindow);
@@ -1359,14 +1424,14 @@ export class AppManager {
 
         contentArea.addEventListener('pointerup', (e) => {
             if (e.pointerType !== 'touch') return;
-            const projectItem = e.target.closest('.project-item, .list-row');
+            const projectItem = e.target.closest('.project-item, .list-row, .details-row');
             const projectId = projectItem?.getAttribute('data-project-id');
             if (projectId) this._openProjectDetails(projectsWindow, projectId);
         });
 
         contentArea.addEventListener('keydown', (e) => {
             if (e.key !== 'Enter' && e.key !== ' ') return;
-            const projectItem = e.target.closest('.project-item, .list-row');
+            const projectItem = e.target.closest('.project-item, .list-row, .details-row');
             const projectId = projectItem?.getAttribute('data-project-id');
             if (!projectId) return;
             e.preventDefault();
@@ -1452,11 +1517,9 @@ export class AppManager {
             `;
             return;
         }
-        if (viewMode === 'icons') {
-            this._renderIconView(contentArea, projects);
-        } else {
-            this._renderListView(contentArea, projects);
-        }
+        if (viewMode === 'icons') this._renderIconView(contentArea, projects);
+        else if (viewMode === 'details') this._renderDetailsView(contentArea, projects);
+        else this._renderListView(contentArea, projects);
     }
 
     _renderIconView(contentArea, projects) {
@@ -1469,7 +1532,7 @@ export class AppManager {
             const iconHtml = this._renderProjectIcon(project, 32);
             
             return `
-                <div class="project-item" data-project-id="${safeId}" data-type="${safeType}" title="${safeDescription}" role="button" tabindex="0">
+                <div class="project-item" data-project-id="${safeId}" data-item-name="${safeName}" data-type="${safeType}" title="${safeDescription}" role="button" tabindex="0">
                     <div class="project-icon">
                         ${iconHtml}
                     </div>
@@ -1483,17 +1546,37 @@ export class AppManager {
     }
 
     _renderListView(contentArea, projects) {
-        const listHtml = `
-            <div class="list-view">
-                <div class="list-header">
-                    <div class="list-header-row">
-                        <div class="list-header-cell">Nombre</div>
-                        <div class="list-header-cell">Tipo</div>
-                        <div class="list-header-cell">Categoría</div>
-                        <div class="list-header-cell">Estado</div>
+        contentArea.innerHTML = `
+            <div class="list-view" role="list">
+                ${projects.map(project => {
+                    const safeId = this._safeDomId(project.id);
+                    const safeType = this._escapeHtml(project.type);
+                    const safeName = this._escapeHtml(project.name);
+                    const safeCategory = this._escapeHtml(project.category || '-');
+                    const safeStatus = this._escapeHtml(project.status || '-');
+                    const iconHtml = this._renderProjectIcon(project, 32);
+                    return `
+                        <div class="list-row" data-project-id="${safeId}" data-item-name="${safeName}" data-type="${safeType}" role="listitem" tabindex="0">
+                            <span class="list-cell-icon">${iconHtml}</span>
+                            <span class="project-list-copy"><strong>${safeName}</strong><small>${project.type === 'folder' ? 'Carpeta' : safeCategory}</small></span>
+                            <span class="project-list-status">${safeStatus}</span>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
+    _renderDetailsView(contentArea, projects) {
+        contentArea.innerHTML = `
+            <div class="details-view-scroll" tabindex="0" aria-label="Detalles de proyectos">
+                <div class="details-view" role="table" aria-label="Proyectos">
+                    <div class="details-header" role="row">
+                        <span role="columnheader">Nombre</span>
+                        <span role="columnheader">Tipo</span>
+                        <span role="columnheader">Categoría</span>
+                        <span role="columnheader">Estado</span>
                     </div>
-                </div>
-                <div class="list-body">
                     ${projects.map(project => {
                         const safeId = this._safeDomId(project.id);
                         const safeType = this._escapeHtml(project.type);
@@ -1501,29 +1584,24 @@ export class AppManager {
                         const safeCategory = this._escapeHtml(project.category || '-');
                         const safeStatus = this._escapeHtml(project.status || '-');
                         const iconHtml = this._renderProjectIcon(project, 16);
-                        
                         return `
-                            <div class="list-row" data-project-id="${safeId}" data-type="${safeType}" role="button" tabindex="0">
-                                <div class="list-cell">
-                                    <span class="list-cell-icon">${iconHtml}</span>
-                                    ${safeName}
-                                </div>
-                                <div class="list-cell">${project.type === 'folder' ? 'Carpeta' : 'Proyecto'}</div>
-                                <div class="list-cell">${safeCategory}</div>
-                                <div class="list-cell">${safeStatus}</div>
+                            <div class="details-row" data-project-id="${safeId}" data-item-name="${safeName}" data-type="${safeType}" role="row" tabindex="0">
+                                <span role="cell" class="details-name"><span class="list-cell-icon">${iconHtml}</span>${safeName}</span>
+                                <span role="cell">${project.type === 'folder' ? 'Carpeta' : 'Proyecto'}</span>
+                                <span role="cell">${safeCategory}</span>
+                                <span role="cell">${safeStatus}</span>
                             </div>
                         `;
                     }).join('')}
                 </div>
             </div>
         `;
-
-        contentArea.innerHTML = listHtml;
     }
 
     _switchView(projectsWindow, viewMode) {
         const state = this.projectExplorerState.get(projectsWindow);
         if (state) state.viewMode = viewMode;
+        this._saveExplorerView('zarateXP.projects.viewMode', viewMode);
         this._renderCurrentProjectView(projectsWindow);
     }
 
@@ -1531,7 +1609,7 @@ export class AppManager {
         const selectionInfo = projectsWindow.querySelector('#selection-info');
         
         if (selectedItem && selectionInfo) {
-            const projectName = selectedItem.querySelector('.project-name')?.textContent || selectedItem.querySelector('.list-cell')?.textContent?.trim() || '';
+            const projectName = selectedItem.dataset.itemName || selectedItem.querySelector('.project-name')?.textContent || '';
             const projectType = selectedItem.getAttribute('data-type') || '';
             selectionInfo.textContent = `${projectName} (${projectType === 'folder' ? 'Carpeta' : 'Proyecto'})`;
         } else if (selectionInfo) {
@@ -2148,15 +2226,61 @@ export class AppManager {
     _openDocuments() {
         const iconBase = './assets/images/xp-small-icons';
         const cv = this._getCvAsset();
+        const groups = [
+            {
+                id: 'profile',
+                title: 'Perfil y credenciales',
+                items: [
+                    { app: 'recruiter-route', title: 'Perfil orientado a FDE.lnk', description: 'Experiencia, casos, capacidades y contacto', icon: './assets/images/hd-icons/cv.svg', type: 'Acceso directo', important: true },
+                    { app: 'resume', title: cv.fileName, description: 'CV actualizado', icon: './assets/images/hd-icons/cv.svg', type: 'Documento PDF', important: true, localizedCv: true },
+                    { app: 'certificates', title: 'Certificados verificados', description: '16 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad', icon: './assets/images/hd-icons/documents.svg', type: 'Carpeta', important: true },
+                    { app: 'about-me', title: 'Perfil profesional', description: 'Software, Data & AI + orientación FDE', icon: './assets/images/hd-icons/about.svg', type: 'Documento' }
+                ]
+            },
+            {
+                id: 'solutions',
+                title: 'Proyectos y soluciones',
+                items: [
+                    { app: 'projects', title: 'Proyectos destacados', description: 'CUFRE, SIFEBU, CRIACO, OSINTArgy y más', icon: './assets/images/hd-icons/projects.svg', type: 'Carpeta' },
+                    { app: 'api-center', title: 'API Center.lnk', description: 'Clima, GitHub y datos públicos en vivo', icon: './assets/images/hd-icons/api.svg', type: 'Acceso directo', important: true },
+                    { app: 'github-activity', title: 'Actividad GitHub.lnk', description: 'Actividad anual verificada del titular', icon: './assets/images/github.png', type: 'Acceso directo', important: true },
+                    { app: 'n8n-flows', title: 'Flujos n8n', description: 'Orquestación, gates, drift y feedback', icon: './assets/images/hd-icons/n8n.svg', type: 'Aplicación' },
+                    { app: 'pdf-studio', title: 'PDF Studio.exe', description: 'File API, Blob URL y anotaciones', icon: './assets/images/hd-icons/pdf-studio.svg', type: 'Aplicación' }
+                ]
+            },
+            {
+                id: 'utilities',
+                title: 'Utilidades y demos',
+                items: [
+                    { app: 'notepad', title: 'Notas de entrevista.txt', description: 'Editable localmente', icon: './assets/images/hd-icons/notepad.svg', type: 'Documento de texto' },
+                    { app: 'wordpad', title: 'Carta de presentación.rtf', description: 'Editor enriquecido', icon: './assets/images/hd-icons/wordpad.svg', type: 'Documento RTF' },
+                    { app: 'solitaire', title: 'Solitario XP', description: 'Lógica Klondike propia', icon: './assets/images/hd-icons/solitaire.svg', type: 'Aplicación' },
+                    { app: 'pinball', title: 'Pinball XP Lab', description: 'Canvas, física y teclado', icon: './assets/images/hd-icons/pinball.svg?v=20260712', type: 'Aplicación' }
+                ]
+            }
+        ];
+        const viewPicker = `
+            <div class="xp-view-picker" data-view-picker>
+                <button type="button" class="xp-view-trigger" aria-haspopup="menu" aria-expanded="false" data-view-trigger>
+                    <img src="${iconBase}/detail-view.png" alt=""><span>Vistas</span><span class="xp-view-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="xp-view-menu" role="menu" aria-label="Vistas" hidden data-view-menu>
+                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="icons"><img src="./assets/images/hd-icons/documents.svg" alt=""><span>Iconos</span></button>
+                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="list"><img src="${iconBase}/detail-view.png" alt=""><span>Lista</span></button>
+                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="details"><img src="${iconBase}/detail-view.png" alt=""><span>Detalles</span></button>
+                </div>
+            </div>
+        `;
         const content = `
             <div class="xp-documents-app">
                 <div class="xp-explorer-menubar">
                     <span>Archivo</span><span>Edicion</span><span>Ver</span><span>Favoritos</span><span>Ayuda</span>
                 </div>
                 <div class="xp-explorer-toolbar">
-                    <button type="button" data-doc-open="my-computer"><img src="${iconBase}/back.png" alt=""> Atras</button>
-                    <button type="button" data-doc-open="projects"><img src="${iconBase}/search.png" alt=""> Buscar proyectos</button>
-                    <button type="button" data-doc-open="control-panel"><img src="${iconBase}/control-panel.png" alt=""> Configurar</button>
+                    <button type="button" data-doc-open="my-computer"><img src="${iconBase}/back.png" alt=""><span>Atrás</span></button>
+                    <button type="button" data-doc-open="projects"><img src="${iconBase}/search.png" alt=""><span>Buscar proyectos</span></button>
+                    <button type="button" data-doc-open="control-panel"><img src="${iconBase}/control-panel.png" alt=""><span>Configurar</span></button>
+                    ${viewPicker}
                 </div>
                 <div class="xp-explorer-address">
                     <span>Direccion</span>
@@ -2180,88 +2304,7 @@ export class AppManager {
                             <p>Software Analyst &amp; Project Manager con portfolio orientado a oportunidades FDE, MLOps, plataformas y datos sensibles.</p>
                         </section>
                     </aside>
-                    <main class="xp-folder-grid" aria-label="Mis Documentos">
-                        <section class="xp-folder-group" data-document-group="profile" aria-labelledby="documents-profile-heading">
-                            <h2 id="documents-profile-heading" class="xp-folder-group-title">Perfil y credenciales</h2>
-                            <div class="xp-folder-group-grid">
-                                <button type="button" class="xp-folder-item important" data-doc-open="recruiter-route">
-                                    <img src="./assets/images/hd-icons/cv.svg" alt="">
-                                    <span>Perfil orientado a FDE.lnk</span>
-                                    <small>Experiencia, casos, capacidades y contacto</small>
-                                </button>
-                                <button type="button" class="xp-folder-item important" data-doc-open="resume">
-                                    <img src="./assets/images/hd-icons/cv.svg" alt="">
-                                    <span data-localized-cv-name data-no-i18n>${cv.fileName}</span>
-                                    <small>CV actualizado</small>
-                                </button>
-                                <button type="button" class="xp-folder-item important" data-doc-open="certificates">
-                                    <img src="./assets/images/hd-icons/documents.svg" alt="">
-                                    <span>Certificados verificados</span>
-                                    <small>16 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad</small>
-                                </button>
-                                <button type="button" class="xp-folder-item" data-doc-open="about-me">
-                                    <img src="./assets/images/hd-icons/about.svg" alt="">
-                                    <span>Perfil profesional</span>
-                                    <small>Software, Data &amp; AI + orientación FDE</small>
-                                </button>
-                            </div>
-                        </section>
-                        <section class="xp-folder-group" data-document-group="solutions" aria-labelledby="documents-solutions-heading">
-                            <h2 id="documents-solutions-heading" class="xp-folder-group-title">Proyectos y soluciones</h2>
-                            <div class="xp-folder-group-grid">
-                                <button type="button" class="xp-folder-item" data-doc-open="projects">
-                                    <img src="./assets/images/hd-icons/projects.svg" alt="">
-                                    <span>Proyectos destacados</span>
-                                    <small>CUFRE, SIFEBU, CRIACO, OSINTArgy y más</small>
-                                </button>
-                                <button type="button" class="xp-folder-item important" data-doc-open="api-center">
-                                    <img src="./assets/images/hd-icons/api.svg" alt="">
-                                    <span>API Center.lnk</span>
-                                    <small>Clima, GitHub y datos publicos en vivo</small>
-                                </button>
-                                <button type="button" class="xp-folder-item important" data-doc-open="github-activity">
-                                    <img src="./assets/images/github.png" alt="">
-                                    <span>Actividad GitHub.lnk</span>
-                                    <small>Calendario anual actualizado automáticamente</small>
-                                </button>
-                                <button type="button" class="xp-folder-item" data-doc-open="n8n-flows">
-                                    <img src="./assets/images/hd-icons/n8n.svg" alt="">
-                                    <span>Flujos n8n</span>
-                                    <small>Orquestación, gates, drift y feedback</small>
-                                </button>
-                                <button type="button" class="xp-folder-item" data-doc-open="pdf-studio">
-                                    <img src="./assets/images/hd-icons/pdf-studio.svg" alt="">
-                                    <span>PDF Studio.exe</span>
-                                    <small>File API, Blob URL y anotaciones</small>
-                                </button>
-                            </div>
-                        </section>
-                        <section class="xp-folder-group" data-document-group="utilities" aria-labelledby="documents-utilities-heading">
-                            <h2 id="documents-utilities-heading" class="xp-folder-group-title">Utilidades y demos</h2>
-                            <div class="xp-folder-group-grid">
-                                <button type="button" class="xp-folder-item" data-doc-open="notepad">
-                                    <img src="./assets/images/hd-icons/notepad.svg" alt="">
-                                    <span>Notas de entrevista.txt</span>
-                                    <small>Editable localmente</small>
-                                </button>
-                                <button type="button" class="xp-folder-item" data-doc-open="wordpad">
-                                    <img src="./assets/images/hd-icons/wordpad.svg" alt="">
-                                    <span>Carta de presentacion.rtf</span>
-                                    <small>Editor enriquecido</small>
-                                </button>
-                                <button type="button" class="xp-folder-item" data-doc-open="solitaire">
-                                    <img src="./assets/images/hd-icons/solitaire.svg" alt="">
-                                    <span>Solitario XP</span>
-                                    <small>Logica Klondike propia</small>
-                                </button>
-                                <button type="button" class="xp-folder-item" data-doc-open="pinball">
-                                    <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="">
-                                    <span>Pinball XP Lab</span>
-                                    <small>Canvas, fisica y teclado</small>
-                                </button>
-                            </div>
-                        </section>
-                    </main>
+                    <main class="xp-folder-grid" aria-label="Mis Documentos" data-documents-content></main>
                 </div>
             </div>
         `;
@@ -2274,10 +2317,51 @@ export class AppManager {
             width: 760,
             height: 520,
             onReady: (appWindow) => {
-                appWindow.querySelectorAll('[data-doc-open]').forEach((item) => {
-                    const openTarget = () => this.openApp(item.dataset.docOpen);
-                    item.addEventListener('click', openTarget);
-                    item.addEventListener('dblclick', openTarget);
+                const contentRoot = appWindow.querySelector('[data-documents-content]');
+                const safe = (value) => this._escapeHtml(value);
+                const itemMarkup = (item, className) => `
+                    <button type="button" class="${className}${item.important ? ' important' : ''}" data-doc-open="${safe(item.app)}">
+                        <img src="${safe(item.icon)}" alt="">
+                        <span class="xp-document-copy"><strong${item.localizedCv ? ' data-localized-cv-name data-no-i18n' : ''}>${safe(item.title)}</strong><small>${safe(item.description)}</small></span>
+                        <span class="xp-document-type">${safe(item.type)}</span>
+                    </button>
+                `;
+                const renderDocuments = (viewMode) => {
+                    if (viewMode === 'details') {
+                        contentRoot.innerHTML = `
+                            <div class="xp-documents-details-scroll" tabindex="0" aria-label="Detalles de Mis Documentos">
+                                <div class="xp-documents-details" role="table">
+                                    <div class="xp-documents-details-header" role="row"><span role="columnheader">Nombre</span><span role="columnheader">Tipo</span><span role="columnheader">Grupo</span><span role="columnheader">Descripción</span></div>
+                                    ${groups.flatMap((group) => group.items.map((item) => `
+                                        <button type="button" class="xp-documents-details-row${item.important ? ' important' : ''}" role="row" data-doc-open="${safe(item.app)}">
+                                            <span role="cell" class="xp-documents-details-name"><img src="${safe(item.icon)}" alt=""><strong${item.localizedCv ? ' data-localized-cv-name data-no-i18n' : ''}>${safe(item.title)}</strong></span>
+                                            <span role="cell">${safe(item.type)}</span><span role="cell">${safe(group.title)}</span><span role="cell">${safe(item.description)}</span>
+                                        </button>
+                                    `)).join('')}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        const rowClass = viewMode === 'icons' ? 'xp-folder-item' : 'xp-document-list-row';
+                        contentRoot.innerHTML = groups.map((group) => `
+                            <section class="xp-folder-group" data-document-group="${safe(group.id)}" aria-labelledby="documents-${safe(group.id)}-heading">
+                                <h2 id="documents-${safe(group.id)}-heading" class="xp-folder-group-title">${safe(group.title)}</h2>
+                                <div class="${viewMode === 'icons' ? 'xp-folder-group-grid' : 'xp-document-list'}">${group.items.map((item) => itemMarkup(item, rowClass)).join('')}</div>
+                            </section>
+                        `).join('');
+                    }
+                    contentRoot.dataset.viewMode = viewMode;
+                    this._syncLocalizedCvAssets(contentRoot);
+                };
+                const initialView = this._getPreferredExplorerView('zarateXP.documents.viewMode');
+                renderDocuments(initialView);
+                this._setupViewPicker(appWindow, initialView, (viewMode) => {
+                    this._saveExplorerView('zarateXP.documents.viewMode', viewMode);
+                    renderDocuments(viewMode);
+                });
+                appWindow.addEventListener('click', (event) => {
+                    const item = event.target.closest('[data-doc-open]');
+                    if (item) this.openApp(item.dataset.docOpen);
                 });
             }
         });

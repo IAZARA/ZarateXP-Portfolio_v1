@@ -95,14 +95,19 @@ if (certificateIds.length !== 16 || new Set(certificateIds).size !== 16) {
 
 const githubActivity = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/github-activity.json'), 'utf8'));
 const githubDays = githubActivity.weeks?.flatMap((week) => week.days || []) || [];
-if (githubActivity.schemaVersion !== 1 || githubActivity.profile?.username !== 'IAZARA') {
+if (githubActivity.schemaVersion !== 2 || githubActivity.profile?.username !== 'IAZARA') {
     errors.push('GitHub activity snapshot has an invalid schema or profile');
 }
-if ((githubActivity.weeks?.length || 0) < 52 || githubDays.length < 365) {
-    errors.push(`GitHub activity snapshot is incomplete: ${githubActivity.weeks?.length || 0} weeks, ${githubDays.length} days`);
-}
-if (!githubDays.some((day) => day.count > 0) || githubActivity.summary?.totalContributions < 1) {
-    errors.push('GitHub activity snapshot has no public contribution data');
+if (githubActivity.source?.valid) {
+    const total = githubDays.reduce((sum, day) => sum + Number(day.count || 0), 0);
+    if (githubActivity.source.scope !== 'authenticated-owner' || githubActivity.source.viewerLogin !== 'IAZARA') {
+        errors.push('GitHub activity snapshot is not owner-authenticated');
+    }
+    if ((githubActivity.weeks?.length || 0) < 52 || githubDays.length < 365 || total !== githubActivity.summary?.totalContributions) {
+        errors.push(`Verified GitHub activity snapshot is incomplete: ${githubActivity.weeks?.length || 0} weeks, ${githubDays.length} days`);
+    }
+} else if (githubActivity.source?.scope !== 'unavailable' || githubDays.length !== 0 || githubActivity.summary !== null) {
+    errors.push('Unavailable GitHub activity must not expose partial metrics');
 }
 
 for (const file of [

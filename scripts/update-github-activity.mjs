@@ -4,10 +4,11 @@ import path from 'node:path';
 const root = path.resolve(import.meta.dirname, '..');
 const outputPath = path.join(root, 'assets/data/github-activity.json');
 const username = process.env.GITHUB_ACTIVITY_USER || 'IAZARA';
-const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+const token = process.env.GH_ACTIVITY_TOKEN;
+const minimumBootstrapTotal = Number(process.env.GITHUB_ACTIVITY_MIN_TOTAL || 750);
 
 if (!token) {
-  console.error('GH_TOKEN or GITHUB_TOKEN is required to refresh GitHub activity.');
+  console.error('GH_ACTIVITY_TOKEN is required to refresh verified GitHub activity.');
   process.exit(1);
 }
 
@@ -19,6 +20,7 @@ const fromIso = `${fromDate.toISOString().slice(0, 10)}T00:00:00Z`;
 
 const query = `
   query GitHubActivity($login: String!, $from: DateTime!, $to: DateTime!) {
+    viewer { login }
     user(login: $login) {
       login
       name
@@ -66,9 +68,16 @@ if (payload.errors?.length) {
 }
 
 const user = payload.data?.user;
+const viewerLogin = payload.data?.viewer?.login;
 const calendar = user?.contributionsCollection?.contributionCalendar;
 if (!user || !calendar || !Array.isArray(calendar.weeks)) {
   throw new Error(`GitHub activity was not available for ${username}`);
+}
+if (String(viewerLogin).toLowerCase() !== username.toLowerCase()) {
+  throw new Error(`GH_ACTIVITY_TOKEN belongs to ${viewerLogin || 'an unknown account'}, expected ${username}`);
+}
+if (String(user.login).toLowerCase() !== username.toLowerCase()) {
+  throw new Error(`GitHub returned ${user.login}, expected ${username}`);
 }
 
 const colors = calendar.colors || [];
@@ -85,6 +94,34 @@ const days = calendar.weeks
 
 if (days.length < 365) {
   throw new Error(`Expected a full contribution year, received ${days.length} days`);
+}
+
+const summedContributions = days.reduce((total, day) => total + day.count, 0);
+if (summedContributions !== calendar.totalContributions) {
+  throw new Error(`Contribution total mismatch: calendar=${calendar.totalContributions}, days=${summedContributions}`);
+}
+
+let previousSnapshot = null;
+try {
+  previousSnapshot = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+} catch (error) {
+  previousSnapshot = null;
+}
+const previousIsVerified = previousSnapshot?.schemaVersion === 2
+  && previousSnapshot?.source?.valid === true
+  && previousSnapshot?.source?.scope === 'authenticated-owner'
+  && String(previousSnapshot?.source?.viewerLogin).toLowerCase() === username.toLowerCase()
+  && Number(previousSnapshot?.summary?.totalContributions) > 0;
+
+if (!previousIsVerified && calendar.totalContributions < minimumBootstrapTotal) {
+  throw new Error(`Initial verified snapshot is unexpectedly low: ${calendar.totalContributions} < ${minimumBootstrapTotal}`);
+}
+if (previousIsVerified) {
+  const previousTotal = Number(previousSnapshot.summary.totalContributions);
+  const minimumExpected = Math.floor(previousTotal * 0.8);
+  if (calendar.totalContributions < minimumExpected) {
+    throw new Error(`Verified contribution total dropped unexpectedly: ${calendar.totalContributions} < ${minimumExpected}`);
+  }
 }
 
 let longestStreak = 0;
@@ -116,9 +153,15 @@ const weeks = calendar.weeks.map((week) => ({
 }));
 
 const activity = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   generatedAt: new Date().toISOString(),
-  source: 'GitHub GraphQL API',
+  source: {
+    provider: 'GitHub GraphQL API',
+    scope: 'authenticated-owner',
+    viewerLogin,
+    privateCountsAnonymized: true,
+    valid: true
+  },
   profile: {
     username: user.login,
     name: user.name || user.login,
@@ -143,5 +186,7 @@ const activity = {
 };
 
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-fs.writeFileSync(outputPath, `${JSON.stringify(activity, null, 2)}\n`);
+const temporaryPath = `${outputPath}.tmp`;
+fs.writeFileSync(temporaryPath, `${JSON.stringify(activity, null, 2)}\n`);
+fs.renameSync(temporaryPath, outputPath);
 console.log(`GitHub activity updated: ${activity.summary.totalContributions} contributions across ${weeks.length} weeks.`);

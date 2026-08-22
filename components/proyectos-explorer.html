@@ -11,10 +11,10 @@
 
     <!-- Barra de herramientas -->
     <div class="explorer-toolbar">
-        <div class="toolbar-group">
+        <div class="toolbar-group toolbar-navigation">
             <button class="toolbar-btn" id="btn-back" disabled title="Atrás">
                 <img src="./assets/images/xp-small-icons/back.png" width="16" height="16" alt="Atrás"/>
-                Atrás
+                <span class="toolbar-label">Atrás</span>
             </button>
             <button class="toolbar-btn" id="btn-forward" disabled title="Adelante">
                 <img src="./assets/images/xp-small-icons/forward.png" width="16" height="16" alt="Adelante"/>
@@ -24,22 +24,36 @@
             </button>
         </div>
         <div class="toolbar-separator"></div>
-        <div class="toolbar-group">
+        <div class="toolbar-group toolbar-search-actions">
             <button class="toolbar-btn" id="btn-search" title="Búsqueda">
                 <img src="./assets/images/hd-icons/projects.svg" width="16" height="16" alt="Búsqueda"/>
-                Búsqueda
+                <span class="toolbar-label">Búsqueda</span>
             </button>
             <button class="toolbar-btn" id="btn-folders" title="Carpetas">
                 <img src="./assets/images/hd-icons/documents.svg" width="16" height="16" alt="Carpetas"/>
-                Carpetas
+                <span class="toolbar-label">Carpetas</span>
             </button>
         </div>
         <div class="toolbar-separator"></div>
-        <div class="toolbar-group">
-            <button class="toolbar-btn" id="btn-views" title="Cambiar vista">
-                <img src="./assets/images/hd-icons/projects.svg" width="16" height="16" alt="Vistas"/>
-                Vistas
-            </button>
+        <div class="toolbar-group toolbar-view-actions">
+            <div class="xp-view-picker" data-view-picker>
+                <button class="toolbar-btn xp-view-trigger" id="btn-views" type="button" title="Cambiar vista" aria-haspopup="menu" aria-expanded="false" data-view-trigger>
+                    <img src="./assets/images/xp-small-icons/detail-view.png" width="16" height="16" alt=""/>
+                    <span>Vistas</span>
+                    <span class="xp-view-caret" aria-hidden="true">▾</span>
+                </button>
+                <div class="xp-view-menu" role="menu" aria-label="Vistas" hidden data-view-menu>
+                    <button type="button" role="menuitemradio" aria-checked="true" data-view-choice="icons">
+                        <img src="./assets/images/hd-icons/projects.svg" width="16" height="16" alt=""><span>Iconos</span>
+                    </button>
+                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="list">
+                        <img src="./assets/images/xp-small-icons/detail-view.png" width="16" height="16" alt=""><span>Lista</span>
+                    </button>
+                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="details">
+                        <img src="./assets/images/xp-small-icons/detail-view.png" width="16" height="16" alt=""><span>Detalles</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -60,6 +74,7 @@
 
     <!-- Contenido principal -->
     <div class="explorer-main-content">
+        <button class="explorer-panel-scrim" type="button" aria-label="Cerrar carpetas" hidden data-folders-scrim></button>
         <!-- Panel izquierdo: árbol de carpetas -->
         <div class="explorer-left-panel" id="folders-panel">
             <div class="panel-header">
@@ -113,16 +128,6 @@
 
         <!-- Panel derecho: contenido -->
         <div class="explorer-right-panel">
-            <div class="content-header">
-                <div class="content-view-options">
-                    <button class="view-btn active" data-view="icons" title="Iconos grandes">
-                        <img src="./assets/images/hd-icons/projects.svg" width="16" height="16"/>
-                    </button>
-                    <button class="view-btn" data-view="list" title="Lista">
-                        <img src="./assets/images/xp-small-icons/detail-view.png" width="16" height="16"/>
-                    </button>
-                </div>
-            </div>
             <div id="explorer-content" class="content-area">
                 <!-- Contenido dinámico según carpeta seleccionada -->
                 <div class="loading-message">

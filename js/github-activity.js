@@ -1,11 +1,12 @@
-const DATA_URL = './assets/data/github-activity.json';
+const DATA_URL = './assets/data/github-activity.json?v=zaratexp-20260822-verified2';
+const MAX_SNAPSHOT_AGE_MS = 72 * 60 * 60 * 1000;
 let activityPromise = null;
 
 const COPY = {
   es: {
-    loading: 'Cargando actividad pública de GitHub...',
-    errorTitle: 'No se pudo cargar la actividad',
-    errorBody: 'El último calendario no está disponible. Podés abrir el perfil público directamente.',
+    loading: 'Verificando actividad de GitHub...',
+    errorTitle: 'Actividad disponible en GitHub',
+    errorBody: 'El calendario se ocultó porque todavía no hay una sincronización completa y verificable. Podés consultar el perfil directamente.',
     profile: 'Abrir perfil de GitHub',
     contributions: 'Contribuciones',
     activeDays: 'Días activos',
@@ -19,14 +20,14 @@ const COPY = {
     more: 'Más',
     contribution: 'contribución',
     contributionsPlural: 'contribuciones',
-    calendarLabel: 'Calendario anual de contribuciones públicas de GitHub',
-    disclosure: 'Actividad pública reportada por GitHub. El volumen complementa, pero no reemplaza, la evaluación de calidad e impacto.',
-    automatic: 'Actualización automática diaria mediante GitHub Actions.'
+    calendarLabel: 'Calendario anual verificado de contribuciones de GitHub',
+    disclosure: 'Actividad verificada con acceso del titular. Las contribuciones privadas se presentan únicamente como conteos anónimos.',
+    automatic: 'Sincronización automática diaria y verificada.'
   },
   en: {
-    loading: 'Loading public GitHub activity...',
-    errorTitle: 'Activity could not be loaded',
-    errorBody: 'The latest calendar is unavailable. You can open the public profile directly.',
+    loading: 'Verifying GitHub activity...',
+    errorTitle: 'Activity available on GitHub',
+    errorBody: 'The calendar is hidden until a complete, verifiable sync is available. You can open the profile directly.',
     profile: 'Open GitHub profile',
     contributions: 'Contributions',
     activeDays: 'Active days',
@@ -40,9 +41,9 @@ const COPY = {
     more: 'More',
     contribution: 'contribution',
     contributionsPlural: 'contributions',
-    calendarLabel: 'Annual public GitHub contribution calendar',
-    disclosure: 'Public activity reported by GitHub. Volume complements, but does not replace, an assessment of quality and impact.',
-    automatic: 'Updated automatically every day through GitHub Actions.'
+    calendarLabel: 'Verified annual GitHub contribution calendar',
+    disclosure: 'Activity verified with owner access. Private contributions are shown only as anonymous counts.',
+    automatic: 'Verified automatically every day.'
   }
 };
 
@@ -79,7 +80,23 @@ function loadActivity() {
         return response.json();
       })
       .then((data) => {
-        if (data?.schemaVersion !== 1 || !Array.isArray(data.weeks) || data.weeks.length < 52) {
+        const days = Array.isArray(data?.weeks) ? data.weeks.flatMap((week) => week.days || []) : [];
+        const generatedAt = Date.parse(data?.generatedAt || '');
+        const snapshotAge = Date.now() - generatedAt;
+        const sum = days.reduce((total, day) => total + Number(day.count || 0), 0);
+        const verified = data?.schemaVersion === 2
+          && data?.source?.valid === true
+          && data?.source?.scope === 'authenticated-owner'
+          && String(data?.source?.viewerLogin).toLowerCase() === 'iazara'
+          && String(data?.profile?.username).toLowerCase() === 'iazara'
+          && Array.isArray(data.weeks)
+          && data.weeks.length >= 52
+          && days.length >= 365
+          && Number(data?.summary?.totalContributions) === sum
+          && Number.isFinite(generatedAt)
+          && snapshotAge >= -10 * 60 * 1000
+          && snapshotAge <= MAX_SNAPSHOT_AGE_MS;
+        if (!verified) {
           throw new Error('Invalid GitHub activity snapshot');
         }
         return data;
@@ -203,9 +220,15 @@ function initActivityView(root, { compact = false } = {}) {
   };
   const render = () => {
     if (!data || destroyed) return;
+    if (compact) root.closest('.xp-fde-github')?.removeAttribute('hidden');
     root.innerHTML = compact ? summaryMarkup(data, getLocale()) : appMarkup(data, getLocale());
   };
   const renderError = () => {
+    if (compact) {
+      root.closest('.xp-fde-github')?.setAttribute('hidden', '');
+      root.innerHTML = '';
+      return;
+    }
     const copy = COPY[getLocale()];
     root.innerHTML = `
       <div class="xp-gh-error" role="alert">

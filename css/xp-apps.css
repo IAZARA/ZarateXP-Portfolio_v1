@@ -22,8 +22,79 @@
 
 .xp-explorer-toolbar {
     display: flex;
+    align-items: center;
     gap: 4px;
     padding: 4px 6px;
+}
+
+.xp-view-picker {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.xp-view-trigger {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 4px;
+}
+
+.xp-view-caret {
+    margin-left: 2px;
+    color: #1f2937;
+    font-size: 9px;
+}
+
+.xp-view-menu {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 2px);
+    right: 0;
+    min-width: 142px;
+    padding: 2px;
+    border: 1px solid #7f9db9;
+    background: #fff;
+    box-shadow: 2px 3px 7px rgba(25, 48, 82, 0.3);
+}
+
+.xp-view-menu[hidden] {
+    display: none !important;
+}
+
+.xp-view-menu button {
+    width: 100%;
+    min-height: 29px;
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    align-items: center;
+    gap: 7px;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: #111;
+    padding: 4px 8px;
+    text-align: left;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-view-menu button:hover,
+.xp-view-menu button:focus-visible,
+.xp-view-menu button.active {
+    outline: none;
+    background: #316ac5;
+    color: #fff;
+}
+
+.xp-view-menu button[aria-checked="true"]::after {
+    content: "✓";
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    color: currentColor;
+    font-weight: 700;
+}
+
+.xp-view-menu button[aria-checked="true"] img {
+    visibility: hidden;
 }
 
 .xp-explorer-toolbar button,
@@ -195,6 +266,155 @@
 .xp-folder-item small {
     color: #555;
     font: 10px/1.2 Tahoma, sans-serif;
+}
+
+.xp-document-copy {
+    min-width: 0;
+    display: contents;
+}
+
+.xp-document-copy strong {
+    font: 400 11px/1.2 Tahoma, sans-serif;
+}
+
+.xp-document-type {
+    display: none;
+}
+
+.xp-document-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 12px;
+}
+
+.xp-document-list-row {
+    min-width: 0;
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 7px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    background: transparent;
+    color: #000;
+    text-align: left;
+}
+
+.xp-document-list-row:hover,
+.xp-document-list-row:focus-visible {
+    outline: none;
+    border-color: #7da2ce;
+    background: #e8f0ff;
+}
+
+.xp-document-list-row.important {
+    border-color: #e3c766;
+    background: #fff8df;
+}
+
+.xp-document-list-row > img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.xp-document-list-row .xp-document-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.xp-document-list-row .xp-document-copy strong,
+.xp-document-list-row .xp-document-copy small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.xp-document-list-row .xp-document-copy small {
+    color: #56606f;
+    font: 10px Tahoma, sans-serif;
+}
+
+.xp-document-list-row .xp-document-type {
+    display: block;
+    color: #56606f;
+    font: 10px Tahoma, sans-serif;
+}
+
+.xp-documents-details-scroll {
+    min-width: 0;
+    overflow: auto;
+    border: 1px solid #d5d5d5;
+}
+
+.xp-documents-details {
+    min-width: 680px;
+    color: #000;
+    font: 11px Tahoma, sans-serif;
+}
+
+.xp-documents-details-header,
+.xp-documents-details-row {
+    display: grid;
+    grid-template-columns: minmax(210px, 1.25fr) 120px 145px minmax(210px, 1fr);
+    align-items: center;
+}
+
+.xp-documents-details-header {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    min-height: 27px;
+    background: linear-gradient(#fff, #e7e7e7);
+    font-weight: 700;
+}
+
+.xp-documents-details-header span,
+.xp-documents-details-row > span {
+    min-width: 0;
+    padding: 5px 7px;
+    border-right: 1px solid #d4d0c8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.xp-documents-details-row {
+    width: 100%;
+    min-height: 34px;
+    border: 0;
+    border-top: 1px solid #eef1f6;
+    border-radius: 0;
+    background: #fff;
+    color: #000;
+    text-align: left;
+}
+
+.xp-documents-details-row:hover,
+.xp-documents-details-row:focus-visible {
+    outline: 1px solid #7da2ce;
+    outline-offset: -1px;
+    background: #e8f0ff;
+}
+
+.xp-documents-details-row.important {
+    background: #fffaf0;
+}
+
+.xp-documents-details-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.xp-documents-details-name img {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
 }
 
 .xp-certificates-app {
@@ -1237,6 +1457,40 @@
 }
 
 @media (max-width: 760px) {
+    .xp-documents-app .xp-explorer-menubar {
+        gap: 0;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .xp-documents-app .xp-explorer-menubar span {
+        flex: 0 0 auto;
+        padding-inline: 8px;
+    }
+
+    .xp-documents-app .xp-explorer-toolbar {
+        flex-wrap: nowrap;
+        overflow: visible;
+    }
+
+    .xp-documents-app .xp-explorer-toolbar > button {
+        min-width: 0;
+        padding-inline: 7px;
+    }
+
+    .xp-documents-app .xp-view-picker {
+        margin-left: auto;
+    }
+
+    .xp-documents-app .xp-explorer-address {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+
+    .xp-documents-app .xp-explorer-address > span {
+        display: none;
+    }
+
     .xp-certificates-toolbar {
         align-items: stretch;
         overflow: hidden;
@@ -4829,6 +5083,34 @@ body.xp-no-animations *::after {
     .xp-folder-item {
         min-height: 108px;
         padding-inline: 5px;
+    }
+
+    .xp-document-list {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+
+    .xp-document-list-row {
+        min-height: 56px;
+        grid-template-columns: 36px minmax(0, 1fr);
+        padding: 5px 7px;
+    }
+
+    .xp-document-list-row .xp-document-type {
+        display: none;
+    }
+
+    .xp-folder-grid[data-view-mode="list"] {
+        padding: 9px 8px;
+        gap: 11px;
+    }
+
+    .xp-folder-grid[data-view-mode="list"] .xp-folder-group {
+        gap: 4px;
+    }
+
+    .xp-folder-grid[data-view-mode="details"] {
+        padding: 8px;
     }
 
     .xp-mlops-app {

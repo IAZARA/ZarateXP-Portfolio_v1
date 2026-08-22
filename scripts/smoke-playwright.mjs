@@ -25,7 +25,53 @@ const contentTypes = {
   '.xml': 'application/xml; charset=utf-8'
 };
 
-const githubActivityFixture = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/github-activity.json'), 'utf8'));
+function createVerifiedGitHubFixture() {
+  const end = new Date();
+  end.setUTCHours(12, 0, 0, 0);
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - 364);
+  let bonusRemaining = 72;
+  const days = Array.from({ length: 365 }, (_, index) => {
+    const date = new Date(start);
+    date.setUTCDate(start.getUTCDate() + index);
+    let count = 0;
+    if (index % 2 === 0) {
+      count = 4 + (bonusRemaining > 0 ? 1 : 0);
+      bonusRemaining -= bonusRemaining > 0 ? 1 : 0;
+    }
+    return {
+      date: date.toISOString().slice(0, 10),
+      weekday: date.getUTCDay(),
+      count,
+      level: count === 0 ? 0 : count >= 5 ? 4 : 3
+    };
+  });
+  const weeks = [];
+  for (let index = 0; index < days.length; index += 7) {
+    const chunk = days.slice(index, index + 7);
+    weeks.push({ firstDay: chunk[0].date, days: chunk });
+  }
+  const activeDays = days.filter((day) => day.count > 0);
+  return {
+    schemaVersion: 2,
+    generatedAt: new Date().toISOString(),
+    source: { provider: 'GitHub GraphQL API', scope: 'authenticated-owner', viewerLogin: 'IAZARA', privateCountsAnonymized: true, valid: true },
+    profile: { username: 'IAZARA', name: 'Ivan Agustin Zarate', url: 'https://github.com/IAZARA', avatarUrl: '', publicRepositories: 15 },
+    period: { from: days[0].date, to: days.at(-1).date },
+    summary: {
+      totalContributions: days.reduce((sum, day) => sum + day.count, 0),
+      activeDays: activeDays.length,
+      longestStreak: 1,
+      currentStreak: days.at(-1).count > 0 ? 1 : 0,
+      restrictedContributions: 548,
+      busiestDay: activeDays.reduce((best, day) => !best || day.count > best.count ? day : best, null),
+      latestActiveDay: activeDays.at(-1)
+    },
+    weeks
+  };
+}
+
+const githubActivityFixture = createVerifiedGitHubFixture();
 
 function createStaticServer() {
   const server = http.createServer((request, response) => {
@@ -82,6 +128,7 @@ function jsonRoute(route, payload, headers = {}) {
 }
 
 async function installApiFixtures(page) {
+  await page.route('**/assets/data/github-activity.json*', (route) => jsonRoute(route, githubActivityFixture));
   const countryFixture = {
     name: {
       common: 'Argentina',
@@ -289,6 +336,14 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
     await page.evaluate(() => window.zarateXP.windowManager.closeWindow('recruiter-route'));
 
     const documentsWindow = await openApp(page, 'documents');
+    ensure(await documentsWindow.locator('[data-documents-content]').getAttribute('data-view-mode') === 'list', 'Mis Documentos no eligió Lista como vista móvil inicial');
+    ensure(await documentsWindow.locator('.xp-document-list-row').count() === 13, 'La lista móvil de Mis Documentos no mostró los 13 accesos');
+    await documentsWindow.locator('[data-view-trigger]').click();
+    await documentsWindow.locator('[data-view-choice="details"]').click();
+    ensure(await documentsWindow.locator('.xp-documents-details-row').count() === 13, 'Detalles de Mis Documentos no mostró los 13 accesos');
+    ensure(await page.evaluate(() => localStorage.getItem('zarateXP.documents.viewMode')) === 'details', 'Mis Documentos no guardó la vista elegida');
+    await documentsWindow.locator('[data-view-trigger]').click();
+    await documentsWindow.locator('[data-view-choice="list"]').click();
     const groups = documentsWindow.locator('[data-document-group]');
     ensure(await groups.count() === 3, 'Mis Documentos no expuso sus tres grupos');
     ensure(await documentsWindow.locator('[data-document-group="profile"] [data-doc-open="certificates"]').isVisible(), 'Certificados no quedó visible dentro de Perfil y credenciales');
@@ -393,9 +448,20 @@ async function exerciseBootSkip(browser, baseUrl) {
 }
 
 async function exerciseProjectExplorer(page) {
+  const originalViewport = page.viewportSize();
   const appWindow = await openApp(page, 'projects');
   await appWindow.locator('#explorer-content .project-item').first().waitFor({ state: 'visible' });
   ensure(await appWindow.locator('#explorer-content .project-item').count() === 19, 'El Explorador no abrió con los 19 proyectos');
+
+  await appWindow.locator('[data-view-trigger]').click();
+  await appWindow.locator('[data-view-choice="list"]').click();
+  ensure(await appWindow.locator('#explorer-content .list-row').count() === 19, 'La vista Lista no mostró los 19 proyectos');
+  await appWindow.locator('[data-view-trigger]').click();
+  await appWindow.locator('[data-view-choice="details"]').click();
+  ensure(await appWindow.locator('#explorer-content .details-row').count() === 19, 'La vista Detalles no mostró los 19 proyectos');
+  ensure(await page.evaluate(() => localStorage.getItem('zarateXP.projects.viewMode')) === 'details', 'El Explorador no guardó la vista elegida');
+  await appWindow.locator('[data-view-trigger]').click();
+  await appWindow.locator('[data-view-choice="icons"]').click();
 
   await appWindow.locator('#project-location').selectOption('featured');
   await appWindow.locator('#address-go').click();
@@ -461,7 +527,29 @@ async function exerciseProjectExplorer(page) {
   await page.waitForFunction(() => document.querySelector('.window[data-window-id="project-details-art-redmine"]')?.textContent.includes('validación humana antes de publicar'));
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-art-redmine'));
   await englishDetails.waitFor({ state: 'detached' });
-  return 'Proyectos: destacados FDE, búsqueda global, historial, vistas, teclado y evidencia específica';
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(180);
+  const mobileToolbar = await appWindow.evaluate((windowNode) => {
+    const toolbar = windowNode.querySelector('.explorer-toolbar').getBoundingClientRect();
+    const controls = ['#btn-back', '#btn-forward', '#btn-up', '#btn-search', '#btn-folders', '#btn-views']
+      .map((selector) => windowNode.querySelector(selector)?.getBoundingClientRect())
+      .filter(Boolean);
+    const overlaps = controls.some((left, leftIndex) => controls.some((right, rightIndex) => rightIndex > leftIndex
+      && left.left < right.right && left.right > right.left && left.top < right.bottom && left.bottom > right.top));
+    return {
+      contained: controls.every((rect) => rect.left >= toolbar.left - 1 && rect.right <= toolbar.right + 1),
+      sameLine: controls.every((rect) => Math.abs(rect.top - controls[0].top) < 2),
+      overlaps
+    };
+  });
+  ensure(mobileToolbar.contained && mobileToolbar.sameLine && !mobileToolbar.overlaps, `La barra móvil de Proyectos se superpone o recorta (${JSON.stringify(mobileToolbar)})`);
+  await appWindow.locator('[data-view-trigger]').click();
+  ensure(await appWindow.locator('[data-view-choice="list"]').isVisible(), 'El menú Vistas no quedó accesible en móvil');
+  await appWindow.locator('[data-view-choice="list"]').click();
+  ensure(await appWindow.locator('#explorer-content .list-row').count() > 0, 'La vista Lista no renderizó filas en móvil');
+  await page.setViewportSize(originalViewport);
+  return 'Proyectos: destacados FDE, búsqueda global, historial, tres vistas, toolbar móvil, teclado y evidencia específica';
 }
 
 async function exerciseStartMenuAndPaint(page) {

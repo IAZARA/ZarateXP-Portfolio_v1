@@ -24,11 +24,17 @@ jobs:
         with:
           node-version: 20
 
-      - name: Refresh public contribution calendar
+      - name: Refresh verified contribution calendar
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_ACTIVITY_TOKEN: ${{ secrets.GH_ACTIVITY_TOKEN }}
           GITHUB_ACTIVITY_USER: IAZARA
-        run: node scripts/update-github-activity.mjs
+          GITHUB_ACTIVITY_MIN_TOTAL: 750
+        run: |
+          if [ -z "$GH_ACTIVITY_TOKEN" ]; then
+            echo "::warning::GH_ACTIVITY_TOKEN is not configured. The last verified snapshot remains unchanged."
+            exit 0
+          fi
+          node scripts/update-github-activity.mjs
 
       - name: Commit updated snapshot
         run: |

@@ -842,3 +842,325 @@ body[data-locale="en"] .project-preview-language-note {
     max-width: 300px;
     word-wrap: break-word;
 }
+
+/* Vista responsive unificada: Iconos, Lista y Detalles */
+.explorer-container .xp-view-menu button {
+    cursor: pointer;
+}
+
+.explorer-panel-scrim {
+    display: none;
+}
+
+.explorer-container.folders-open .explorer-left-panel {
+    display: flex;
+}
+
+.explorer-container.folders-open .explorer-splitter {
+    display: block;
+}
+
+.content-area {
+    min-width: 0;
+}
+
+.content-area .icons-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(112px, 126px));
+    gap: 16px 20px;
+    align-content: start;
+    justify-content: start;
+    padding: 2px;
+}
+
+.content-area .project-item {
+    width: 112px;
+    min-height: 122px;
+}
+
+.content-area .list-view {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px 12px;
+}
+
+.content-area .list-row {
+    min-width: 0;
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 7px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    color: #000;
+}
+
+.content-area .list-row:hover,
+.content-area .list-row:focus-visible {
+    border-color: #7da2ce;
+    background: #e8f0ff;
+}
+
+.content-area .list-row.selected {
+    border-color: #174ea6;
+    background: #316ac5;
+    color: #fff;
+}
+
+.list-cell-icon {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+}
+
+.list-cell-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.project-list-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.project-list-copy strong,
+.project-list-copy small,
+.project-list-status {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.project-list-copy strong {
+    font: 400 11px Tahoma, sans-serif;
+}
+
+.project-list-copy small,
+.project-list-status {
+    color: #56606f;
+    font: 10px Tahoma, sans-serif;
+}
+
+.list-row.selected .project-list-copy small,
+.list-row.selected .project-list-status {
+    color: #fff;
+}
+
+.details-view-scroll {
+    max-width: 100%;
+    overflow: auto;
+    border: 1px solid #d5d5d5;
+}
+
+.details-view {
+    min-width: 640px;
+    color: #000;
+    font: 11px Tahoma, sans-serif;
+}
+
+.details-header,
+.details-row {
+    display: grid;
+    grid-template-columns: minmax(230px, 1.4fr) 100px minmax(150px, 1fr) minmax(130px, .8fr);
+    align-items: center;
+}
+
+.details-header {
+    position: sticky;
+    z-index: 2;
+    top: 0;
+    min-height: 27px;
+    background: linear-gradient(#fff, #e7e7e7);
+    font-weight: 700;
+}
+
+.details-header span,
+.details-row > span {
+    min-width: 0;
+    padding: 5px 7px;
+    border-right: 1px solid #d4d0c8;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.details-row {
+    min-height: 32px;
+    border-top: 1px solid #eef1f6;
+    cursor: pointer;
+}
+
+.details-row:hover,
+.details-row:focus-visible {
+    outline: 1px solid #7da2ce;
+    outline-offset: -1px;
+    background: #e8f0ff;
+}
+
+.details-row.selected {
+    background: #316ac5;
+    color: #fff;
+}
+
+.details-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.details-name .list-cell-icon {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 600px) {
+    .explorer-menu-bar {
+        flex: 0 0 auto;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .explorer-toolbar {
+        flex: 0 0 auto;
+        display: grid;
+        grid-template-columns: auto auto minmax(0, 1fr);
+        gap: 1px;
+        overflow: visible;
+        padding-inline: 3px;
+    }
+
+    .explorer-toolbar .toolbar-btn {
+        min-height: 34px;
+        padding-inline: 4px;
+        gap: 2px;
+        font-size: 10px;
+    }
+
+    .explorer-toolbar .toolbar-separator {
+        display: none;
+    }
+
+    .explorer-toolbar .toolbar-navigation .toolbar-btn {
+        min-width: 31px;
+        width: 31px;
+        justify-content: center;
+        padding-inline: 2px;
+    }
+
+    .explorer-toolbar .toolbar-navigation .toolbar-label {
+        display: none;
+    }
+
+    .explorer-toolbar .toolbar-search-actions {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: repeat(2, 31px);
+    }
+
+    .explorer-toolbar .toolbar-search-actions .toolbar-btn {
+        min-width: 0;
+        width: 31px;
+        justify-content: center;
+        padding-inline: 2px;
+    }
+
+    .explorer-toolbar .toolbar-search-actions .toolbar-label {
+        display: none;
+    }
+
+    .explorer-toolbar .toolbar-view-actions {
+        justify-self: end;
+    }
+
+    .explorer-toolbar .toolbar-view-actions .toolbar-btn {
+        min-width: 61px;
+        justify-content: center;
+    }
+
+    .explorer-address-bar {
+        padding: 4px;
+        gap: 4px;
+    }
+
+    .address-go-btn {
+        min-height: 32px;
+        padding-inline: 10px;
+    }
+
+    .explorer-left-panel {
+        position: absolute;
+        z-index: 7;
+        inset: 0 auto 0 0;
+        width: min(78vw, 270px);
+        min-width: 0;
+        box-shadow: 4px 0 10px rgba(0, 0, 0, 0.32);
+    }
+
+    .explorer-container.folders-open .explorer-panel-scrim {
+        position: absolute;
+        z-index: 6;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: rgba(24, 48, 82, 0.28);
+    }
+
+    .explorer-container.folders-open .explorer-splitter {
+        display: none;
+    }
+
+    .content-area {
+        padding: 8px;
+    }
+
+    .content-area .icons-view {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px 4px;
+    }
+
+    .content-area .project-item {
+        width: 100%;
+        max-width: none;
+        min-height: 112px;
+        padding-inline: 3px;
+    }
+
+    .content-area .list-view {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+
+    .content-area .list-row {
+        min-height: 58px;
+        grid-template-columns: 36px minmax(0, 1fr);
+    }
+
+    .content-area .project-list-status {
+        display: none;
+    }
+
+    .details-view-scroll {
+        height: 100%;
+    }
+
+    .explorer-status-bar .status-right {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    #selection-info {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
