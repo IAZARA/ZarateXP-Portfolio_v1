@@ -103,6 +103,7 @@ const checks = [
   ['GitHub activity static snapshot', /assets\/data\/github-activity\.json[\s\S]*schemaVersion/],
   ['GitHub activity token-safe automation', /(?=[\s\S]*schedule:)(?=[\s\S]*update-github-activity\.mjs)(?=[\s\S]*GH_ACTIVITY_TOKEN)/],
   ['GitHub activity no browser token', /(?=[\s\S]*fetch\(DATA_URL)(?=[\s\S]*Private repository activity is included only as anonymous counts)/],
+  ['GitHub activity minimum verified total', /MINIMUM_VERIFIED_TOTAL\s*=\s*750[\s\S]*totalContributions\)\s*>=\s*MINIMUM_VERIFIED_TOTAL/],
   ['API cache/error states', /zarateXP\.apiCache[\s\S]*errorMarkup/],
   ['API cancellation and stale-response guard', /AbortController[\s\S]*assertCurrent[\s\S]*cancelAll/],
   ['API parallel execution and freshness', /Promise\.all\([\s\S]*preferFreshCache[\s\S]*data-api-last-updated/],

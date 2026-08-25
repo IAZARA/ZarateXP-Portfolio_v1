@@ -1097,6 +1097,13 @@
     font-size: 9px;
 }
 
+.xp-gh-summary-note {
+    margin: 7px 0 0;
+    color: #5e6877;
+    font-size: 9px;
+    line-height: 1.45;
+}
+
 .xp-gh-shell {
     display: grid;
     grid-template-rows: auto minmax(0, 1fr) auto;

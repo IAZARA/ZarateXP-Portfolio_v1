@@ -72,6 +72,30 @@ function createVerifiedGitHubFixture() {
 
 const githubActivityFixture = createVerifiedGitHubFixture();
 
+function createLowGitHubFixture() {
+  const fixture = structuredClone(githubActivityFixture);
+  const days = fixture.weeks.flatMap((week) => week.days);
+  let remainingReduction = fixture.summary.totalContributions - 722;
+  for (const day of days) {
+    if (remainingReduction <= 0) break;
+    const reduction = Math.min(day.count, remainingReduction);
+    day.count -= reduction;
+    remainingReduction -= reduction;
+    day.level = day.count === 0 ? 0 : day.count >= 5 ? 4 : day.count >= 3 ? 3 : day.count >= 2 ? 2 : 1;
+  }
+  const activeDays = days.filter((day) => day.count > 0);
+  fixture.summary = {
+    ...fixture.summary,
+    totalContributions: days.reduce((sum, day) => sum + day.count, 0),
+    activeDays: activeDays.length,
+    busiestDay: activeDays.reduce((best, day) => !best || day.count > best.count ? day : best, null),
+    latestActiveDay: activeDays.at(-1) || null
+  };
+  return fixture;
+}
+
+const lowGitHubActivityFixture = createLowGitHubFixture();
+
 function createStaticServer() {
   const server = http.createServer((request, response) => {
     const requestUrl = new URL(request.url || '/', 'http://localhost');
@@ -1028,8 +1052,10 @@ async function exerciseGitHubActivity(page) {
     active: node.querySelectorAll('.xp-gh-day:not(.level-0)').length,
     text: node.textContent
   }));
-  ensure(compact.metrics === 3 && compact.days >= 240 && compact.active > 0, `El resumen FDE de GitHub quedó incompleto (${JSON.stringify(compact)})`);
+  const fixtureDays = githubActivityFixture.weeks.flatMap((week) => week.days).length;
+  ensure(compact.metrics === 3 && compact.days === fixtureDays && compact.active > 0, `El resumen FDE de GitHub no mostró el año completo (${JSON.stringify(compact)})`);
   ensure(compact.text.includes(String(githubActivityFixture.summary.totalContributions)), 'El resumen FDE no refleja el snapshot versionado');
+  ensure(compact.text.includes('conteos anónimos'), 'El resumen FDE no explica la anonimización de actividad privada');
 
   await recruiterWindow.locator('[data-route-app="github-activity"]').last().click();
   const appWindow = page.locator('#windows-container .window[data-window-id="github-activity"]');
@@ -1042,7 +1068,6 @@ async function exerciseGitHubActivity(page) {
     active: node.querySelectorAll('.xp-gh-days .xp-gh-day:not(.level-0)').length,
     profile: node.querySelector('.xp-gh-app-header a')?.getAttribute('href')
   }));
-  const fixtureDays = githubActivityFixture.weeks.flatMap((week) => week.days).length;
   ensure(full.metrics === 4 && full.days === fixtureDays && full.active > 0, `La aplicación GitHub no renderizó el año completo (${JSON.stringify(full)})`);
   ensure(full.profile === 'https://github.com/IAZARA', 'La aplicación GitHub no enlaza al perfil público correcto');
   const privacyNote = await appRoot.locator('.xp-gh-app-note').innerText();
@@ -1054,23 +1079,62 @@ async function exerciseGitHubActivity(page) {
   ensure((await appRoot.locator('.xp-gh-app-note').innerText()).includes('Private repository activity is included only as anonymous counts'), 'La nota de privacidad de GitHub no se tradujo al inglés');
   await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
 
-  await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForTimeout(150);
-  const mobile = await appWindow.evaluate((windowNode) => {
-    const rect = windowNode.getBoundingClientRect();
-    const taskbarTop = document.querySelector('.taskbar')?.getBoundingClientRect().top || window.innerHeight;
-    const calendar = windowNode.querySelector('.xp-gh-calendar-scroll');
-    const metrics = Array.from(windowNode.querySelectorAll('.xp-gh-app-metrics > div')).map((node) => node.getBoundingClientRect());
-    return {
-      contained: rect.left >= 7 && rect.right <= window.innerWidth - 7 && rect.top >= 7 && rect.bottom <= taskbarTop - 7,
-      calendarScrollable: calendar.scrollWidth > calendar.clientWidth,
-      twoColumns: metrics.length === 4 && Math.abs(metrics[0].top - metrics[1].top) < 2 && metrics[2].top > metrics[0].top,
-      pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
-    };
-  });
-  ensure(mobile.contained && mobile.calendarScrollable && mobile.twoColumns && !mobile.pageOverflow, `La actividad GitHub no se adaptó al celular (${JSON.stringify(mobile)})`);
+  for (const viewport of [{ width: 390, height: 844 }, { width: 430, height: 932 }]) {
+    await page.setViewportSize(viewport);
+    await page.waitForTimeout(150);
+    const mobile = await appWindow.evaluate((windowNode) => {
+      const rect = windowNode.getBoundingClientRect();
+      const taskbarTop = document.querySelector('.taskbar')?.getBoundingClientRect().top || window.innerHeight;
+      const calendar = windowNode.querySelector('.xp-gh-calendar-scroll');
+      const metrics = Array.from(windowNode.querySelectorAll('.xp-gh-app-metrics > div')).map((node) => node.getBoundingClientRect());
+      const scrollMax = calendar.scrollWidth - calendar.clientWidth;
+      return {
+        contained: rect.left >= 7 && rect.right <= window.innerWidth - 7 && rect.top >= 7 && rect.bottom <= taskbarTop - 7,
+        calendarScrollable: scrollMax > 0,
+        latestWeeksVisible: scrollMax <= 1 || calendar.scrollLeft >= scrollMax - 2,
+        twoColumns: metrics.length === 4 && Math.abs(metrics[0].top - metrics[1].top) < 2 && metrics[2].top > metrics[0].top,
+        pageOverflow: document.documentElement.scrollWidth > window.innerWidth + 1
+      };
+    });
+    ensure(mobile.contained && mobile.calendarScrollable && mobile.latestWeeksVisible && mobile.twoColumns && !mobile.pageOverflow, `La actividad GitHub no se adaptó a ${viewport.width}x${viewport.height} (${JSON.stringify(mobile)})`);
+  }
   await page.setViewportSize(originalViewport);
-  return `GitHub: snapshot de ${fixtureDays} días, resumen FDE, app completa, ES/EN y calendario móvil desplazable`;
+  return `GitHub: snapshot de ${fixtureDays} días, resumen anual, privacidad ES/EN y calendario móvil reciente en 390/430 px`;
+}
+
+async function exerciseRejectedGitHubActivity(browser, baseUrl) {
+  const context = await browser.newContext({ viewport: { width: 430, height: 932 } });
+  const page = await context.newPage();
+  await page.route('**/assets/data/github-activity.json*', (route) => jsonRoute(route, lowGitHubActivityFixture));
+  try {
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => localStorage.setItem('zarateXP_session', 'active'));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => Boolean(window.zarateXP?.appManager?.windowManager), null, { timeout: 12000 });
+
+    const recruiterWindow = await openApp(page, 'recruiter-route');
+    const recruiterSection = recruiterWindow.locator('.xp-fde-github');
+    await recruiterSection.waitFor({ state: 'hidden', timeout: 12000 });
+    ensure(await recruiterSection.getAttribute('hidden') !== null, 'El resumen FDE no se ocultó ante un total inferior a 750');
+
+    const appWindow = await openApp(page, 'github-activity');
+    const error = appWindow.locator('.xp-gh-error');
+    await error.waitFor({ state: 'visible', timeout: 12000 });
+    ensure((await error.innerText()).includes('El calendario se ocultó'), 'La aplicación GitHub no explicó el rechazo del snapshot incompleto');
+
+    await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
+    await error.getByText(/The calendar is hidden until a complete, verifiable sync is available\./).waitFor({ state: 'visible' });
+    const contained = await appWindow.evaluate((windowNode) => {
+      const rect = windowNode.getBoundingClientRect();
+      const taskbarTop = document.querySelector('.taskbar')?.getBoundingClientRect().top || window.innerHeight;
+      return rect.left >= 7 && rect.right <= window.innerWidth - 7 && rect.top >= 7 && rect.bottom <= taskbarTop - 7;
+    });
+    ensure(contained, 'El fallback de actividad GitHub quedó fuera del viewport 430x932');
+    return 'GitHub: snapshot de 722 rechazado, resumen oculto y fallback ES/EN contenido en 430x932';
+  } finally {
+    await context.close();
+  }
 }
 
 function ensure(condition, message) {
@@ -2253,6 +2317,7 @@ async function main() {
 
     exercised.push(await exerciseCertificates(page));
     exercised.push(await exerciseGitHubActivity(page));
+    exercised.push(await exerciseRejectedGitHubActivity(browser, baseUrl));
     exercised.push(await exerciseApiCenter(page));
     exercised.push(await exerciseWinamp(page));
     exercised.push(await exerciseSolitaire(page));

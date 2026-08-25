@@ -1,5 +1,6 @@
-const DATA_URL = './assets/data/github-activity.json?v=zaratexp-20260822-private-safe';
+const DATA_URL = './assets/data/github-activity.json?v=zaratexp-20260825-private-floor';
 const MAX_SNAPSHOT_AGE_MS = 72 * 60 * 60 * 1000;
+const MINIMUM_VERIFIED_TOTAL = 750;
 let activityPromise = null;
 
 const COPY = {
@@ -21,6 +22,7 @@ const COPY = {
     contribution: 'contribución',
     contributionsPlural: 'contribuciones',
     calendarLabel: 'Calendario anual verificado de contribuciones de GitHub',
+    metricsLabel: 'Métricas de actividad de GitHub',
     disclosure: 'La actividad de repositorios privados se incluye únicamente como conteos anónimos. No se publican nombres, commits ni detalles.',
     automatic: 'Sincronización automática diaria y verificada.'
   },
@@ -42,6 +44,7 @@ const COPY = {
     contribution: 'contribution',
     contributionsPlural: 'contributions',
     calendarLabel: 'Verified annual GitHub contribution calendar',
+    metricsLabel: 'GitHub activity metrics',
     disclosure: 'Private repository activity is included only as anonymous counts. Names, commits, and details are never published.',
     automatic: 'Verified automatically every day.'
   }
@@ -87,12 +90,14 @@ function loadActivity() {
         const verified = data?.schemaVersion === 3
           && data?.source?.valid === true
           && data?.source?.scope === 'authenticated-owner'
+          && data?.source?.privateCountsAnonymized === true
           && String(data?.source?.viewerLogin).toLowerCase() === 'iazara'
           && String(data?.profile?.username).toLowerCase() === 'iazara'
           && Array.isArray(data.weeks)
           && data.weeks.length >= 52
           && days.length >= 365
           && Number(data?.summary?.totalContributions) === sum
+          && Number(data?.summary?.totalContributions) >= MINIMUM_VERIFIED_TOTAL
           && Number.isFinite(generatedAt)
           && snapshotAge >= -10 * 60 * 1000
           && snapshotAge <= MAX_SNAPSHOT_AGE_MS;
@@ -128,9 +133,9 @@ function getMonthSegments(weeks, locale) {
   return segments;
 }
 
-function calendarMarkup(data, locale, { compact = false } = {}) {
+function calendarMarkup(data, locale) {
   const copy = COPY[locale];
-  const weeks = compact ? data.weeks.slice(-36) : data.weeks;
+  const weeks = data.weeks;
   const monthSegments = getMonthSegments(weeks, locale);
   const monthMarkup = monthSegments.map((segment) => `
     <span style="grid-column: ${segment.start} / span ${segment.span}">${escapeHtml(segment.label)}</span>
@@ -167,11 +172,12 @@ function summaryMarkup(data, locale) {
   const latest = data.summary.latestActiveDay;
   return `
     <div class="xp-gh-summary-metrics">${metricsMarkup(data, locale, { compact: true })}</div>
-    ${calendarMarkup(data, locale, { compact: true })}
+    ${calendarMarkup(data, locale)}
     <div class="xp-gh-summary-footer">
       <span>${escapeHtml(copy.latestActivity)}: <strong>${escapeHtml(latest ? formatDate(latest.date, locale, { dateStyle: 'medium' }) : '-')}</strong></span>
       <span>${escapeHtml(copy.updated)}: ${escapeHtml(formatDate(data.generatedAt.slice(0, 10), locale, { dateStyle: 'medium' }))}</span>
     </div>
+    <p class="xp-gh-summary-note">${escapeHtml(copy.disclosure)}</p>
   `;
 }
 
@@ -191,7 +197,7 @@ function appMarkup(data, locale) {
       </div>
       <a href="${escapeHtml(safeProfileUrl)}" target="_blank" rel="noopener">${escapeHtml(copy.profile)}</a>
     </header>
-    <section class="xp-gh-app-metrics" aria-label="GitHub metrics">${metricsMarkup(data, locale)}</section>
+    <section class="xp-gh-app-metrics" aria-label="${escapeHtml(copy.metricsLabel)}">${metricsMarkup(data, locale)}</section>
     <section class="xp-gh-app-calendar">
       ${calendarMarkup(data, locale)}
       <div class="xp-gh-legend" aria-hidden="true">
@@ -214,6 +220,16 @@ function initActivityView(root, { compact = false } = {}) {
   let data = null;
   let destroyed = false;
   let state = 'loading';
+  let scrollFrame = 0;
+  const revealLatestWeeks = () => {
+    cancelAnimationFrame(scrollFrame);
+    scrollFrame = requestAnimationFrame(() => {
+      if (destroyed) return;
+      root.querySelectorAll('.xp-gh-calendar-scroll').forEach((calendar) => {
+        calendar.scrollLeft = calendar.scrollWidth - calendar.clientWidth;
+      });
+    });
+  };
   const renderLoading = () => {
     const copy = COPY[getLocale()];
     root.innerHTML = `<div class="xp-gh-loading"><span aria-hidden="true"></span>${escapeHtml(copy.loading)}</div>`;
@@ -222,6 +238,7 @@ function initActivityView(root, { compact = false } = {}) {
     if (!data || destroyed) return;
     if (compact) root.closest('.xp-fde-github')?.removeAttribute('hidden');
     root.innerHTML = compact ? summaryMarkup(data, getLocale()) : appMarkup(data, getLocale());
+    revealLatestWeeks();
   };
   const renderError = () => {
     if (compact) {
@@ -243,7 +260,11 @@ function initActivityView(root, { compact = false } = {}) {
     else if (state === 'error') renderError();
     else renderLoading();
   };
+  const handleResize = () => {
+    if (state === 'ready') revealLatestWeeks();
+  };
   window.addEventListener('zaratexp:localechange', handleLocaleChange);
+  window.addEventListener('resize', handleResize);
   renderLoading();
   loadActivity().then((activity) => {
     if (destroyed) return;
@@ -258,7 +279,9 @@ function initActivityView(root, { compact = false } = {}) {
   });
   return () => {
     destroyed = true;
+    cancelAnimationFrame(scrollFrame);
     window.removeEventListener('zaratexp:localechange', handleLocaleChange);
+    window.removeEventListener('resize', handleResize);
   };
 }
 

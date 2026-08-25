@@ -1,6 +1,6 @@
 import { getProjectsData } from './data/projects.js?v=zaratexp-20260825-projects21';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
-import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-verified2';
+import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260825-private-floor';
 import { initMyComputerApp } from './my-computer.js?v=zaratexp-20260822-removable-drive1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
 
@@ -2677,13 +2677,13 @@ export class AppManager {
                     <section class="xp-fde-section xp-fde-github">
                         <div class="xp-fde-section-heading">
                             <div>
-                                <h3>Actividad técnica pública</h3>
-                                <p>Contribuciones, días activos y constancia durante el último año, con datos verificables de GitHub.</p>
+                                <h3>Actividad técnica verificada</h3>
+                                <p>Contribuciones, días activos y constancia durante el último año, con actividad privada incluida sólo como conteos anónimos.</p>
                             </div>
                             <button type="button" data-route-app="github-activity">Abrir calendario</button>
                         </div>
                         <div class="xp-gh-summary" data-github-activity-summary role="status" aria-live="polite">
-                            <div class="xp-gh-loading"><span aria-hidden="true"></span>Cargando actividad pública de GitHub...</div>
+                            <div class="xp-gh-loading"><span aria-hidden="true"></span>Cargando actividad de GitHub...</div>
                         </div>
                     </section>
 
@@ -2742,7 +2742,7 @@ export class AppManager {
                     <span>Archivo</span><span>Ver</span><span>Favoritos</span><span>Ayuda</span>
                 </div>
                 <main class="xp-gh-app-body" data-github-activity-root role="status" aria-live="polite">
-                    <div class="xp-gh-loading"><span aria-hidden="true"></span>Cargando actividad pública de GitHub...</div>
+                    <div class="xp-gh-loading"><span aria-hidden="true"></span>Cargando actividad de GitHub...</div>
                 </main>
                 <footer class="xp-gh-status"><span>Fuente: GitHub GraphQL API</span><span>Snapshot público, sin tokens en el navegador.</span></footer>
             </div>

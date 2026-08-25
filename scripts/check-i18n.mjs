@@ -103,19 +103,42 @@ if (certificateIds.length !== 16 || new Set(certificateIds).size !== 16) {
 
 const githubActivity = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/github-activity.json'), 'utf8'));
 const githubDays = githubActivity.weeks?.flatMap((week) => week.days || []) || [];
+const githubUnexpectedKeys = (value, allowed) => Object.keys(value || {}).filter((key) => !allowed.includes(key));
+const githubPrivacyContract = [
+    ['snapshot', githubActivity, ['schemaVersion', 'generatedAt', 'source', 'profile', 'period', 'summary', 'weeks']],
+    ['source', githubActivity.source, ['provider', 'scope', 'viewerLogin', 'privateCountsAnonymized', 'valid']],
+    ['profile', githubActivity.profile, ['username', 'name', 'url', 'avatarUrl', 'publicRepositories']],
+    ['period', githubActivity.period, ['from', 'to']],
+    ['summary', githubActivity.summary, ['totalContributions', 'activeDays', 'longestStreak', 'currentStreak', 'busiestDay', 'latestActiveDay']]
+];
+for (const [label, value, allowed] of githubPrivacyContract) {
+    const unexpected = githubUnexpectedKeys(value, allowed);
+    if (unexpected.length) errors.push(`GitHub activity ${label} exposes unexpected fields: ${unexpected.join(', ')}`);
+}
+for (const week of githubActivity.weeks || []) {
+    const unexpectedWeekKeys = githubUnexpectedKeys(week, ['firstDay', 'days']);
+    if (unexpectedWeekKeys.length) errors.push(`GitHub activity week exposes unexpected fields: ${unexpectedWeekKeys.join(', ')}`);
+}
+for (const day of githubDays) {
+    const unexpectedDayKeys = githubUnexpectedKeys(day, ['date', 'weekday', 'count', 'level']);
+    if (unexpectedDayKeys.length) errors.push(`GitHub activity day exposes unexpected fields: ${unexpectedDayKeys.join(', ')}`);
+}
 if (githubActivity.schemaVersion !== 3 || githubActivity.profile?.username !== 'IAZARA') {
     errors.push('GitHub activity snapshot has an invalid schema or profile');
 }
 if (Object.hasOwn(githubActivity.summary || {}, 'restrictedContributions')) {
     errors.push('GitHub activity snapshot must not publish the exact private contribution count');
 }
+if (githubActivity.source?.privateCountsAnonymized !== true) {
+    errors.push('GitHub activity snapshot must mark private counts as anonymized');
+}
 if (githubActivity.source?.valid) {
     const total = githubDays.reduce((sum, day) => sum + Number(day.count || 0), 0);
     if (githubActivity.source.scope !== 'authenticated-owner' || githubActivity.source.viewerLogin !== 'IAZARA') {
         errors.push('GitHub activity snapshot is not owner-authenticated');
     }
-    if (githubActivity.source.privateCountsAnonymized !== true) {
-        errors.push('GitHub activity snapshot must mark private counts as anonymized');
+    if (Number(githubActivity.summary?.totalContributions) < 750) {
+        errors.push('Verified GitHub activity snapshot must contain at least 750 contributions');
     }
     if ((githubActivity.weeks?.length || 0) < 52 || githubDays.length < 365 || total !== githubActivity.summary?.totalContributions) {
         errors.push(`Verified GitHub activity snapshot is incomplete: ${githubActivity.weeks?.length || 0} weeks, ${githubDays.length} days`);
@@ -125,7 +148,10 @@ if (githubActivity.source?.valid) {
 }
 
 const githubUpdater = fs.readFileSync(path.join(root, 'scripts/update-github-activity.mjs'), 'utf8');
-for (const privateDetailField of ['contributionsByRepository', 'commitContributionsByRepository', 'issueContributionsByRepository', 'pullRequestContributionsByRepository']) {
+if (!/if \(calendar\.totalContributions < minimumTotal\)/.test(githubUpdater)) {
+    errors.push('GitHub updater must enforce the 750-contribution floor on every refresh');
+}
+for (const privateDetailField of ['restrictedContributionsCount', 'contributionsByRepository', 'commitContributionsByRepository', 'issueContributionsByRepository', 'pullRequestContributionsByRepository']) {
     if (githubUpdater.includes(privateDetailField)) errors.push(`GitHub updater must not request private repository details: ${privateDetailField}`);
 }
 

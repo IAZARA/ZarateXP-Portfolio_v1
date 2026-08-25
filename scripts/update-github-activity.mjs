@@ -5,7 +5,11 @@ const root = path.resolve(import.meta.dirname, '..');
 const outputPath = path.join(root, 'assets/data/github-activity.json');
 const username = process.env.GITHUB_ACTIVITY_USER || 'IAZARA';
 const token = process.env.GH_ACTIVITY_TOKEN;
-const minimumBootstrapTotal = Number(process.env.GITHUB_ACTIVITY_MIN_TOTAL || 750);
+const minimumTotal = Number(process.env.GITHUB_ACTIVITY_MIN_TOTAL || 750);
+
+if (!Number.isFinite(minimumTotal) || minimumTotal < 0) {
+  throw new Error('GITHUB_ACTIVITY_MIN_TOTAL must be a non-negative number.');
+}
 
 if (!token) {
   console.error('GH_ACTIVITY_TOKEN is required to refresh verified GitHub activity.');
@@ -112,12 +116,12 @@ const previousIsVerified = previousSnapshot?.schemaVersion === 3
   && String(previousSnapshot?.source?.viewerLogin).toLowerCase() === username.toLowerCase()
   && Number(previousSnapshot?.summary?.totalContributions) > 0;
 
-if (!previousIsVerified && calendar.totalContributions < minimumBootstrapTotal) {
-  throw new Error(`Initial verified snapshot is unexpectedly low: ${calendar.totalContributions} < ${minimumBootstrapTotal}`);
+if (calendar.totalContributions < minimumTotal) {
+  throw new Error(`Verified contribution total is below the privacy floor: ${calendar.totalContributions} < ${minimumTotal}`);
 }
 if (previousIsVerified) {
   const previousTotal = Number(previousSnapshot.summary.totalContributions);
-  const minimumExpected = Math.floor(previousTotal * 0.8);
+  const minimumExpected = Math.max(minimumTotal, Math.floor(previousTotal * 0.8));
   if (calendar.totalContributions < minimumExpected) {
     throw new Error(`Verified contribution total dropped unexpectedly: ${calendar.totalContributions} < ${minimumExpected}`);
   }
