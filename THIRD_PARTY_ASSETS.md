@@ -50,6 +50,8 @@ They do not embed the source screenshots or wordmarks.
 - Estudio Luttini identity: https://www.estudioluttini.com/iconoL-l.png
 - Auto-Inbox: https://github.com/IAZARA/Auto-Inbox
 - Agente para Redmine icon and project banner: https://github.com/IAZARA/Agente-para-Redmine
+- ForzaTask icon and project banner: https://github.com/IAZARA/Forzatask_Gestion_de_Tareas
+- Araña Web icon and pipeline illustration: https://github.com/IAZARA/Arana-web
 - SEO Evaluate: https://github.com/IAZARA/SEO-Evaluate
 - CyberDetective Academy: https://github.com/IAZARA/cyberdetective-academy
 - DesanjuntarPDF: https://github.com/IAZARA/DesanjuntarPDF

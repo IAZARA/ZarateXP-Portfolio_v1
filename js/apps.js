@@ -1,4 +1,4 @@
-import { getProjectsData } from './data/projects.js?v=zaratexp-20260822-redmine-open2';
+import { getProjectsData } from './data/projects.js?v=zaratexp-20260825-projects21';
 import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
 import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260822-verified2';
 import { initMyComputerApp } from './my-computer.js?v=zaratexp-20260822-removable-drive1';
@@ -1186,7 +1186,7 @@ export class AppManager {
 
             // Cargar el contenido del componente de proyectos
             debugLog('Loading proyectos-explorer.html...');
-            const response = await fetch('./components/proyectos-explorer.html?v=zaratexp-20260822-explorer-views2');
+            const response = await fetch('./components/proyectos-explorer.html?v=zaratexp-20260825-projects21');
             if (!response.ok) {
                 throw new Error(`Error al cargar proyectos-explorer.html: ${response.statusText} (${response.status})`);
             }
@@ -1774,7 +1774,9 @@ export class AppManager {
     _showProjectDetails(project) {
         if (this.windowManager) {
             const safeUrl = this._safeExternalUrl(project.url);
-            const hasUrl = Boolean(safeUrl);
+            const safeRepositoryUrl = this._safeExternalUrl(project.repositoryUrl);
+            const visitUrl = safeUrl && safeUrl !== safeRepositoryUrl ? safeUrl : '';
+            const hasExternalLink = Boolean(visitUrl || safeRepositoryUrl);
             const safeProjectId = this._safeDomId(project.id);
             const safeName = this._escapeHtml(project.name);
             const safeDescription = this._escapeHtml(project.description);
@@ -1794,19 +1796,19 @@ export class AppManager {
             const impactItems = this._getProjectImpact(project)
                 .map((impact) => `<li>${this._escapeHtml(impact)}</li>`)
                 .join('');
-            const previewContent = project.preview && hasUrl
+            const previewContent = project.preview && visitUrl
                 ? `
                     <div class="project-preview-shell">
                         <div class="project-preview-header">
                             <span>Vista previa embebida</span>
-                            <button type="button" class="project-preview-open" data-project-open-url="${safeUrl}">Abrir en navegador</button>
+                            <button type="button" class="project-preview-open" data-project-open-url="${visitUrl}">Abrir en navegador</button>
                         </div>
                         <div class="project-preview-language-note">
                             El sitio externo está publicado en español. Puedes abrirlo en una pestaña nueva para explorar su contenido original.
                         </div>
                         <iframe
                             class="project-preview-frame"
-                            src="${safeUrl}"
+                            src="${visitUrl}"
                             title="Vista previa de ${safeName}"
                             loading="lazy"
                             referrerpolicy="no-referrer-when-downgrade">
@@ -1881,10 +1883,9 @@ export class AppManager {
                     </div>
                     
                     <div class="xp-project-actions">
-                        ${hasUrl ?
-                            `<button type="button" data-project-open-url="${safeUrl}">Visitar sitio</button>` :
-                            '<span class="xp-project-private-note">Caso documentado, repositorio no público.</span>'
-                        }
+                        ${visitUrl ? `<button type="button" data-project-open-url="${visitUrl}">Visitar sitio</button>` : ''}
+                        ${safeRepositoryUrl ? `<button type="button" data-project-open-url="${safeRepositoryUrl}">Ver repositorio</button>` : ''}
+                        ${hasExternalLink ? '' : '<span class="xp-project-private-note">Caso documentado, repositorio no público.</span>'}
                         <button type="button" data-project-open-app="resume">Ver CV</button>
                         <button type="button" data-project-open-app="contact">Contactar</button>
                         <button type="button" data-project-close>Cerrar</button>

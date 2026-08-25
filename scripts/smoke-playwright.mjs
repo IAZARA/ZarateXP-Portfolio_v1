@@ -609,7 +609,7 @@ async function exerciseProjectExplorer(page) {
   const originalViewport = page.viewportSize();
   const appWindow = await openApp(page, 'projects');
   await appWindow.locator('#explorer-content .project-item').first().waitFor({ state: 'visible' });
-  ensure(await appWindow.locator('#explorer-content .project-item').count() === 19, 'El Explorador no abrió con los 19 proyectos');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 21, 'El Explorador no abrió con los 21 proyectos');
 
   const locationSelect = appWindow.locator('#project-location');
   const addressBeforeHover = await locationSelect.evaluate((select) => {
@@ -635,18 +635,18 @@ async function exerciseProjectExplorer(page) {
 
   await appWindow.locator('[data-view-trigger]').click();
   await appWindow.locator('[data-view-choice="list"]').click();
-  ensure(await appWindow.locator('#explorer-content .list-row').count() === 19, 'La vista Lista no mostró los 19 proyectos');
+  ensure(await appWindow.locator('#explorer-content .list-row').count() === 21, 'La vista Lista no mostró los 21 proyectos');
   await appWindow.locator('[data-view-trigger]').click();
   await appWindow.locator('[data-view-choice="details"]').click();
-  ensure(await appWindow.locator('#explorer-content .details-row').count() === 19, 'La vista Detalles no mostró los 19 proyectos');
+  ensure(await appWindow.locator('#explorer-content .details-row').count() === 21, 'La vista Detalles no mostró los 21 proyectos');
   ensure(await page.evaluate(() => localStorage.getItem('zarateXP.projects.viewMode')) === 'details', 'El Explorador no guardó la vista elegida');
   await appWindow.locator('[data-view-trigger]').click();
   await appWindow.locator('[data-view-choice="icons"]').click();
 
   await appWindow.locator('#project-location').selectOption('featured');
   await appWindow.locator('#address-go').click();
-  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '6 elementos');
-  ensure(await appWindow.locator('#explorer-content .project-item').count() === 6, 'Destacados FDE no mostró los seis proyectos curados');
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '8 elementos');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 8, 'Destacados FDE no mostró los ocho proyectos curados');
   ensure(!(await appWindow.locator('#btn-back').isDisabled()) && !(await appWindow.locator('#btn-up').isDisabled()), 'La navegación no habilitó Atrás y Arriba');
 
   await appWindow.locator('#btn-back').click();
@@ -673,6 +673,26 @@ async function exerciseProjectExplorer(page) {
 
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-auto-inbox'));
   await publicDetails.waitFor({ state: 'detached' });
+  await appWindow.locator('[data-project-id="forzatask"]').dblclick();
+  const forzaDetails = page.locator('.window[data-window-id="project-details-forzatask"]');
+  await forzaDetails.waitFor({ state: 'visible' });
+  ensure((await forzaDetails.innerText()).includes('SPA React') && (await forzaDetails.innerText()).includes('CI verificada'), 'ForzaTask no mostró su arquitectura y evidencia específica');
+  ensure(await forzaDetails.locator('.xp-project-showcase img').count() === 1, 'ForzaTask no mostró su banner optimizado');
+  ensure(await forzaDetails.locator('[data-project-open-url="https://github.com/IAZARA/Forzatask_Gestion_de_Tareas"]').count() === 1, 'ForzaTask no enlazó el repositorio público');
+  ensure((await forzaDetails.innerText()).includes('Ver repositorio') && !(await forzaDetails.innerText()).includes('Visitar sitio'), 'ForzaTask no distinguió repositorio de demo pública');
+
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-forzatask'));
+  await forzaDetails.waitFor({ state: 'detached' });
+  await appWindow.locator('[data-project-id="arana-web"]').dblclick();
+  const aranaDetails = page.locator('.window[data-window-id="project-details-arana-web"]');
+  await aranaDetails.waitFor({ state: 'visible' });
+  ensure((await aranaDetails.innerText()).includes('cola human-in-the-loop') && (await aranaDetails.innerText()).includes('Protección SSRF'), 'Araña Web no mostró su solución y controles específicos');
+  ensure(await aranaDetails.locator('.xp-project-showcase img').count() === 1, 'Araña Web no mostró su pipeline optimizado');
+  ensure(await aranaDetails.locator('[data-project-open-url="https://github.com/IAZARA/Arana-web"]').count() === 1, 'Araña Web no enlazó el repositorio público');
+  ensure((await aranaDetails.innerText()).includes('Ver repositorio') && !(await aranaDetails.innerText()).includes('Visitar sitio'), 'Araña Web no distinguió repositorio de demo pública');
+
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-arana-web'));
+  await aranaDetails.waitFor({ state: 'detached' });
   await appWindow.locator('[data-project-id="art-redmine"]').dblclick();
   const artDetails = page.locator('.window[data-window-id="project-details-art-redmine"]');
   await artDetails.waitFor({ state: 'visible' });
@@ -703,10 +723,24 @@ async function exerciseProjectExplorer(page) {
   ensure((await englishDetails.innerText()).includes('requires human validation'), 'ART Redmine no utilizó su contenido inglés');
   ensure((await englishDetails.innerText()).includes('Redmine Agent - Details'), 'Agente para Redmine no tradujo su nombre al inglés');
   ensure((await englishDetails.innerText()).includes('Open source (MIT)'), 'Agente para Redmine no tradujo su estado al inglés');
-  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
-  await page.waitForFunction(() => document.querySelector('.window[data-window-id="project-details-art-redmine"]')?.textContent.includes('validación humana antes de publicar'));
   await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-art-redmine'));
   await englishDetails.waitFor({ state: 'detached' });
+  await appWindow.locator('[data-project-id="forzatask"]').dblclick();
+  const englishForzaDetails = page.locator('.window[data-window-id="project-details-forzatask"]');
+  await englishForzaDetails.waitFor({ state: 'visible' });
+  ensure((await englishForzaDetails.innerText()).includes('shared operational view'), 'ForzaTask no utilizó su caso en inglés');
+  ensure((await englishForzaDetails.innerText()).includes('View repository'), 'ForzaTask no tradujo la acción del repositorio');
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-forzatask'));
+  await englishForzaDetails.waitFor({ state: 'detached' });
+  await appWindow.locator('[data-project-id="arana-web"]').dblclick();
+  const englishAranaDetails = page.locator('.window[data-window-id="project-details-arana-web"]');
+  await englishAranaDetails.waitFor({ state: 'visible' });
+  ensure((await englishAranaDetails.innerText()).includes('human-in-the-loop queue'), 'Araña Web no utilizó su caso en inglés');
+  ensure((await englishAranaDetails.innerText()).includes('Web monitoring with extraction'), 'Araña Web no tradujo su descripción');
+  await page.evaluate(() => window.zarateXP.i18nManager.setLocale('es', { announce: false }));
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="project-details-arana-web"]')?.textContent.includes('cola human-in-the-loop'));
+  await page.evaluate(() => window.zarateXP.windowManager.closeWindow('project-details-arana-web'));
+  await englishAranaDetails.waitFor({ state: 'detached' });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.waitForTimeout(180);
@@ -1442,18 +1476,22 @@ async function exerciseWinamp(page) {
   }, null, { timeout: 12000 });
   await page.waitForFunction(() => {
     const app = document.querySelector('.window[data-window-id="winamp"]')?._winampProApp;
-    return Array.from(app?.frequencyData || []).some((value) => value > 0);
+    return app?.audioContext?.state === 'running'
+      && Boolean(app.analyser)
+      && (app.frequencyData?.length || 0) > 0
+      && (app.raf !== null || app.displayTimer !== null);
   }, null, { timeout: 6000 });
   const playingState = await appWindow.evaluate((windowNode) => {
     const app = windowNode._winampProApp;
     return {
       state: app.root.dataset.winampState,
       duration: app.audio.duration,
-      analyserActive: Array.from(app.frequencyData || []).some((value) => value > 0)
+      analyserReady: app.audioContext?.state === 'running' && Boolean(app.analyser) && (app.frequencyData?.length || 0) > 0,
+      visualizerScheduled: app.raf !== null || app.displayTimer !== null
     };
   });
   ensure(playingState.state === 'play' && playingState.duration > 290, 'Winamp no reprodujo Thunderstruck correctamente');
-  ensure(playingState.analyserActive, 'El visualizador de Winamp no recibió señal de audio');
+  ensure(playingState.analyserReady && playingState.visualizerScheduled, 'El grafo de audio o el visualizador de Winamp no quedó activo');
 
   await appWindow.locator('[data-winamp-action="pause"]').click();
   const pausedState = await appWindow.evaluate((windowNode) => {

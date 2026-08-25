@@ -45,6 +45,9 @@ const requiredTranslations = new Map([
     ['Sitio institucional jurídico-contable para profesionales y empresas', 'Legal and accounting institutional site for professionals and businesses'],
     ['Plataforma de soporte con IA, Redmine y validación humana', 'Support platform with AI, Redmine and human validation'],
     ['Agente para Redmine', 'Redmine Agent'],
+    ['Gestión full stack de proyectos, tareas y colaboración de equipos', 'Full-stack project, task and team collaboration management'],
+    ['Monitoreo web con extracción, IA opcional y revisión humana', 'Web monitoring with extraction, optional AI and human review'],
+    ['Ver repositorio', 'View repository'],
     ['Código abierto (MIT)', 'Open source (MIT)']
 ]);
 
@@ -66,7 +69,9 @@ const requiredRepositories = [
     'https://github.com/IAZARA/Juego_Ciberseguridad',
     'https://github.com/IAZARA/Radar_Empleo',
     'https://github.com/IAZARA/workflow-black-box',
-    'https://github.com/IAZARA/Agente-para-Redmine'
+    'https://github.com/IAZARA/Agente-para-Redmine',
+    'https://github.com/IAZARA/Forzatask_Gestion_de_Tareas',
+    'https://github.com/IAZARA/Arana-web'
 ];
 
 for (const url of requiredRepositories) {

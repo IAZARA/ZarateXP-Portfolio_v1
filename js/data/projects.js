@@ -116,6 +116,42 @@ const projects = [
         details: 'ART Redmine es una plataforma operativa abierta para equipos de soporte. Sincroniza tickets desde Redmine, clasifica prioridad y completitud, recupera conocimiento y redacta respuestas propuestas con IA. Mantiene la revisión humana antes de publicar y suma inteligencia de servicio sobre incidentes repetidos, calidad, brechas de conocimiento y riesgo SLA, además de roles, TOTP, auditoría, adjuntos, OCR, Kanban, métricas y despliegue con Docker y PostgreSQL.'
     },
     {
+        id: 'forzatask',
+        name: 'ForzaTask',
+        type: 'project',
+        icon: './assets/images/project-icons/forzatask-icon.webp',
+        detailImage: './assets/images/project-icons/forzatask-icon.webp',
+        showcaseImage: './assets/images/project-icons/forzatask-banner.webp',
+        showcaseAlt: 'Identidad y capacidades de ForzaTask',
+        showcaseWidth: 1440,
+        showcaseHeight: 480,
+        description: 'Gestión full stack de proyectos, tareas y colaboración de equipos',
+        url: '#',
+        repositoryUrl: 'https://github.com/IAZARA/Forzatask_Gestion_de_Tareas',
+        technologies: ['React 19', 'Vite', 'Node.js', 'Express', 'MongoDB', 'Socket.IO', 'Docker', 'JWT / 2FA'],
+        category: 'Software / Gestión de proyectos',
+        status: 'Código abierto (MIT)',
+        details: 'Plataforma autohospedable que reúne proyectos, tareas, documentos, wiki, calendario, notificaciones y reportes. Combina una SPA React con una API Express y MongoDB, permisos por rol, colaboración en tiempo real, exportación PDF y Excel, asistencia opcional con OpenAI y despliegue reproducible mediante Docker Compose.'
+    },
+    {
+        id: 'arana-web',
+        name: 'Araña Web',
+        type: 'project',
+        icon: './assets/images/project-icons/arana-web-icon.webp',
+        detailImage: './assets/images/project-icons/arana-web-icon.webp',
+        showcaseImage: './assets/images/project-icons/arana-web-pipeline.webp',
+        showcaseAlt: 'Pipeline de descubrimiento, revisión y exportación de Araña Web',
+        showcaseWidth: 1440,
+        showcaseHeight: 811,
+        description: 'Monitoreo web con extracción, IA opcional y revisión humana',
+        url: '#',
+        repositoryUrl: 'https://github.com/IAZARA/Arana-web',
+        technologies: ['Python 3.12', 'FastAPI', 'React 18', 'SQLite', 'RSS / GDELT', 'IA configurable', 'OpenPyXL', 'pytest / Vitest'],
+        category: 'IA aplicada / Monitoreo web',
+        status: 'Código abierto (MIT)',
+        details: 'Aplicación local que convierte consultas, RSS, fuentes guardadas y URLs manuales en una cola trazable de contenidos. Extrae y estructura información, ofrece clasificación con IA configurable o reglas locales, agrupa versiones similares, aprende de las decisiones humanas y exporta a Excel únicamente los resultados aceptados.'
+    },
+    {
         id: 'seo-evaluate',
         name: 'SEO Evaluate',
         type: 'project',
@@ -320,6 +356,20 @@ const projectEvidence = {
         solution: { es: 'Construí una plataforma que sincroniza Redmine, recupera conocimiento, propone respuestas y exige validación humana antes de publicar.', en: 'I built a platform that synchronizes Redmine, retrieves knowledge, proposes replies and requires human validation before publishing.' },
         evidence: { es: ['Repositorio abierto con licencia MIT y documentación técnica', 'FastAPI, React, PostgreSQL y Docker', 'Inteligencia de servicio, roles, TOTP, auditoría, OCR e integración Redmine'], en: ['Open repository with an MIT license and technical documentation', 'FastAPI, React, PostgreSQL and Docker', 'Service intelligence, roles, TOTP, auditing, OCR and Redmine integration'] }
     },
+    forzatask: {
+        featured: true,
+        role: { es: 'Diseño y desarrollo full stack, colaboración en tiempo real, seguridad y publicación open source.', en: 'Full-stack product design and development, real-time collaboration, security and open-source release.' },
+        problem: { es: 'La coordinación fragmentada entre tableros, documentos, calendario y reportes dificulta sostener una visión operativa compartida.', en: 'Fragmented boards, documents, calendars and reports make it difficult for teams to maintain a shared operational view.' },
+        solution: { es: 'Unifiqué esos flujos en una SPA React y una API Express con MongoDB, permisos, tiempo real y despliegue reproducible mediante Docker.', en: 'I consolidated those workflows into a React SPA and Express API with MongoDB, permissions, real-time collaboration and reproducible Docker deployment.' },
+        evidence: { es: ['Kanban, tareas, documentos, wiki, calendario y reportes PDF/Excel', 'React, Express, MongoDB, Socket.IO, Nginx y Docker Compose', 'JWT, 2FA, rate limiting, pruebas automatizadas y CI verificada'], en: ['Kanban, tasks, documents, versioned wiki, calendar and PDF/Excel reporting', 'React, Express, MongoDB, Socket.IO, Nginx and Docker Compose', 'JWT, 2FA, rate limiting, automated tests and verified CI'] }
+    },
+    'arana-web': {
+        featured: true,
+        role: { es: 'Diseño y desarrollo full stack, pipeline de extracción, IA configurable, seguridad y experiencia de revisión.', en: 'Full-stack product design and development, extraction pipeline, configurable AI, security and review experience.' },
+        problem: { es: 'Monitorear temas entre buscadores, feeds y sitios produce duplicados, trabajo repetitivo y decisiones difíciles de auditar.', en: 'Tracking topics across search engines, feeds and websites creates duplicates, repetitive work and decisions that are difficult to audit.' },
+        solution: { es: 'Construí una cola human-in-the-loop que unifica descubrimiento, extracción y clasificación, conserva las fuentes, aprende de decisiones y exporta solo contenido validado.', en: 'I built a human-in-the-loop queue that unifies discovery, extraction and classification, preserves sources, learns from decisions and exports validated content only.' },
+        evidence: { es: ['Pipeline multi-fuente con URLs, RSS, Google News y GDELT', 'FastAPI, React, SQLite, clasificación configurable y exportación Excel', 'Protección SSRF, redacción de secretos, pruebas automatizadas y CI verificada'], en: ['Multi-source pipeline for direct URLs, RSS, Google News and GDELT', 'FastAPI, React, SQLite, configurable classification and Excel export', 'SSRF protection, secret redaction, automated tests and verified CI'] }
+    },
     'seo-evaluate': {
         role: { es: 'Producto, análisis técnico, frontend y motor de auditoría.', en: 'Product, technical analysis, frontend and audit engine.' },
         problem: { es: 'Las auditorías SEO suelen ser opacas y no contemplan cómo los asistentes de IA interpretan un sitio.', en: 'SEO audits are often opaque and do not address how AI assistants interpret a site.' },
@@ -395,7 +445,7 @@ for (const project of projects) {
 }
 
 const folderProjectIds = {
-    featured: ['zaratexp', 'osintargy', 'auto-inbox', 'art-redmine', 'workflow-black-box', 'cufre'],
+    featured: ['zaratexp', 'osintargy', 'forzatask', 'arana-web', 'auto-inbox', 'art-redmine', 'workflow-black-box', 'cufre'],
     web: [
         'forzatech',
         'estudio-luttini',
@@ -405,6 +455,8 @@ const folderProjectIds = {
         'zaratexp',
         'auto-inbox',
         'art-redmine',
+        'forzatask',
+        'arana-web',
         'seo-evaluate',
         'cyberdetective',
         'juego-ciberseguridad',
@@ -414,6 +466,7 @@ const folderProjectIds = {
     ai: [
         'auto-inbox',
         'art-redmine',
+        'arana-web',
         'seo-evaluate',
         'cyberdetective',
         'osintargy',

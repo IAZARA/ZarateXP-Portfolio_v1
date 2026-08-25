@@ -92,7 +92,7 @@ const checks = [
   ['documents explorer', /xp-documents-app/],
   ['projects explorer', /proyectos-explorer\.html/],
   ['project explorer search and navigation', /project-search-input[\s\S]*_moveProjectHistory[\s\S]*_filterProjects/],
-  ['FDE project highlights', /featured:\s*\['zaratexp',\s*'osintargy',\s*'auto-inbox',\s*'art-redmine',\s*'workflow-black-box',\s*'cufre'\]/],
+  ['FDE project highlights', /featured:\s*\['zaratexp',\s*'osintargy',\s*'forzatask',\s*'arana-web',\s*'auto-inbox',\s*'art-redmine',\s*'workflow-black-box',\s*'cufre'\]/],
   ['project evidence schema', /featured:[\s\S]*role:[\s\S]*problem:[\s\S]*solution:[\s\S]*evidence:/],
   ['project iframe fallback', /project-preview-fallback/],
   ['project impact evidence', /xp-project-impact/],
