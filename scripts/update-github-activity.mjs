@@ -117,7 +117,10 @@ const previousIsVerified = previousSnapshot?.schemaVersion === 3
   && Number(previousSnapshot?.summary?.totalContributions) > 0;
 
 if (calendar.totalContributions < minimumTotal) {
-  throw new Error(`Verified contribution total is below the privacy floor: ${calendar.totalContributions} < ${minimumTotal}`);
+  console.warn(
+    `::warning::Verified contribution total is below the privacy floor: ${calendar.totalContributions} < ${minimumTotal}. The public snapshot remains unchanged.`
+  );
+  process.exit(0);
 }
 if (previousIsVerified) {
   const previousTotal = Number(previousSnapshot.summary.totalContributions);

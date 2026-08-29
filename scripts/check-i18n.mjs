@@ -148,8 +148,11 @@ if (githubActivity.source?.valid) {
 }
 
 const githubUpdater = fs.readFileSync(path.join(root, 'scripts/update-github-activity.mjs'), 'utf8');
-if (!/if \(calendar\.totalContributions < minimumTotal\)/.test(githubUpdater)) {
+const githubFloorGuard = githubUpdater.match(/if \(calendar\.totalContributions < minimumTotal\) \{([\s\S]*?)\n\}/)?.[1] || '';
+if (!githubFloorGuard) {
     errors.push('GitHub updater must enforce the 750-contribution floor on every refresh');
+} else if (!githubFloorGuard.includes('::warning::') || !githubFloorGuard.includes('process.exit(0)') || githubFloorGuard.includes('throw new Error')) {
+    errors.push('GitHub updater must preserve the public snapshot and finish successfully below the privacy floor');
 }
 for (const privateDetailField of ['restrictedContributionsCount', 'contributionsByRepository', 'commitContributionsByRepository', 'issueContributionsByRepository', 'pullRequestContributionsByRepository']) {
     if (githubUpdater.includes(privateDetailField)) errors.push(`GitHub updater must not request private repository details: ${privateDetailField}`);

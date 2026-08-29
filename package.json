@@ -10,8 +10,9 @@
     "check:performance": "node scripts/check-performance-budget.mjs",
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:experience": "node scripts/verify-experience.mjs",
+    "check:github-activity": "node --test tests/update-github-activity.test.mjs",
     "update:github-activity": "node scripts/update-github-activity.mjs",
-    "test": "npm run check:syntax && npm run check:assets && npm run check:performance && npm run check:i18n && npm run check:experience",
+    "test": "npm run check:syntax && npm run check:assets && npm run check:performance && npm run check:i18n && npm run check:experience && npm run check:github-activity",
     "smoke": "node scripts/smoke-playwright.mjs"
   },
   "devDependencies": {
