@@ -1,5 +1,18 @@
 # Third-party asset notes
 
+## Classic desktop icons
+
+`assets/images/classic-icons/` contains 13 icons from Tango Icon Theme 0.8.90,
+released into the public domain by the Tango Desktop Project. They retain the
+original artwork; a 48x48 viewBox was added for scalable display and SVG metadata
+was optimized with SVGO. Original AUTHORS and COPYING files are included.
+
+Source: https://tango.freedesktop.org/releases/tango-icon-theme-0.8.90.tar.gz
+Archive SHA-256: `6e98d8032d57d818acc907ec47e6a718851ff251ae7c29aafb868743eb65c88e`.
+The exact source-to-app mapping is in `scripts/vendor-classic-icons.mjs`.
+These are period-appropriate open desktop illustrations, not Microsoft icons.
+The existing custom Pinball, Minesweeper, Solitaire and Winamp artwork is preserved.
+
 The `assets/images/hd-icons/minesweeper.svg` and `assets/images/hd-icons/pinball.svg`
 icons are original ZarateXP compositions. Their basic game-object geometry was informed by
 the following CC0 references from SVG Repo:

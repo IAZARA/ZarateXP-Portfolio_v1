@@ -2076,10 +2076,66 @@ async function exercisePinball(page) {
   ensure(passiveDrain.launcherCleared, 'Pinball dejó la bola bloqueada en el carril de lanzamiento');
   ensure(passiveDrain.balls === 2 && passiveDrain.state === 'ready' && passiveDrain.elapsed < 60, `Pinball no drenó una bola sin interacción (${JSON.stringify(passiveDrain)})`);
 
-  return 'Pinball: lanzamiento, salida del carril, drenaje pasivo, pausa, sonido, misión, nivel y teclado';
+  await canvas.focus();
+  for (const [key, side] of [['z', 'left'], ['/', 'right']]) {
+    await page.keyboard.down(key);
+    const held = await canvas.evaluate((node, sideName) => {
+      const app = node.closest('[data-pinball-root]')._pinballApp;
+      return sideName === 'left' ? app.isLeftPressed() : app.isRightPressed();
+    }, side);
+    await page.keyboard.up(key);
+    ensure(held, `Pinball no respondió a la tecla clásica ${key}`);
+  }
+
+  const physics = await appWindow.locator('[data-pinball-root]').evaluate((root) => {
+    const app = root._pinballApp;
+    app.stopLoop();
+    const reset = () => {
+      app.clearControls(true);
+      app.resetGame({ announce: false });
+      app.leftFlipper = app.rightFlipper = 0;
+      app.leftFlipperSpeed = app.rightFlipperSpeed = 0;
+    };
+    try {
+      const weakShots = [0.25, 0.3].map((power) => {
+        reset();
+        app.launchBall(power, { enableBallSave: false });
+        for (let frame = 0; frame < 300 && app.state === 'playing'; frame++) app.update(1 / 60);
+        return { power, state: app.state, balls: app.balls, inLane: app.ball.inLauncherLane, score: app.score };
+      });
+      reset();
+      app.beginCharge();
+      for (let frame = 0; frame < 180; frame++) app.update(1 / 60);
+      const heldCharge = app.charge;
+      app.releaseCharge();
+      let entered = false;
+      for (let frame = 0; frame < 180 && !entered; frame++) {
+        app.update(1 / 60);
+        entered = !app.ball.inLauncherLane;
+      }
+      const fullLaunch = { entered, balls: app.balls };
+      const flips = [30, 60, 120].map((fps) => {
+        reset();
+        app.state = 'playing';
+        app.ball = { x: 224, y: 611, vx: 0, vy: 130, r: 9.5, safeTime: 0, inLauncherLane: false };
+        app.keys.add('z');
+        for (let frame = 0; frame < fps / 5; frame++) app.update(1 / fps);
+        return { fps, x: app.ball.x, y: app.ball.y, vx: app.ball.vx, vy: app.ball.vy };
+      });
+      return { weakShots, heldCharge, fullLaunch, flips };
+    } finally {
+      reset();
+      app.startLoop();
+    }
+  });
+  ensure(physics.weakShots.every((shot) => shot.state === 'ready' && shot.balls === 3 && shot.inLane && shot.score === 0), `Pinball cobró una bola que no salió del lanzador (${JSON.stringify(physics)})`);
+  ensure(physics.heldCharge === 1 && physics.fullLaunch.entered && physics.fullLaunch.balls === 3, `Pinball no sostuvo la carga o falló el lanzamiento completo (${JSON.stringify(physics)})`);
+  ensure(physics.flips.every((flip) => flip.vy < -200 && ['x', 'y', 'vx', 'vy'].every((key) => Math.abs(flip[key] - physics.flips[0][key]) < 0.001)), `El golpe de Pinball depende del FPS (${JSON.stringify(physics.flips)})`);
+
+  return 'Pinball: lanzamiento y reintento sin perder bola, carga sostenida, física 30/60/120 FPS, drenaje, pausa, sonido y Z/«/»';
 }
 
-async function touchPinballControl(page, cdp, button, selector, control, touchId, holdMs = 0) {
+async function touchPinballControl(page, cdp, button, selector, control, touchId, holdMs = 0, endType = 'touchEnd') {
   const box = await button.boundingBox();
   ensure(box && box.width > 0 && box.height > 0, `El control tactil ${control} no tiene geometria interactiva`);
   const touchPoint = {
@@ -2132,7 +2188,7 @@ async function touchPinballControl(page, cdp, button, selector, control, touchId
     }
   } finally {
     await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchEnd',
+      type: endType,
       touchPoints: []
     });
   }
@@ -2381,6 +2437,9 @@ async function auditMobilePinballViewport(browser, baseUrl, viewportCase) {
       });
       const plungerReleased = await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-plunger]'), '[data-pinball-plunger]', 'plunger', 13, 160);
       ensure(plungerReleased.gameState === 'playing' && plungerReleased.launchPower >= 0.3 && plungerReleased.ballInLauncherLane, `El lanzador no disparo la bola al soltar el control tactil (${JSON.stringify(plungerReleased)})`);
+      await root.evaluate((rootNode) => rootNode._pinballApp.resetGame({ announce: false }));
+      const cancelled = await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-plunger]'), '[data-pinball-plunger]', 'plunger', 14, 160, 'touchCancel');
+      ensure(cancelled.gameState === 'ready' && cancelled.launchPower === 0 && cancelled.ballInLauncherLane, `Cancelar el toque lanzó la bola (${JSON.stringify(cancelled)})`);
       ensure(await page.locator('clippy-character').count() === 0, 'Clippy reaparecio durante la sesion movil');
     }
 

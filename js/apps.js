@@ -84,12 +84,13 @@ export class AppManager {
     
     registerBuiltInApps() {
         const hd = './assets/images/hd-icons';
+        const classic = './assets/images/classic-icons';
 
         // Registrar Mi PC
         this.registerApp({
             id: 'my-computer',
             name: 'Mi PC',
-            icon: `${hd}/my-computer.svg`,
+            icon: `${classic}/my-computer.svg`,
             category: 'system',
             description: 'Browse computer files and drives',
             handler: () => this._openMyComputer()
@@ -109,7 +110,7 @@ export class AppManager {
         this.registerApp({
             id: 'about-me',
             name: 'Sobre Mí',
-            icon: `${hd}/about.svg`,
+            icon: `${classic}/about.svg`,
             category: 'system',
             description: 'Conoce más sobre Ivan Zarate',
             handler: () => this._openAboutMe()
@@ -118,7 +119,7 @@ export class AppManager {
         this.registerApp({
             id: 'projects',
             name: 'Mis Proyectos',
-            icon: `${hd}/projects.svg`,
+            icon: `${classic}/projects.svg`,
             category: 'documents',
             description: 'Explora mis proyectos de desarrollo',
             handler: () => this._openProjectsExplorer()
@@ -127,7 +128,7 @@ export class AppManager {
         this.registerApp({
             id: 'resume',
             name: 'Mi CV',
-            icon: `${hd}/cv.svg`,
+            icon: `${classic}/cv.svg`,
             category: 'documents',
             description: 'Ver CV actualizado',
             handler: () => this._openResume()
@@ -136,7 +137,7 @@ export class AppManager {
         this.registerApp({
             id: 'recruiter-route',
             name: 'Perfil profesional',
-            icon: `${hd}/cv.svg`,
+            icon: `${classic}/profile.svg`,
             category: 'documents',
             description: 'Experiencia, casos, capacidades y contacto en una sola ruta',
             handler: () => this._openRecruiterRoute()
@@ -145,7 +146,7 @@ export class AppManager {
         this.registerApp({
             id: 'documents',
             name: 'Mis Documentos',
-            icon: `${hd}/documents.svg`,
+            icon: `${classic}/documents.svg`,
             category: 'documents',
             description: 'CV, proyectos y documentos clave',
             handler: () => this._openDocuments()
@@ -154,7 +155,7 @@ export class AppManager {
         this.registerApp({
             id: 'certificates',
             name: 'Mis Certificados',
-            icon: `${hd}/documents.svg`,
+            icon: `${classic}/certificates.svg`,
             category: 'documents',
             description: 'Credenciales verificables en IA, datos, gestión, GIS y seguridad',
             handler: () => this._openCertificates()
@@ -163,7 +164,7 @@ export class AppManager {
         this.registerApp({
             id: 'contact',
             name: 'Mi Contacto',
-            icon: `${hd}/contact.svg`,
+            icon: `${classic}/contact.svg`,
             category: 'internet',
             description: 'Envíame un mensaje',
             handler: () => this._openContact()
@@ -192,7 +193,7 @@ export class AppManager {
         this.registerApp({
             id: 'notepad',
             name: 'Bloc de notas',
-            icon: `${hd}/notepad.svg`,
+            icon: `${classic}/notepad.svg`,
             category: 'accessories',
             description: 'Notas rapidas con autoguardado local',
             handler: () => this._openNotepad()
@@ -201,7 +202,7 @@ export class AppManager {
         this.registerApp({
             id: 'wordpad',
             name: 'WordPad',
-            icon: `${hd}/wordpad.svg`,
+            icon: `${classic}/wordpad.svg`,
             category: 'accessories',
             description: 'Editor de texto enriquecido',
             handler: () => this._openWordPad()
@@ -210,7 +211,7 @@ export class AppManager {
         this.registerApp({
             id: 'n8n-flows',
             name: 'Flujos n8n',
-            icon: `${hd}/n8n.svg`,
+            icon: `${classic}/n8n.svg`,
             category: 'automation',
             description: 'Caso interactivo de ciclo SDLC + MLOps',
             handler: () => this._openN8nFlows()
@@ -219,7 +220,7 @@ export class AppManager {
         this.registerApp({
             id: 'control-panel',
             name: 'Panel de control',
-            icon: `${hd}/control-panel.svg`,
+            icon: `${classic}/control-panel.svg`,
             category: 'system',
             description: 'Personalizacion de ZarateXP',
             handler: () => this._openControlPanel()
@@ -228,7 +229,7 @@ export class AppManager {
         this.registerApp({
             id: 'system-properties',
             name: 'Propiedades del sistema',
-            icon: `${hd}/control-panel.svg`,
+            icon: `${classic}/control-panel.svg`,
             category: 'system',
             description: 'Resumen XP de la plataforma, entorno y accesos clave',
             handler: () => this._openSystemProperties()
@@ -237,7 +238,7 @@ export class AppManager {
         this.registerApp({
             id: 'api-center',
             name: 'API Center',
-            icon: `${hd}/api.svg`,
+            icon: `${classic}/api.svg`,
             category: 'development',
             description: 'Integraciones en vivo con APIs publicas',
             handler: () => this._openApiCenter()
@@ -371,7 +372,7 @@ export class AppManager {
             const window = this.windowManager.createWindow({
                 id: 'my-computer',
                 title: 'Mi PC',
-                icon: './assets/images/hd-icons/my-computer.svg',
+                icon: './assets/images/classic-icons/my-computer.svg',
                 content: content,
                 width: 660,
                 height: 500
@@ -419,7 +420,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-mipc',
                     title: 'Error',
-                    icon: './assets/images/hd-icons/my-computer.svg',
+                    icon: './assets/images/classic-icons/my-computer.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
@@ -655,7 +656,7 @@ export class AppManager {
             const aboutWindow = this.windowManager.createWindow({
                 id: 'about-me',
                 title: 'Sobre Mí - Ivan Agustin Zarate',
-                icon: './assets/images/hd-icons/about.svg',
+                icon: './assets/images/classic-icons/about.svg',
                 content: content,
                 width: 700,
                 height: 600,
@@ -697,7 +698,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-aboutme',
                     title: 'Error',
-                    icon: './assets/images/hd-icons/about.svg',
+                    icon: './assets/images/classic-icons/about.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
@@ -746,7 +747,7 @@ export class AppManager {
             const contactWindow = this.windowManager.createWindow({
                 id: 'contact',
                 title: 'Mi Contacto - Ivan Agustin Zarate',
-                icon: './assets/images/hd-icons/contact.svg',
+                icon: './assets/images/classic-icons/contact.svg',
                 content: htmlContent,
                 width: 500,
                 height: 650,
@@ -807,7 +808,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-contact',
                     title: 'Error',
-                    icon: './assets/images/hd-icons/contact.svg',
+                    icon: './assets/images/classic-icons/contact.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
@@ -1196,7 +1197,7 @@ export class AppManager {
             const projectsWindow = this.windowManager.createWindow({
                 id: 'projects',
                 title: 'Mis Proyectos - Explorer',
-                icon: './assets/images/hd-icons/projects.svg',
+                icon: './assets/images/classic-icons/projects.svg',
                 content: htmlContent,
                 width: 800,
                 height: 600,
@@ -1243,7 +1244,7 @@ export class AppManager {
                 this.windowManager.createWindow({
                     id: 'error-projects',
                     title: 'Error',
-                    icon: './assets/images/hd-icons/projects.svg',
+                    icon: './assets/images/classic-icons/projects.svg',
                     content: `
                         <div style="padding: 20px; text-align: center;">
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
@@ -1524,7 +1525,7 @@ export class AppManager {
         if (!projects.length) {
             contentArea.innerHTML = `
                 <div class="project-empty-state" role="status">
-                    <img src="./assets/images/hd-icons/projects.svg" width="48" height="48" alt="">
+                    <img src="./assets/images/classic-icons/projects.svg" width="48" height="48" alt="">
                     <strong>No se encontraron proyectos</strong>
                     <span>Probá con otro nombre, tecnología o categoría.</span>
                 </div>
@@ -1896,7 +1897,7 @@ export class AppManager {
             const detailsWindow = this.windowManager.createWindow({
                 id: `project-details-${safeProjectId}`,
                 title: `${project.name} - Detalles`,
-                icon: './assets/images/hd-icons/projects.svg',
+                icon: './assets/images/classic-icons/projects.svg',
                 content: detailsContent,
                 width: project.preview ? 920 : 640,
                 height: project.preview ? 720 : 620,
@@ -1922,7 +1923,7 @@ export class AppManager {
             this.windowManager.createWindow({
                 id: 'contact-confirmation',
                 title: 'Mensaje Enviado',
-                icon: './assets/images/hd-icons/contact.svg',
+                icon: './assets/images/classic-icons/contact.svg',
                 content: `
                     <div style="padding: 20px; text-align: center;">
                         <img src="./assets/images/xp-small-icons/information.png" alt="Mensaje enviado" width="48" height="48" style="margin-bottom: 10px;">
@@ -2256,20 +2257,20 @@ export class AppManager {
                 id: 'profile',
                 title: 'Perfil y credenciales',
                 items: [
-                    { app: 'recruiter-route', title: 'Perfil profesional.lnk', description: 'Rol actual, experiencia, capacidades y contacto', icon: './assets/images/hd-icons/cv.svg', type: 'Acceso directo', important: true },
-                    { app: 'resume', title: cv.fileName, description: 'CV actualizado', icon: './assets/images/hd-icons/cv.svg', type: 'Documento PDF', important: true, localizedCv: true },
-                    { app: 'certificates', title: 'Certificados verificados', description: '16 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad', icon: './assets/images/hd-icons/documents.svg', type: 'Carpeta', important: true },
-                    { app: 'about-me', title: 'Sobre mi perfil', description: 'AI Solution Architect en ACSYS', icon: './assets/images/hd-icons/about.svg', type: 'Documento' }
+                    { app: 'recruiter-route', title: 'Perfil profesional.lnk', description: 'Rol actual, experiencia, capacidades y contacto', icon: './assets/images/classic-icons/profile.svg', type: 'Acceso directo', important: true },
+                    { app: 'resume', title: cv.fileName, description: 'CV actualizado', icon: './assets/images/classic-icons/cv.svg', type: 'Documento PDF', important: true, localizedCv: true },
+                    { app: 'certificates', title: 'Certificados verificados', description: '16 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad', icon: './assets/images/classic-icons/certificates.svg', type: 'Carpeta', important: true },
+                    { app: 'about-me', title: 'Sobre mi perfil', description: 'AI Solution Architect en ACSYS', icon: './assets/images/classic-icons/about.svg', type: 'Documento' }
                 ]
             },
             {
                 id: 'solutions',
                 title: 'Proyectos y soluciones',
                 items: [
-                    { app: 'projects', title: 'Proyectos destacados', description: 'CUFRE, SIFEBU, CRIACO, OSINTArgy y más', icon: './assets/images/hd-icons/projects.svg', type: 'Carpeta' },
-                    { app: 'api-center', title: 'API Center.lnk', description: 'Clima, GitHub y datos públicos en vivo', icon: './assets/images/hd-icons/api.svg', type: 'Acceso directo', important: true },
+                    { app: 'projects', title: 'Proyectos destacados', description: 'CUFRE, SIFEBU, CRIACO, OSINTArgy y más', icon: './assets/images/classic-icons/projects.svg', type: 'Carpeta' },
+                    { app: 'api-center', title: 'API Center.lnk', description: 'Clima, GitHub y datos públicos en vivo', icon: './assets/images/classic-icons/api.svg', type: 'Acceso directo', important: true },
                     { app: 'github-activity', title: 'Actividad GitHub.lnk', description: 'Actividad anual verificada del titular', icon: './assets/images/github.png', type: 'Acceso directo', important: true },
-                    { app: 'n8n-flows', title: 'Flujos n8n', description: 'Orquestación, gates, drift y feedback', icon: './assets/images/hd-icons/n8n.svg', type: 'Aplicación' },
+                    { app: 'n8n-flows', title: 'Flujos n8n', description: 'Orquestación, gates, drift y feedback', icon: './assets/images/classic-icons/n8n.svg', type: 'Aplicación' },
                     { app: 'pdf-studio', title: 'PDF Studio.exe', description: 'File API, Blob URL y anotaciones', icon: './assets/images/hd-icons/pdf-studio.svg', type: 'Aplicación' }
                 ]
             },
@@ -2277,8 +2278,8 @@ export class AppManager {
                 id: 'utilities',
                 title: 'Utilidades y demos',
                 items: [
-                    { app: 'notepad', title: 'Notas de entrevista.txt', description: 'Editable localmente', icon: './assets/images/hd-icons/notepad.svg', type: 'Documento de texto' },
-                    { app: 'wordpad', title: 'Carta de presentación.rtf', description: 'Editor enriquecido', icon: './assets/images/hd-icons/wordpad.svg', type: 'Documento RTF' },
+                    { app: 'notepad', title: 'Notas de entrevista.txt', description: 'Editable localmente', icon: './assets/images/classic-icons/notepad.svg', type: 'Documento de texto' },
+                    { app: 'wordpad', title: 'Carta de presentación.rtf', description: 'Editor enriquecido', icon: './assets/images/classic-icons/wordpad.svg', type: 'Documento RTF' },
                     { app: 'solitaire', title: 'Solitario XP', description: 'Lógica Klondike propia', icon: './assets/images/hd-icons/solitaire.svg', type: 'Aplicación' },
                     { app: 'pinball', title: 'Pinball XP Lab', description: 'Canvas, física y teclado', icon: './assets/images/hd-icons/pinball.svg?v=20260712', type: 'Aplicación' }
                 ]
@@ -2290,7 +2291,7 @@ export class AppManager {
                     <img src="${iconBase}/detail-view.png" alt=""><span>Vistas</span><span class="xp-view-caret" aria-hidden="true">▾</span>
                 </button>
                 <div class="xp-view-menu" role="menu" aria-label="Vistas" hidden data-view-menu>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="icons"><img src="./assets/images/hd-icons/documents.svg" alt=""><span>Iconos</span></button>
+                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="icons"><img src="./assets/images/classic-icons/documents.svg" alt=""><span>Iconos</span></button>
                     <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="list"><img src="${iconBase}/detail-view.png" alt=""><span>Lista</span></button>
                     <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="details"><img src="${iconBase}/detail-view.png" alt=""><span>Detalles</span></button>
                 </div>
@@ -2337,7 +2338,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'documents',
             title: 'Mis Documentos',
-            icon: './assets/images/hd-icons/documents.svg',
+            icon: './assets/images/classic-icons/documents.svg',
             content,
             width: 760,
             height: 520,
@@ -2438,7 +2439,7 @@ export class AppManager {
                 <div class="xp-certificates-layout">
                     <aside class="xp-certificates-index">
                         <header>
-                            <img src="./assets/images/hd-icons/documents.svg" alt="" width="48" height="48">
+                            <img src="./assets/images/classic-icons/certificates.svg" alt="" width="48" height="48">
                             <div>
                                 <h2>Mis Certificados</h2>
                                 <p>Evidencia de aprendizaje aplicado en IA, desarrollo, datos, gestión, tecnologías geoespaciales y seguridad.</p>
@@ -2478,7 +2479,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'certificates',
             title: 'Mis Certificados - Ivan Agustin Zarate',
-            icon: './assets/images/hd-icons/documents.svg',
+            icon: './assets/images/classic-icons/certificates.svg',
             content,
             width: 980,
             height: 650,
@@ -2741,7 +2742,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'recruiter-route',
             title: 'Perfil profesional - Ivan Agustin Zarate',
-            icon: './assets/images/hd-icons/cv.svg',
+            icon: './assets/images/classic-icons/profile.svg',
             content,
             width: 920,
             height: 650,
@@ -2825,7 +2826,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'system-properties',
             title: 'Propiedades del sistema',
-            icon: './assets/images/hd-icons/control-panel.svg',
+            icon: './assets/images/classic-icons/control-panel.svg',
             content,
             width: 520,
             height: 440,
@@ -2868,7 +2869,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'notepad',
             title: 'Bloc de notas - notas.txt',
-            icon: './assets/images/hd-icons/notepad.svg',
+            icon: './assets/images/classic-icons/notepad.svg',
             content,
             width: 560,
             height: 430,
@@ -2946,7 +2947,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'wordpad',
             title: 'WordPad - carta de presentacion.rtf',
-            icon: './assets/images/hd-icons/wordpad.svg',
+            icon: './assets/images/classic-icons/wordpad.svg',
             content,
             width: 640,
             height: 500,
@@ -2989,7 +2990,7 @@ export class AppManager {
             <div class="xp-mlops-app" data-mlops-root data-state="idle" aria-busy="false" aria-labelledby="mlops-pipeline-title">
                 <header class="xp-mlops-toolbar">
                     <div class="xp-mlops-brand xp-mlops-toolbar-brand">
-                        <img class="xp-mlops-logo" src="./assets/images/hd-icons/n8n.svg" alt="">
+                        <img class="xp-mlops-logo" src="./assets/images/classic-icons/n8n.svg" alt="">
                         <div>
                             <span>CASO DEMOSTRATIVO · SDLC + MLOps</span>
                             <h2>Ciclo completo de entrega</h2>
@@ -3145,7 +3146,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'n8n-flows',
             title: 'n8n - Pipeline SDLC + MLOps',
-            icon: './assets/images/hd-icons/n8n.svg',
+            icon: './assets/images/classic-icons/n8n.svg',
             content,
             width: 1120,
             height: 690,
@@ -3237,7 +3238,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'control-panel',
             title: 'Panel de control - Apariencia y temas',
-            icon: './assets/images/hd-icons/control-panel.svg',
+            icon: './assets/images/classic-icons/control-panel.svg',
             content,
             width: 780,
             height: 540,
@@ -3347,7 +3348,7 @@ export class AppManager {
         return this._createSingleInstanceWindow({
             id: 'api-center',
             title: 'API Center - Integraciones REST',
-            icon: './assets/images/hd-icons/api.svg',
+            icon: './assets/images/classic-icons/api.svg',
             content,
             width: 820,
             height: 540,
@@ -3511,7 +3512,7 @@ export class AppManager {
             width: 900,
             height: 720,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260713-pinball-touch1', 'initPinballApp')
+                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260904-pinball-physics2', 'initPinballApp')
                     .then(() => window.initPinballApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar Pinball: ${error.message}`));
             },
@@ -3703,11 +3704,11 @@ export class AppManager {
                         </button>
                         <div class="toolbar-separator"></div>
                         <button class="toolbar-button" id="resume-projects-btn" type="button">
-                            <img src="./assets/images/hd-icons/projects.svg" alt="Proyectos">
+                            <img src="./assets/images/classic-icons/projects.svg" alt="Proyectos">
                             <span>Proyectos</span>
                         </button>
                         <button class="toolbar-button" id="resume-contact-btn" type="button">
-                            <img src="./assets/images/hd-icons/contact.svg" alt="Contacto">
+                            <img src="./assets/images/classic-icons/contact.svg" alt="Contacto">
                             <span>Contacto</span>
                         </button>
                     </div>
@@ -3879,7 +3880,7 @@ export class AppManager {
             const resumeWindow = this.windowManager.createWindow({
                 id: 'resume',
                 title: 'Mi Curriculum Vitae',
-                icon: './assets/images/hd-icons/cv.svg',
+                icon: './assets/images/classic-icons/cv.svg',
                 content: content,
                 width: 700,
                 height: 600,

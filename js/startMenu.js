@@ -384,7 +384,7 @@ export class StartMenuManager {
         } catch (error) { /* Ignore malformed saved preferences. */ }
     }
 
-    safeResourceUrl(value, fallback = './assets/images/hd-icons/projects.svg') {
+    safeResourceUrl(value, fallback = './assets/images/classic-icons/projects.svg') {
         try {
             const parsed = new URL(String(value || ''), window.location.href);
             const allowedProtocol = ['http:', 'https:', 'blob:'].includes(parsed.protocol);

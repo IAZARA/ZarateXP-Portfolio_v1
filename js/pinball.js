@@ -20,6 +20,8 @@
         'arrowdown',
         'a',
         'd',
+        'z',
+        '/',
         'w',
         's',
         ' ',
@@ -222,7 +224,7 @@
             const helpId = help?.id || `pinball-help-${this.instanceId}`;
             if (help) {
                 help.id = helpId;
-                help.textContent = 'Mantené Espacio, S o flecha abajo para cargar. A/D o flechas controlan los flippers. W o flecha arriba mueve la mesa. P pausa, M silencia y R reinicia.';
+                help.textContent = 'Mantené Espacio para cargar y soltá para lanzar. Flippers: Z y /, A/D o flechas. W mueve la mesa. P pausa, M silencia y R reinicia.';
             }
 
             this.root.setAttribute('aria-label', 'Pinball XP Lab');
@@ -249,8 +251,8 @@
             this.resetButton?.setAttribute('aria-keyshortcuts', 'R');
             this.soundButton?.setAttribute('aria-keyshortcuts', 'M');
             this.fullscreenButton?.setAttribute('aria-keyshortcuts', 'F');
-            this.leftButton?.setAttribute('aria-keyshortcuts', 'A ArrowLeft');
-            this.rightButton?.setAttribute('aria-keyshortcuts', 'D ArrowRight');
+            this.leftButton?.setAttribute('aria-keyshortcuts', 'Z A ArrowLeft');
+            this.rightButton?.setAttribute('aria-keyshortcuts', '/ D ArrowRight');
             this.plungerButton?.setAttribute('aria-keyshortcuts', 'Space ArrowDown S');
 
             this.liveRegion = document.createElement('span');
@@ -329,7 +331,7 @@
             const release = (event) => {
                 if (event.cancelable) event.preventDefault();
                 const token = `${source}-${event.pointerId}`;
-                this.setPointerControl(control, token, false);
+                this.setPointerControl(control, token, false, event.type !== 'pointerup');
                 if (event.type !== 'lostpointercapture' && button.hasPointerCapture?.(event.pointerId)) {
                     try {
                         button.releasePointerCapture(event.pointerId);
@@ -508,7 +510,7 @@
             }
 
             const control = this.canvasPointerControls.get(event.pointerId);
-            if (control) this.setPointerControl(control, token, false);
+            if (control) this.setPointerControl(control, token, false, event.type !== 'pointerup');
             this.canvasPointerControls.delete(event.pointerId);
         }
 
@@ -519,7 +521,7 @@
             return null;
         }
 
-        setPointerControl(control, token, pressed) {
+        setPointerControl(control, token, pressed, cancelled = false) {
             const sources = this.pointerSources[control];
             if (!sources) return;
             const wasPressed = sources.size > 0;
@@ -529,7 +531,10 @@
 
             if (control === 'plunger' && wasPressed !== isPressed) {
                 if (isPressed) this.beginCharge();
-                else if (!this.isPlungerPressed()) this.releaseCharge();
+                else if (!this.isPlungerPressed()) {
+                    if (cancelled) this.cancelCharge();
+                    else this.releaseCharge();
+                }
             }
             this.updateControlStates();
         }
@@ -538,13 +543,17 @@
             this.keys.clear();
             Object.values(this.pointerSources).forEach((sources) => sources.clear());
             this.canvasPointerControls.clear();
-            if (cancelCharge && this.state === 'charging') {
+            if (cancelCharge) this.cancelCharge();
+            this.updateControlStates();
+        }
+
+        cancelCharge() {
+            if (this.state === 'charging') {
                 this.state = 'ready';
                 this.charge = 0;
                 this.chargeDirection = 1;
                 this.updateHud();
             }
-            this.updateControlStates();
         }
 
         focusCanvas() {
@@ -755,14 +764,7 @@
 
         updateCharge(dt) {
             if (this.state === 'charging') {
-                this.charge += this.chargeDirection * dt * 0.72;
-                if (this.charge >= 1) {
-                    this.charge = 1;
-                    this.chargeDirection = -1;
-                } else if (this.charge <= 0.14) {
-                    this.charge = 0.14;
-                    this.chargeDirection = 1;
-                }
+                this.charge = Math.min(1, this.charge + dt * 0.72);
             } else if (this.charge > 0 && this.state !== 'playing') {
                 this.charge = Math.max(0, this.charge - dt * 0.9);
             }
@@ -824,26 +826,21 @@
             const leftPressed = canFlip && this.isLeftPressed();
             const rightPressed = canFlip && this.isRightPressed();
             if (this.state === 'playing' && (leftPressed || rightPressed)) this.registerPlayerInput();
-            const previousLeft = this.leftFlipper;
-            const previousRight = this.rightFlipper;
-            this.leftFlipper = this.updateFlipper(this.leftFlipper, leftPressed, dt);
-            this.rightFlipper = this.updateFlipper(this.rightFlipper, rightPressed, dt);
-            this.leftFlipperSpeed = (this.leftFlipper - previousLeft) / Math.max(dt, 0.001);
-            this.rightFlipperSpeed = (this.rightFlipper - previousRight) / Math.max(dt, 0.001);
 
             this.updateCharge(dt);
             this.updateTimers(dt);
 
             if (this.state !== 'playing') {
+                this.advanceFlippers(dt, leftPressed, rightPressed);
                 this.accumulator = 0;
                 return;
             }
 
             this.accumulator = Math.min(this.accumulator + dt, FIXED_STEP * MAX_PHYSICS_STEPS);
             let steps = 0;
-            while (this.accumulator >= FIXED_STEP && steps < MAX_PHYSICS_STEPS && this.state === 'playing') {
+            while (this.accumulator + 1e-10 >= FIXED_STEP && steps < MAX_PHYSICS_STEPS && this.state === 'playing') {
                 this.physicsStep(FIXED_STEP, leftPressed, rightPressed);
-                this.accumulator -= FIXED_STEP;
+                this.accumulator = Math.max(0, this.accumulator - FIXED_STEP);
                 steps += 1;
             }
 
@@ -859,7 +856,16 @@
         updateFlipper(current, pressed, dt) {
             const target = pressed ? 1 : 0;
             const speed = pressed ? 18 : 12;
-            return current + (target - current) * Math.min(1, speed * dt);
+            return current + (target - current) * (1 - Math.exp(-speed * dt));
+        }
+
+        advanceFlippers(dt, leftPressed, rightPressed) {
+            const previousLeft = this.leftFlipper;
+            const previousRight = this.rightFlipper;
+            this.leftFlipper = this.updateFlipper(previousLeft, leftPressed, dt);
+            this.rightFlipper = this.updateFlipper(previousRight, rightPressed, dt);
+            this.leftFlipperSpeed = (this.leftFlipper - previousLeft) / dt;
+            this.rightFlipperSpeed = (this.rightFlipper - previousRight) / dt;
         }
 
         updateTimers(dt) {
@@ -942,11 +948,14 @@
         }
 
         physicsStep(dt, leftPressed, rightPressed) {
+            // Paddles and ball share the same fixed clock, independent of render FPS.
+            this.advanceFlippers(dt, leftPressed, rightPressed);
             this.ballAge += dt;
             this.secondsSincePlayerInput += dt;
             this.updatePhysicsTimers(dt);
             this.integrateBall(dt);
             this.resolveLauncherLane();
+            if (this.state !== 'playing') return;
             if (!this.ball.inLauncherLane) {
                 this.collideStaticSegments();
                 this.collideBumpers();
@@ -1011,6 +1020,17 @@
         resolveLauncherLane() {
             const ball = this.ball;
             if (!ball.inLauncherLane) return;
+
+            // A weak plunge rolls back to the shooter. It is not a lost ball.
+            if (ball.vy > 0 && ball.y >= 632) {
+                this.resetBall({ newBall: false });
+                this.state = 'ready';
+                this.ballSaveAvailable = false;
+                this.showEffect('Cargá un poco más');
+                this.announce('La bola volvió al lanzador. No perdiste ninguna bola.');
+                this.updateHud();
+                return;
+            }
 
             const laneLeft = 461;
             const laneRight = 479;
@@ -1631,11 +1651,11 @@
         }
 
         isLeftPressed() {
-            return this.keys.has('arrowleft') || this.keys.has('a') || this.pointerSources.left.size > 0;
+            return this.keys.has('arrowleft') || this.keys.has('a') || this.keys.has('z') || this.pointerSources.left.size > 0;
         }
 
         isRightPressed() {
-            return this.keys.has('arrowright') || this.keys.has('d') || this.pointerSources.right.size > 0;
+            return this.keys.has('arrowright') || this.keys.has('d') || this.keys.has('/') || this.pointerSources.right.size > 0;
         }
 
         isPlungerPressed() {

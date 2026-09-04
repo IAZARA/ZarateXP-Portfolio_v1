@@ -30,6 +30,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 - Personalización persistente con tres fondos originales inspirados en la fotografía clásica de Windows XP, color de sistema, escala de iconos, CRT, animaciones y taskbar.
 - Perfil profesional con el rol actual en ACSYS, modelo de trabajo, experiencia, casos, capacidades, formación, idiomas y contacto.
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
+- Iconos clásicos Tango con siluetas diferenciadas para perfil, CV, certificados y utilidades, conservando la interfaz Windows XP.
 - Visor de CV actualizado en PDF.
 - Explorador bilingüe de certificados con 16 credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de Claude Academy, Coursera y SAP Learning.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
@@ -65,6 +66,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 - **Buscaminas XP:** primer clic seguro, banderas, dudas, timer, dificultades y deteccion de victoria/derrota.
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
+- **Pinball:** física y flippers sincronizados a paso fijo, carga sostenida del lanzador, reintento sin perder bola en lanzamientos débiles y controles Z/«/», A/D, flechas y táctiles.
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
 - **Mis Certificados:** 16 credenciales con evidencia en IA, desarrollo agéntico, Data Analytics, SAP, gestión de proyectos, ArcGIS y seguridad internacional, con enlaces verificables de Claude Academy, Coursera y SAP Learning.
 - **Flujos n8n:** caso demostrativo de entrega de software e IA. n8n coordina eventos, APIs, jobs y decisiones humanas; las herramientas especializadas ejecutan CI/CD, entrenamiento, registry y serving. Incluye quality gate, rollback conceptual, drift y reentrenamiento.

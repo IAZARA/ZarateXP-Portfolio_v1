@@ -920,6 +920,9 @@ export const APP_TRANSLATIONS = Object.freeze({
     "rey": "king",
 
     // Pinball.
+    "Mantené Espacio para cargar y soltá para lanzar. Flippers: Z y /, A/D o flechas. W mueve la mesa. P pausa, M silencia y R reinicia.": "Hold Space to charge and release to launch. Flippers: Z and /, A/D or arrows. W nudges. P pauses, M mutes and R resets.",
+    "Cargá un poco más": "Charge a little more",
+    "La bola volvió al lanzador. No perdiste ninguna bola.": "The ball returned to the launcher. No ball was lost.",
     "Mesa Canvas con física propia, misiones, combos y progresión arcade.": "Canvas table with custom physics, missions, combos and arcade progression.",
     "No se encontró el contenedor de Pinball": "The Pinball container was not found",
     "Iniciar / Lanzar": "Start / Launch",
