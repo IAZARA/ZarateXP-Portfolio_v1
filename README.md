@@ -38,6 +38,8 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 - API Center con Open-Meteo, wttr.in, GitHub REST, Countries y Banco Mundial, cache con TTL, cancelación, estados de frescura y recuperación offline.
 - Actividad GitHub con resumen dentro del perfil profesional y calendario anual público actualizado diariamente por GitHub Actions, sin exponer tokens en el navegador.
 - Apps retro: Winamp Pro, Paint mejorado, Buscaminas robusto, Solitario, Pinball, Bloc de notas y WordPad.
+- Inicio clásico de XP con carpeta Juegos, búsqueda de programas y accesos recientes persistentes. Ctrl+Esc abre Inicio y Ctrl/Cmd+K abre la búsqueda.
+- Se conserva el doble clic para abrir iconos en escritorio (un toque en móvil), junto con la restauración de aplicaciones minimizadas sin duplicar ventanas.
 - PDF Studio para abrir PDFs locales, revisar el CV, anotar observaciones y usar File/Blob APIs.
 - Panel de control para personalizar fondo, tema, iconos, efecto CRT y taskbar.
 - Pipeline interactivo SDLC + MLOps: versionado, calidad de datos, CI, entrenamiento reproducible, evaluación, registry, aprobación humana, despliegue progresivo, observabilidad, drift y feedback.

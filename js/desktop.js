@@ -111,11 +111,11 @@ export class DesktopManager {
         // still creates the familiar selection box without opening the menu.
         this.desktop.addEventListener('click', (event) => {
             if (!this.isBlankDesktopTarget(event.target)) return;
-            this.clearSelection();
             if (this.suppressBlankClick) {
                 this.suppressBlankClick = false;
                 return;
             }
+            this.clearSelection();
 
             event.stopPropagation();
             this.showContextMenu(event.clientX, event.clientY);
@@ -198,6 +198,8 @@ export class DesktopManager {
     openIcon(icon) {
         const programName = icon?.getAttribute('data-program-name');
         if (programName && window.zarateXP?.appManager) {
+            window.zarateXP.startMenuManager?.close();
+            this.hideContextMenu();
             window.zarateXP.appManager.openApp(programName);
         }
     }

@@ -6,17 +6,27 @@ export class StartMenuManager {
         this.isOpen = false;
         this.currentSubmenu = null;
         this.closeTimer = null;
+        this.activeCategory = '';
+        this.searchInput = document.getElementById('app-search-input');
     }
     
     init() {
+        this.startMenu.insertBefore(this.allProgramsMenu, this.startMenu.querySelector('.start-menu-footer'));
         this.setupMenuItems();
         this.setupSubmenus();
         this.setupFooterButtons();
         this.setupKeyboardNavigation();
+        this.setupAppSearch();
+        this.restoreRecentPrograms();
     }
     
     prepareInteractiveItem(element, options = {}) {
         const { disabled = false, expanded = null, hasPopup = null } = options;
+        // Adjacent text already names the action; don't repeat it via the icon.
+        element.querySelectorAll('img').forEach((icon) => {
+            icon.alt = '';
+            icon.setAttribute('aria-hidden', 'true');
+        });
         element.setAttribute('role', 'button');
         element.setAttribute('tabindex', disabled ? '-1' : '0');
         element.setAttribute('aria-disabled', disabled ? 'true' : 'false');
@@ -27,11 +37,9 @@ export class StartMenuManager {
     // Helper para agregar eventos de click, touch y teclado
     addClickAndTouchEvent(element, handler) {
         element.addEventListener('click', handler);
-        element.addEventListener('touchend', (e) => {
-            e.preventDefault(); // Prevenir el click fantasma
-            handler(e);
-        });
+        // Native click also handles touch without launching when a list is scrolled.
         element.addEventListener('keydown', (e) => {
+            if (element.tagName === 'BUTTON') return;
             if (e.key !== 'Enter' && e.key !== ' ') return;
             e.preventDefault();
             handler(e);
@@ -47,9 +55,10 @@ export class StartMenuManager {
             const action = item.getAttribute('data-action');
             this.prepareInteractiveItem(item, {
                 disabled: isDisabled,
-                hasPopup: null,
-                expanded: null
+                hasPopup: action === 'open-category' ? 'menu' : null,
+                expanded: action === 'open-category' ? false : null
             });
+            if (action === 'open-category') item.setAttribute('aria-controls', 'programs-submenu');
             if (isDisabled) return;
             
             this.addClickAndTouchEvent(item, (e) => {
@@ -64,6 +73,12 @@ export class StartMenuManager {
                     this.openUrl(url);
                 } else if (action === 'toggle-all-programs') {
                     this.toggleAllPrograms();
+                } else if (action === 'open-category') {
+                    this.searchInput.value = '';
+                    if (this.currentSubmenu && this.activeCategory === item.dataset.category) this.hideAllSubmenus();
+                    else this.openLibrary(item.dataset.category);
+                } else if (action === 'open-search') {
+                    this.openSearch();
                 }
             });
         });
@@ -103,18 +118,10 @@ export class StartMenuManager {
             });
         });
         
-        // Hide submenus when clicking outside
-        document.addEventListener('click', () => {
+        this.allProgramsMenu.querySelector('[data-library-back]').addEventListener('click', () => {
+            this.searchInput.value = '';
             this.hideAllSubmenus();
-        });
-        
-        // Hide submenus when mouse leaves the area
-        this.startMenu.addEventListener('mouseleave', () => {
-            setTimeout(() => {
-                if (!this.isMouseOverSubmenu()) {
-                    this.hideAllSubmenus();
-                }
-            }, 100);
+            document.getElementById('menu-all-programs')?.focus();
         });
     }
 
@@ -136,15 +143,18 @@ export class StartMenuManager {
         };
 
         this.startMenu?.addEventListener('keydown', (event) => {
+            if (event.target.closest('.all-programs-menu') || event.target === this.searchInput) return;
             moveFocus(event, this.startMenu, '.menu-item, .all-programs-button, .footer-button');
         });
         this.allProgramsMenu?.addEventListener('keydown', (event) => {
+            if (event.target === this.searchInput) return;
             moveFocus(event, this.allProgramsMenu, '.all-programs-item');
         });
         document.addEventListener('keydown', (event) => {
-            if (event.key !== 'Escape') return;
+            if (event.key !== 'Escape' || event.ctrlKey) return;
             if (this.currentSubmenu) {
                 event.preventDefault();
+                this.searchInput.value = '';
                 this.hideAllSubmenus();
                 document.getElementById('menu-all-programs')?.focus();
             } else if (this.isOpen) {
@@ -188,6 +198,10 @@ export class StartMenuManager {
         this.startMenu.style.visibility = 'visible';
         window.requestAnimationFrame(() => this.startMenu.classList.add('show'));
         this.isOpen = true;
+        this.startMenu.inert = false;
+        this.startMenu.setAttribute('aria-hidden', 'false');
+        document.getElementById('start-button')?.setAttribute('aria-expanded', 'true');
+        document.getElementById('start-button')?.classList.add('active');
         
         // Play sound
         if (window.zarateXP?.soundManager) {
@@ -199,9 +213,15 @@ export class StartMenuManager {
     }
     
     close() {
+        if (this.startMenu.contains(document.activeElement)) document.getElementById('start-button')?.focus();
         window.clearTimeout(this.closeTimer);
         this.startMenu.classList.remove('show');
         this.isOpen = false;
+        this.startMenu.inert = true;
+        this.startMenu.setAttribute('aria-hidden', 'true');
+        document.getElementById('start-button')?.setAttribute('aria-expanded', 'false');
+        document.getElementById('start-button')?.classList.remove('active');
+        this.searchInput.value = '';
         this.hideAllSubmenus();
         const delay = this.prefersReducedMotion() ? 0 : 140;
         this.closeTimer = window.setTimeout(() => {
@@ -213,44 +233,104 @@ export class StartMenuManager {
     
     toggleAllPrograms() {
         if (!this.allProgramsMenu) return;
-        if (this.allProgramsMenu.classList.contains('show')) {
+        if (this.allProgramsMenu.classList.contains('show') && !this.activeCategory) {
             this.hideAllSubmenus();
             document.getElementById('menu-all-programs')?.focus();
         } else {
-            this.hideAllSubmenus();
-            this.allProgramsMenu.classList.add('show');
-            this.allProgramsMenu.setAttribute('aria-hidden', 'false');
-            this.currentSubmenu = this.allProgramsMenu;
-            this.positionSubmenu(this.allProgramsMenu);
-            document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'true');
-            window.requestAnimationFrame(() => {
-                this.allProgramsMenu.querySelector('.all-programs-item[tabindex="0"]')?.focus();
-            });
+            this.openLibrary();
         }
+    }
+
+    openLibrary(category = '', focusFirst = true) {
+        this.activeCategory = category;
+        this.allProgramsMenu.dataset.libraryCategory = category;
+        this.startMenu.classList.add('library-open');
+        this.allProgramsMenu.classList.add('show');
+        this.allProgramsMenu.inert = false;
+        this.allProgramsMenu.setAttribute('aria-hidden', 'false');
+        this.currentSubmenu = this.allProgramsMenu;
+        document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'true');
+        document.getElementById('menu-games')?.setAttribute('aria-expanded', String(category === 'games'));
+        const title = category === 'games' ? 'Juegos' : 'Todos los programas';
+        this.allProgramsMenu.querySelector('[data-library-title]').textContent = window.zarateXP?.i18nManager?.t(title) || title;
+        this.allProgramsMenu.setAttribute('aria-label', window.zarateXP?.i18nManager?.t(title) || title);
+        this.filterPrograms();
+        this.positionProgramsMenu();
+        if (focusFirst) window.requestAnimationFrame(() => this.visibleProgramItems()[0]?.focus());
+    }
+
+    visibleProgramItems() {
+        return Array.from(this.allProgramsMenu.querySelectorAll('.all-programs-item')).filter((item) => item.offsetParent !== null);
+    }
+
+    positionProgramsMenu() {
+        this.allProgramsMenu.style.bottom = '';
+        if (this.activeCategory !== 'games' || window.matchMedia('(max-width: 768px)').matches) return;
+        const menuRect = this.startMenu.getBoundingClientRect();
+        const triggerRect = document.getElementById('menu-games').getBoundingClientRect();
+        this.allProgramsMenu.style.bottom = Math.max(0, menuRect.bottom - triggerRect.top - this.allProgramsMenu.offsetHeight) + 'px';
+    }
+
+    setupAppSearch() {
+        this.searchInput.addEventListener('input', () => this.openLibrary('', false));
+        this.searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                if (!this.currentSubmenu) this.openLibrary('', false);
+                this.visibleProgramItems()[0]?.focus();
+            }
+            if (event.key === 'Enter' && this.searchInput.value.trim()) {
+                event.preventDefault();
+                this.visibleProgramItems()[0]?.click();
+            }
+        });
+        document.querySelector('[data-open-app-search]')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            this.openSearch();
+        });
+        window.addEventListener('zaratexp:localechange', () => {
+            if (this.currentSubmenu) this.filterPrograms();
+        });
+        window.addEventListener('resize', () => {
+            if (this.currentSubmenu) this.positionProgramsMenu();
+        });
+    }
+
+    openSearch() {
+        this.open();
+        this.openLibrary('', false);
+        this.searchInput.focus();
+    }
+
+    filterPrograms() {
+        const normalize = (value) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const query = normalize(this.searchInput.value.trim());
+        let matches = 0;
+        this.allProgramsMenu.querySelectorAll('[data-program-group]').forEach((group) => {
+            const key = group.dataset.programGroup;
+            const categoryMatches = !this.activeCategory || key === this.activeCategory;
+            let visible = 0;
+            group.querySelectorAll('.all-programs-item').forEach((item) => {
+                const haystack = normalize(`${item.textContent} ${item.dataset.programName || ''}`);
+                item.hidden = !categoryMatches || !haystack.includes(query) || (Boolean(query) && key === 'recent');
+                if (!item.hidden) visible++;
+            });
+            group.hidden = !categoryMatches || (!visible && !(key === 'recent' && !query && !this.activeCategory));
+            matches += visible;
+        });
+        this.allProgramsMenu.querySelector('.app-search-empty').hidden = matches > 0 || !query;
     }
     
     hideAllSubmenus() {
+        if (this.allProgramsMenu?.contains(document.activeElement)) document.getElementById('menu-all-programs')?.focus();
         this.allProgramsMenu?.classList.remove('show');
+        if (this.allProgramsMenu) this.allProgramsMenu.inert = true;
         this.allProgramsMenu?.setAttribute('aria-hidden', 'true');
         this.currentSubmenu = null;
+        this.startMenu.classList.remove('library-open');
+        this.activeCategory = '';
         document.getElementById('menu-all-programs')?.setAttribute('aria-expanded', 'false');
-    }
-    
-    positionSubmenu(submenu) {
-        // Position submenu to the right of the start menu
-        const startMenuRect = this.startMenu.getBoundingClientRect();
-        submenu.style.left = startMenuRect.width + 'px';
-    }
-    
-    isMouseOverSubmenu() {
-        if (!this.currentSubmenu) return false;
-        
-        const rect = this.currentSubmenu.getBoundingClientRect();
-        const mouseX = window.mouseX || 0;
-        const mouseY = window.mouseY || 0;
-        
-        return mouseX >= rect.left && mouseX <= rect.right &&
-               mouseY >= rect.top && mouseY <= rect.bottom;
+        document.getElementById('menu-games')?.setAttribute('aria-expanded', 'false');
     }
     
     openProgram(programName) {
@@ -292,6 +372,16 @@ export class StartMenuManager {
         list.prepend(item);
 
         Array.from(list.querySelectorAll('.recently-used-item')).slice(4).forEach((itemToRemove) => itemToRemove.remove());
+        try {
+            localStorage.setItem('zarateXP.recentApps.v1', JSON.stringify(Array.from(list.querySelectorAll('.recently-used-item')).map((item) => item.dataset.programName)));
+        } catch (error) { /* Recents stay available in memory when storage is unavailable. */ }
+    }
+
+    restoreRecentPrograms() {
+        try {
+            const recent = JSON.parse(localStorage.getItem('zarateXP.recentApps.v1') || '[]');
+            if (Array.isArray(recent)) recent.slice(0, 4).reverse().forEach((id) => this.addRecentProgram(id));
+        } catch (error) { /* Ignore malformed saved preferences. */ }
     }
 
     safeResourceUrl(value, fallback = './assets/images/hd-icons/projects.svg') {
@@ -486,12 +576,6 @@ export class StartMenuManager {
         });
     }
 }
-
-// Track mouse position for submenu handling
-document.addEventListener('mousemove', (e) => {
-    window.mouseX = e.clientX;
-    window.mouseY = e.clientY;
-});
 
 // Legacy support
 window.StartMenuManager = StartMenuManager;

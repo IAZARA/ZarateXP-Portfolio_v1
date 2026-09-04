@@ -19,6 +19,8 @@ export class TaskbarManager {
     }
     
     setupStartButton() {
+        this.startButton.setAttribute('aria-controls', 'app-library');
+        this.startButton.setAttribute('aria-expanded', 'false');
         // Helper para agregar eventos click y touch
         const addClickAndTouch = (element, handler) => {
             element.addEventListener('click', handler);
@@ -35,13 +37,6 @@ export class TaskbarManager {
                 window.zarateXP.startMenuManager.toggle();
             }
             
-            // Toggle active state
-            this.startButton.classList.toggle('active');
-        });
-        
-        // Remove active state when clicking elsewhere
-        document.addEventListener('click', () => {
-            this.startButton.classList.remove('active');
         });
     }
 

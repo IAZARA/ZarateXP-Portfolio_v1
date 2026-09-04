@@ -1,4 +1,7 @@
 export const CORE_TRANSLATIONS = Object.freeze({
+    "Buscar aplicaciones": "Search applications",
+    "Volver a Inicio": "Back to Start",
+    "No se encontraron aplicaciones.": "No applications found.",
     "Idioma": "Language",
     "Idioma: Español": "Language: Spanish",
     "Seleccionar idioma": "Select language",

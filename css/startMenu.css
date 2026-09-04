@@ -465,6 +465,9 @@
 }
 
 .all-programs-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 8px 10px;
     color: #fff;
     font-size: 12px;
@@ -475,7 +478,7 @@
 }
 
 .all-programs-scroll {
-    max-height: calc(min(650px, 100vh - var(--taskbar-height) - 12px) - 34px);
+    max-height: calc(min(650px, 100vh - var(--taskbar-height) - 12px) - 100px);
     overflow-y: auto;
     scrollbar-color: #316ac5 #ece9d8;
 }
@@ -546,4 +549,56 @@
         min-height: 36px;
         font-size: 12px;
     }
+}
+
+/* Useful additions keep the existing Luna chrome, Tahoma and classic icons. */
+.all-programs-header button {
+    min-width: 28px;
+    min-height: 25px;
+    padding: 2px 6px;
+}
+
+.xp-program-search {
+    display: grid;
+    gap: 4px;
+    padding: 8px;
+    color: #222;
+    font: 11px Tahoma, Arial, sans-serif;
+    background: #ece9d8;
+    border-bottom: 1px solid #aca899;
+}
+
+.xp-program-search input {
+    width: 100%;
+    min-height: 26px;
+    font: 12px Tahoma, Arial, sans-serif;
+}
+
+.app-search-empty {
+    margin: 0;
+    padding: 14px 10px;
+    font: 11px Tahoma, Arial, sans-serif;
+}
+
+.all-programs-menu [hidden] { display: none !important; }
+
+@media (max-width: 768px) {
+    .startmenu.library-open .start-menu-middle { display: none; }
+    .startmenu .all-programs-menu {
+        position: relative;
+        left: 0 !important;
+        bottom: auto;
+        width: 100%;
+        max-height: none;
+        border: 0;
+        margin: 0;
+        box-shadow: none;
+        transform: none;
+        animation: none;
+    }
+    .startmenu .all-programs-menu.show { opacity: 1; }
+    .startmenu .all-programs-scroll {
+        max-height: calc(100dvh - var(--taskbar-height) - 225px);
+    }
+    .all-programs-item, .all-programs-header button { min-height: 44px; }
 }

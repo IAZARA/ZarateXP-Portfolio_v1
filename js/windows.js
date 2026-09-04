@@ -420,6 +420,10 @@ export class WindowManager {
     focusWindow(windowId) {
         const windowData = this.windows.get(windowId);
         if (!windowData) return;
+        if (windowData.isMinimized) {
+            this.restoreWindow(windowId);
+            return;
+        }
         const wasActive = this.activeWindow === windowId;
         
         // Remove active class from all windows
@@ -475,7 +479,9 @@ export class WindowManager {
                 easing: 'cubic-bezier(0.4, 0, 0.7, 0.2)',
                 fill: 'forwards'
             });
-            windowData.motionAnimation.finished.catch(() => {}).then(() => {
+            const minimizeAnimation = windowData.motionAnimation;
+            minimizeAnimation.finished.catch(() => {}).then(() => {
+                if (windowData.motionAnimation !== minimizeAnimation) return;
                 if (windowData.isMinimized) windowData.element.style.display = 'none';
                 windowData.element.classList.remove('minimizing');
                 windowData.motionAnimation?.cancel();
@@ -513,6 +519,7 @@ export class WindowManager {
         if (!windowData || !windowData.isMinimized) return;
         
         windowData.isMinimized = false;
+        windowData.element.classList.remove('minimizing');
         windowData.element.style.display = 'flex';
         if (!this.prefersReducedMotion()) {
             const taskbarButton = (this.taskbarManager || window.zarateXP?.taskbarManager)?.openPrograms?.get(windowId);
@@ -536,7 +543,9 @@ export class WindowManager {
                 duration: 240,
                 easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
             });
-            windowData.motionAnimation.finished.catch(() => {}).then(() => {
+            const restoreAnimation = windowData.motionAnimation;
+            restoreAnimation.finished.catch(() => {}).then(() => {
+                if (windowData.motionAnimation !== restoreAnimation) return;
                 windowData.element.classList.remove('restoring');
                 windowData.motionAnimation = null;
             });

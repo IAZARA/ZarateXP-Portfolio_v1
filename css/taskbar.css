@@ -46,7 +46,7 @@
         1px 0 2px rgba(0,0,0,0.25);
 }
 
-.start-button:hover {
+#start-button:hover {
     background: linear-gradient(to bottom, #88C34E 0%, #71AC42 50%, #619C32 100%); /* Degradado hover */
     border-top: 1px solid #D6E7AC;
     border-left: 1px solid #D6E7AC;
@@ -55,8 +55,8 @@
     transform: translateY(-1px);
 }
 
-.start-button:active,
-.start-button.active {
+#start-button:active,
+#start-button.active {
     background: linear-gradient(to bottom, #518C2A 0%, #619C32 50%, #78B33E 100%); /* Degradado active */
     border-top: 1px solid #3168D5;
     border-left: 1px solid #3168D5;

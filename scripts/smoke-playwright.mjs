@@ -352,6 +352,23 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
     ensure(desktopAudit.twoColumns && desktopAudit.contained && desktopAudit.overlapPairs.length === 0, `Los iconos móviles se superponen, desbordan o no forman dos columnas (${JSON.stringify(desktopAudit)})`);
 
     const profileIcon = page.locator('.desktop-icon[data-program-name="recruiter-route"]');
+    await page.locator('#start-button').tap();
+    await page.locator('#menu-games').tap();
+    const mobileGames = page.locator('.all-programs-menu');
+    ensure(await mobileGames.locator('.all-programs-item:visible').count() === 3, 'Juegos no mostró tres accesos en móvil');
+    const gameTargets = await mobileGames.locator('.all-programs-item:visible').evaluateAll((items) => items.map((item) => {
+      const rect = item.getBoundingClientRect();
+      return rect.height >= 44 && rect.left >= 0 && rect.right <= innerWidth && rect.bottom <= innerHeight;
+    }));
+    ensure(gameTargets.every(Boolean), 'Juegos tiene objetivos táctiles pequeños o fuera del viewport');
+    await mobileGames.locator('[data-library-back]').tap();
+    await page.locator('#menu-search').tap();
+    await page.locator('#app-search-input').fill('busca');
+    await mobileGames.locator('[data-program-name="minesweeper"]').tap();
+    const mobileMinesweeper = page.locator('.window[data-window-id="minesweeper"]');
+    await mobileMinesweeper.waitFor({ state: 'visible' });
+    await mobileMinesweeper.locator('.close-btn').tap();
+    await mobileMinesweeper.waitFor({ state: 'detached' });
     await profileIcon.tap();
     await page.locator('.window[data-window-id="recruiter-route"]').waitFor({ state: 'visible', timeout: 12000 });
     ensure(await page.locator('.window[data-window-id="recruiter-route"]').count() === 1, 'Un toque móvil no abrió el Perfil profesional');
@@ -892,8 +909,43 @@ async function exerciseStartMenuAndPaint(page) {
   await page.locator('#start-button').click();
   const startMenu = page.locator('.startmenu');
   await startMenu.waitFor({ state: 'visible' });
+  const xpChrome = await page.evaluate(() => {
+    const bar = document.querySelector('.taskbar').getBoundingClientRect();
+    const start = getComputedStyle(document.getElementById('start-button'));
+    return {
+      fullWidth: Math.abs(bar.left) < 1 && Math.abs(bar.right - innerWidth) < 1,
+      dockRemoved: !document.querySelector('link[href*="ios-shell"]'),
+      classicFont: start.fontFamily.includes('Tahoma'),
+      greenStart: start.backgroundImage.includes('81, 140, 42')
+    };
+  });
+  ensure(Object.values(xpChrome).every(Boolean), `Se perdió la identidad de Windows XP (${JSON.stringify(xpChrome)})`);
   const primaryPrograms = await startMenu.locator('.menu-item[data-program-name]').evaluateAll((items) => items.map((item) => item.dataset.programName));
-  ensure(primaryPrograms.join(',') === 'recruiter-route,projects,resume,certificates,contact,documents,paint,api-center,n8n-flows,pinball,minesweeper,my-computer,control-panel', `Inicio no conserva el orden equilibrado (${primaryPrograms.join(',')})`);
+  ensure(primaryPrograms.join(',') === 'recruiter-route,projects,resume,certificates,contact,documents,paint,api-center,n8n-flows,my-computer,control-panel', `Inicio no conserva el orden equilibrado (${primaryPrograms.join(',')})`);
+
+  await page.locator('#menu-games').click();
+  const gamesMenu = page.locator('.all-programs-menu');
+  ensure(await gamesMenu.locator('.all-programs-item:visible').count() === 3, 'Juegos no agrupó Buscaminas, Solitario y Pinball');
+  await gamesMenu.locator('[data-program-name="solitaire"]').click();
+  const solitaireWindow = page.locator('.window[data-window-id="solitaire"]');
+  await solitaireWindow.waitFor({ state: 'visible' });
+  await solitaireWindow.locator('.minimize-btn').click();
+  await solitaireWindow.waitFor({ state: 'hidden' });
+  await page.keyboard.press('Control+k');
+  const search = page.locator('#app-search-input');
+  await search.fill('solitario');
+  ensure(await gamesMenu.locator('.all-programs-item:visible').count() === 1, 'La búsqueda duplica resultados recientes');
+  await search.press('Enter');
+  await solitaireWindow.waitFor({ state: 'visible' });
+  ensure(await solitaireWindow.count() === 1, 'Reabrir un programa minimizado duplicó la ventana');
+  ensure((await page.evaluate(() => JSON.parse(localStorage.getItem('zarateXP.recentApps.v1') || '[]'))).includes('solitaire'), 'Los recientes no se guardaron');
+  await solitaireWindow.locator('.close-btn').click();
+  await solitaireWindow.waitFor({ state: 'detached' });
+  await page.keyboard.press('Control+k');
+  await search.fill('zzznoprograma');
+  ensure(await gamesMenu.locator('.app-search-empty').isVisible(), 'La búsqueda vacía no informa el resultado');
+  await page.keyboard.press('Escape');
+  ensure(await startMenu.getAttribute('aria-hidden') === 'false', 'Escape cerró Inicio en lugar del submenú');
 
   await page.locator('#menu-all-programs').click();
   const catalogue = page.locator('.all-programs-menu');

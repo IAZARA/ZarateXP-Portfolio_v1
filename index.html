@@ -143,16 +143,16 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/boot.css?v=zaratexp-20260712-release">
-    <link rel="stylesheet" href="css/desktop.css?v=zaratexp-20260904-desktop-menu1">
-    <link rel="stylesheet" href="css/taskbar.css?v=zaratexp-20260822-xp-drive1">
-    <link rel="stylesheet" href="css/startMenu.css?v=zaratexp-20260822-paint-menu1">
+    <link rel="stylesheet" href="css/desktop.css?v=zaratexp-20260904-xp-classic1">
+    <link rel="stylesheet" href="css/taskbar.css?v=zaratexp-20260904-xp-classic1">
+    <link rel="stylesheet" href="css/startMenu.css?v=zaratexp-20260904-xp-classic1">
     <link rel="stylesheet" href="css/windows.css">
     <link rel="stylesheet" href="css/mipc.css?v=zaratexp-20260822-xp-drive1">
     <link rel="stylesheet" href="css/minesweeper.css?v=zaratexp-20260712-release">
     <link rel="stylesheet" href="css/about-me.css">
     <link rel="stylesheet" href="css/contacto.css">
     <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260822-xp-drive1">
-    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260904-desktop-menu1">
+    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260904-xp-classic1">
     <link rel="stylesheet" href="css/clippy.css?v=zaratexp-20260712-clippy-mobile1">
     <link rel="stylesheet" href="css/crtEffect.css">
     
@@ -340,8 +340,8 @@
     </main>
 
     <!-- Scripts -->
-    <script type="module" src="js/main.js?v=zaratexp-20260904-desktop-menu1"></script>
-    <script type="module" src="js/apps.js?v=zaratexp-20260904-desktop-menu1"></script>
+    <script type="module" src="js/main.js?v=zaratexp-20260904-xp-classic1"></script>
+    <script type="module" src="js/apps.js?v=zaratexp-20260904-xp-classic1"></script>
     <!-- CRT Effect - ALL DISABLED -->
     <div class="crt-effect" style="display: none;"></div>
     <div class="crt-scanline" style="display: none;"></div>
@@ -400,7 +400,7 @@
     </div>
 
     <!-- Start Menu -->
-    <div class="startmenu">
+    <div class="startmenu" id="app-library" aria-label="Inicio" aria-hidden="true" inert>
         <div class="menutopbar">
             <img src="images/foto-nuevo-usuario.jpeg" alt="User" class="userpicture">
             <span class="username">Ivan Agustin Zarate</span>
@@ -447,11 +447,11 @@
                     <li class="menu-item" id="menu-n8n-flows" data-action="open-program" data-program-name="n8n-flows">
                         <img src="./assets/images/hd-icons/n8n.svg" alt="Flujos n8n"><div class="item-content"><span class="item-title">Flujos n8n</span><span class="item-description">Automatización visual</span></div>
                     </li>
-                    <li class="menu-item" id="menu-pinball" data-action="open-program" data-program-name="pinball">
-                        <img src="./assets/images/hd-icons/pinball.svg?v=20260712" alt="Pinball XP"><div class="item-content"><span class="item-title">Pinball XP</span></div>
+                    <li class="menu-item" id="menu-games" data-action="open-category" data-category="games">
+                        <img src="./assets/images/xp-small-icons/folder-closed.png" alt=""><div class="item-content"><span class="item-title">Juegos</span></div><span class="mut-menu-arrow" aria-hidden="true">▶</span>
                     </li>
-                    <li class="menu-item" id="menu-minesweeper" data-action="open-program" data-program-name="minesweeper">
-                        <img src="./assets/images/hd-icons/minesweeper.svg?v=20260712" alt="Buscaminas"><div class="item-content"><span class="item-title">Buscaminas</span></div>
+                    <li class="menu-item" id="menu-search" data-action="open-search">
+                        <img src="./assets/images/xp-small-icons/search.png" alt=""><div class="item-content"><span class="item-title">Buscar aplicaciones</span></div>
                     </li>
                     <li class="menu-item" id="menu-github" data-action="open-url" data-url="https://github.com/IAZARA">
                         <img src="./assets/images/github.png" alt="GitHub"><div class="item-content"><span class="item-title">GitHub</span></div>
@@ -481,9 +481,17 @@
     </div>
 
     <!-- All Programs Menu -->
-    <div class="all-programs-menu" aria-hidden="true" aria-label="Todos los programas">
-        <div class="all-programs-header">Todos los programas</div>
+    <div class="all-programs-menu" id="programs-submenu" aria-hidden="true" aria-label="Todos los programas" inert>
+        <div class="all-programs-header">
+            <button type="button" data-library-back aria-label="Volver a Inicio">◀</button>
+            <span data-library-title>Todos los programas</span>
+        </div>
+        <label class="xp-program-search">
+            <span>Buscar aplicaciones</span>
+            <input id="app-search-input" type="search" placeholder="Buscar aplicaciones" autocomplete="off">
+        </label>
         <div class="all-programs-scroll">
+        <p class="app-search-empty" hidden>No se encontraron aplicaciones.</p>
         <section class="all-programs-group" data-program-group="recent">
             <h2>Recientes</h2>
             <ul class="all-programs-items recently-used-items" data-recent-programs>

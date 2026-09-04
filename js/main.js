@@ -1,13 +1,13 @@
 // Main JavaScript Module
-import { I18nManager } from './i18n.js?v=zaratexp-20260904-desktop-menu1';
+import { I18nManager } from './i18n.js?v=zaratexp-20260904-xp-classic1';
 import { BootManager } from './boot.js?v=zaratexp-20260822-recruiter-ux1';
-import { DesktopManager } from './desktop.js?v=zaratexp-20260904-desktop-menu1';
-import { WindowManager } from './windows.js?v=zaratexp-20260822-responsive-windows1';
-import { TaskbarManager } from './taskbar.js?v=zaratexp-20260822-xp-drive1';
-import { StartMenuManager } from './startMenu.js?v=zaratexp-20260822-paint-menu1';
+import { DesktopManager } from './desktop.js?v=zaratexp-20260904-xp-classic1';
+import { WindowManager } from './windows.js?v=zaratexp-20260904-xp-classic1';
+import { TaskbarManager } from './taskbar.js?v=zaratexp-20260904-xp-classic1';
+import { StartMenuManager } from './startMenu.js?v=zaratexp-20260904-xp-classic1';
 import { SoundManager } from './sounds.js?v=zaratexp-20260712-i18n2';
-import { AppManager } from './apps.js?v=zaratexp-20260904-desktop-menu1';
-import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260904-desktop-menu1';
+import { AppManager } from './apps.js?v=zaratexp-20260904-xp-classic1';
+import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260904-xp-classic1';
 
 class ZarateXP {
     constructor() {
@@ -122,10 +122,16 @@ class ZarateXP {
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Windows key
-            if (e.key === 'Meta' || e.key === 'OS') {
+            // Classic Windows shortcut; Command remains available to the browser.
+            if (e.ctrlKey && e.key === 'Escape') {
                 e.preventDefault();
                 this.startMenuManager.toggle();
+                return;
+            }
+            // App search without stealing Command shortcuts from the browser.
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+                e.preventDefault();
+                this.startMenuManager.openSearch();
             }
             
             // Alt+F4
@@ -137,10 +143,6 @@ class ZarateXP {
                 }
             }
             
-            // Escape
-            if (e.key === 'Escape') {
-                this.startMenuManager.close();
-            }
         });
         
         // Prevent context menu

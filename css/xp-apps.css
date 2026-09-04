@@ -2969,7 +2969,7 @@
     border: 1px solid #aca899;
     background: #fff;
     padding: 10px;
-    min-height: 120px;
+    min-height: 144px;
 }
 
 .xp-settings-grid .xp-wallpaper-fieldset {
@@ -3070,6 +3070,23 @@
     display: block;
     margin: 8px 0;
     font: 11px Tahoma, sans-serif;
+}
+
+/* These controls are nested in labels; XP.css expects sibling labels. */
+.xp-settings-grid input[type="radio"],
+.xp-settings-grid input[type="checkbox"] {
+    appearance: auto;
+    position: static;
+    opacity: 1;
+    width: 13px;
+    height: 13px;
+    margin: 0 5px 0 0;
+    vertical-align: middle;
+}
+
+.xp-wallpaper-option input {
+    grid-column: 1;
+    grid-row: 2;
 }
 
 .xp-range-label input {
