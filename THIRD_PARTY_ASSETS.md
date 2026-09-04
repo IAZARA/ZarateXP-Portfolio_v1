@@ -11,6 +11,18 @@ The final icons were redrawn with original gradients, composition, lighting, bev
 Windows XP-inspired colors. They do not embed Microsoft product icons or Windows game
 resources.
 
+## ACSYS identity
+
+`assets/images/acsys-logo.svg` embeds the official ACSYS wordmark supplied through the
+owner's ACSYS brand materials and published by the company at
+https://www.acsyslatam.com/wp-content/uploads/2024/04/logo-acsys-nuevo.png. It is used only
+to identify Ivan's current employer. The wordmark and trademark remain the property of
+ACSYS.
+
+`assets/readme/zaratexp-social-ai-architect.jpg` is an AI-assisted revision of the
+portfolio's existing social preview. It preserves the original ZarateXP concept and
+updates the professional subtitle to reflect the owner's current role.
+
 ## Audio supplied by the portfolio owner
 
 The following recordings were supplied by the repository owner, who confirmed on

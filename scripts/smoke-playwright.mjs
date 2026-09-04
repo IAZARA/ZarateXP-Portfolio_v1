@@ -250,7 +250,7 @@ async function installApiFixtures(page) {
       followers: 12,
       following: 9,
       location: 'Buenos Aires, Argentina',
-      bio: 'Software Analyst & Project Manager | Software, Data & AI Solutions'
+      bio: 'AI Solution Architect at ACSYS | Software, Data & AI Solutions'
     }, { 'x-ratelimit-remaining': '59', 'x-ratelimit-reset': '1783800000' });
   });
 
@@ -355,7 +355,7 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
     const profileIcon = page.locator('.desktop-icon[data-program-name="recruiter-route"]');
     await profileIcon.tap();
     await page.locator('.window[data-window-id="recruiter-route"]').waitFor({ state: 'visible', timeout: 12000 });
-    ensure(await page.locator('.window[data-window-id="recruiter-route"]').count() === 1, 'Un toque móvil no abrió el Perfil orientado a FDE');
+    ensure(await page.locator('.window[data-window-id="recruiter-route"]').count() === 1, 'Un toque móvil no abrió el Perfil profesional');
     await page.evaluate(() => window.zarateXP.windowManager.closeWindow('recruiter-route'));
 
     const myComputerWindow = await openApp(page, 'my-computer');
@@ -670,7 +670,7 @@ async function exerciseProjectExplorer(page) {
   await appWindow.locator('#project-location').selectOption('featured');
   await appWindow.locator('#address-go').click();
   await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '8 elementos');
-  ensure(await appWindow.locator('#explorer-content .project-item').count() === 8, 'Destacados FDE no mostró los ocho proyectos curados');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 8, 'Destacados no mostró los ocho proyectos curados');
   ensure(!(await appWindow.locator('#btn-back').isDisabled()) && !(await appWindow.locator('#btn-up').isDisabled()), 'La navegación no habilitó Atrás y Arriba');
 
   await appWindow.locator('#btn-back').click();
@@ -787,7 +787,7 @@ async function exerciseProjectExplorer(page) {
   await appWindow.locator('[data-view-choice="list"]').click();
   ensure(await appWindow.locator('#explorer-content .list-row').count() > 0, 'La vista Lista no renderizó filas en móvil');
   await page.setViewportSize(originalViewport);
-  return 'Proyectos: destacados FDE, búsqueda global, historial, tres vistas, toolbar móvil, teclado y evidencia específica';
+  return 'Proyectos: destacados, búsqueda global, historial, tres vistas, toolbar móvil, teclado y evidencia específica';
 }
 
 async function exerciseStartMenuAndPaint(page) {
@@ -908,7 +908,7 @@ async function exerciseCertificates(page) {
   ensure(/e759d3c0-b384-4295-ae87-8dd66724db6f/.test(initial.verification || ''), 'Claude Code 101 no conserva su enlace de verificación');
 
   await root.locator('[data-certificate-filter="featured"]').click();
-  ensure(await root.locator('[data-certificate-id]:visible').count() === 5, 'Destacados FDE no mostró sus 5 credenciales curadas');
+  ensure(await root.locator('[data-certificate-id]:visible').count() === 5, 'Destacados no mostró sus 5 credenciales curadas');
   const claudeVerificationCases = [
     ['claude-code-101', 'e759d3c0-b384-4295-ae87-8dd66724db6f'],
     ['claude-ai-capabilities-limitations', 'a410f5a6-bede-48ad-9128-720a1f6802a3']
@@ -1038,7 +1038,7 @@ async function exerciseCertificates(page) {
   await appWindow.waitFor({ state: 'detached' });
   await page.setViewportSize(originalViewport);
   await openApp(page, 'certificates');
-  return 'Certificados: 16 credenciales, destacados FDE, enlaces Claude/SAP, traducción y layout móvil';
+  return 'Certificados: 16 credenciales, destacados, enlaces Claude/SAP, traducción y layout móvil';
 }
 
 async function exerciseGitHubActivity(page) {
@@ -1053,9 +1053,9 @@ async function exerciseGitHubActivity(page) {
     text: node.textContent
   }));
   const fixtureDays = githubActivityFixture.weeks.flatMap((week) => week.days).length;
-  ensure(compact.metrics === 3 && compact.days === fixtureDays && compact.active > 0, `El resumen FDE de GitHub no mostró el año completo (${JSON.stringify(compact)})`);
-  ensure(compact.text.includes(String(githubActivityFixture.summary.totalContributions)), 'El resumen FDE no refleja el snapshot versionado');
-  ensure(compact.text.includes('conteos anónimos'), 'El resumen FDE no explica la anonimización de actividad privada');
+  ensure(compact.metrics === 3 && compact.days === fixtureDays && compact.active > 0, `El resumen profesional de GitHub no mostró el año completo (${JSON.stringify(compact)})`);
+  ensure(compact.text.includes(String(githubActivityFixture.summary.totalContributions)), 'El resumen profesional no refleja el snapshot versionado');
+  ensure(compact.text.includes('conteos anónimos'), 'El resumen profesional no explica la anonimización de actividad privada');
 
   await recruiterWindow.locator('[data-route-app="github-activity"]').last().click();
   const appWindow = page.locator('#windows-container .window[data-window-id="github-activity"]');
@@ -1116,7 +1116,7 @@ async function exerciseRejectedGitHubActivity(browser, baseUrl) {
     const recruiterWindow = await openApp(page, 'recruiter-route');
     const recruiterSection = recruiterWindow.locator('.xp-fde-github');
     await recruiterSection.waitFor({ state: 'hidden', timeout: 12000 });
-    ensure(await recruiterSection.getAttribute('hidden') !== null, 'El resumen FDE no se ocultó ante un total inferior a 750');
+    ensure(await recruiterSection.getAttribute('hidden') !== null, 'El resumen profesional no se ocultó ante un total inferior a 750');
 
     const appWindow = await openApp(page, 'github-activity');
     const error = appWindow.locator('.xp-gh-error');
@@ -2301,10 +2301,10 @@ async function main() {
         description: schema.description
       };
     });
-    const expectedHeadline = 'Software Analyst & Project Manager | Software, Data & AI Solutions | Java, Spring Boot, React, Oracle';
-    ensure(positioning.headline === expectedHeadline, 'El titular profesional visible no coincide con LinkedIn');
-    ensure(positioning.jobTitle === 'Software Analyst & Project Manager', 'El Schema.org presenta un cargo FDE no ejercido');
-    ensure(/oriented to Forward Deployed Engineer opportunities/i.test(positioning.description || ''), 'El perfil no conserva su orientación hacia oportunidades FDE');
+    const expectedHeadline = 'AI Solution Architect en ACSYS | Software, Data & AI Solutions';
+    ensure(positioning.headline === expectedHeadline, 'El titular profesional visible no refleja el rol actual');
+    ensure(positioning.jobTitle === 'AI Solution Architect', 'El Schema.org no refleja el rol actual');
+    ensure(/enterprise AI architecture/i.test(positioning.description || ''), 'El perfil no describe el foco actual de arquitectura de IA');
     const defaultDesktopOrder = await page.locator('.desktop-icons > .desktop-icon').evaluateAll((icons) => icons.slice(0, 6).map((icon) => icon.dataset.programName));
     ensure(defaultDesktopOrder.join(',') === 'recruiter-route,resume,projects,contact,documents,certificates', `El escritorio inicial no priorizó el recorrido recruiter (${defaultDesktopOrder.join(',')})`);
 

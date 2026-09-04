@@ -35,7 +35,7 @@ const requiredTranslations = new Map([
     ['Buscaminas', 'Minesweeper'],
     ['Mis Certificados', 'My Certificates'],
     ['Actividad GitHub', 'GitHub Activity'],
-    ['Destacados FDE', 'FDE Highlights'],
+    ['Destacados', 'Highlights'],
     ['IA, Datos y Dev', 'AI, Data & Dev'],
     ['Claude Code 101', 'Claude Code 101'],
     ['AI Capabilities and Limitations', 'AI Capabilities and Limitations'],

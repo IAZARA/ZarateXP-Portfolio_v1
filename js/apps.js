@@ -135,7 +135,7 @@ export class AppManager {
 
         this.registerApp({
             id: 'recruiter-route',
-            name: 'Perfil orientado a FDE',
+            name: 'Perfil profesional',
             icon: `${hd}/cv.svg`,
             category: 'documents',
             description: 'Experiencia, casos, capacidades y contacto en una sola ruta',
@@ -584,9 +584,9 @@ export class AppManager {
                         <header class="about-profile">
                             <img src="images/foto-nuevo-usuario.jpeg" alt="Retrato de Ivan Agustin Zarate" width="112" height="112" loading="eager" decoding="async" />
                             <div>
-                                <p class="about-kicker">Software Analyst &amp; Project Manager</p>
-                                <h2>Conecto usuarios, producto y tecnología.</h2>
-                                <p>Perfil orientado a oportunidades de Forward Deployed Engineer (FDE), con experiencia en plataformas institucionales, MLOps y datos sensibles.</p>
+                                <p class="about-kicker">AI Solution Architect en ACSYS</p>
+                                <h2>Conecto negocio, datos y tecnología.</h2>
+                                <p>Diseño soluciones empresariales de IA desde el discovery hasta una arquitectura segura, validable y lista para implementar.</p>
                             </div>
                         </header>
                         <div class="about-sections">
@@ -595,8 +595,8 @@ export class AppManager {
                                     <img src="images/sobremi/fullstack-developer.webp" alt="Trabajo de descubrimiento y desarrollo de plataformas" width="136" height="136" loading="lazy" decoding="async" />
                                 </div>
                                 <div class="about-text">
-                                    <h3>Capacidades alineadas con Forward Deployed Engineering</h3>
-                                    <p>Relevo necesidades con usuarios, traduzco problemas operativos en definiciones funcionales y técnicas, coordino la integración y acompaño la puesta en producción. Desde 2024 trabajo como <strong>Analista en Sistemas y Project Manager de Plataformas Digitales</strong> en el Ministerio de Seguridad Nacional.</p>
+                                    <h3>Arquitectura de soluciones de IA</h3>
+                                    <p>En ACSYS traduzco necesidades de negocio en requerimientos, alcance, arquitectura, decisiones y criterios de aceptación. Conecto preventa, especialistas y delivery para que la solución conserve su propósito hasta la implementación.</p>
                                 </div>
                             </article>
 
@@ -1712,7 +1712,7 @@ export class AppManager {
     _projectFolderPath(folder) {
         return {
             root: 'Mis Proyectos',
-            featured: 'Mis Proyectos\\Destacados FDE',
+            featured: 'Mis Proyectos\\Destacados',
             web: 'Mis Proyectos\\Desarrollo Web',
             ai: 'Mis Proyectos\\IA y Automatización'
         }[folder] || 'Mis Proyectos';
@@ -2246,10 +2246,10 @@ export class AppManager {
                 id: 'profile',
                 title: 'Perfil y credenciales',
                 items: [
-                    { app: 'recruiter-route', title: 'Perfil orientado a FDE.lnk', description: 'Experiencia, casos, capacidades y contacto', icon: './assets/images/hd-icons/cv.svg', type: 'Acceso directo', important: true },
+                    { app: 'recruiter-route', title: 'Perfil profesional.lnk', description: 'Rol actual, experiencia, capacidades y contacto', icon: './assets/images/hd-icons/cv.svg', type: 'Acceso directo', important: true },
                     { app: 'resume', title: cv.fileName, description: 'CV actualizado', icon: './assets/images/hd-icons/cv.svg', type: 'Documento PDF', important: true, localizedCv: true },
                     { app: 'certificates', title: 'Certificados verificados', description: '16 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad', icon: './assets/images/hd-icons/documents.svg', type: 'Carpeta', important: true },
-                    { app: 'about-me', title: 'Perfil profesional', description: 'Software, Data & AI + orientación FDE', icon: './assets/images/hd-icons/about.svg', type: 'Documento' }
+                    { app: 'about-me', title: 'Sobre mi perfil', description: 'AI Solution Architect en ACSYS', icon: './assets/images/hd-icons/about.svg', type: 'Documento' }
                 ]
             },
             {
@@ -2307,7 +2307,7 @@ export class AppManager {
                             <h3>Tareas de documento</h3>
                             <button type="button" data-doc-open="resume">Abrir CV actualizado</button>
                             <button type="button" data-doc-open="certificates">Abrir certificados verificados</button>
-                            <button type="button" data-doc-open="recruiter-route">Abrir perfil orientado a FDE</button>
+                            <button type="button" data-doc-open="recruiter-route">Abrir perfil profesional</button>
                             <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
                             <button type="button" data-doc-open="projects">Ver proyectos web</button>
                             <button type="button" data-doc-open="api-center">Abrir API Center</button>
@@ -2316,7 +2316,7 @@ export class AppManager {
                         </section>
                         <section>
                             <h3>Detalles</h3>
-                            <p>Software Analyst &amp; Project Manager con portfolio orientado a oportunidades FDE, MLOps, plataformas y datos sensibles.</p>
+                            <p>AI Solution Architect en ACSYS con foco en discovery, arquitectura de IA, seguridad, datos e implementación.</p>
                         </section>
                     </aside>
                     <main class="xp-folder-grid" aria-label="Mis Documentos" data-documents-content></main>
@@ -2417,7 +2417,7 @@ export class AppManager {
                 <div class="xp-certificates-toolbar" role="toolbar" aria-label="Filtrar certificados">
                     <div class="xp-certificate-filters">
                         <button type="button" class="active" data-certificate-filter="all" aria-pressed="true">Todos <span>${certificates.length}</span></button>
-                        <button type="button" data-certificate-filter="featured" aria-pressed="false">Destacados FDE <span>${featuredCount}</span></button>
+                        <button type="button" data-certificate-filter="featured" aria-pressed="false">Destacados <span>${featuredCount}</span></button>
                         <button type="button" data-certificate-filter="ai-data" aria-pressed="false">IA, Datos y Dev <span>${categoryCounts['ai-data'] || 0}</span></button>
                         <button type="button" data-certificate-filter="management" aria-pressed="false">Gestión <span>${categoryCounts.management || 0}</span></button>
                         <button type="button" data-certificate-filter="gis" aria-pressed="false">GIS <span>${categoryCounts.gis || 0}</span></button>
@@ -2590,8 +2590,8 @@ export class AppManager {
             <div class="xp-recruiter-route">
                 <aside class="xp-task-pane">
                     <section>
-                        <h3>Perfil orientado a FDE</h3>
-                        <p>Una vista ejecutiva de experiencia verificable, casos, capacidades y formación para evaluar mi encaje con oportunidades de Forward Deployed Engineer.</p>
+                        <h3>Perfil profesional</h3>
+                        <p>Una vista ejecutiva de mi rol actual, experiencia verificable, casos, capacidades y formación.</p>
                     </section>
                     <section>
                         <h3>Accesos directos</h3>
@@ -2601,27 +2601,32 @@ export class AppManager {
                         <button type="button" data-route-app="github-activity">Ver actividad GitHub</button>
                     </section>
                     <section>
-                        <h3>Disponibilidad</h3>
-                        <p>Interés actual: Forward Deployed Engineering, Solutions Engineering y plataformas con IA.</p>
+                        <h3>Rol actual</h3>
+                        <p>AI Solution Architect en ACSYS, dentro de Business Engineering &amp; Innovation.</p>
                     </section>
                 </aside>
                 <main class="xp-fde-brief">
                     <header class="xp-fde-hero">
                         <div>
-                            <span class="xp-fde-role">Software Analyst &amp; Project Manager | Software, Data &amp; AI Solutions</span>
-                            <h2>Del problema en campo a una solución en producción.</h2>
-                            <p>Perfil orientado a oportunidades de Forward Deployed Engineer (FDE): descubrimiento con usuarios, traducción funcional-técnica, implementación, capacitación y mejora continua.</p>
+                            <span class="xp-fde-role">AI Solution Architect en ACSYS</span>
+                            <h2>Del problema de negocio a una solución de IA.</h2>
+                            <p>Trabajo en discovery, arquitectura, seguridad, PoC y handoff para convertir necesidades complejas en soluciones implementables y operables.</p>
                         </div>
-                        <img src="images/foto-nuevo-usuario.jpeg" alt="Ivan Agustin Zarate" width="112" height="112">
+                        <div class="xp-fde-identity">
+                            <img class="xp-fde-portrait" src="images/foto-nuevo-usuario.jpeg" alt="Ivan Agustin Zarate" width="112" height="112">
+                            <a class="xp-fde-company" href="https://www.acsyslatam.com/" target="_blank" rel="noopener" aria-label="Visitar el sitio oficial de ACSYS">
+                                <img src="assets/images/acsys-logo.svg" alt="ACSYS" width="133" height="48" data-acsys-logo="official">
+                            </a>
+                        </div>
                     </header>
 
                     <section class="xp-fde-section xp-fde-operating-model">
                         <h3>Cómo trabajo</h3>
-                        <div class="xp-fde-flow" aria-label="Proceso de trabajo alineado con Forward Deployed Engineering">
+                        <div class="xp-fde-flow" aria-label="Proceso de trabajo como AI Solution Architect">
                             <div><strong>Descubrir</strong><span>Entrevistas, contexto operativo y requerimientos.</span></div>
-                            <div><strong>Traducir</strong><span>Definición funcional, arquitectura y prioridades.</span></div>
-                            <div><strong>Implementar</strong><span>Integración, validación y puesta en producción.</span></div>
-                            <div><strong>Acompañar</strong><span>Documentación, capacitación, monitoreo y mejora.</span></div>
+                            <div><strong>Diseñar</strong><span>Alcance, arquitectura, integraciones y trade-offs.</span></div>
+                            <div><strong>Validar</strong><span>PoC, riesgos, seguridad y criterios de éxito.</span></div>
+                            <div><strong>Acompañar</strong><span>Handoff, implementación, operación y mejora.</span></div>
                         </div>
                     </section>
 
@@ -2629,7 +2634,12 @@ export class AppManager {
                         <h3>Experiencia profesional</h3>
                         <div class="xp-fde-timeline">
                             <article class="current">
-                                <time>2024 - Actualidad</time>
+                                <time>2026 - Actualidad</time>
+                                <h4>AI Solution Architect</h4>
+                                <p>ACSYS, Business Engineering &amp; Innovation. Discovery, arquitectura de IA empresarial, RAG, identidad, seguridad, PoC y acompañamiento a preventa y delivery.</p>
+                            </article>
+                            <article>
+                                <time>2024 - 2026</time>
                                 <h4>Analista en Sistemas / Project Manager de Plataformas Digitales</h4>
                                 <p>Dirección Nacional de Gestión de Bases de Datos de Seguridad, Ministerio de Seguridad Nacional. Desarrollo e implementación de plataformas, ciclo de vida de modelos, MLOps, datos críticos y coordinación multidisciplinaria.</p>
                             </article>
@@ -2667,10 +2677,10 @@ export class AppManager {
                     <section class="xp-fde-section xp-fde-capabilities">
                         <h3>Capacidades aplicadas</h3>
                         <div class="xp-fde-capability-grid">
-                            <article><h4>IA y MLOps</h4><p>Datos, experimentación, versionado, despliegue, monitoreo, redes neuronales, Hugging Face y QLoRA.</p></article>
-                            <article><h4>Sistemas</h4><p>Java, Spring Boot, React, JavaScript, TypeScript, Maven, APIs, Git, Oracle y SQL.</p></article>
-                            <article><h4>Datos y seguridad</h4><p>Calidad, privacidad, trazabilidad, control de accesos, auditoría, OSINT, GIS y ciberseguridad.</p></article>
-                            <article><h4>Herramientas de IA</h4><p>Modelos locales de pesos abiertos, Claude, Codex y OpenCode con minimización de datos.</p></article>
+                            <article><h4>Discovery y arquitectura</h4><p>Problema, requerimientos, alcance, NFR, decisiones, riesgos, sizing y criterios de aceptación.</p></article>
+                            <article><h4>IA empresarial y RAG</h4><p>LLM, recuperación con evidencia, agentes, evaluación, observabilidad, MLOps y modelos locales.</p></article>
+                            <article><h4>Datos, identidad y seguridad</h4><p>ACL, privacidad, trazabilidad, auditoría y autorización antes de recuperar contexto.</p></article>
+                            <article><h4>Implementación</h4><p>Java, Spring Boot, React, TypeScript, APIs, Git, Oracle, SQL y acompañamiento a producción.</p></article>
                         </div>
                     </section>
 
@@ -2710,7 +2720,7 @@ export class AppManager {
                     </section>
 
                     <footer class="xp-fde-cta">
-                        <div><strong>¿Buscás a alguien que pueda entender el contexto y llevarlo a producción?</strong><span>Revisá el CV completo o conversemos.</span></div>
+                        <div><strong>¿Querés conversar sobre una solución de IA concreta?</strong><span>Revisá mi experiencia y proyectos o escribime.</span></div>
                         <button type="button" data-route-app="contact">Contactar</button>
                     </footer>
                 </main>
@@ -2720,7 +2730,7 @@ export class AppManager {
         let disposeGitHubSummary = () => {};
         return this._createSingleInstanceWindow({
             id: 'recruiter-route',
-            title: 'Perfil orientado a FDE - Ivan Agustin Zarate',
+            title: 'Perfil profesional - Ivan Agustin Zarate',
             icon: './assets/images/hd-icons/cv.svg',
             content,
             width: 920,
@@ -2780,20 +2790,20 @@ export class AppManager {
                         <img src="./assets/images/xp-small-icons/windows-xp-icon-192.png" alt="ZarateXP">
                         <div>
                             <h2>ZarateXP Professional</h2>
-                            <p>FDE-Oriented Portfolio Edition</p>
+                            <p>AI Solution Architect Portfolio</p>
                             <span>Registrado a nombre de Ivan Agustin Zarate</span>
                         </div>
                     </section>
                     <dl class="xp-system-specs">
                         <dt>Sistema</dt><dd>Windows XP-inspired desktop en HTML, CSS y JavaScript vanilla</dd>
                         <dt>Version</dt><dd>GitHub Pages / build estatico</dd>
-                        <dt>Perfil</dt><dd>Software Analyst &amp; Project Manager | orientación FDE</dd>
+                        <dt>Perfil</dt><dd>AI Solution Architect en ACSYS</dd>
                         <dt>Memoria</dt><dd>${appsCount} aplicaciones internas, ${projectCount} proyectos destacados</dd>
                         <dt>Resolucion actual</dt><dd>${viewport}</dd>
                         <dt>Estado</dt><dd>${sessionState}</dd>
                     </dl>
                     <div class="xp-system-actions">
-                        <button type="button" data-system-open="recruiter-route">Perfil orientado a FDE</button>
+                        <button type="button" data-system-open="recruiter-route">Perfil profesional</button>
                         <button type="button" data-system-open="control-panel">Panel de control</button>
                         <button type="button" data-system-open="resume">Ver CV</button>
                         <button type="button" data-system-close>Aceptar</button>
@@ -2826,9 +2836,9 @@ export class AppManager {
         const savedText = this._readLocal('zarateXP.notepad', [
             'Notas rapidas - Ivan Zarate',
             '',
-            '- Titular: Software Analyst & Project Manager | Software, Data & AI Solutions | Java, Spring Boot, React, Oracle',
-            '- Objetivo: oportunidades de Forward Deployed Engineer (FDE), Solutions Engineering y plataformas con IA',
-            '- Foco: plataformas, MLOps, datos sensibles e integracion con usuarios',
+            '- Titular: AI Solution Architect en ACSYS | Software, Data & AI Solutions',
+            '- Rol: discovery, arquitectura de IA, preventa, PoC y handoff a delivery',
+            '- Foco: RAG, identidad, seguridad, plataformas, MLOps y datos sensibles',
             '- Evidencia: CUFRE, SIFEBU, CRIACO, OSINTArgy y proyectos full stack'
         ].join('\n'));
 
@@ -2896,9 +2906,9 @@ export class AppManager {
     _openWordPad() {
         const savedHtml = this._sanitizeWordPadHtml(this._readLocal('zarateXP.wordpad', `
             <h2>Ivan Agustin Zarate</h2>
-            <p><strong>Software Analyst &amp; Project Manager | Software, Data &amp; AI Solutions | Java, Spring Boot, React, Oracle</strong>.</p>
-            <p>Perfil orientado a oportunidades de Forward Deployed Engineer (FDE).</p>
-            <p>Relevo necesidades con usuarios, las traduzco en soluciones técnicas y acompaño su integración, puesta en producción y mejora continua.</p>
+            <p><strong>AI Solution Architect en ACSYS | Software, Data &amp; AI Solutions</strong>.</p>
+            <p>Diseño soluciones empresariales de IA desde el discovery hasta el handoff a implementación.</p>
+            <p>Relevo necesidades, las traduzco en requerimientos y arquitectura, valido riesgos con PoC y acompaño su puesta en producción.</p>
             <p>Experiencia en MLOps, plataformas institucionales, datos sensibles, Java, Spring Boot, React, TypeScript, Oracle, SQL, GIS y OSINT.</p>
         `));
 

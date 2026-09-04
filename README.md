@@ -8,7 +8,7 @@
 [![Portfolio](https://img.shields.io/badge/Portfolio-Windows_XP-2D7DD2?style=for-the-badge)](#)
 [![Status](https://img.shields.io/badge/status-active-2EA44F?style=for-the-badge)](#)
 
-Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manager** enfocado en **Software, Data & AI Solutions** con Java, Spring Boot, React y Oracle. La experiencia inspirada en Windows XP funciona como un escritorio navegable con un perfil orientado a oportunidades de Forward Deployed Engineer (FDE), CV actualizado, casos institucionales, proyectos, automatizaciones, APIs y aplicaciones funcionales.
+Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**, enfocado en discovery, arquitectura de IA empresarial, RAG, seguridad, datos e implementación. La experiencia inspirada en Windows XP funciona como un escritorio navegable con perfil profesional, trayectoria verificable, casos institucionales, proyectos, automatizaciones, APIs y aplicaciones funcionales.
 
 ## Demo
 
@@ -19,14 +19,14 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 
 ## Etiquetas
 
-`forward-deployed-engineering` `mlops` `platforms` `data-privacy` `portfolio` `windows-xp` `java` `spring-boot` `react` `typescript` `oracle` `gis` `osint` `automation`
+`ai-solution-architecture` `acsys` `rag` `discovery` `presales` `mlops` `platforms` `data-privacy` `portfolio` `windows-xp` `java` `spring-boot` `react` `oracle` `automation`
 
 ## Que incluye
 
 - Escritorio estilo Windows XP con pantalla de arranque y login.
 - Sistema de ventanas con arrastre, foco, minimizar, maximizar, cierre animado y botones activos en taskbar.
 - Menu de inicio con accesos a CV, documentos, proyectos, contacto, redes, juegos y accesorios.
-- Perfil orientado a FDE con experiencia, modelo de trabajo, casos, capacidades, formación, idiomas y contacto.
+- Perfil profesional con el rol actual en ACSYS, modelo de trabajo, experiencia, casos, capacidades, formación, idiomas y contacto.
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Visor de CV actualizado en PDF.
 - Explorador bilingüe de certificados con 16 credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de Claude Academy, Coursera y SAP Learning.
@@ -34,7 +34,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.
 - Casos destacados: CUFRE, SIFEBU, CRIACO y OSINTArgy, además de ZarateXP, ForzaTech, WJPC Capitulo Argentino y sistemas full stack.
 - API Center con Open-Meteo, wttr.in, GitHub REST, Countries y Banco Mundial, cache con TTL, cancelación, estados de frescura y recuperación offline.
-- Actividad GitHub con resumen dentro del perfil FDE y calendario anual público actualizado diariamente por GitHub Actions, sin exponer tokens en el navegador.
+- Actividad GitHub con resumen dentro del perfil profesional y calendario anual público actualizado diariamente por GitHub Actions, sin exponer tokens en el navegador.
 - Apps retro: Winamp Pro, Paint mejorado, Buscaminas robusto, Solitario, Pinball, Bloc de notas y WordPad.
 - PDF Studio para abrir PDFs locales, revisar el CV, anotar observaciones y usar File/Blob APIs.
 - Panel de control para personalizar fondo, tema, iconos, efecto CRT y taskbar.
@@ -57,7 +57,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **Software Analyst & Project Manag
 - **Actividad GitHub:** snapshot verificable de contribuciones públicas, días activos, repositorios y rachas, con vista compacta y aplicación XP completa.
 - **Winamp XP Pro:** reproductor de MP3 locales y loops Web Audio con playlist, visualizador Canvas, controles completos, balance y ecualizador de tres bandas.
 - **PDF Studio:** visor de CV/PDF local con zoom, rotacion, descarga, impresion y notas persistentes.
-- **Perfil orientado a FDE:** recorrido ejecutivo para evaluar experiencia profesional, forma de trabajo, casos, stack, formación e idiomas.
+- **Perfil profesional:** recorrido ejecutivo por el rol de AI Solution Architect en ACSYS, la experiencia previa, la forma de trabajo, los casos, el stack, la formación y los idiomas.
 - **Buscaminas XP:** primer clic seguro, banderas, dudas, timer, dificultades y deteccion de victoria/derrota.
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
@@ -133,6 +133,6 @@ Los proyectos con URL publica pueden mostrarse embebidos dentro del explorador. 
 ## Autor
 
 Ivan Agustin Zarate<br>
-Software Analyst & Project Manager | Software, Data & AI Solutions | Java, Spring Boot, React, Oracle<br>
-Perfil orientado a oportunidades de Forward Deployed Engineer (FDE).<br>
+AI Solution Architect en ACSYS | Software, Data & AI Solutions<br>
+Discovery, arquitectura de IA, RAG, seguridad, datos e implementación.<br>
 [Portfolio](https://iazara.github.io/ZarateXP-Portfolio_v1/) | [github.com/IAZARA](https://github.com/IAZARA) | [forzatech.com.ar](https://forzatech.com.ar/)
