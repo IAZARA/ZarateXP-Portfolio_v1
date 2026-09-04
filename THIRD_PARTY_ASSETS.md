@@ -23,6 +23,15 @@ ACSYS.
 portfolio's existing social preview. It preserves the original ZarateXP concept and
 updates the professional subtitle to reflect the owner's current role.
 
+## Original XP-inspired wallpapers
+
+`assets/images/wallpapers/xp-coast.webp` and
+`assets/images/wallpapers/xp-desert.webp` were generated for this portfolio with the
+built-in OpenAI image generation tool. They are original compositions inspired by the
+clear landscape photography associated with early-2000s desktop operating systems.
+The prompts explicitly excluded Microsoft and Windows branding and recognizable copies
+of specific wallpapers.
+
 ## Audio supplied by the portfolio owner
 
 The following recordings were supplied by the repository owner, who confirmed on

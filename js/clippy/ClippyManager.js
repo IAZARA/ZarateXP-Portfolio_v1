@@ -21,7 +21,7 @@ export class ClippyManager {
             '<p class="welcome-text">PDF Studio</p><p class="subtitle">Puedes abrir el CV, cargar PDFs locales y guardar notas de revision.</p>',
             '<p class="welcome-text">SDLC + MLOps</p><p class="subtitle">Flujos n8n explica cómo una necesidad se versiona, valida, despliega y mejora con aprobación humana y observabilidad.</p>',
             '<p class="welcome-text">Juegos XP</p><p class="subtitle">Solitario y Pinball son implementaciones propias para mostrar logica y Canvas.</p>',
-            '<p class="welcome-text">Personaliza Windows</p><p class="subtitle">En Panel de control puedes cambiar fondo, tema, iconos, CRT y taskbar.</p>'
+            '<p class="welcome-text">Personaliza Windows</p><p class="subtitle">Haz clic en un espacio vacío del escritorio y elige Personalizar para cambiar fondo, tema e iconos.</p>'
         ];
     }
 

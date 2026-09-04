@@ -168,6 +168,10 @@
     color: #000;
 }
 
+.context-menu[aria-hidden="false"] {
+    animation: contextMenuOpen 80ms steps(2, end);
+}
+
 .context-menu-item {
     display: block;
     width: 100%;
@@ -182,9 +186,29 @@
     min-height: 22px;
 }
 
+.context-menu-item[hidden] {
+    display: none;
+}
+
 .context-menu-item:hover:not(:disabled) {
     background: #316AC5;
     color: white;
+}
+
+.context-menu-item:focus-visible {
+    outline: 1px dotted currentColor;
+    outline-offset: -3px;
+    background: #316AC5;
+    color: #fff;
+}
+
+.context-menu-item:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.context-menu-open,
+.context-menu-refresh {
+    font-weight: 700;
 }
 
 .context-menu-item:disabled,
@@ -197,6 +221,69 @@
     height: 1px;
     background: #D4D0C8;
     margin: 2px 0;
+}
+
+.context-menu-separator[hidden] {
+    display: none;
+}
+
+.desktop-refresh-status {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 5px 10px;
+    border: 1px solid #003c74;
+    border-radius: 3px;
+    background: #ece9d8;
+    box-shadow: 2px 3px 7px rgba(0, 0, 0, 0.36);
+    color: #111;
+    font: 11px Tahoma, sans-serif;
+    pointer-events: none;
+    transform: translateX(-50%);
+}
+
+.desktop-refresh-status[hidden] {
+    display: none;
+}
+
+.desktop.is-refreshing::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 var(--taskbar-height) 0;
+    z-index: 9998;
+    background: rgba(255, 255, 255, 0.14);
+    pointer-events: none;
+    animation: desktopRefreshFlash 520ms steps(2, end);
+}
+
+.desktop.is-refreshing .desktop-icons {
+    animation: desktopRefreshIcons 520ms steps(2, end);
+}
+
+body.xp-hide-desktop-icons .desktop-icon {
+    visibility: hidden;
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+@keyframes contextMenuOpen {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes desktopRefreshFlash {
+    0%, 100% { opacity: 0; }
+    28%, 48% { opacity: 1; }
+}
+
+@keyframes desktopRefreshIcons {
+    0%, 100% { opacity: 1; transform: translateY(0); }
+    28%, 48% { opacity: 0; transform: translateY(2px); }
 }
 
 /* Desktop Shortcuts Animation */
@@ -244,6 +331,14 @@
 .desktop-icon.drag-over {
     background: rgba(0, 84, 227, 0.4);
     border-color: rgba(0, 84, 227, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .context-menu[aria-hidden="false"],
+    .desktop.is-refreshing::after,
+    .desktop.is-refreshing .desktop-icons {
+        animation: none !important;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

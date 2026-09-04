@@ -1,13 +1,13 @@
 // Main JavaScript Module
-import { I18nManager } from './i18n.js?v=zaratexp-20260825-projects21';
+import { I18nManager } from './i18n.js?v=zaratexp-20260904-desktop-menu1';
 import { BootManager } from './boot.js?v=zaratexp-20260822-recruiter-ux1';
-import { DesktopManager } from './desktop.js?v=zaratexp-20260822-xp-drive1';
+import { DesktopManager } from './desktop.js?v=zaratexp-20260904-desktop-menu1';
 import { WindowManager } from './windows.js?v=zaratexp-20260822-responsive-windows1';
 import { TaskbarManager } from './taskbar.js?v=zaratexp-20260822-xp-drive1';
 import { StartMenuManager } from './startMenu.js?v=zaratexp-20260822-paint-menu1';
 import { SoundManager } from './sounds.js?v=zaratexp-20260712-i18n2';
-import { AppManager } from './apps.js?v=zaratexp-20260825-projects21';
-import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260712-clippy-mobile1';
+import { AppManager } from './apps.js?v=zaratexp-20260904-desktop-menu1';
+import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260904-desktop-menu1';
 
 class ZarateXP {
     constructor() {

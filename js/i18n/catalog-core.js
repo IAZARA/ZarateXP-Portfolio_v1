@@ -80,11 +80,17 @@ export const CORE_TRANSLATIONS = Object.freeze({
     "Es seguro apagar el equipo.": "It is safe to turn off your computer.",
     "Escritorio visible": "Desktop visible",
     "Sonidos XP activos. Puedes cambiar efectos desde Panel de control.": "XP sounds are on. You can change sound effects in Control Panel.",
+    "Acciones del escritorio": "Desktop actions",
     "Abrir": "Open",
     "Organizar iconos": "Arrange Icons",
+    "Ocultar iconos del escritorio": "Hide Desktop Icons",
+    "Mostrar iconos del escritorio": "Show Desktop Icons",
     "Actualizar": "Refresh",
+    "Actualizando escritorio...": "Refreshing desktop...",
+    "Escritorio actualizado": "Desktop refreshed",
     "Restaurar posiciones": "Restore Positions",
     "Abrir CV": "Open Resume",
+    "Personalizar...": "Personalize...",
     "Propiedades": "Properties",
     "Minimizar": "Minimize",
     "Maximizar": "Maximize",
@@ -162,5 +168,5 @@ export const CORE_TRANSLATIONS = Object.freeze({
     "Juegos XP": "XP Games",
     "Solitario y Pinball son implementaciones propias para mostrar logica y Canvas.": "Solitaire and Pinball are custom implementations that showcase logic and the Canvas API.",
     "Personaliza Windows": "Customize Windows",
-    "En Panel de control puedes cambiar fondo, tema, iconos, CRT y taskbar.": "In Control Panel, you can change the wallpaper, theme, icons, CRT effect, and taskbar."
+    "Haz clic en un espacio vacío del escritorio y elige Personalizar para cambiar fondo, tema e iconos.": "Click an empty desktop area and choose Personalize to change the wallpaper, theme, and icons."
 });

@@ -25,7 +25,9 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 
 - Escritorio estilo Windows XP con pantalla de arranque y login.
 - Sistema de ventanas con arrastre, foco, minimizar, maximizar, cierre animado y botones activos en taskbar.
+- Menú contextual funcional con clic en el escritorio: actualizar, organizar, ocultar iconos, abrir accesos, personalizar y ver propiedades.
 - Menu de inicio con accesos a CV, documentos, proyectos, contacto, redes, juegos y accesorios.
+- Personalización persistente con tres fondos originales inspirados en la fotografía clásica de Windows XP, color de sistema, escala de iconos, CRT, animaciones y taskbar.
 - Perfil profesional con el rol actual en ACSYS, modelo de trabajo, experiencia, casos, capacidades, formación, idiomas y contacto.
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Visor de CV actualizado en PDF.

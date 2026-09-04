@@ -1,5 +1,5 @@
-import { CORE_TRANSLATIONS } from './i18n/catalog-core.js?v=zaratexp-20260822-xp-drive1';
-import { APP_TRANSLATIONS } from './i18n/catalog-apps.js?v=zaratexp-20260825-projects21';
+import { CORE_TRANSLATIONS } from './i18n/catalog-core.js?v=zaratexp-20260904-desktop-menu1';
+import { APP_TRANSLATIONS } from './i18n/catalog-apps.js?v=zaratexp-20260904-desktop-menu1';
 import { PROJECT_TRANSLATIONS } from './i18n/catalog-projects.js?v=zaratexp-20260825-projects21';
 
 const STORAGE_KEY = 'zarateXP.locale';

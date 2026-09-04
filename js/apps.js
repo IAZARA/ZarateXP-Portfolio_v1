@@ -2149,11 +2149,18 @@ export class AppManager {
             crt: false,
             animations: true,
             compactTaskbar: false,
-            iconScale: 1
+            iconScale: 1,
+            showDesktopIcons: true
         };
 
         try {
-            return { ...defaults, ...JSON.parse(localStorage.getItem('zarateXP.settings') || '{}') };
+            const stored = JSON.parse(localStorage.getItem('zarateXP.settings') || '{}');
+            const settings = { ...defaults, ...stored };
+            const legacyWallpapers = { night: 'coast', clean: 'desert' };
+            settings.wallpaper = legacyWallpapers[settings.wallpaper] || settings.wallpaper;
+            if (!['default', 'coast', 'desert'].includes(settings.wallpaper)) settings.wallpaper = 'default';
+            settings.showDesktopIcons = settings.showDesktopIcons !== false;
+            return settings;
         } catch (error) {
             return defaults;
         }
@@ -2175,14 +2182,17 @@ export class AppManager {
         body.classList.toggle('xp-no-animations', !settings.animations);
         body.classList.toggle('xp-compact-taskbar', Boolean(settings.compactTaskbar));
         body.classList.toggle('xp-crt-enabled', Boolean(settings.crt));
+        body.classList.toggle('xp-hide-desktop-icons', settings.showDesktopIcons === false);
 
         if (desktop) {
-            desktop.classList.remove('wallpaper-default', 'wallpaper-night', 'wallpaper-clean');
+            desktop.classList.remove('wallpaper-default', 'wallpaper-night', 'wallpaper-clean', 'wallpaper-coast', 'wallpaper-desert');
             desktop.classList.add(`wallpaper-${settings.wallpaper || 'default'}`);
         }
 
         if (desktopIcons) {
             desktopIcons.style.setProperty('--icon-scale', settings.iconScale || 1);
+            desktopIcons.inert = settings.showDesktopIcons === false;
+            desktopIcons.setAttribute('aria-hidden', String(settings.showDesktopIcons === false));
         }
 
         crtLayers.forEach((layer) => {
@@ -3173,11 +3183,25 @@ export class AppManager {
                     </section>
                 </aside>
                 <main class="xp-settings-grid">
-                    <fieldset>
+                    <fieldset class="xp-wallpaper-fieldset">
                         <legend>Fondo de pantalla</legend>
-                        <label><input type="radio" name="wallpaper" value="default" ${selected(settings.wallpaper, 'default')}> ZarateXP HD</label>
-                        <label><input type="radio" name="wallpaper" value="night" ${selected(settings.wallpaper, 'night')}> Azul nocturno</label>
-                        <label><input type="radio" name="wallpaper" value="clean" ${selected(settings.wallpaper, 'clean')}> Limpio profesional</label>
+                        <div class="xp-wallpaper-options" role="radiogroup" aria-label="Fondos disponibles">
+                            <label class="xp-wallpaper-option">
+                                <input type="radio" name="wallpaper" value="default" ${selected(settings.wallpaper, 'default')}>
+                                <span class="xp-wallpaper-preview xp-wallpaper-preview-default" aria-hidden="true"></span>
+                                <span><strong>Pradera digital</strong><small>Actual</small></span>
+                            </label>
+                            <label class="xp-wallpaper-option">
+                                <input type="radio" name="wallpaper" value="coast" ${selected(settings.wallpaper, 'coast')}>
+                                <span class="xp-wallpaper-preview xp-wallpaper-preview-coast" aria-hidden="true"></span>
+                                <span><strong>Costa azul</strong><small>Inspirado en XP</small></span>
+                            </label>
+                            <label class="xp-wallpaper-option">
+                                <input type="radio" name="wallpaper" value="desert" ${selected(settings.wallpaper, 'desert')}>
+                                <span class="xp-wallpaper-preview xp-wallpaper-preview-desert" aria-hidden="true"></span>
+                                <span><strong>Desierto dorado</strong><small>Inspirado en XP</small></span>
+                            </label>
+                        </div>
                     </fieldset>
                     <fieldset>
                         <legend>Color de sistema</legend>
@@ -3190,6 +3214,7 @@ export class AppManager {
                         <label><input type="checkbox" name="crt" ${checked(settings.crt)}> Efecto CRT</label>
                         <label><input type="checkbox" name="animations" ${checked(settings.animations)}> Animaciones XP</label>
                         <label><input type="checkbox" name="compactTaskbar" ${checked(settings.compactTaskbar)}> Taskbar compacta</label>
+                        <label><input type="checkbox" name="showDesktopIcons" ${checked(settings.showDesktopIcons)}> Mostrar iconos del escritorio</label>
                     </fieldset>
                     <fieldset>
                         <legend>Iconos</legend>
@@ -3203,7 +3228,7 @@ export class AppManager {
                     <div class="xp-settings-actions">
                         <button type="button" data-settings-apply>Aplicar</button>
                         <button type="button" data-settings-reset>Restaurar XP</button>
-                        <span data-settings-status>Configuracion cargada</span>
+                        <span data-settings-status>Configuración cargada</span>
                     </div>
                 </main>
             </div>
@@ -3214,8 +3239,8 @@ export class AppManager {
             title: 'Panel de control - Apariencia y temas',
             icon: './assets/images/hd-icons/control-panel.svg',
             content,
-            width: 700,
-            height: 470,
+            width: 780,
+            height: 540,
             onReady: (appWindow) => {
                 const status = appWindow.querySelector('[data-settings-status]');
 	                const readSettings = () => ({
@@ -3225,6 +3250,7 @@ export class AppManager {
 	                    animations: appWindow.querySelector('input[name="animations"]').checked,
 	                    compactTaskbar: appWindow.querySelector('input[name="compactTaskbar"]').checked,
 	                    iconScale: Number(appWindow.querySelector('input[name="iconScale"]').value),
+	                    showDesktopIcons: appWindow.querySelector('input[name="showDesktopIcons"]').checked,
 	                    soundEnabled: appWindow.querySelector('input[name="soundEnabled"]').checked,
 	                    soundVolume: Number(appWindow.querySelector('input[name="soundVolume"]').value)
 	                });

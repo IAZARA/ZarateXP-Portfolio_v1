@@ -285,7 +285,6 @@ const MOBILE_GROUPED_IDS = [
   'certificates',
   'winamp',
   'notepad',
-  'control-panel',
   'pdf-studio',
   'minesweeper',
   'solitaire'
@@ -458,7 +457,7 @@ async function auditDesktopPositionPreservation(browser, baseUrl) {
       top: Number.parseFloat(icon.style.top)
     }));
     ensure(restored.left > 310 && restored.top > 120, `La posición desktop no se adaptó proporcionalmente al viewport mayor (${JSON.stringify(restored)})`);
-    ensure(await page.locator('.desktop-icons > .desktop-icon:visible').count() === 17, 'El escritorio grande no restauró sus 17 accesos');
+    ensure(await page.locator('.desktop-icons > .desktop-icon:visible').count() === 16, 'El escritorio grande no restauró sus 16 accesos');
   } finally {
     await context.close();
   }
@@ -507,7 +506,7 @@ async function auditDesktopIconDensity(browser, baseUrl, viewport) {
       };
     });
 
-    ensure(audit.count === 17 && audit.contained && audit.overlaps.length === 0, `El escritorio ${viewport.width}x${viewport.height} perdió iconos, contención o separación (${JSON.stringify(audit)})`);
+    ensure(audit.count === 16 && audit.contained && audit.overlaps.length === 0, `El escritorio ${viewport.width}x${viewport.height} perdió iconos, contención o separación (${JSON.stringify(audit)})`);
     ensure(audit.gap >= 8 && audit.gap <= 64, `El escritorio ${viewport.width}x${viewport.height} dejó un margen inferior incorrecto (${JSON.stringify(audit)})`);
     return `${viewport.width}x${viewport.height}`;
   } finally {
@@ -526,6 +525,105 @@ async function exerciseResponsiveDesktop(browser, baseUrl) {
     desktopViewports.push(await auditDesktopIconDensity(browser, baseUrl, viewport));
   }
   return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, densidad XP en ${desktopViewports.join(', ')} y posiciones desktop adaptativas`;
+}
+
+async function exerciseDesktopActions(browser, baseUrl) {
+  const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+  try {
+    await context.addInitScript(() => {
+      try {
+        localStorage.setItem('zarateXP_session', 'active');
+      } catch (error) {
+        // about:blank no expone localStorage; se inicializa al navegar.
+      }
+    });
+    const page = await context.newPage();
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => Boolean(window.zarateXP?.desktopManager && window.zarateXP?.appManager?.windowManager), null, { timeout: 12000 });
+
+    ensure(await page.locator('.desktop-icon[data-program-name="control-panel"]').count() === 0, 'Panel de control continúa visible como icono del escritorio');
+
+    await page.mouse.click(1200, 110);
+    const contextMenu = page.locator('.xp-context-menu');
+    await contextMenu.waitFor({ state: 'visible' });
+    ensure(await contextMenu.getAttribute('data-context-scope') === 'desktop', 'El clic izquierdo no abrió las acciones del escritorio');
+    for (const action of ['arrange', 'toggle-icons', 'refresh', 'reset-icons', 'documents', 'projects', 'personalize', 'properties']) {
+      ensure(await contextMenu.locator(`[data-context-action="${action}"]`).isVisible(), `Falta la acción funcional ${action} en el escritorio`);
+    }
+
+    await contextMenu.locator('[data-context-action="refresh"]').click();
+    ensure(await page.locator('.desktop').evaluate((desktop) => desktop.classList.contains('is-refreshing')), 'Actualizar no inició el redibujado visual del escritorio');
+    ensure(await page.locator('.desktop-refresh-status').isVisible(), 'Actualizar no mostró un estado visible');
+    await page.waitForFunction(() => document.querySelector('.desktop-refresh-status span')?.textContent === 'Escritorio actualizado');
+    ensure(!(await page.locator('.desktop').evaluate((desktop) => desktop.classList.contains('is-refreshing'))), 'El estado de actualización no terminó');
+
+    await page.mouse.click(1200, 110);
+    await contextMenu.locator('[data-context-action="personalize"]').click();
+    const controlPanel = page.locator('.window[data-window-id="control-panel"]');
+    await controlPanel.waitFor({ state: 'visible' });
+    ensure(await controlPanel.locator('.xp-wallpaper-option').count() === 3, 'Personalizar no mostró los tres fondos');
+
+    await controlPanel.locator('.xp-wallpaper-option:has(input[name="wallpaper"][value="coast"])').click();
+    await page.waitForFunction(() => document.querySelector('.desktop')?.classList.contains('wallpaper-coast'));
+    let wallpaperState = await page.evaluate(() => ({
+      settings: JSON.parse(localStorage.getItem('zarateXP.settings') || '{}'),
+      background: getComputedStyle(document.querySelector('.desktop')).backgroundImage
+    }));
+    ensure(wallpaperState.settings.wallpaper === 'coast' && wallpaperState.background.includes('xp-coast.webp'), `Costa azul no se aplicó ni guardó (${JSON.stringify(wallpaperState)})`);
+
+    await controlPanel.locator('.xp-wallpaper-option:has(input[name="wallpaper"][value="desert"])').click();
+    await page.waitForFunction(() => document.querySelector('.desktop')?.classList.contains('wallpaper-desert'));
+    wallpaperState = await page.evaluate(() => ({
+      settings: JSON.parse(localStorage.getItem('zarateXP.settings') || '{}'),
+      background: getComputedStyle(document.querySelector('.desktop')).backgroundImage
+    }));
+    ensure(wallpaperState.settings.wallpaper === 'desert' && wallpaperState.background.includes('xp-desert.webp'), `Desierto dorado no se aplicó ni guardó (${JSON.stringify(wallpaperState)})`);
+
+    await page.evaluate(() => window.zarateXP.windowManager.closeWindow('control-panel'));
+    await controlPanel.waitFor({ state: 'detached' });
+    await page.mouse.click(1200, 110);
+    await contextMenu.locator('[data-context-action="toggle-icons"]').click();
+    await page.waitForFunction(() => document.body.classList.contains('xp-hide-desktop-icons'));
+    ensure(await page.locator('.desktop-icons').getAttribute('aria-hidden') === 'true', 'Ocultar iconos no actualizó el estado accesible');
+
+    await page.mouse.click(1200, 110);
+    ensure((await contextMenu.locator('[data-context-label="toggle-icons"]').innerText()) === 'Mostrar iconos del escritorio', 'El menú no ofreció restaurar los iconos ocultos');
+    await contextMenu.locator('[data-context-action="toggle-icons"]').click();
+    await page.waitForFunction(() => !document.body.classList.contains('xp-hide-desktop-icons'));
+
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.desktop', { state: 'visible', timeout: 12000 });
+    await page.waitForFunction(() => document.querySelector('.desktop')?.classList.contains('wallpaper-desert'));
+    ensure(await page.locator('.desktop-icons').getAttribute('aria-hidden') === 'false', 'La visibilidad de iconos no persistió correctamente');
+
+    await page.evaluate(() => window.zarateXP.i18nManager.setLocale('en', { announce: false }));
+    await page.mouse.click(1200, 110);
+    ensure((await contextMenu.locator('[data-context-action="personalize"]').innerText()) === 'Personalize...', 'Personalizar no se tradujo al inglés');
+
+    await contextMenu.locator('[data-context-action="personalize"]').click();
+    await controlPanel.waitFor({ state: 'visible' });
+    await page.setViewportSize({ width: 390, height: 844 });
+    const responsiveSettings = await controlPanel.evaluate((panel) => {
+      const wallpaper = panel.querySelector('.xp-wallpaper-fieldset').getBoundingClientRect();
+      const behavior = panel.querySelector('.xp-settings-grid fieldset:nth-of-type(3)').getBoundingClientRect();
+      const options = panel.querySelector('.xp-wallpaper-options');
+      const grid = panel.querySelector('.xp-settings-grid');
+      return {
+        groupsDoNotOverlap: wallpaper.bottom <= behavior.top + 1,
+        galleryScrollsInside: options.scrollWidth > options.clientWidth,
+        gridContained: grid.scrollWidth <= grid.clientWidth + 1,
+        pageContained: document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1
+      };
+    });
+    ensure(responsiveSettings.groupsDoNotOverlap, `Personalizar superpuso sus grupos en móvil (${JSON.stringify(responsiveSettings)})`);
+    ensure(responsiveSettings.galleryScrollsInside, `Los tres fondos no quedaron disponibles en la galería móvil (${JSON.stringify(responsiveSettings)})`);
+    ensure(responsiveSettings.gridContained && responsiveSettings.pageContained, `Personalizar desbordó horizontalmente en móvil (${JSON.stringify(responsiveSettings)})`);
+
+    return 'Escritorio: menú con clic izquierdo, redibujado, acciones, personalización, tres fondos y persistencia';
+  } finally {
+    await context.close();
+  }
 }
 
 async function exerciseBootSkip(browser, baseUrl) {
@@ -2291,6 +2389,7 @@ async function main() {
     const exercised = [];
     exercised.push(await exerciseClippy(page));
     exercised.push(await exerciseResponsiveDesktop(browser, baseUrl));
+    exercised.push(await exerciseDesktopActions(browser, baseUrl));
     exercised.push(await exerciseBootSkip(browser, baseUrl));
 
     const positioning = await page.evaluate(() => {

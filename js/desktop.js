@@ -12,6 +12,10 @@ export class DesktopManager {
         this.iconPositionsKey = 'zarateXP.desktopIconPositions.v2';
         this.mobileLayoutQuery = window.matchMedia('(max-width: 768px)');
         this.contextMenu = null;
+        this.refreshStatus = null;
+        this.refreshTimer = 0;
+        this.refreshHideTimer = 0;
+        this.suppressBlankClick = false;
     }
     
     init() {
@@ -103,9 +107,18 @@ export class DesktopManager {
             this.setupIconDrag(icon);
         });
         
-        // Desktop click to clear selection
-        this.desktop.addEventListener('click', () => {
+        // A short click on an empty area opens the desktop actions menu. Dragging
+        // still creates the familiar selection box without opening the menu.
+        this.desktop.addEventListener('click', (event) => {
+            if (!this.isBlankDesktopTarget(event.target)) return;
             this.clearSelection();
+            if (this.suppressBlankClick) {
+                this.suppressBlankClick = false;
+                return;
+            }
+
+            event.stopPropagation();
+            this.showContextMenu(event.clientX, event.clientY);
         });
     }
     
@@ -214,6 +227,10 @@ export class DesktopManager {
         return this.mobileLayoutQuery.matches;
     }
 
+    isBlankDesktopTarget(target) {
+        return target === this.desktop || target === this.iconsContainer;
+    }
+
     getLayoutIcons() {
         const icons = Array.from(this.iconsContainer.querySelectorAll('.desktop-icon'));
         if (!this.isMobileLayout()) return icons;
@@ -316,6 +333,7 @@ export class DesktopManager {
     
     setupSelectionBox() {
         let isSelecting = false;
+        let selectionMoved = false;
         let startX = 0;
         let startY = 0;
         
@@ -324,6 +342,7 @@ export class DesktopManager {
             if (e.button !== 0) return; // Only left click
             
             isSelecting = true;
+            selectionMoved = false;
             startX = e.clientX;
             startY = e.clientY;
             
@@ -344,6 +363,7 @@ export class DesktopManager {
             const top = Math.min(startY, currentY);
             const width = Math.abs(currentX - startX);
             const height = Math.abs(currentY - startY);
+            if (Math.hypot(width, height) >= 6) selectionMoved = true;
             
             this.selectionOverlay.style.left = left + 'px';
             this.selectionOverlay.style.top = top + 'px';
@@ -359,6 +379,12 @@ export class DesktopManager {
             
             isSelecting = false;
             this.selectionOverlay.style.display = 'none';
+            if (selectionMoved) {
+                this.suppressBlankClick = true;
+                window.setTimeout(() => {
+                    this.suppressBlankClick = false;
+                }, 0);
+            }
         });
     }
     
@@ -397,19 +423,35 @@ export class DesktopManager {
     }
     
     setupContextMenu() {
+        this.refreshStatus = document.createElement('div');
+        this.refreshStatus.className = 'desktop-refresh-status';
+        this.refreshStatus.setAttribute('role', 'status');
+        this.refreshStatus.setAttribute('aria-live', 'polite');
+        this.refreshStatus.hidden = true;
+        this.refreshStatus.innerHTML = `
+            <img src="./assets/images/xp-small-icons/restart.png" alt="" width="22" height="22">
+            <span>Actualizando escritorio...</span>
+        `;
+        this.desktop.appendChild(this.refreshStatus);
+
         this.contextMenu = document.createElement('div');
         this.contextMenu.className = 'context-menu xp-context-menu';
         this.contextMenu.setAttribute('role', 'menu');
+        this.contextMenu.setAttribute('aria-label', 'Acciones del escritorio');
+        this.contextMenu.setAttribute('aria-hidden', 'true');
         this.contextMenu.innerHTML = `
-            <button type="button" class="context-menu-item" data-context-action="open">Abrir</button>
-            <div class="context-menu-separator"></div>
-            <button type="button" class="context-menu-item" data-context-action="arrange">Organizar iconos</button>
-            <button type="button" class="context-menu-item" data-context-action="refresh">Actualizar</button>
-            <button type="button" class="context-menu-item" data-context-action="reset-icons">Restaurar posiciones</button>
-            <div class="context-menu-separator"></div>
-            <button type="button" class="context-menu-item" data-context-action="cv">Abrir CV</button>
-            <button type="button" class="context-menu-item" data-context-action="projects">Mis Proyectos</button>
-            <button type="button" class="context-menu-item" data-context-action="properties">Propiedades</button>
+            <button type="button" role="menuitem" class="context-menu-item context-menu-open" data-context-only="icon" data-context-action="open">Abrir</button>
+            <div class="context-menu-separator" role="separator" data-context-only="icon"></div>
+            <button type="button" role="menuitem" class="context-menu-item" data-context-action="arrange">Organizar iconos</button>
+            <button type="button" role="menuitem" class="context-menu-item" data-context-action="toggle-icons"><span data-context-label="toggle-icons">Ocultar iconos del escritorio</span></button>
+            <button type="button" role="menuitem" class="context-menu-item context-menu-refresh" data-context-action="refresh">Actualizar</button>
+            <button type="button" role="menuitem" class="context-menu-item" data-context-action="reset-icons">Restaurar posiciones</button>
+            <div class="context-menu-separator" role="separator"></div>
+            <button type="button" role="menuitem" class="context-menu-item" data-context-action="documents">Mis Documentos</button>
+            <button type="button" role="menuitem" class="context-menu-item" data-context-action="projects">Mis Proyectos</button>
+            <div class="context-menu-separator" role="separator"></div>
+            <button type="button" role="menuitem" class="context-menu-item" data-context-action="personalize">Personalizar...</button>
+            <button type="button" role="menuitem" class="context-menu-item" data-context-action="properties">Propiedades</button>
         `;
         document.body.appendChild(this.contextMenu);
 
@@ -420,14 +462,36 @@ export class DesktopManager {
             this.hideContextMenu();
         });
 
+        this.contextMenu.addEventListener('keydown', (event) => {
+            const items = Array.from(this.contextMenu.querySelectorAll('[role="menuitem"]'))
+                .filter((item) => !item.hidden && !item.disabled);
+            const currentIndex = items.indexOf(document.activeElement);
+            let nextIndex = currentIndex;
+            if (event.key === 'ArrowDown') nextIndex = (currentIndex + 1) % items.length;
+            if (event.key === 'ArrowUp') nextIndex = (currentIndex - 1 + items.length) % items.length;
+            if (event.key === 'Home') nextIndex = 0;
+            if (event.key === 'End') nextIndex = items.length - 1;
+            if (nextIndex !== currentIndex) {
+                event.preventDefault();
+                items[nextIndex]?.focus();
+            }
+        });
+
         this.desktop.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             const icon = e.target.closest('.desktop-icon');
+            this.clearSelection();
             if (icon) {
-                this.clearSelection();
                 this.selectIcon(icon);
             }
             this.showContextMenu(e.clientX, e.clientY, icon);
+        });
+
+        this.desktop.addEventListener('keydown', (event) => {
+            if (!this.isBlankDesktopTarget(event.target)) return;
+            if (event.key !== 'ContextMenu' && !(event.shiftKey && event.key === 'F10')) return;
+            event.preventDefault();
+            this.showContextMenu(18, 18, null, { focusMenu: true });
         });
 
         document.addEventListener('click', (event) => {
@@ -438,24 +502,38 @@ export class DesktopManager {
         });
     }
 
-    showContextMenu(clientX, clientY, icon = null) {
+    showContextMenu(clientX, clientY, icon = null, { focusMenu = false } = {}) {
         if (!this.contextMenu) return;
         this.contextMenu.contextIcon = icon;
+        this.contextMenu.dataset.contextScope = icon ? 'icon' : 'desktop';
+        this.contextMenu.querySelectorAll('[data-context-only="icon"]').forEach((item) => {
+            item.hidden = !icon;
+        });
         const openItem = this.contextMenu.querySelector('[data-context-action="open"]');
         openItem.disabled = !icon;
         openItem.classList.toggle('disabled', !icon);
 
+        const toggleLabel = this.contextMenu.querySelector('[data-context-label="toggle-icons"]');
+        const iconsHidden = window.zarateXP?.appManager?.getPersonalizationSettings()?.showDesktopIcons === false;
+        const label = iconsHidden ? 'Mostrar iconos del escritorio' : 'Ocultar iconos del escritorio';
+        toggleLabel.textContent = window.zarateXP?.i18nManager?.t(label) || label;
+
         this.contextMenu.style.display = 'block';
+        this.contextMenu.setAttribute('aria-hidden', 'false');
         const rect = this.contextMenu.getBoundingClientRect();
         const left = Math.min(clientX, window.innerWidth - rect.width - 8);
         const top = Math.min(clientY, window.innerHeight - rect.height - 8);
         this.contextMenu.style.left = `${Math.max(4, left)}px`;
         this.contextMenu.style.top = `${Math.max(4, top)}px`;
+        if (focusMenu) {
+            this.contextMenu.querySelector('[role="menuitem"]:not([hidden]):not(:disabled)')?.focus();
+        }
     }
 
     hideContextMenu() {
         if (!this.contextMenu) return;
         this.contextMenu.style.display = 'none';
+        this.contextMenu.setAttribute('aria-hidden', 'true');
         this.contextMenu.contextIcon = null;
     }
 
@@ -466,12 +544,21 @@ export class DesktopManager {
         if (action === 'open' && icon?.dataset.programName) openProgram(icon.dataset.programName);
         if (action === 'arrange') this.arrangeIcons();
         if (action === 'refresh') this.refreshDesktop();
+        if (action === 'toggle-icons' && appManager) {
+            const settings = appManager.getPersonalizationSettings();
+            appManager.savePersonalizationSettings({
+                ...settings,
+                showDesktopIcons: settings.showDesktopIcons === false
+            });
+            this.clearSelection();
+        }
         if (action === 'reset-icons') {
             if (!this.isMobileLayout()) localStorage.removeItem(this.iconPositionsKey);
             this.applyIconPositions();
         }
-        if (action === 'cv') openProgram('resume');
+        if (action === 'documents') openProgram('documents');
         if (action === 'projects') openProgram('projects');
+        if (action === 'personalize') openProgram('control-panel');
         if (action === 'properties') openProgram('system-properties');
     }
     
@@ -484,8 +571,38 @@ export class DesktopManager {
     
     // Public methods
     refreshDesktop() {
-        // Refresh desktop icons
         this.clearSelection();
+        window.clearTimeout(this.refreshTimer);
+        window.clearTimeout(this.refreshHideTimer);
+
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            || document.body.classList.contains('xp-no-animations');
+        const duration = reduceMotion ? 80 : 520;
+        const statusText = this.refreshStatus?.querySelector('span');
+        if (statusText) {
+            const label = 'Actualizando escritorio...';
+            statusText.textContent = window.zarateXP?.i18nManager?.t(label) || label;
+        }
+        if (this.refreshStatus) this.refreshStatus.hidden = false;
+
+        this.desktop.classList.remove('is-refreshing');
+        void this.desktop.offsetWidth;
+        this.desktop.classList.add('is-refreshing');
+        this.iconsContainer.setAttribute('aria-busy', 'true');
+        window.requestAnimationFrame(() => this.applyIconPositions());
+
+        this.refreshTimer = window.setTimeout(() => {
+            this.desktop.classList.remove('is-refreshing');
+            this.iconsContainer.removeAttribute('aria-busy');
+            if (statusText) {
+                const label = 'Escritorio actualizado';
+                statusText.textContent = window.zarateXP?.i18nManager?.t(label) || label;
+            }
+            window.dispatchEvent(new CustomEvent('zaratexp:desktoprefreshed'));
+            this.refreshHideTimer = window.setTimeout(() => {
+                if (this.refreshStatus) this.refreshStatus.hidden = true;
+            }, reduceMotion ? 120 : 650);
+        }, duration);
     }
     
     changeWallpaper(imagePath) {
