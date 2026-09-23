@@ -59,10 +59,15 @@ Copyright in the recordings and compositions remains with the respective rights 
 
 The documents under `assets/certificates/originals/` were supplied by Ivan Agustin
 Zarate as evidence of his completed training. Logos, certificate artwork and issuer marks
-remain the property of Google, Coursera, SAP, aulaGIS, Aeroterra, Esri, ASIS International
-and UNODC. The WebP files under
+remain the property of NVIDIA, Credly, Simplilearn, Google, Coursera, SAP, aulaGIS,
+Aeroterra, Esri, ASIS International and UNODC. The WebP files under
 `assets/certificates/previews/` are optimized previews derived from those documents and
 are used only to present the credentials in this portfolio.
+
+Public verification pages for the newest credentials:
+
+- NVIDIA-Certified Associate: AI Infrastructure and Operations: https://www.credly.com/badges/c0da60b9-7197-4785-8972-1ae9baf2f331/public_url
+- Retrieval Augmented Generation for Beginners: https://www.simplilearn.com/skillup-certificate-landing?token=eyJjb3Vyc2VfaWQiOiI1MTQ5IiwiY2VydGlmaWNhdGVfdXJsIjoiaHR0cHM6XC9cL2NlcnRpZmljYXRlcy5zaW1wbGljZG4ubmV0XC9zaGFyZVwvMTA3MDk1MzRfMTEwNjYyMjNfMTc4ODg5MDAxNjk1OC5wbmciLCJ1c2VybmFtZSI6Ikl2YW4gQWd1c3RpbiBaYXJhdGUifQ%3D%3D
 
 Public verification pages for the three SAP Learning badges:
 

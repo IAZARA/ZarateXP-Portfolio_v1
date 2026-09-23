@@ -32,7 +32,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Iconos clásicos Tango con siluetas diferenciadas para perfil, CV, certificados y utilidades, conservando la interfaz Windows XP.
 - Visor de CV actualizado en PDF.
-- Explorador bilingüe de certificados con 16 credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de Claude Academy, Coursera y SAP Learning.
+- Explorador bilingüe de certificados con 18 credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de NVIDIA, Credly, Simplilearn, Claude Academy, Coursera y SAP Learning.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.
 - Casos destacados: CUFRE, SIFEBU, CRIACO y OSINTArgy, además de ZarateXP, ForzaTech, WJPC Capitulo Argentino y sistemas full stack.
@@ -68,7 +68,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
 - **Pinball:** física y flippers sincronizados a paso fijo, carga sostenida del lanzador, reintento sin perder bola en lanzamientos débiles y controles Z/«/», A/D, flechas y táctiles.
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
-- **Mis Certificados:** 16 credenciales con evidencia en IA, desarrollo agéntico, Data Analytics, SAP, gestión de proyectos, ArcGIS y seguridad internacional, con enlaces verificables de Claude Academy, Coursera y SAP Learning.
+- **Mis Certificados:** 18 credenciales con evidencia en infraestructura de IA, RAG, desarrollo agéntico, Data Analytics, SAP, gestión de proyectos, ArcGIS y seguridad internacional, con enlaces verificables de NVIDIA Credly, Simplilearn, Claude Academy, Coursera y SAP Learning.
 - **Flujos n8n:** caso demostrativo de entrega de software e IA. n8n coordina eventos, APIs, jobs y decisiones humanas; las herramientas especializadas ejecutan CI/CD, entrenamiento, registry y serving. Incluye quality gate, rollback conceptual, drift y reentrenamiento.
 - **Panel de control:** personalizacion persistente del escritorio.
 

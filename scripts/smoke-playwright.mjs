@@ -416,7 +416,7 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
 
     await documentsWindow.locator('[data-document-group="profile"] [data-doc-open="certificates"]').click();
     await page.locator('.window[data-window-id="certificates"] [data-certificates-root]').waitFor({ state: 'visible', timeout: 12000 });
-    ensure(await page.locator('.window[data-window-id="certificates"] [data-certificate-id]').count() === 16, 'Certificados no abrió el catálogo completo desde Mis Documentos');
+    ensure(await page.locator('.window[data-window-id="certificates"] [data-certificate-id]').count() === 18, 'Certificados no abrió el catálogo completo desde Mis Documentos');
 
     ensure(await page.locator('#menu-certificates[data-program-name="certificates"]').count() === 1, 'Certificados dejó de estar disponible desde Inicio');
     ensure(await page.locator('.all-programs-item[data-program-name="minesweeper"]').count() === 1, 'Buscaminas dejó de estar disponible en Todos los programas');
@@ -1052,13 +1052,14 @@ async function exerciseCertificates(page) {
     verification: rootNode.querySelector('[data-certificate-verification]')?.getAttribute('href'),
     previewLoaded: rootNode.querySelector('[data-certificate-preview]')?.naturalWidth > 0
   }));
-  ensure(initial.items === 16 && initial.selected === 1 && initial.filters === 6, `Certificados no expuso el catálogo completo (${JSON.stringify(initial)})`);
-  ensure(initial.selectedId === 'claude-code-101', 'El catálogo no abrió con la credencial más reciente');
-  ensure(initial.previewLoaded && /claude-code-101\.jpg/.test(initial.source || ''), 'Claude Code 101 no cargó su evidencia original');
-  ensure(/e759d3c0-b384-4295-ae87-8dd66724db6f/.test(initial.verification || ''), 'Claude Code 101 no conserva su enlace de verificación');
+  ensure(initial.items === 18 && initial.selected === 1 && initial.filters === 6, `Certificados no expuso el catálogo completo (${JSON.stringify(initial)})`);
+  ensure(initial.selectedId === 'nvidia-nca-ai-infrastructure-operations', 'El catálogo no abrió con la credencial más reciente');
+  ensure(initial.previewLoaded && /nvidia-nca-ai-infrastructure-operations\.png/.test(initial.source || ''), 'NVIDIA NCA-AIIO no cargó su insignia original');
+  ensure(/c0da60b9-7197-4785-8972-1ae9baf2f331/.test(initial.verification || ''), 'NVIDIA NCA-AIIO no conserva su enlace público de Credly');
+  ensure((await root.locator('[data-certificate-verification]').innerText()) === 'Verificar en Credly', 'NVIDIA NCA-AIIO no identifica a Credly');
 
   await root.locator('[data-certificate-filter="featured"]').click();
-  ensure(await root.locator('[data-certificate-id]:visible').count() === 5, 'Destacados no mostró sus 5 credenciales curadas');
+  ensure(await root.locator('[data-certificate-id]:visible').count() === 6, 'Destacados no mostró sus 6 credenciales curadas');
   const claudeVerificationCases = [
     ['claude-code-101', 'e759d3c0-b384-4295-ae87-8dd66724db6f'],
     ['claude-ai-capabilities-limitations', 'a410f5a6-bede-48ad-9128-720a1f6802a3']
@@ -1070,7 +1071,11 @@ async function exerciseCertificates(page) {
   }
 
   await root.locator('[data-certificate-filter="ai-data"]').click();
-  ensure(await root.locator('[data-certificate-id]:visible').count() === 7, 'El filtro IA, Datos y Dev no mostró sus 7 credenciales');
+  ensure(await root.locator('[data-certificate-id]:visible').count() === 9, 'El filtro IA, Datos y Dev no mostró sus 9 credenciales');
+  await root.locator('[data-certificate-id="simplilearn-rag-for-beginners"]').click();
+  ensure((await root.locator('[data-certificate-source]').getAttribute('href'))?.includes('simplilearn-rag-for-beginners.jpg'), 'Simplilearn RAG no cargó su certificado original');
+  ensure((await root.locator('[data-certificate-verification]').getAttribute('href'))?.includes('skillup-certificate-landing?token='), 'Simplilearn RAG no conserva su enlace público de verificación');
+  ensure((await root.locator('[data-certificate-verification]').innerText()) === 'Verificar en Simplilearn', 'Simplilearn RAG no identifica a Simplilearn');
   const sapVerificationCases = [
     ['sap-ai-fundamentals', 'xobal-hikug-nesog-guvap-kunuh'],
     ['sap-introducing-joule', 'xysag-gibyv-podal-sebyf-musuk'],
@@ -1188,7 +1193,7 @@ async function exerciseCertificates(page) {
   await appWindow.waitFor({ state: 'detached' });
   await page.setViewportSize(originalViewport);
   await openApp(page, 'certificates');
-  return 'Certificados: 16 credenciales, destacados, enlaces Claude/SAP, traducción y layout móvil';
+  return 'Certificados: 18 credenciales, destacados, enlaces NVIDIA/Simplilearn/Claude/SAP, traducción y layout móvil';
 }
 
 async function exerciseGitHubActivity(page) {

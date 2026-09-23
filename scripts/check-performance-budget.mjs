@@ -64,7 +64,7 @@ const requiredReferences = [
   ['app small information icon', apps, /assets\/images\/xp-small-icons\/information\.png/],
   ['app small folder icons', apps, /assets\/images\/xp-small-icons\/folder-opened\.png/],
   ['resume small print icon', apps, /assets\/images\/xp-small-icons\/print-to-file\.png/],
-  ['certificate WebP previews', certificates, /assets\/certificates\/previews\/google-ai\.webp[\s\S]*arcgis-drone-operator\.webp/],
+  ['certificate WebP previews', certificates, /nvidia-nca-ai-infrastructure-operations\.webp[\s\S]*simplilearn-rag-for-beginners\.webp[\s\S]*google-ai\.webp[\s\S]*arcgis-drone-operator\.webp/],
   ['lazy certificate thumbnails', apps, /xp-certificate-item[\s\S]*loading="lazy"/]
 ];
 
@@ -117,6 +117,8 @@ const sizeBudgets = [
   ['assets/images/project-icons/forzatask-banner.webp', 300 * 1024],
   ['assets/images/project-icons/arana-web-icon.webp', 50 * 1024],
   ['assets/images/project-icons/arana-web-pipeline.webp', 300 * 1024],
+  ['assets/certificates/previews/nvidia-nca-ai-infrastructure-operations.webp', 60 * 1024],
+  ['assets/certificates/previews/simplilearn-rag-for-beginners.webp', 100 * 1024],
   ['assets/certificates/previews/google-ai.webp', 160 * 1024],
   ['assets/certificates/previews/google-project-management.webp', 100 * 1024],
   ['assets/certificates/previews/google-data-analytics.webp', 160 * 1024],
