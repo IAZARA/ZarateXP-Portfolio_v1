@@ -51,3 +51,5 @@ output/
 # Local CV drafts
 MI CV*.pdf
 cv-drafts/
+
+/AGENTS.md
