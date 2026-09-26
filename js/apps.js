@@ -1,5 +1,5 @@
 import { getProjectsData } from './data/projects.js?v=zaratexp-20260825-projects21';
-import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260822-claude-certificates1';
+import { getCertificatesData } from './data/certificates.js?v=zaratexp-20260926-langchain1';
 import { initGitHubActivityApp, initGitHubActivitySummary } from './github-activity.js?v=zaratexp-20260825-private-floor';
 import { initMyComputerApp } from './my-computer.js?v=zaratexp-20260822-removable-drive1';
 // --- Gestor de Aplicaciones Dinámicas para ZarateXP ---
