@@ -117,6 +117,7 @@ const sizeBudgets = [
   ['assets/images/project-icons/forzatask-banner.webp', 300 * 1024],
   ['assets/images/project-icons/arana-web-icon.webp', 50 * 1024],
   ['assets/images/project-icons/arana-web-pipeline.webp', 300 * 1024],
+  ['assets/certificates/previews/langchain-introduction-to-deep-agents.webp', 100 * 1024],
   ['assets/certificates/previews/nvidia-nca-ai-infrastructure-operations.webp', 60 * 1024],
   ['assets/certificates/previews/simplilearn-rag-for-beginners.webp', 100 * 1024],
   ['assets/certificates/previews/google-ai.webp', 160 * 1024],

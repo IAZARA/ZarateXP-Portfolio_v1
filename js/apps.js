@@ -2259,7 +2259,7 @@ export class AppManager {
                 items: [
                     { app: 'recruiter-route', title: 'Perfil profesional.lnk', description: 'Rol actual, experiencia, capacidades y contacto', icon: './assets/images/classic-icons/profile.svg', type: 'Acceso directo', important: true },
                     { app: 'resume', title: cv.fileName, description: 'CV actualizado', icon: './assets/images/classic-icons/cv.svg', type: 'Documento PDF', important: true, localizedCv: true },
-                    { app: 'certificates', title: 'Certificados verificados', description: '18 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad', icon: './assets/images/classic-icons/certificates.svg', type: 'Carpeta', important: true },
+                    { app: 'certificates', title: 'Certificados verificados', description: '19 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad', icon: './assets/images/classic-icons/certificates.svg', type: 'Carpeta', important: true },
                     { app: 'about-me', title: 'Sobre mi perfil', description: 'AI Solution Architect en ACSYS', icon: './assets/images/classic-icons/about.svg', type: 'Documento' }
                 ]
             },
@@ -2471,7 +2471,7 @@ export class AppManager {
                 </div>
                 <div class="xp-certificates-status" role="status" aria-live="polite">
                     <span data-certificate-status>Seleccioná una credencial para ver su evidencia.</span>
-                    <span>NVIDIA, Credly, Simplilearn, Claude Academy, Anthropic, Google, Coursera, SAP Learning, Esri, ASIS y UNODC</span>
+                    <span>LangChain Academy, NVIDIA, Credly, Simplilearn, Claude Academy, Anthropic, Google, Coursera, SAP Learning, Esri, ASIS y UNODC</span>
                 </div>
             </div>
         `;
@@ -2719,7 +2719,7 @@ export class AppManager {
                             <p><strong>SAP Learning</strong><br>AI Fundamentals, Joule y SAP Sports One, 2026.</p>
                             <p><strong>Formación aplicada en ArcGIS</strong><br>6 cursos en flujos GIS, aplicaciones web, tableros, captura de datos y drones, 2025.</p>
                             <p><strong>Seguridad internacional</strong><br>ASIS International, 7 CPE, y taller especializado de UNODC.</p>
-                            <button type="button" class="xp-fde-credential-link" data-route-app="certificates">Ver las 18 credenciales</button>
+                            <button type="button" class="xp-fde-credential-link" data-route-app="certificates">Ver las 19 credenciales</button>
                         </div>
                         <div>
                             <h3>Idiomas y ubicación</h3>

@@ -97,8 +97,8 @@ for (const marker of ['data-language-switcher', 'data-language-option="es"', 'da
 
 const certificatesSource = fs.readFileSync(path.join(root, 'js/data/certificates.js'), 'utf8');
 const certificateIds = [...certificatesSource.matchAll(/\bid:\s*'([^']+)'/g)].map((match) => match[1]);
-if (certificateIds.length !== 18 || new Set(certificateIds).size !== 18) {
-    errors.push(`Certificate catalog must contain 18 unique credentials, found ${certificateIds.length}`);
+if (certificateIds.length !== 19 || new Set(certificateIds).size !== 19) {
+    errors.push(`Certificate catalog must contain 19 unique credentials, found ${certificateIds.length}`);
 }
 
 const githubActivity = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/github-activity.json'), 'utf8'));
@@ -159,6 +159,7 @@ for (const privateDetailField of ['restrictedContributionsCount', 'contributions
 }
 
 for (const file of [
+    'assets/certificates/originals/langchain-introduction-to-deep-agents.pdf',
     'assets/certificates/originals/nvidia-nca-ai-infrastructure-operations.png',
     'assets/certificates/originals/simplilearn-rag-for-beginners.jpg',
     'assets/certificates/originals/claude-code-101.jpg',

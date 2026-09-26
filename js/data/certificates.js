@@ -1,5 +1,20 @@
 const CERTIFICATES = Object.freeze([
     {
+        id: 'langchain-introduction-to-deep-agents',
+        category: 'ai-data',
+        featured: true,
+        title: 'Foundation: Introduction to Deep Agents',
+        issuer: 'LangChain Academy',
+        date: '24 de septiembre de 2026',
+        dateTime: '2026-09-24',
+        credential: 'Curso completado, código de certificado yckr0bzmfg',
+        summary: 'Formación en construcción de agentes con Deep Agents: herramientas, entornos de ejecución, gestión de contexto, memoria y delegación a subagentes para resolver flujos de trabajo complejos.',
+        skills: ['Deep Agents', 'Gestión de contexto', 'Memoria de agentes', 'Subagentes'],
+        preview: './assets/certificates/previews/langchain-introduction-to-deep-agents.webp',
+        source: './assets/certificates/originals/langchain-introduction-to-deep-agents.pdf',
+        documentLabel: 'Certificado PDF original de LangChain Academy'
+    },
+    {
         id: 'nvidia-nca-ai-infrastructure-operations',
         category: 'ai-data',
         featured: true,
