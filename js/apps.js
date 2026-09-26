@@ -3464,7 +3464,7 @@ export class AppManager {
                 <aside class="xp-pinball-panel">
                     <div class="xp-pinball-brand">
                         <h2>Pinball XP Lab</h2>
-                        <p>Mesa Canvas con física propia, misiones, combos y progresión arcade.</p>
+                        <p>Paletas, resorte y desafíos de precisión. Encadená impactos y completá misiones.</p>
                     </div>
                     <div class="xp-pinball-actions">
                         <button type="button" data-pinball-start>Iniciar / Lanzar</button>
@@ -3512,7 +3512,7 @@ export class AppManager {
             width: 900,
             height: 720,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260904-pinball-physics2', 'initPinballApp')
+                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260926-pinball3', 'initPinballApp')
                     .then(() => window.initPinballApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar Pinball: ${error.message}`));
             },

@@ -939,6 +939,7 @@ async function exerciseStartMenuAndPaint(page) {
   await solitaireWindow.waitFor({ state: 'visible' });
   ensure(await solitaireWindow.count() === 1, 'Reabrir un programa minimizado duplicó la ventana');
   ensure((await page.evaluate(() => JSON.parse(localStorage.getItem('zarateXP.recentApps.v1') || '[]'))).includes('solitaire'), 'Los recientes no se guardaron');
+  await waitForWindowAnimation(page, 'solitaire');
   await solitaireWindow.locator('.close-btn').click();
   await solitaireWindow.waitFor({ state: 'detached' });
   await page.keyboard.press('Control+k');
@@ -2046,6 +2047,36 @@ async function exercisePinball(page) {
   const touchPad = appWindow.locator('.xp-pinball-pad');
   ensure(await touchPad.isHidden(), 'Pinball mostro el dock tactil en viewport desktop');
 
+  const verifyDesktopCanvas = async (label) => {
+    const layout = await canvas.evaluate(async (node) => {
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const rect = node.getBoundingClientRect();
+      const stage = node.closest('.xp-pinball-canvas-stage').getBoundingClientRect();
+      const style = getComputedStyle(node);
+      const contentWidth = rect.width - Number.parseFloat(style.borderLeftWidth) - Number.parseFloat(style.borderRightWidth);
+      const contentHeight = rect.height - Number.parseFloat(style.borderTopWidth) - Number.parseFloat(style.borderBottomWidth);
+      return {
+        contained: rect.width > 0 && rect.height > 0
+          && rect.left >= stage.left - 1 && rect.right <= stage.right + 1
+          && rect.top >= stage.top - 1 && rect.bottom <= stage.bottom + 1,
+        ratioError: Math.abs((contentWidth / contentHeight) / (520 / 700) - 1),
+        canvas: { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom },
+        stage: { left: stage.left, top: stage.top, right: stage.right, bottom: stage.bottom }
+      };
+    });
+    ensure(layout.contained, `Pinball recortó el tablero o resorte en escritorio ${label} (${JSON.stringify(layout)})`);
+    ensure(Number.isFinite(layout.ratioError) && layout.ratioError <= PINBALL_RATIO_TOLERANCE, `Pinball deformó el tablero en escritorio ${label} (${JSON.stringify(layout)})`);
+  };
+  const originalViewport = page.viewportSize();
+  await verifyDesktopCanvas(`${originalViewport.width}x${originalViewport.height} inicial`);
+  try {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await verifyDesktopCanvas('1280x720');
+  } finally {
+    await page.setViewportSize(originalViewport);
+  }
+  await verifyDesktopCanvas(`${originalViewport.width}x${originalViewport.height} restaurado`);
+
   await appWindow.locator('[data-pinball-start]').click();
   await page.waitForFunction(() => {
     const root = document.querySelector('.window[data-window-id="pinball"] [data-pinball-root]');
@@ -2150,7 +2181,139 @@ async function exercisePinball(page) {
   ensure(physics.heldCharge === 1 && physics.fullLaunch.entered && physics.fullLaunch.balls === 3, `Pinball no sostuvo la carga o falló el lanzamiento completo (${JSON.stringify(physics)})`);
   ensure(physics.flips.every((flip) => flip.vy < -200 && ['x', 'y', 'vx', 'vy'].every((key) => Math.abs(flip[key] - physics.flips[0][key]) < 0.001)), `El golpe de Pinball depende del FPS (${JSON.stringify(physics.flips)})`);
 
-  return 'Pinball: lanzamiento y reintento sin perder bola, carga sostenida, física 30/60/120 FPS, drenaje, pausa, sonido y Z/«/»';
+  await canvas.focus();
+  await page.keyboard.down('ArrowLeft');
+  await page.keyboard.down('ArrowRight');
+  try {
+    const both = await canvas.evaluate((node) => {
+      const app = node.closest('[data-pinball-root]')._pinballApp;
+      return app.isLeftPressed() && app.isRightPressed();
+    });
+    ensure(both, 'Pinball no permitió activar las dos paletas a la vez');
+    await page.keyboard.up('ArrowLeft');
+    const rightOnly = await canvas.evaluate((node) => {
+      const app = node.closest('[data-pinball-root]')._pinballApp;
+      return !app.isLeftPressed() && app.isRightPressed();
+    });
+    ensure(rightOnly, 'Soltar la paleta izquierda también soltó la derecha');
+  } finally {
+    await page.keyboard.up('ArrowLeft');
+    await page.keyboard.up('ArrowRight');
+  }
+  await exercisePinballCanvasPlunger(page, canvas);
+
+  return 'Pinball: resorte arrastrable, carga proporcional y sostenida, reintento sin perder bola, física 30/60/120 FPS, paletas simultáneas, drenaje, pausa y sonido';
+}
+
+async function exercisePinballCanvasPlunger(page, canvas, cdp = null) {
+  const geometry = await canvas.evaluate((node) => {
+    const app = node.closest('[data-pinball-root]')._pinballApp;
+    const rect = node.getBoundingClientRect();
+    const style = getComputedStyle(node);
+    const left = rect.left + Number.parseFloat(style.borderLeftWidth);
+    const top = rect.top + Number.parseFloat(style.borderTopWidth);
+    const width = rect.width - Number.parseFloat(style.borderLeftWidth) - Number.parseFloat(style.borderRightWidth);
+    const height = rect.height - Number.parseFloat(style.borderTopWidth) - Number.parseFloat(style.borderBottomWidth);
+    const mappedCorner = app.canvasPoint({ clientX: left + width, clientY: top + height });
+    return { left, top, width, height, mappedCorner };
+  });
+  ensure(Math.abs(geometry.mappedCorner.x - 520) < 0.1 && Math.abs(geometry.mappedCorner.y - 700) < 0.1, `El resorte no respetó la escala y los bordes del canvas (${JSON.stringify(geometry)})`);
+  const point = (pull) => ({
+    x: geometry.left + (470 / 520) * geometry.width,
+    y: geometry.top + ((620 + pull) / 700) * geometry.height
+  });
+  const reset = () => canvas.evaluate((node) => {
+    const app = node.closest('[data-pinball-root]')._pinballApp;
+    app.clearControls(true);
+    app.resetGame({ announce: false });
+    app.stopLoop();
+  });
+  const touchPoint = (pull) => ({ ...point(pull), radiusX: 5, radiusY: 5, force: 1, id: 27 });
+  const drag = async (pull, cancelled = false) => {
+    await reset();
+    if (cdp) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [touchPoint(0)] });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [touchPoint(pull)] });
+    } else {
+      await page.mouse.move(point(0).x, point(0).y);
+      await page.mouse.down();
+      await page.mouse.move(point(pull).x, point(pull).y, { steps: 4 });
+    }
+    try {
+      const held = await canvas.evaluate((node) => {
+        const app = node.closest('[data-pinball-root]')._pinballApp;
+        const charge = app.charge;
+        app.update(0.4);
+        const plunger = app.plungerGeometry();
+        return {
+          state: app.state,
+          charge,
+          afterHold: app.charge,
+          headY: plunger.headY,
+          ballBottom: app.ball.y + app.ball.r,
+          meter: Number(app.root.querySelector('.xp-pinball-meter').getAttribute('aria-valuenow'))
+        };
+      });
+      ensure(held.state === 'charging' && held.charge > 0 && Math.abs(held.afterHold - held.charge) < 0.001, `El resorte siguió cargando con el arrastre quieto (${JSON.stringify(held)})`);
+      ensure(Math.abs(held.ballBottom - held.headY) < 0.5 && held.headY > 641.5, `La bola perdió el apoyo del resorte al tirar (${JSON.stringify(held)})`);
+      ensure(Math.abs(held.meter - Math.round(held.charge * 100)) <= 1, `El indicador no reflejó la carga del arrastre (${JSON.stringify(held)})`);
+      return held;
+    } finally {
+      if (cdp) {
+        await cdp.send('Input.dispatchTouchEvent', { type: cancelled ? 'touchCancel' : 'touchEnd', touchPoints: [] });
+      } else {
+        await page.mouse.up();
+      }
+    }
+  };
+  const readRelease = () => canvas.evaluate((node) => {
+    const app = node.closest('[data-pinball-root]')._pinballApp;
+    return {
+      state: app.state,
+      power: app.launchPower,
+      vy: app.ball.vy,
+      ballInLane: app.ball.inLauncherLane,
+      balls: app.balls,
+      pressed: app.isPlungerPressed(),
+      pointers: app.canvasPointerControls.size
+    };
+  });
+  try {
+    const weak = await drag(16);
+    const weakRelease = await readRelease();
+    const strong = await drag(48);
+    const strongRelease = await readRelease();
+    ensure(weak.charge < 0.45 && strong.charge > 0.6 && strong.charge > weak.charge + 0.25, `Tirar más del resorte no aumentó la carga (${JSON.stringify({ weak, strong })})`);
+    ensure([weakRelease, strongRelease].every((shot) => shot.state === 'playing' && shot.ballInLane && shot.balls === 3 && !shot.pressed && shot.pointers === 0), `Soltar el resorte no lanzó o dejó un control atascado (${JSON.stringify({ weakRelease, strongRelease })})`);
+    ensure(strongRelease.power > weakRelease.power + 0.25 && strongRelease.vy < weakRelease.vy - 100, `La distancia de arrastre no controló la fuerza del lanzamiento (${JSON.stringify({ weakRelease, strongRelease })})`);
+    if (!cdp) {
+      await reset();
+      await page.mouse.move(point(0).x, point(0).y);
+      await page.mouse.down();
+      try {
+        const heldCharge = await canvas.evaluate((node) => {
+          const app = node.closest('[data-pinball-root]')._pinballApp;
+          app.update(0.8);
+          return app.charge;
+        });
+        await page.mouse.move(point(16).x, point(16).y, { steps: 4 });
+        const draggedCharge = await canvas.evaluate((node) => node.closest('[data-pinball-root]')._pinballApp.charge);
+        ensure(heldCharge > 0.6 && draggedCharge >= heldCharge, `Empezar a arrastrar perdió la carga acumulada al mantener pulsado (${JSON.stringify({ heldCharge, draggedCharge })})`);
+      } finally {
+        await page.mouse.up();
+      }
+      const heldRelease = await readRelease();
+      ensure(heldRelease.state === 'playing' && heldRelease.power > 0.6 && !heldRelease.pressed && heldRelease.pointers === 0, `El resorte no se soltó limpiamente después de mantener y arrastrar (${JSON.stringify(heldRelease)})`);
+    }
+    if (cdp) {
+      await drag(48, true);
+      const cancelled = await readRelease();
+      ensure(cancelled.state === 'ready' && cancelled.power === 0 && cancelled.vy === 0 && cancelled.ballInLane && cancelled.balls === 3 && !cancelled.pressed && cancelled.pointers === 0, `Cancelar el arrastre lanzó la bola o dejó el resorte activo (${JSON.stringify(cancelled)})`);
+    }
+  } finally {
+    await reset();
+    await canvas.evaluate((node) => node.closest('[data-pinball-root]')._pinballApp.startLoop());
+  }
 }
 
 async function touchPinballControl(page, cdp, button, selector, control, touchId, holdMs = 0, endType = 'touchEnd') {
@@ -2449,6 +2612,23 @@ async function auditMobilePinballViewport(browser, baseUrl, viewportCase) {
       const cdp = await context.newCDPSession(page);
       await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-left]'), '[data-pinball-left]', 'left', 11);
       await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-right]'), '[data-pinball-right]', 'right', 12);
+      const simultaneousPoints = [];
+      for (const [index, side] of ['left', 'right'].entries()) {
+        const box = await appWindow.locator(`[data-pinball-${side}]`).boundingBox();
+        simultaneousPoints.push({ x: box.x + box.width / 2, y: box.y + box.height / 2, radiusX: 8, radiusY: 8, force: 1, id: 21 + index });
+      }
+      try {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: simultaneousPoints.slice(0, 1) });
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: simultaneousPoints });
+        const both = await root.evaluate((node) => node._pinballApp.isLeftPressed() && node._pinballApp.isRightPressed());
+        ensure(both, 'Pinball no activó las dos paletas con dos dedos');
+        // CDP enumera los dedos que se levantan, no los que siguen apoyados.
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: simultaneousPoints.slice(0, 1) });
+        const rightOnly = await root.evaluate((node) => !node._pinballApp.isLeftPressed() && node._pinballApp.isRightPressed());
+        ensure(rightOnly, 'Levantar un dedo soltó ambas paletas de Pinball');
+      } finally {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      }
       await root.evaluate((rootNode) => {
         const app = rootNode._pinballApp || rootNode.closest('.window')?._pinballApp;
         app.resetGame({ announce: false });
@@ -2458,6 +2638,7 @@ async function auditMobilePinballViewport(browser, baseUrl, viewportCase) {
       await root.evaluate((rootNode) => rootNode._pinballApp.resetGame({ announce: false }));
       const cancelled = await touchPinballControl(page, cdp, appWindow.locator('[data-pinball-plunger]'), '[data-pinball-plunger]', 'plunger', 14, 160, 'touchCancel');
       ensure(cancelled.gameState === 'ready' && cancelled.launchPower === 0 && cancelled.ballInLauncherLane, `Cancelar el toque lanzó la bola (${JSON.stringify(cancelled)})`);
+      await exercisePinballCanvasPlunger(page, canvas, cdp);
       ensure(await page.locator('clippy-character').count() === 0, 'Clippy reaparecio durante la sesion movil');
     }
 
@@ -2472,7 +2653,7 @@ async function exerciseMobileClippyAndPinball(browser, baseUrl) {
   for (const viewportCase of PINBALL_MOBILE_VIEWPORTS) {
     auditedViewports.push(await auditMobilePinballViewport(browser, baseUrl, viewportCase));
   }
-  return `Movil real: Clippy deshabilitado y Pinball completo en ${auditedViewports.join(', ')}, con touch press/release y lanzamiento`;
+  return `Movil real: Clippy deshabilitado y Pinball completo en ${auditedViewports.join(', ')}, con dos paletas simultáneas, resorte arrastrable y cancelación táctil`;
 }
 
 async function main() {

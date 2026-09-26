@@ -5021,11 +5021,21 @@ body.xp-no-animations *::after {
 }
 
 .xp-pinball-meter {
+    position: relative;
     height: 15px;
     border: 1px inset #fff;
     background: #fff;
     margin: 8px 0 12px;
     padding: 1px;
+}
+
+.xp-pinball-meter::after {
+    content: '';
+    position: absolute;
+    inset: 1px 10% 1px 76%;
+    border-inline: 1px solid #896b12;
+    background: rgba(255, 222, 114, 0.28);
+    pointer-events: none;
 }
 
 .xp-pinball-meter span {
@@ -5133,10 +5143,10 @@ body.xp-no-animations *::after {
     box-sizing: border-box;
     width: min(100%, 520px);
     height: auto;
-    max-height: calc((var(--real-vh, 1vh) * 100) - 88px);
+    max-height: 100%;
     border: 4px solid #d6f2ff;
     border-radius: 14px;
-    background: #061a52;
+    background: #061126;
     box-shadow:
         0 0 0 1px rgba(0, 0, 0, 0.9),
         0 0 28px rgba(83, 207, 255, 0.36),
@@ -5168,9 +5178,9 @@ body.xp-no-animations *::after {
 
     .xp-pinball-table-wrap canvas {
         width: auto;
-        height: calc(100% - 12px);
+        height: auto;
         max-width: 100%;
-        max-height: calc(100% - 12px);
+        max-height: 100%;
     }
 
     .xp-pinball-pad {
@@ -5711,9 +5721,9 @@ body.xp-no-animations *::after {
 
     .xp-pinball-table-wrap canvas {
         width: auto;
-        height: calc(100% - 12px);
+        height: auto;
         max-width: 100%;
-        max-height: calc(100% - 12px);
+        max-height: 100%;
     }
 
     .xp-winamp-screen {

@@ -1,12 +1,12 @@
 // Main JavaScript Module
-import { I18nManager } from './i18n.js?v=zaratexp-20260926-langchain1';
+import { I18nManager } from './i18n.js?v=zaratexp-20260926-pinball3';
 import { BootManager } from './boot.js?v=zaratexp-20260822-recruiter-ux1';
 import { DesktopManager } from './desktop.js?v=zaratexp-20260904-icons-pinball1';
 import { WindowManager } from './windows.js?v=zaratexp-20260904-icons-pinball1';
 import { TaskbarManager } from './taskbar.js?v=zaratexp-20260904-icons-pinball1';
 import { StartMenuManager } from './startMenu.js?v=zaratexp-20260904-icons-pinball1';
 import { SoundManager } from './sounds.js?v=zaratexp-20260712-i18n2';
-import { AppManager } from './apps.js?v=zaratexp-20260926-langchain1';
+import { AppManager } from './apps.js?v=zaratexp-20260926-pinball3';
 import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260904-icons-pinball1';
 
 class ZarateXP {

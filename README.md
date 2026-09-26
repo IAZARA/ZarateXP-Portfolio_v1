@@ -66,7 +66,7 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 - **Buscaminas XP:** primer clic seguro, banderas, dudas, timer, dificultades y deteccion de victoria/derrota.
 - **Paint XP:** herramientas de dibujo, relleno, cuentagotas, texto, formas, undo/redo y exportacion PNG.
 - **Solitario y Pinball:** juegos propios estilo XP para mostrar logica de juego, estado y Canvas.
-- **Pinball:** física y flippers sincronizados a paso fijo, carga sostenida del lanzador, reintento sin perder bola en lanzamientos débiles y controles Z/«/», A/D, flechas y táctiles.
+- **Pinball:** mesa dibujada sobre la geometría real de colisiones, paletas y resorte animado. Lanzador arrastrable con potencia proporcional, carga sostenida por teclado, reintento sin perder bola, física a paso fijo y controles simultáneos en escritorio y móvil. El tablero se ajusta completo al tamaño de la ventana.
 - **Mis Documentos:** CV actualizado y accesos rapidos a proyectos, perfil, notas y automatizaciones.
 - **Mis Certificados:** 19 credenciales con evidencia en infraestructura de IA, RAG, Deep Agents, desarrollo agéntico, Data Analytics, SAP, gestión de proyectos, ArcGIS y seguridad internacional, con enlaces verificables de NVIDIA Credly, Simplilearn, Claude Academy, Coursera y SAP Learning.
 - **Flujos n8n:** caso demostrativo de entrega de software e IA. n8n coordina eventos, APIs, jobs y decisiones humanas; las herramientas especializadas ejecutan CI/CD, entrenamiento, registry y serving. Incluye quality gate, rollback conceptual, drift y reentrenamiento.
