@@ -13,7 +13,8 @@
     "check:github-activity": "node --test tests/update-github-activity.test.mjs",
     "update:github-activity": "node scripts/update-github-activity.mjs",
     "test": "npm run check:syntax && npm run check:assets && npm run check:performance && npm run check:i18n && npm run check:experience && npm run check:github-activity",
-    "smoke": "node scripts/smoke-playwright.mjs"
+    "smoke": "npm run check:contact && node scripts/smoke-playwright.mjs",
+    "check:contact": "node tests/contact-windows-regression.mjs"
   },
   "devDependencies": {
     "playwright": "^1.55.0"

@@ -102,6 +102,8 @@ npm run smoke
 
 `npm test` valida sintaxis JavaScript, referencias locales de assets y checks de experiencia. `npm run smoke` levanta un servidor temporal y abre ventanas clave con Playwright.
 
+`npm run check:contact` ejecuta las regresiones de contacto y restauración de ventanas con EmailJS simulado, sin enviar correos reales. También forma parte de `npm run smoke`. Para usar un Chromium ya instalado, define `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` con la ruta del ejecutable.
+
 El workflow `Actualizar actividad GitHub` consulta la API GraphQL cada día y versiona `assets/data/github-activity.json`. Para actualizarlo localmente se puede ejecutar `GH_ACTIVITY_TOKEN=... npm run update:github-activity`; el token solo se usa durante la generación y nunca llega al frontend. La actividad privada se publica únicamente como conteos diarios anónimos: no se consultan ni exponen nombres, commits o detalles de repositorios privados.
 
 El check de performance protege la carga inicial: valida que los fondos y dialogos pesados usen WebP/lazy loading y que los iconos pequeños de la ventana de contacto no vuelvan a depender de PNGs gigantes.

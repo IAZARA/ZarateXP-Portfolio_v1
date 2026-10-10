@@ -2660,7 +2660,7 @@ async function main() {
   const server = await createStaticServer();
   const { port } = server.address();
   const baseUrl = `http://127.0.0.1:${port}`;
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {}) });
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
   const consoleErrors = [];
   const failedRequests = [];
