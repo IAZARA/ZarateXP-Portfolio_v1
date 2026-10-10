@@ -258,6 +258,11 @@ export class WindowManager {
             });
         }
         
+        // App dialog actions must use the same lifecycle as the title-bar close button.
+        windowElement.addEventListener('click', (event) => {
+            if (event.target.closest('[data-window-close]')) this.closeWindow(windowId);
+        });
+
         // Double click title bar to maximize
         const titleBar = windowElement.querySelector('.title-bar');
         titleBar.addEventListener('dblclick', (e) => {
@@ -635,6 +640,16 @@ export class WindowManager {
         
         windowData.isMaximized = false;
         windowElement.classList.remove('maximized');
+        // Saved desktop bounds can be outside the viewport after a resize while maximized.
+        const margin = 8;
+        const availableWidth = Math.max(200, globalThis.innerWidth - margin * 2);
+        const availableHeight = Math.max(150, globalThis.innerHeight - this.getTaskbarHeight() - margin * 2);
+        const width = Math.min(Number.parseFloat(windowElement.style.width), availableWidth);
+        const height = Math.min(Number.parseFloat(windowElement.style.height), availableHeight);
+        windowElement.style.width = `${width}px`;
+        windowElement.style.height = `${height}px`;
+        windowElement.style.left = `${Math.min(Math.max(Number.parseFloat(windowElement.style.left), margin), Math.max(margin, globalThis.innerWidth - width - margin))}px`;
+        windowElement.style.top = `${Math.min(Math.max(Number.parseFloat(windowElement.style.top), margin), Math.max(margin, globalThis.innerHeight - this.getTaskbarHeight() - height - margin))}px`;
         const maximizeBtn = windowElement.querySelector('.maximize-btn');
         maximizeBtn?.setAttribute('aria-label', 'Maximizar');
         maximizeBtn?.setAttribute('title', 'Maximizar');
@@ -669,14 +684,15 @@ export class WindowManager {
     
     closeWindow(windowId) {
         const windowData = this.windows.get(windowId);
-        if (!windowData || windowData.isClosing) return;
+        if (!windowData) return;
+        if (windowData.isClosing) return windowData.closePromise;
         windowData.isClosing = true;
         windowData.motionAnimation?.cancel();
         windowData.geometryAnimation?.cancel();
         windowData.element.classList.remove('minimizing', 'restoring', 'geometry-transitioning');
         
         // Animate window close
-        this.animateWindowClose(windowData.element).then(() => {
+        windowData.closePromise = this.animateWindowClose(windowData.element).then(() => {
             // Remove from DOM
             windowData.element.remove();
             
@@ -705,6 +721,7 @@ export class WindowManager {
                 }
             }
         });
+        return windowData.closePromise;
     }
     
     toggleWindow(windowId) {

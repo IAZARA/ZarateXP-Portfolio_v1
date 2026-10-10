@@ -14,6 +14,7 @@ export class AppManager {
         this.apps = new Map();
         this.runningApps = new Map();
         this.scriptPromises = new Map();
+        this.contactSendInFlight = false;
         this.projectExplorerState = new WeakMap();
         this.removableDriveMounted = true;
         this.myComputerController = null;
@@ -426,7 +427,7 @@ export class AppManager {
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el componente 'Mi PC'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
-                            <button onclick="this.closest('.window').remove()">OK</button>
+                            <button type="button" data-window-close>OK</button>
                         </div>
                     `,
                     width: 400,
@@ -704,7 +705,7 @@ export class AppManager {
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Sobre Mí'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
-                            <button onclick="this.closest('.window').remove()">OK</button>
+                            <button type="button" data-window-close>OK</button>
                         </div>
                     `,
                     width: 400,
@@ -814,7 +815,7 @@ export class AppManager {
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mi Contacto'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
-                            <button onclick="this.closest('.window').remove()">OK</button>
+                            <button type="button" data-window-close>OK</button>
                         </div>
                     `,
                     width: 400,
@@ -848,6 +849,7 @@ export class AppManager {
             const handleSubmit = async (e) => {
                 debugLog('handleSubmit llamado!');
                 e.preventDefault();
+                if (this.contactSendInFlight || !form.reportValidity()) return;
                 
                 const name = form.querySelector('#contact-name').value || "Visitor from ZarateXP";
                 const email = form.querySelector('#contact-email').value;
@@ -874,10 +876,13 @@ export class AppManager {
                     return;
                 }
 
-                // Mostrar estado de envío
-                this._showSendingStatus(contactWindow);
+                // Keep the lock on AppManager so closing/reopening the form cannot duplicate a send.
+                this.contactSendInFlight = true;
+                if (sendBtn) sendBtn.disabled = true;
+                form.setAttribute('aria-busy', 'true');
 
                 try {
+                    this._showSendingStatus(contactWindow);
                     if (!this._canUseEmailJs()) {
                         throw new Error('EmailJS deshabilitado para este dominio');
                     }
@@ -909,13 +914,7 @@ export class AppManager {
                     const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
                     
                     debugLog('Email enviado exitosamente:', response);
-                    
-                    // Cerrar ventana de estado de envío
-                    const sendingWindow = document.querySelector('[data-window-id="sending-status"]');
-                    if (sendingWindow) {
-                        sendingWindow.remove();
-                    }
-                    
+
                     // Mostrar confirmación de éxito
                     this._showContactConfirmation(contactWindow);
                     localStorage.setItem('zarateXP.contactLastSent', String(Date.now()));
@@ -925,21 +924,22 @@ export class AppManager {
                     
                 } catch (error) {
                     console.error('Error al enviar email:', error);
+                    const errorMessage = error?.message || error?.text || 'No se pudo enviar el mensaje.';
 
-                    const sendingWindow = document.querySelector('[data-window-id="sending-status"]');
-                    if (sendingWindow) {
-                        sendingWindow.remove();
-                    }
-                    
                     const fullMessage = `Hola Ivan,\n\nDe: ${email}\nNombre: ${name}\n\n${body}\n\n---\nEnviado desde ZarateXP Portfolio`;
                     const mailtoLink = `mailto:ivan.agustin.95@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(fullMessage)}`;
 
-                    if (error.message.includes('Service ID') || error.message.includes('Template ID') || error.message.includes('Public Key') || error.message.includes('dominio')) {
+                    if (errorMessage.includes('Service ID') || errorMessage.includes('Template ID') || errorMessage.includes('Public Key') || errorMessage.includes('dominio')) {
                         window.open(mailtoLink, '_blank', 'noopener');
                         this._showMailtoFallback(contactWindow);
                     } else {
-                        this._showEmailError(contactWindow, error.message, mailtoLink);
+                        this._showEmailError(contactWindow, errorMessage, mailtoLink);
                     }
+                } finally {
+                    await this.windowManager?.closeWindow('sending-status');
+                    this.contactSendInFlight = false;
+                    if (sendBtn) sendBtn.disabled = false;
+                    form.removeAttribute('aria-busy');
                 }
             };
 
@@ -950,7 +950,7 @@ export class AppManager {
             if (sendBtn) {
                 sendBtn.addEventListener('click', (e) => {
                     e.preventDefault();
-                    handleSubmit(e);
+                    form.requestSubmit();
                 });
             }
 
@@ -1040,7 +1040,7 @@ export class AppManager {
                     <div style="padding: 20px; text-align: center;">
                         <div style="font-size: 32px; color: #FF0000; margin-bottom: 10px;">⚠️</div>
                         <div style="margin-bottom: 20px; color: #000;">${message}</div>
-                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
+                        <button type="button" data-window-close style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
                     </div>
                 `,
                 width: 350,
@@ -1063,7 +1063,7 @@ export class AppManager {
                     <div style="padding: 20px; text-align: center;">
                         <img src="./assets/images/xp-small-icons/information.png" alt="Informacion" width="40" height="40" style="margin-bottom: 10px;">
                         <div style="margin-bottom: 20px; color: #000;">${message}</div>
-                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
+                        <button type="button" data-window-close style="padding: 6px 16px; min-width: 75px;">Aceptar</button>
                     </div>
                 `,
                 width: 350,
@@ -1250,7 +1250,7 @@ export class AppManager {
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Mis Proyectos'</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
-                            <button onclick="this.closest('.window').remove()">Aceptar</button>
+                            <button type="button" data-window-close>Aceptar</button>
                         </div>
                     `,
                     width: 400,
@@ -1932,7 +1932,7 @@ export class AppManager {
                             Tu mensaje ha sido enviado a Ivan.<br>
                             Te responderá lo antes posible.
                         </div>
-                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Aceptar</button>
+                        <button type="button" data-window-close style="padding: 6px 16px;">Aceptar</button>
                     </div>
                 `,
                 width: 350,
@@ -1974,8 +1974,7 @@ export class AppManager {
 
     _showEmailError(contactWindow, errorMessage, mailtoLink = '') {
         // Cerrar ventana de estado si existe
-        const statusWindow = document.querySelector('[data-window-id="sending-status"]');
-        if (statusWindow) statusWindow.remove();
+        this.windowManager?.closeWindow('sending-status');
 
         if (this.windowManager) {
             const safeErrorMessage = this._escapeHtml(errorMessage || 'Ocurrió un error al enviar el mensaje. Por favor intenta nuevamente.');
@@ -1992,7 +1991,7 @@ export class AppManager {
 	                        </div>
 	                        <div style="display: flex; gap: 8px; justify-content: center;">
 	                            ${mailtoLink ? `<button type="button" data-mailto-fallback="${this._escapeHtml(mailtoLink)}" style="padding: 6px 16px;">Abrir email</button>` : ''}
-	                            <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Aceptar</button>
+	                            <button type="button" data-window-close style="padding: 6px 16px;">Aceptar</button>
 	                        </div>
 	                    </div>
 	                `,
@@ -2010,8 +2009,7 @@ export class AppManager {
 
     _showMailtoFallback(contactWindow) {
         // Cerrar ventana de estado si existe
-        const statusWindow = document.querySelector('[data-window-id="sending-status"]');
-        if (statusWindow) statusWindow.remove();
+        this.windowManager?.closeWindow('sending-status');
 
         if (this.windowManager) {
             this.windowManager.createWindow({
@@ -2026,7 +2024,7 @@ export class AppManager {
                             Se abrió tu cliente de correo con el mensaje.<br>
                             Para envío automático, configura EmailJS en el código.
                         </div>
-                        <button onclick="this.closest('.window').remove()" style="padding: 6px 16px;">Entendido</button>
+                        <button type="button" data-window-close style="padding: 6px 16px;">Entendido</button>
                     </div>
                 `,
                 width: 400,
@@ -2231,7 +2229,7 @@ export class AppManager {
                 <div style="padding: 20px; text-align: center;">
                     <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                     <div style="margin-bottom: 20px;">${safeMessage}</div>
-                    <button onclick="this.closest('.window').remove()">OK</button>
+                    <button type="button" data-window-close>OK</button>
                 </div>
             `;
             
@@ -3977,7 +3975,7 @@ export class AppManager {
                             <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
                             <div style="margin-bottom: 10px;"><strong>No se pudo cargar el CV</strong></div>
                             <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
-                            <button onclick="this.closest('.window').remove()">Aceptar</button>
+                            <button type="button" data-window-close>Aceptar</button>
                         </div>
                     `,
                     width: 400,
