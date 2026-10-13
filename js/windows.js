@@ -56,6 +56,16 @@ export class WindowManager {
             }
         });
 
+        // Keyboard navigation must activate the same window as pointer input.
+        // Keep focus on the selected control; only synchronize stacking/taskbar state.
+        this.windowsContainer.addEventListener('focusin', (event) => {
+            const windowId = event.target.closest('.window')?.getAttribute('data-window-id');
+            const windowData = this.windows.get(windowId);
+            if (windowData && !windowData.isClosing && !windowData.isMinimized && this.activeWindow !== windowId) {
+                this.focusWindow(windowId);
+            }
+        });
+
         let resizeFrame = 0;
         globalThis.addEventListener('resize', () => {
             globalThis.cancelAnimationFrame(resizeFrame);
