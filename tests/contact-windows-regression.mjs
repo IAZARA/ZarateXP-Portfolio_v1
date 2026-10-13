@@ -208,6 +208,52 @@ async function resize(page, viewport) {
 }
 
 const cases = [
+  ...[desktopViewport, { width: 390, height: 844 }].map((viewport) => [
+    `keyboard-window-activation-${viewport.width}`, async (page) => {
+      await resize(page, viewport);
+      const create = async () => page.evaluate(() => {
+        const wm = window.zarateXP.windowManager;
+        wm.createWindow({ id: 'keyboard-first', title: 'First keyboard window', width: 320, height: 260,
+          content: '<input id="keyboard-first-input" aria-label="First field"><button id="keyboard-next" type="button">Next field</button>' });
+        wm.createWindow({ id: 'keyboard-second', title: 'Second keyboard window', width: 320, height: 260,
+          content: '<input id="keyboard-second-input" aria-label="Second field">' });
+      });
+      const assertActive = async (id) => {
+        const state = await page.evaluate((windowId) => {
+          const { windowManager: wm, taskbarManager: taskbar } = window.zarateXP;
+          return {
+            active: wm.activeWindow,
+            activeClass: wm.windows.get(windowId).element.classList.contains('active'),
+            taskbarPressed: taskbar.openPrograms.get(windowId).getAttribute('aria-pressed'),
+            focusedWindow: document.activeElement.closest('.window')?.dataset.windowId
+          };
+        }, id);
+        assert.deepEqual(state, { active: id, activeClass: true, taskbarPressed: 'true', focusedWindow: id },
+          'Keyboard focus must raise its window and synchronize the taskbar');
+      };
+      await create();
+      await page.locator('#keyboard-first-input').focus();
+      await page.keyboard.press('Tab');
+      await assertActive('keyboard-first');
+      assert.equal(await page.locator('#keyboard-next').evaluate((el) => el === document.activeElement), true);
+      await page.locator('#keyboard-second-input').focus();
+      await assertActive('keyboard-second');
+      await page.locator('#keyboard-first-input').focus();
+      await assertActive('keyboard-first');
+      await page.locator(`${windowSelector('keyboard-first')} .minimize-btn`).focus();
+      await page.keyboard.press('Enter');
+      await page.evaluate(() => window.zarateXP.windowManager.restoreWindow('keyboard-first'));
+      await page.locator('#keyboard-first-input').focus();
+      await assertActive('keyboard-first');
+      await page.locator(`${windowSelector('keyboard-first')} .close-btn`).focus();
+      await page.keyboard.press('Enter');
+      await assertGone(page, 'keyboard-first');
+      await create();
+      await page.locator('#keyboard-first-input').focus();
+      await assertActive('keyboard-first');
+      await page.screenshot({ path: path.join(output, `keyboard-activation-${viewport.width}.png`) });
+    }
+  ]),
   ['native-email-validation', async (page) => {
     await openContact(page);
     await fillContact(page, 'invalid', 'not-an-email');
