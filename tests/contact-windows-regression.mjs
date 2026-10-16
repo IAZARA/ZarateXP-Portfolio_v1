@@ -306,6 +306,30 @@ const cases = [
     await assertGone(page, 'sending-status');
     await dismissDialog(page, 'contact-confirmation');
   }],
+  ...[desktopViewport, { width: 390, height: 844 }, { width: 844, height: 390 }].map((viewport) => [
+    `info-dialog-action-visible-${viewport.width}x${viewport.height}`, async (page) => {
+      await resize(page, viewport);
+      await openContact(page);
+      for (let iteration = 0; iteration < 2; iteration += 1) {
+        await page.locator(`${contactSelector} [data-contact-command="address-book"]`).click();
+        await assertRegistered(page, 'info-dialog');
+        const geometry = await page.locator(`${windowSelector('info-dialog')} .window-body`).evaluate((body) => {
+          const bounds = body.getBoundingClientRect();
+          const action = body.querySelector('button').getBoundingClientRect();
+          return { bodyTop: bounds.top, bodyBottom: bounds.bottom, actionTop: action.top, actionBottom: action.bottom, scrollTop: body.scrollTop };
+        });
+        console.log('INFO_DIALOG_BASELINE', JSON.stringify({ viewport, ...geometry }));
+        assert.equal(geometry.scrollTop, 0, 'Dialog should open without a hidden initial scroll offset');
+        assert.ok(geometry.actionTop >= geometry.bodyTop && geometry.actionBottom <= geometry.bodyBottom + 1,
+          `Accept should be visible without scrolling: ${JSON.stringify(geometry)}`);
+        const action = page.locator(`${windowSelector('info-dialog')} [data-window-close]`);
+        await action.focus();
+        await page.keyboard.press('Enter');
+        await assertGone(page, 'info-dialog');
+      }
+      assert.equal(await page.evaluate(() => window.__contactTest.calls.length), 0);
+    }
+  ]),
   ['info-validation-dialog-lifecycle', async (page) => {
     await openContact(page);
     for (let iteration = 0; iteration < 2; iteration += 1) {
