@@ -1067,7 +1067,8 @@ export class AppManager {
                     </div>
                 `,
                 width: 350,
-                height: 150,
+                // Fit the icon, wrapped address and Accept action without initial scrolling.
+                height: 210,
                 resizable: false,
                 maximizable: false
             });
