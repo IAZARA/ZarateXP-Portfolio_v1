@@ -5754,6 +5754,7 @@ body.xp-no-animations *::after {
     }
 
     .xp-winamp-transport {
+        flex-wrap: wrap;
         gap: 2px;
     }
 
@@ -5839,6 +5840,7 @@ body.xp-no-animations *::after {
     }
 
     .xp-winamp-transport {
+        flex-wrap: wrap;
         gap: 2px;
     }
 
