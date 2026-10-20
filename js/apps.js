@@ -3511,7 +3511,7 @@ export class AppManager {
             width: 900,
             height: 720,
             onReady: (appWindow) => {
-                this._loadScriptOnce('js/pinball.js?v=zaratexp-20260926-pinball3', 'initPinballApp')
+                this._loadScriptOnce('js/pinball.js?v=zaratexp-20261020-pinball4', 'initPinballApp')
                     .then(() => window.initPinballApp?.(appWindow))
                     .catch((error) => this.showError(`No se pudo iniciar Pinball: ${error.message}`));
             },

@@ -2172,7 +2172,47 @@ async function exercisePinball(page) {
         for (let frame = 0; frame < fps / 5; frame++) app.update(1 / fps);
         return { fps, x: app.ball.x, y: app.ball.y, vx: app.ball.vx, vy: app.ball.vy };
       });
-      return { weakShots, heldCharge, fullLaunch, flips };
+      // Sin jugar, ninguna potencia de lanzamiento deja la bola rebotando para siempre.
+      const unattended = [0.4, 0.55, 0.7, 0.85, 1].map((power) => {
+        reset();
+        app.launchBall(power, { enableBallSave: false });
+        let elapsed = 0;
+        while (app.state === 'playing' && elapsed < 25) {
+          app.update(1 / 60);
+          elapsed += 1 / 60;
+        }
+        return { power, elapsed, state: app.state };
+      });
+      // Con la paleta levantada, una bola que baja por el inlane queda atrapada (cradle).
+      reset();
+      app.state = 'playing';
+      app.keys.add('z');
+      for (let frame = 0; frame < 10; frame++) app.update(1 / 60);
+      app.state = 'playing';
+      app.ball = { x: 121.6, y: 571.7, vx: 96, vy: 72, r: 9.5, safeTime: 0, inLauncherLane: false };
+      for (let frame = 0; frame < 180; frame++) app.update(1 / 60);
+      const cradle = { state: app.state, x: app.ball.x, speed: Math.hypot(app.ball.vx, app.ball.vy) };
+      // El ángulo de salida depende del punto de contacto: base y punta no tiran igual.
+      const aim = [0.15, 0.8].map((target) => {
+        reset();
+        app.state = 'playing';
+        app.ball = { x: 121.6, y: 571.7, vx: 96, vy: 72, r: 9.5, safeTime: 0, inLauncherLane: false };
+        let flipped = false;
+        for (let step = 0; step < 1200; step++) {
+          const flipper = app.flipperSegment('left');
+          const abx = flipper.b.x - flipper.a.x;
+          const aby = flipper.b.y - flipper.a.y;
+          const t = ((app.ball.x - flipper.a.x) * abx + (app.ball.y - flipper.a.y) * aby) / (abx * abx + aby * aby);
+          if (!flipped && t >= target && app.ball.y > 590) {
+            app.keys.add('z');
+            flipped = true;
+          }
+          app.update(1 / 240);
+          if (flipped && app.ball.vy < -200 && app.ball.y < 560) break;
+        }
+        return { target, speed: Math.hypot(app.ball.vx, app.ball.vy), angle: Math.atan2(-app.ball.vy, app.ball.vx) * 180 / Math.PI };
+      });
+      return { weakShots, heldCharge, fullLaunch, flips, unattended, cradle, aim };
     } finally {
       reset();
       app.startLoop();
@@ -2181,6 +2221,9 @@ async function exercisePinball(page) {
   ensure(physics.weakShots.every((shot) => shot.state === 'ready' && shot.balls === 3 && shot.inLane && shot.score === 0), `Pinball cobró una bola que no salió del lanzador (${JSON.stringify(physics)})`);
   ensure(physics.heldCharge === 1 && physics.fullLaunch.entered && physics.fullLaunch.balls === 3, `Pinball no sostuvo la carga o falló el lanzamiento completo (${JSON.stringify(physics)})`);
   ensure(physics.flips.every((flip) => flip.vy < -200 && ['x', 'y', 'vx', 'vy'].every((key) => Math.abs(flip[key] - physics.flips[0][key]) < 0.001)), `El golpe de Pinball depende del FPS (${JSON.stringify(physics.flips)})`);
+  ensure(physics.unattended.every((run) => run.state !== 'playing'), `Pinball dejó la bola rebotando sin fin (${JSON.stringify(physics.unattended)})`);
+  ensure(physics.cradle.state === 'playing' && physics.cradle.speed < 5 && physics.cradle.x < 200, `Pinball no permitió atrapar la bola con la paleta (${JSON.stringify(physics.cradle)})`);
+  ensure(physics.aim[1].speed > physics.aim[0].speed + 300 && physics.aim.every((shot) => shot.speed > 500), `Pinball no transmitió la velocidad de la paleta según el punto de contacto (${JSON.stringify(physics.aim)})`);
 
   await canvas.focus();
   await page.keyboard.down('ArrowLeft');
