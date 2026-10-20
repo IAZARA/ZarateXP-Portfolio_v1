@@ -6,7 +6,8 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const statSize = (file) => fs.statSync(path.join(root, file)).size;
 
 const index = read('index.html');
-const apps = read('js/apps.js');
+// Las ventanas pesadas de AppManager viven en js/apps/ y se cargan bajo demanda.
+const apps = [read('js/apps.js'), ...fs.readdirSync(path.join(root, 'js/apps')).sort().map((file) => read(`js/apps/${file}`))].join('\n');
 const projects = read('js/data/projects.js');
 const startMenu = read('js/startMenu.js');
 const contact = read('components/contacto.html');

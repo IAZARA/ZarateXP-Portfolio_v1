@@ -39,6 +39,8 @@
 .userpicture {
     width: 48px;
     height: 48px;
+    flex-shrink: 0;
+    object-fit: cover;
     border: 2px solid white;
     border-radius: 4px;
     background: white;

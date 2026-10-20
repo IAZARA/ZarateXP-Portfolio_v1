@@ -9,11 +9,21 @@ const debugLog = (...args) => {
     if (window.ZARATEXP_DEBUG) console.log(...args);
 };
 
+const APP_MODULE_DEPS = {
+    getProjectsData,
+    getCertificatesData,
+    initGitHubActivityApp,
+    initGitHubActivitySummary,
+    initMyComputerApp,
+    debugLog
+};
+
 export class AppManager {
     constructor() {
         this.apps = new Map();
         this.runningApps = new Map();
         this.scriptPromises = new Map();
+        this.appModulePromises = new Map();
         this.contactSendInFlight = false;
         this.projectExplorerState = new WeakMap();
         this.removableDriveMounted = true;
@@ -282,6 +292,20 @@ export class AppManager {
         });
     }
     
+    async _loadAppMethods(moduleName, method, ...args) {
+        // Las ventanas más pesadas viven en js/apps/ y se descargan al abrirlas por
+        // primera vez; después sus métodos reemplazan a estos accesos en el prototipo.
+        if (!this.appModulePromises.has(moduleName)) {
+            const loading = import(`./apps/${moduleName}.js?v=zaratexp-20261020-split1`).then((module) => {
+                Object.assign(AppManager.prototype, module.default(APP_MODULE_DEPS));
+            });
+            loading.catch(() => this.appModulePromises.delete(moduleName));
+            this.appModulePromises.set(moduleName, loading);
+        }
+        await this.appModulePromises.get(moduleName);
+        return this[method](...args);
+    }
+
     registerApp(appConfig) {
         this.apps.set(appConfig.id, appConfig);
     }
@@ -432,6 +456,7 @@ export class AppManager {
                     `,
                     width: 400,
                     height: 200,
+                    autoHeight: true,
                     resizable: false
                 });
             } else {
@@ -555,168 +580,8 @@ export class AppManager {
         });
     }
 
-    async _openAboutMe() {
-        // Prevenir que se abra más de una ventana de "Sobre Mí"
-        if (this.runningApps.has('about-me')) {
-            debugLog('About Me is already running');
-            // Intentar enfocar la ventana existente si el WindowManager lo permite
-            if (this.windowManager && this.windowManager.focusWindow) {
-                this.windowManager.focusWindow('about-me');
-            }
-            return;
-        }
-
-        try {
-            // Verificar que WindowManager esté disponible
-            if (!this.windowManager) {
-                throw new Error('WindowManager no está disponible');
-            }
-
-            // Crear contenido de la ventana "Sobre Mí"
-            const content = `
-                <div id="about-me-window">
-                    <div class="about-me-menu-bar">
-                        <span>Archivo</span>
-                        <span>Edición</span>
-                        <span>Ver</span>
-                        <span>Herramientas</span>
-                        <span>Ayuda</span>
-                    </div>
-                    <div class="about-me-container">
-                        <header class="about-profile">
-                            <img src="images/foto-nuevo-usuario.jpeg" alt="Retrato de Ivan Agustin Zarate" width="112" height="112" loading="eager" decoding="async" />
-                            <div>
-                                <p class="about-kicker">AI Solution Architect en ACSYS</p>
-                                <h2>Conecto negocio, datos y tecnología.</h2>
-                                <p>Diseño soluciones empresariales de IA desde el discovery hasta una arquitectura segura, validable y lista para implementar.</p>
-                            </div>
-                        </header>
-                        <div class="about-sections">
-                            <article class="about-section">
-                                <div class="about-image">
-                                    <img src="images/sobremi/fullstack-developer.webp" alt="Trabajo de descubrimiento y desarrollo de plataformas" width="136" height="136" loading="lazy" decoding="async" />
-                                </div>
-                                <div class="about-text">
-                                    <h3>Arquitectura de soluciones de IA</h3>
-                                    <p>En ACSYS traduzco necesidades de negocio en requerimientos, alcance, arquitectura, decisiones y criterios de aceptación. Conecto preventa, especialistas y delivery para que la solución conserve su propósito hasta la implementación.</p>
-                                </div>
-                            </article>
-
-                            <article class="about-section">
-                                <div class="about-image">
-                                    <img src="images/sobremi/ai-automation.webp" alt="Ciclo de vida de modelos y automatización" width="136" height="136" loading="lazy" decoding="async" />
-                                </div>
-                                <div class="about-text">
-                                    <h3>IA aplicada y MLOps</h3>
-                                    <p>Participo en preparación y validación de datos, experimentación, versionado, despliegue, monitoreo y mejora iterativa de modelos. Trabajo con redes neuronales, modelos de texto e imagen, <strong>Hugging Face, QLoRA, modelos locales y agentes de programación</strong>, cuidando la privacidad y la minimización de datos compartidos.</p>
-                                </div>
-                            </article>
-
-                            <article class="about-section">
-                                <div class="about-image">
-                                    <img src="images/sobremi/privacy-data-products.webp" alt="Gestión responsable de datos críticos" width="136" height="136" loading="lazy" decoding="async" />
-                                </div>
-                                <div class="about-text">
-                                    <h3>Datos críticos, privacidad y seguridad</h3>
-                                    <p>Trabajo con calidad del dato, control de accesos, auditoría, trazabilidad, OSINT, análisis GIS y ciberseguridad aplicada. Entre 2018 y 2024 desarrollé funciones técnicas sobre bases de datos públicas en la Policía Federal Argentina, con foco en resguardo de información y uso responsable de sistemas.</p>
-                                </div>
-                            </article>
-
-                            <article class="about-section">
-                                <div class="about-image">
-                                    <img src="images/sobremi/forzatech-founder.webp" alt="Coordinación de equipos y trabajo con usuarios" width="136" height="136" loading="lazy" decoding="async" />
-                                </div>
-                                <div class="about-text">
-                                    <h3>Coordinación y comunicación</h3>
-                                    <p>Coordino áreas usuarias, proveedores, equipos técnicos y especialistas en ciberseguridad. Antes lideré equipos operativos en la Policía Federal Argentina y trabajé en administración de personal en COTO Digital. Esa experiencia aporta planificación, criterio, comunicación bajo presión y manejo confidencial de documentación.</p>
-                                </div>
-                            </article>
-
-                            <article class="about-section">
-                                <div class="about-image">
-                                    <img src="images/sobremi/shipping-projects.webp" alt="Implementación de sistemas productivos" width="136" height="136" loading="lazy" decoding="async" />
-                                </div>
-                                <div class="about-text">
-                                    <h3>Construcción y entrega</h3>
-                                    <p>Desarrollo sistemas con <strong>Java, Spring Boot, React, JavaScript, TypeScript, Maven, APIs, Git, Oracle y SQL</strong>. CUFRE, SIFEBU, CRIACO y OSINTArgy muestran experiencia en plataformas CRUD, información federal, GIS, investigación digital y capacitación.</p>
-                                </div>
-                            </article>
-
-                            <article class="about-section about-section-education">
-                                <div class="about-text">
-                                    <h3>Formación e idiomas</h3>
-                                    <p><strong>Analista de Sistemas, ORT Argentina</strong> (título obtenido). Licenciatura en Seguridad con orientación en Investigación Criminal. Credenciales de Google y SAP Learning en IA, datos y soluciones empresariales, formación aplicada en ArcGIS y capacitación especializada de ASIS International y UNODC. Español nativo e inglés intermedio, con comprensión técnica y experiencia en reuniones con proveedores.</p>
-                                </div>
-                            </article>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            // Crear la ventana usando el WindowManager
-            const aboutWindow = this.windowManager.createWindow({
-                id: 'about-me',
-                title: 'Sobre Mí - Ivan Agustin Zarate',
-                icon: './assets/images/classic-icons/about.svg',
-                content: content,
-                width: 700,
-                height: 600,
-                resizable: true,
-                maximizable: true
-            });
-
-            // Marcar como aplicación en ejecución
-            this.runningApps.set('about-me', 'about-me');
-
-            // Configurar cleanup cuando se cierre la ventana
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.removedNodes.length > 0) {
-                        mutation.removedNodes.forEach((node) => {
-                            if (node === aboutWindow) {
-                                debugLog('About Me window removed, cleaning up...');
-                                this.closeApp('about-me');
-                                observer.disconnect();
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Observar cambios en el contenedor de ventanas
-            if (aboutWindow.parentNode) {
-                observer.observe(aboutWindow.parentNode, { childList: true });
-            }
-
-            debugLog('About Me window created successfully');
-            return aboutWindow;
-
-        } catch (error) {
-            console.error("No se pudo abrir 'Sobre Mí':", error);
-            
-            // Mostrar una ventana de error al usuario
-            if (this.windowManager) {
-                this.windowManager.createWindow({
-                    id: 'error-aboutme',
-                    title: 'Error',
-                    icon: './assets/images/classic-icons/about.svg',
-                    content: `
-                        <div style="padding: 20px; text-align: center;">
-                            <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
-                            <div style="margin-bottom: 10px;"><strong>No se pudo cargar 'Sobre Mí'</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
-                            <button type="button" data-window-close>OK</button>
-                        </div>
-                    `,
-                    width: 400,
-                    height: 200,
-                    resizable: false
-                });
-            } else {
-                // Fallback si WindowManager no está disponible
-                alert(`Error: No se pudo abrir Sobre Mí. ${error.message}`);
-            }
-        }
+    _openAboutMe() {
+        return this._loadAppMethods('about-me', '_openAboutMe');
     }
 
     async _openContact() {
@@ -820,6 +685,7 @@ export class AppManager {
                     `,
                     width: 400,
                     height: 200,
+                    autoHeight: true,
                     resizable: false
                 });
             } else {
@@ -1045,6 +911,7 @@ export class AppManager {
                 `,
                 width: 350,
                 height: 210,
+                autoHeight: true,
                 resizable: false,
                 maximizable: false
             });
@@ -1069,6 +936,7 @@ export class AppManager {
                 width: 350,
                 // Fit the icon, wrapped address and Accept action without initial scrolling.
                 height: 210,
+                autoHeight: true,
                 resizable: false,
                 maximizable: false
             });
@@ -1256,6 +1124,7 @@ export class AppManager {
                     `,
                     width: 400,
                     height: 200,
+                    autoHeight: true,
                     resizable: false
                 });
             } else {
@@ -1938,6 +1807,7 @@ export class AppManager {
                 `,
                 width: 350,
                 height: 260,
+                autoHeight: true,
                 resizable: false,
                 maximizable: false
             });
@@ -1966,6 +1836,7 @@ export class AppManager {
                 `,
                 width: 250,
                 height: 150,
+                autoHeight: true,
                 resizable: false,
                 maximizable: false,
                 closable: false
@@ -1998,6 +1869,7 @@ export class AppManager {
 	                `,
                 width: 350,
                 height: 260,
+                autoHeight: true,
                 resizable: false,
 	                maximizable: false
 	            });
@@ -2030,6 +1902,7 @@ export class AppManager {
                 `,
                 width: 400,
                 height: 260,
+                autoHeight: true,
                 resizable: false,
                 maximizable: false
             });
@@ -2240,6 +2113,7 @@ export class AppManager {
                 content: content,
                 width: 300,
                 height: 200,
+                autoHeight: true,
                 resizable: false
             });
         } else {
@@ -2249,510 +2123,15 @@ export class AppManager {
     }
 
     _openDocuments() {
-        const iconBase = './assets/images/xp-small-icons';
-        const cv = this._getCvAsset();
-        const groups = [
-            {
-                id: 'profile',
-                title: 'Perfil y credenciales',
-                items: [
-                    { app: 'recruiter-route', title: 'Perfil profesional.lnk', description: 'Rol actual, experiencia, capacidades y contacto', icon: './assets/images/classic-icons/profile.svg', type: 'Acceso directo', important: true },
-                    { app: 'resume', title: cv.fileName, description: 'CV actualizado', icon: './assets/images/classic-icons/cv.svg', type: 'Documento PDF', important: true, localizedCv: true },
-                    { app: 'certificates', title: 'Certificados verificados', description: '19 credenciales en IA, datos, desarrollo, gestión, GIS y seguridad', icon: './assets/images/classic-icons/certificates.svg', type: 'Carpeta', important: true },
-                    { app: 'about-me', title: 'Sobre mi perfil', description: 'AI Solution Architect en ACSYS', icon: './assets/images/classic-icons/about.svg', type: 'Documento' }
-                ]
-            },
-            {
-                id: 'solutions',
-                title: 'Proyectos y soluciones',
-                items: [
-                    { app: 'projects', title: 'Proyectos destacados', description: 'CUFRE, SIFEBU, CRIACO, OSINTArgy y más', icon: './assets/images/classic-icons/projects.svg', type: 'Carpeta' },
-                    { app: 'api-center', title: 'API Center.lnk', description: 'Clima, GitHub y datos públicos en vivo', icon: './assets/images/classic-icons/api.svg', type: 'Acceso directo', important: true },
-                    { app: 'github-activity', title: 'Actividad GitHub.lnk', description: 'Actividad anual verificada del titular', icon: './assets/images/github.png', type: 'Acceso directo', important: true },
-                    { app: 'n8n-flows', title: 'Flujos n8n', description: 'Orquestación, gates, drift y feedback', icon: './assets/images/classic-icons/n8n.svg', type: 'Aplicación' },
-                    { app: 'pdf-studio', title: 'PDF Studio.exe', description: 'File API, Blob URL y anotaciones', icon: './assets/images/hd-icons/pdf-studio.svg', type: 'Aplicación' }
-                ]
-            },
-            {
-                id: 'utilities',
-                title: 'Utilidades y demos',
-                items: [
-                    { app: 'notepad', title: 'Notas de entrevista.txt', description: 'Editable localmente', icon: './assets/images/classic-icons/notepad.svg', type: 'Documento de texto' },
-                    { app: 'wordpad', title: 'Carta de presentación.rtf', description: 'Editor enriquecido', icon: './assets/images/classic-icons/wordpad.svg', type: 'Documento RTF' },
-                    { app: 'solitaire', title: 'Solitario XP', description: 'Lógica Klondike propia', icon: './assets/images/hd-icons/solitaire.svg', type: 'Aplicación' },
-                    { app: 'pinball', title: 'Pinball XP Lab', description: 'Canvas, física y teclado', icon: './assets/images/hd-icons/pinball.svg?v=20260712', type: 'Aplicación' }
-                ]
-            }
-        ];
-        const viewPicker = `
-            <div class="xp-view-picker" data-view-picker>
-                <button type="button" class="xp-view-trigger" aria-haspopup="menu" aria-expanded="false" data-view-trigger>
-                    <img src="${iconBase}/detail-view.png" alt=""><span>Vistas</span><span class="xp-view-caret" aria-hidden="true">▾</span>
-                </button>
-                <div class="xp-view-menu" role="menu" aria-label="Vistas" hidden data-view-menu>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="icons"><img src="./assets/images/classic-icons/documents.svg" alt=""><span>Iconos</span></button>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="list"><img src="${iconBase}/detail-view.png" alt=""><span>Lista</span></button>
-                    <button type="button" role="menuitemradio" aria-checked="false" data-view-choice="details"><img src="${iconBase}/detail-view.png" alt=""><span>Detalles</span></button>
-                </div>
-            </div>
-        `;
-        const content = `
-            <div class="xp-documents-app">
-                <div class="xp-explorer-menubar">
-                    <span>Archivo</span><span>Edicion</span><span>Ver</span><span>Favoritos</span><span>Ayuda</span>
-                </div>
-                <div class="xp-explorer-toolbar">
-                    <button type="button" data-doc-open="my-computer"><img src="${iconBase}/back.png" alt=""><span>Atrás</span></button>
-                    <button type="button" data-doc-open="projects"><img src="${iconBase}/search.png" alt=""><span>Buscar proyectos</span></button>
-                    <button type="button" data-doc-open="control-panel"><img src="${iconBase}/control-panel.png" alt=""><span>Configurar</span></button>
-                    ${viewPicker}
-                </div>
-                <div class="xp-explorer-address">
-                    <span>Direccion</span>
-                    <div><img src="${iconBase}/my-documents.png" alt=""> C:\\Documents and Settings\\Ivan\\Mis documentos</div>
-                </div>
-                <div class="xp-documents-layout">
-                    <aside class="xp-task-pane">
-                        <section>
-                            <h3>Tareas de documento</h3>
-                            <button type="button" data-doc-open="resume">Abrir CV actualizado</button>
-                            <button type="button" data-doc-open="certificates">Abrir certificados verificados</button>
-                            <button type="button" data-doc-open="recruiter-route">Abrir perfil profesional</button>
-                            <button type="button" data-doc-open="pdf-studio">Revisar PDF con notas</button>
-                            <button type="button" data-doc-open="projects">Ver proyectos web</button>
-                            <button type="button" data-doc-open="api-center">Abrir API Center</button>
-                            <button type="button" data-doc-open="github-activity">Ver actividad GitHub</button>
-                            <button type="button" data-doc-open="n8n-flows">Ver ciclo SDLC + MLOps</button>
-                        </section>
-                        <section>
-                            <h3>Detalles</h3>
-                            <p>AI Solution Architect en ACSYS con foco en discovery, arquitectura de IA, seguridad, datos e implementación.</p>
-                        </section>
-                    </aside>
-                    <main class="xp-folder-grid" aria-label="Mis Documentos" data-documents-content></main>
-                </div>
-            </div>
-        `;
-
-        return this._createSingleInstanceWindow({
-            id: 'documents',
-            title: 'Mis Documentos',
-            icon: './assets/images/classic-icons/documents.svg',
-            content,
-            width: 760,
-            height: 520,
-            onReady: (appWindow) => {
-                const contentRoot = appWindow.querySelector('[data-documents-content]');
-                const safe = (value) => this._escapeHtml(value);
-                const itemMarkup = (item, className) => `
-                    <button type="button" class="${className}${item.important ? ' important' : ''}" data-doc-open="${safe(item.app)}">
-                        <img src="${safe(item.icon)}" alt="">
-                        <span class="xp-document-copy"><strong${item.localizedCv ? ' data-localized-cv-name data-no-i18n' : ''}>${safe(item.title)}</strong><small>${safe(item.description)}</small></span>
-                        <span class="xp-document-type">${safe(item.type)}</span>
-                    </button>
-                `;
-                const renderDocuments = (viewMode) => {
-                    if (viewMode === 'details') {
-                        contentRoot.innerHTML = `
-                            <div class="xp-documents-details-scroll" tabindex="0" aria-label="Detalles de Mis Documentos">
-                                <div class="xp-documents-details" role="table">
-                                    <div class="xp-documents-details-header" role="row"><span role="columnheader">Nombre</span><span role="columnheader">Tipo</span><span role="columnheader">Grupo</span><span role="columnheader">Descripción</span></div>
-                                    ${groups.flatMap((group) => group.items.map((item) => `
-                                        <button type="button" class="xp-documents-details-row${item.important ? ' important' : ''}" role="row" data-doc-open="${safe(item.app)}">
-                                            <span role="cell" class="xp-documents-details-name"><img src="${safe(item.icon)}" alt=""><strong${item.localizedCv ? ' data-localized-cv-name data-no-i18n' : ''}>${safe(item.title)}</strong></span>
-                                            <span role="cell">${safe(item.type)}</span><span role="cell">${safe(group.title)}</span><span role="cell">${safe(item.description)}</span>
-                                        </button>
-                                    `)).join('')}
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        const rowClass = viewMode === 'icons' ? 'xp-folder-item' : 'xp-document-list-row';
-                        contentRoot.innerHTML = groups.map((group) => `
-                            <section class="xp-folder-group" data-document-group="${safe(group.id)}" aria-labelledby="documents-${safe(group.id)}-heading">
-                                <h2 id="documents-${safe(group.id)}-heading" class="xp-folder-group-title">${safe(group.title)}</h2>
-                                <div class="${viewMode === 'icons' ? 'xp-folder-group-grid' : 'xp-document-list'}">${group.items.map((item) => itemMarkup(item, rowClass)).join('')}</div>
-                            </section>
-                        `).join('');
-                    }
-                    contentRoot.dataset.viewMode = viewMode;
-                    this._syncLocalizedCvAssets(contentRoot);
-                };
-                const initialView = this._getPreferredExplorerView('zarateXP.documents.viewMode');
-                renderDocuments(initialView);
-                this._setupViewPicker(appWindow, initialView, (viewMode) => {
-                    this._saveExplorerView('zarateXP.documents.viewMode', viewMode);
-                    renderDocuments(viewMode);
-                });
-                appWindow.addEventListener('click', (event) => {
-                    const item = event.target.closest('[data-doc-open]');
-                    if (item) this.openApp(item.dataset.docOpen);
-                });
-            }
-        });
+        return this._loadAppMethods('documents', '_openDocuments');
     }
 
     _openCertificates() {
-        const certificates = getCertificatesData();
-        const featuredCount = certificates.filter((certificate) => certificate.featured).length;
-        const categoryCounts = certificates.reduce((counts, certificate) => {
-            counts[certificate.category] = (counts[certificate.category] || 0) + 1;
-            return counts;
-        }, {});
-        const safe = (value) => this._escapeHtml(value);
-        const certificateItems = certificates.map((certificate, index) => `
-            <button
-                type="button"
-                class="xp-certificate-item${index === 0 ? ' selected' : ''}"
-                role="option"
-                aria-selected="${index === 0 ? 'true' : 'false'}"
-                data-certificate-id="${safe(certificate.id)}"
-                data-certificate-category="${safe(certificate.category)}"
-                data-certificate-featured="${certificate.featured ? 'true' : 'false'}"
-            >
-                <img src="${safe(certificate.preview)}" alt="" width="92" height="71" loading="lazy" decoding="async">
-                <span class="xp-certificate-item-copy">
-                    <strong>${safe(certificate.title)}</strong>
-                    <span>${safe(certificate.issuer)}</span>
-                    <time datetime="${safe(certificate.dateTime)}">${safe(certificate.date)}</time>
-                </span>
-            </button>
-        `).join('');
-
-        const content = `
-            <div class="xp-certificates-app" data-certificates-root>
-                <div class="xp-explorer-menubar">
-                    <span>Archivo</span><span>Edicion</span><span>Ver</span><span>Favoritos</span><span>Ayuda</span>
-                </div>
-                <div class="xp-certificates-toolbar" role="toolbar" aria-label="Filtrar certificados">
-                    <div class="xp-certificate-filters">
-                        <button type="button" class="active" data-certificate-filter="all" aria-pressed="true">Todos <span>${certificates.length}</span></button>
-                        <button type="button" data-certificate-filter="featured" aria-pressed="false">Destacados <span>${featuredCount}</span></button>
-                        <button type="button" data-certificate-filter="ai-data" aria-pressed="false">IA, Datos y Dev <span>${categoryCounts['ai-data'] || 0}</span></button>
-                        <button type="button" data-certificate-filter="management" aria-pressed="false">Gestión <span>${categoryCounts.management || 0}</span></button>
-                        <button type="button" data-certificate-filter="gis" aria-pressed="false">GIS <span>${categoryCounts.gis || 0}</span></button>
-                        <button type="button" data-certificate-filter="security" aria-pressed="false">Seguridad <span>${categoryCounts.security || 0}</span></button>
-                    </div>
-                    <strong>${certificates.length} credenciales verificadas</strong>
-                </div>
-                <div class="xp-certificates-layout">
-                    <aside class="xp-certificates-index">
-                        <header>
-                            <img src="./assets/images/classic-icons/certificates.svg" alt="" width="48" height="48">
-                            <div>
-                                <h2>Mis Certificados</h2>
-                                <p>Evidencia de aprendizaje aplicado en IA, desarrollo, datos, gestión, tecnologías geoespaciales y seguridad.</p>
-                            </div>
-                        </header>
-                        <div class="xp-certificate-list" role="listbox" aria-label="Certificados disponibles" tabindex="0">
-                            ${certificateItems}
-                        </div>
-                    </aside>
-                    <main class="xp-certificate-detail" data-certificate-detail>
-                        <figure class="xp-certificate-preview">
-                            <img data-certificate-preview src="" alt="" width="792" height="612" decoding="async">
-                            <figcaption data-certificate-document></figcaption>
-                        </figure>
-                        <article>
-                            <span class="xp-certificate-category" data-certificate-category-label></span>
-                            <h2 data-certificate-title></h2>
-                            <p class="xp-certificate-issuer"><strong data-certificate-issuer></strong><time data-certificate-date></time></p>
-                            <p class="xp-certificate-type" data-certificate-type></p>
-                            <p class="xp-certificate-summary" data-certificate-summary></p>
-                            <div class="xp-certificate-skills" data-certificate-skills aria-label="Competencias acreditadas"></div>
-                            <div class="xp-certificate-actions">
-                                <a data-certificate-source href="#" target="_blank" rel="noopener">Ver documento original</a>
-                                <a data-certificate-verification href="#" target="_blank" rel="noopener">Verificar en Coursera</a>
-                                <a data-certificate-download href="#" download>Descargar evidencia</a>
-                            </div>
-                        </article>
-                    </main>
-                </div>
-                <div class="xp-certificates-status" role="status" aria-live="polite">
-                    <span data-certificate-status>Seleccioná una credencial para ver su evidencia.</span>
-                    <span>LangChain Academy, NVIDIA, Credly, Simplilearn, Claude Academy, Anthropic, Google, Coursera, SAP Learning, Esri, ASIS y UNODC</span>
-                </div>
-            </div>
-        `;
-
-        return this._createSingleInstanceWindow({
-            id: 'certificates',
-            title: 'Mis Certificados - Ivan Agustin Zarate',
-            icon: './assets/images/classic-icons/certificates.svg',
-            content,
-            width: 980,
-            height: 650,
-            onReady: (appWindow) => {
-                const root = appWindow.querySelector('[data-certificates-root]');
-                const detail = root?.querySelector('[data-certificate-detail]');
-                const list = root?.querySelector('.xp-certificate-list');
-                if (!root || !detail || !list) return;
-
-                const byId = new Map(certificates.map((certificate) => [certificate.id, certificate]));
-                const categoryLabels = {
-                    'ai-data': 'IA, Datos y Desarrollo',
-                    management: 'Gestión de proyectos',
-                    gis: 'GIS y tecnología geoespacial',
-                    security: 'Seguridad y formación especializada'
-                };
-                let selectedId = certificates[0]?.id || '';
-
-                const selectCertificate = (id, { focus = false } = {}) => {
-                    const certificate = byId.get(id);
-                    if (!certificate) return;
-                    selectedId = id;
-
-                    list.querySelectorAll('[data-certificate-id]').forEach((item) => {
-                        const selected = item.dataset.certificateId === id;
-                        item.classList.toggle('selected', selected);
-                        item.setAttribute('aria-selected', String(selected));
-                        if (selected && focus) item.focus({ preventScroll: true });
-                    });
-
-                    const preview = detail.querySelector('[data-certificate-preview]');
-                    preview.src = certificate.preview;
-                    preview.alt = `Vista previa del certificado ${certificate.title}`;
-                    detail.querySelector('[data-certificate-document]').textContent = certificate.documentLabel;
-                    detail.querySelector('[data-certificate-category-label]').textContent = categoryLabels[certificate.category] || certificate.category;
-                    detail.querySelector('[data-certificate-title]').textContent = certificate.title;
-                    detail.querySelector('[data-certificate-issuer]').textContent = certificate.issuer;
-                    const date = detail.querySelector('[data-certificate-date]');
-                    date.textContent = certificate.date;
-                    date.setAttribute('datetime', certificate.dateTime);
-                    detail.querySelector('[data-certificate-type]').textContent = certificate.credential;
-                    detail.querySelector('[data-certificate-summary]').textContent = certificate.summary;
-                    detail.querySelector('[data-certificate-skills]').innerHTML = certificate.skills
-                        .map((skill) => `<span>${safe(skill)}</span>`)
-                        .join('');
-
-                    const sourceLink = detail.querySelector('[data-certificate-source]');
-                    sourceLink.href = certificate.source;
-                    const downloadLink = detail.querySelector('[data-certificate-download]');
-                    downloadLink.href = certificate.download || certificate.source.split('#')[0];
-                    const verificationLink = detail.querySelector('[data-certificate-verification]');
-                    if (certificate.verification) {
-                        verificationLink.href = certificate.verification;
-                        verificationLink.textContent = certificate.verificationLabel || 'Verificar en Coursera';
-                        verificationLink.hidden = false;
-                    } else {
-                        verificationLink.hidden = true;
-                        verificationLink.removeAttribute('href');
-                    }
-
-                    root.querySelector('[data-certificate-status]').textContent = `${certificate.title} seleccionado. Documento listo para abrir.`;
-                    detail.classList.remove('is-updating');
-                    void detail.offsetWidth;
-                    detail.classList.add('is-updating');
-                    window.zarateXP?.i18nManager?.localizeSubtree(detail);
-                };
-
-                const visibleItems = () => Array.from(list.querySelectorAll('[data-certificate-id]'))
-                    .filter((item) => !item.hidden);
-
-                list.addEventListener('click', (event) => {
-                    const item = event.target.closest('[data-certificate-id]');
-                    if (item) selectCertificate(item.dataset.certificateId);
-                });
-
-                list.addEventListener('keydown', (event) => {
-                    if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
-                    const items = visibleItems();
-                    if (!items.length) return;
-                    event.preventDefault();
-                    const currentIndex = Math.max(0, items.findIndex((item) => item.dataset.certificateId === selectedId));
-                    const nextIndex = event.key === 'Home'
-                        ? 0
-                        : event.key === 'End'
-                            ? items.length - 1
-                            : (currentIndex + (event.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-                    selectCertificate(items[nextIndex].dataset.certificateId, { focus: true });
-                });
-
-                root.querySelectorAll('[data-certificate-filter]').forEach((button) => {
-                    button.addEventListener('click', () => {
-                        const filter = button.dataset.certificateFilter;
-                        root.querySelectorAll('[data-certificate-filter]').forEach((candidate) => {
-                            const active = candidate === button;
-                            candidate.classList.toggle('active', active);
-                            candidate.setAttribute('aria-pressed', String(active));
-                        });
-                        list.querySelectorAll('[data-certificate-id]').forEach((item) => {
-                            item.hidden = filter !== 'all'
-                                && (filter === 'featured'
-                                    ? item.dataset.certificateFeatured !== 'true'
-                                    : item.dataset.certificateCategory !== filter);
-                        });
-                        const selectedItem = list.querySelector(`[data-certificate-id="${selectedId}"]`);
-                        if (selectedItem?.hidden) {
-                            const firstVisible = visibleItems()[0];
-                            if (firstVisible) selectCertificate(firstVisible.dataset.certificateId);
-                        }
-                    });
-                });
-
-                selectCertificate(selectedId);
-            }
-        });
+        return this._loadAppMethods('certificates', '_openCertificates');
     }
 
     _openRecruiterRoute() {
-        const content = `
-            <div class="xp-recruiter-route">
-                <aside class="xp-task-pane">
-                    <section>
-                        <h3>Perfil profesional</h3>
-                        <p>Una vista ejecutiva de mi rol actual, experiencia verificable, casos, capacidades y formación.</p>
-                    </section>
-                    <section>
-                        <h3>Accesos directos</h3>
-                        <button type="button" data-route-app="resume">Abrir CV PDF</button>
-                        <button type="button" data-route-app="certificates">Revisar certificados</button>
-                        <button type="button" data-route-app="projects">Explorar proyectos</button>
-                        <button type="button" data-route-app="github-activity">Ver actividad GitHub</button>
-                    </section>
-                    <section>
-                        <h3>Rol actual</h3>
-                        <p>AI Solution Architect en ACSYS, dentro de Business Engineering &amp; Innovation.</p>
-                    </section>
-                </aside>
-                <main class="xp-fde-brief">
-                    <header class="xp-fde-hero">
-                        <div>
-                            <span class="xp-fde-role">AI Solution Architect en ACSYS</span>
-                            <h2>Del problema de negocio a una solución de IA.</h2>
-                            <p>Trabajo en discovery, arquitectura, seguridad, PoC y handoff para convertir necesidades complejas en soluciones implementables y operables.</p>
-                        </div>
-                        <div class="xp-fde-identity">
-                            <img class="xp-fde-portrait" src="images/foto-nuevo-usuario.jpeg" alt="Ivan Agustin Zarate" width="112" height="112">
-                            <a class="xp-fde-company" href="https://www.acsyslatam.com/" target="_blank" rel="noopener" aria-label="Visitar el sitio oficial de ACSYS">
-                                <img src="assets/images/acsys-logo.svg" alt="ACSYS" width="133" height="48" data-acsys-logo="official">
-                            </a>
-                        </div>
-                    </header>
-
-                    <section class="xp-fde-section xp-fde-operating-model">
-                        <h3>Cómo trabajo</h3>
-                        <div class="xp-fde-flow" aria-label="Proceso de trabajo como AI Solution Architect">
-                            <div><strong>Descubrir</strong><span>Entrevistas, contexto operativo y requerimientos.</span></div>
-                            <div><strong>Diseñar</strong><span>Alcance, arquitectura, integraciones y trade-offs.</span></div>
-                            <div><strong>Validar</strong><span>PoC, riesgos, seguridad y criterios de éxito.</span></div>
-                            <div><strong>Acompañar</strong><span>Handoff, implementación, operación y mejora.</span></div>
-                        </div>
-                    </section>
-
-                    <section class="xp-fde-section">
-                        <h3>Experiencia profesional</h3>
-                        <div class="xp-fde-timeline">
-                            <article class="current">
-                                <time>2026 - Actualidad</time>
-                                <h4>AI Solution Architect</h4>
-                                <p>ACSYS, Business Engineering &amp; Innovation. Discovery, arquitectura de IA empresarial, RAG, identidad, seguridad, PoC y acompañamiento a preventa y delivery.</p>
-                            </article>
-                            <article>
-                                <time>2024 - 2026</time>
-                                <h4>Analista en Sistemas / Project Manager de Plataformas Digitales</h4>
-                                <p>Dirección Nacional de Gestión de Bases de Datos de Seguridad, Ministerio de Seguridad Nacional. Desarrollo e implementación de plataformas, ciclo de vida de modelos, MLOps, datos críticos y coordinación multidisciplinaria.</p>
-                            </article>
-                            <article>
-                                <time>2018 - 2024</time>
-                                <h4>Analista de Datos, Control y Gestión de Información</h4>
-                                <p>Policía Federal Argentina. Bases de datos públicas, privacidad, resguardo de información y uso responsable de sistemas.</p>
-                            </article>
-                            <article>
-                                <time>2016 - 2018</time>
-                                <h4>Coordinador de Equipo</h4>
-                                <p>Policía Federal Argentina. Planificación, coordinación, comunicación bajo presión y toma de decisiones.</p>
-                            </article>
-                            <article>
-                                <time>2013 - 2015</time>
-                                <h4>Auxiliar de Recursos Humanos</h4>
-                                <p>COTO Digital. Gestión confidencial de documentación, asistencia y novedades de personal.</p>
-                            </article>
-                        </div>
-                    </section>
-
-                    <section class="xp-fde-section">
-                        <div class="xp-fde-section-heading">
-                            <h3>Casos relevantes</h3>
-                            <button type="button" data-route-app="projects">Ver ficha técnica</button>
-                        </div>
-                        <div class="xp-fde-cases">
-                            <article><h4>CUFRE</h4><p>Gestión y priorización de casos con Java, Spring Boot, React, Maven y Oracle.</p></article>
-                            <article><h4>SIFEBU</h4><p>Sistema federal con JavaScript, TypeScript, React y Oracle, orientado a disponibilidad y calidad.</p></article>
-                            <article><h4>CRIACO</h4><p>Plataforma de análisis territorial con GIS, mapas, capas y visualización de datos.</p></article>
-                            <article><h4>OSINTArgy</h4><p>Investigación digital, capacitación, tratamiento de datos y privacidad para pequeñas empresas.</p></article>
-                        </div>
-                    </section>
-
-                    <section class="xp-fde-section xp-fde-capabilities">
-                        <h3>Capacidades aplicadas</h3>
-                        <div class="xp-fde-capability-grid">
-                            <article><h4>Discovery y arquitectura</h4><p>Problema, requerimientos, alcance, NFR, decisiones, riesgos, sizing y criterios de aceptación.</p></article>
-                            <article><h4>IA empresarial y RAG</h4><p>LLM, recuperación con evidencia, agentes, evaluación, observabilidad, MLOps y modelos locales.</p></article>
-                            <article><h4>Datos, identidad y seguridad</h4><p>ACL, privacidad, trazabilidad, auditoría y autorización antes de recuperar contexto.</p></article>
-                            <article><h4>Implementación</h4><p>Java, Spring Boot, React, TypeScript, APIs, Git, Oracle, SQL y acompañamiento a producción.</p></article>
-                        </div>
-                    </section>
-
-                    <section class="xp-fde-section xp-fde-github">
-                        <div class="xp-fde-section-heading">
-                            <div>
-                                <h3>Actividad técnica verificada</h3>
-                                <p>Contribuciones, días activos y constancia durante el último año, con actividad privada incluida sólo como conteos anónimos.</p>
-                            </div>
-                            <button type="button" data-route-app="github-activity">Abrir calendario</button>
-                        </div>
-                        <div class="xp-gh-summary" data-github-activity-summary role="status" aria-live="polite">
-                            <div class="xp-gh-loading"><span aria-hidden="true"></span>Cargando actividad de GitHub...</div>
-                        </div>
-                    </section>
-
-                    <section class="xp-fde-section xp-fde-credentials">
-                        <div>
-                            <h3>Formación</h3>
-                            <p><strong>Analista de Sistemas</strong><br>Instituto Superior ORT Argentina, 2024-2026. Título obtenido.</p>
-                            <p><strong>Licenciatura en Seguridad</strong><br>Orientación en Investigación Criminal, 2020-2025.</p>
-                            <p><strong>Claude Academy / Anthropic</strong><br>Claude Code 101 y AI Capabilities and Limitations, 2026.</p>
-                            <p><strong>Google AI Professional Certificate</strong><br>Certificación profesional de 7 cursos, 2026.</p>
-                            <p><strong>Google Data Analytics</strong><br>Certificación profesional de 8 cursos, 2024.</p>
-                            <p><strong>SAP Learning</strong><br>AI Fundamentals, Joule y SAP Sports One, 2026.</p>
-                            <p><strong>Formación aplicada en ArcGIS</strong><br>6 cursos en flujos GIS, aplicaciones web, tableros, captura de datos y drones, 2025.</p>
-                            <p><strong>Seguridad internacional</strong><br>ASIS International, 7 CPE, y taller especializado de UNODC.</p>
-                            <button type="button" class="xp-fde-credential-link" data-route-app="certificates">Ver las 19 credenciales</button>
-                        </div>
-                        <div>
-                            <h3>Idiomas y ubicación</h3>
-                            <p><strong>Español:</strong> nativo.</p>
-                            <p><strong>Inglés:</strong> intermedio, lectura técnica y reuniones con proveedores.</p>
-                            <p><strong>Base:</strong> Monserrat, Ciudad Autónoma de Buenos Aires, Argentina.</p>
-                            <p><strong>Nacimiento:</strong> 17 de agosto de 1995.</p>
-                        </div>
-                    </section>
-
-                    <footer class="xp-fde-cta">
-                        <div><strong>¿Querés conversar sobre una solución de IA concreta?</strong><span>Revisá mi experiencia y proyectos o escribime.</span></div>
-                        <button type="button" data-route-app="contact">Contactar</button>
-                    </footer>
-                </main>
-            </div>
-        `;
-
-        let disposeGitHubSummary = () => {};
-        return this._createSingleInstanceWindow({
-            id: 'recruiter-route',
-            title: 'Perfil profesional - Ivan Agustin Zarate',
-            icon: './assets/images/classic-icons/profile.svg',
-            content,
-            width: 920,
-            height: 650,
-            onReady: (appWindow) => {
-                appWindow.querySelectorAll('[data-route-app]').forEach((button) => {
-                    button.addEventListener('click', () => this.openApp(button.dataset.routeApp));
-                });
-                disposeGitHubSummary = initGitHubActivitySummary(appWindow.querySelector('[data-github-activity-summary]'));
-            },
-            onClose: () => disposeGitHubSummary()
-        });
+        return this._loadAppMethods('recruiter-route', '_openRecruiterRoute');
     }
 
     _openGitHubActivity() {
@@ -2985,182 +2364,7 @@ export class AppManager {
     }
 
     _openN8nFlows() {
-        const content = `
-            <div class="xp-mlops-app" data-mlops-root data-state="idle" aria-busy="false" aria-labelledby="mlops-pipeline-title">
-                <header class="xp-mlops-toolbar">
-                    <div class="xp-mlops-brand xp-mlops-toolbar-brand">
-                        <img class="xp-mlops-logo" src="./assets/images/classic-icons/n8n.svg" alt="">
-                        <div>
-                            <span>CASO DEMOSTRATIVO · SDLC + MLOps</span>
-                            <h2>Ciclo completo de entrega</h2>
-                        </div>
-                    </div>
-                    <span class="xp-mlops-toolbar-copy">n8n coordina · los runners especializados ejecutan</span>
-                    <div class="xp-mlops-actions" aria-label="Controles del ciclo">
-                        <button type="button" class="primary" data-mlops-run>▶ Ejecutar ciclo</button>
-                        <button type="button" data-mlops-approve disabled>✓ Aprobar release</button>
-                        <button type="button" data-mlops-drift>⚠ Simular drift</button>
-                        <button type="button" data-mlops-reset>↺ Reiniciar</button>
-                    </div>
-                </header>
-
-                <aside class="xp-mlops-brief" aria-labelledby="mlops-brief-title">
-                    <p class="xp-mlops-kicker xp-mlops-eyebrow">DEL PROBLEMA A PRODUCCIÓN</p>
-                    <h3 class="xp-mlops-panel-title" id="mlops-brief-title">Clasificador asistido de tickets</h3>
-                    <p>Una necesidad operativa se transforma en una solución versionada, validada, desplegada y observable.</p>
-                    <div class="xp-mlops-orchestrator-note xp-mlops-brief-card">
-                        <strong>Qué hace n8n</strong>
-                        <p>Coordina eventos, APIs, jobs y decisiones humanas. El CI/CD, el entrenamiento, el registry y el serving se ejecutan en herramientas especializadas.</p>
-                    </div>
-                    <dl class="xp-mlops-facts">
-                        <div><dt>Entrada</dt><dd>Issue + dataset versionado</dd></div>
-                        <div><dt>Salida</dt><dd>Release trazable y reversible</dd></div>
-                        <div><dt>Principio</dt><dd>Evidencia antes que promesas</dd></div>
-                    </dl>
-                </aside>
-
-                <main class="xp-mlops-canvas" aria-labelledby="mlops-pipeline-title">
-                    <div class="xp-mlops-canvas-heading xp-mlops-canvas-header">
-                        <div>
-                            <span>WORKFLOW / ORQUESTACIÓN</span>
-                            <h3 class="xp-mlops-panel-title" id="mlops-pipeline-title">Pipeline SDLC + MLOps</h3>
-                        </div>
-                        <div class="xp-mlops-legend xp-mlops-phase-legend" aria-label="Leyenda de estados">
-                            <span><i class="idle"></i>Pendiente</span>
-                            <span><i class="running"></i>En curso</span>
-                            <span><i class="done"></i>Validado</span>
-                        </div>
-                    </div>
-                    <div class="xp-mlops-flow-scroll">
-                    <ol class="xp-mlops-flow xp-mlops-pipeline" data-mlops-flow aria-label="Ocho etapas del ciclo de entrega">
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="discovery" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">01</b><em class="xp-mlops-stage-code">DESCUBRIR</em></span>
-                                <strong class="xp-mlops-stage-title">Definir problema</strong>
-                                <small class="xp-mlops-stage-summary">Valor, riesgo y aceptación</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="versioning" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">02</b><em class="xp-mlops-stage-code">VERSIONAR</em></span>
-                                <strong class="xp-mlops-stage-title">Fijar versiones</strong>
-                                <small class="xp-mlops-stage-summary">Código, datos y configuración</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="data" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">03</b><em class="xp-mlops-stage-code">DATOS</em></span>
-                                <strong class="xp-mlops-stage-title">Preparar datos</strong>
-                                <small class="xp-mlops-stage-summary">Contrato, calidad y lineage</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="build" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">04</b><em class="xp-mlops-stage-code">CONSTRUIR</em></span>
-                                <strong class="xp-mlops-stage-title">CI + entrenamiento</strong>
-                                <small class="xp-mlops-stage-summary">Tests y experimento reproducible</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="validate" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">05</b><em class="xp-mlops-stage-code">VALIDAR</em></span>
-                                <strong class="xp-mlops-stage-title">Evaluar candidato</strong>
-                                <small class="xp-mlops-stage-summary">Baseline, seguridad y negocio</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="registry" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">06</b><em class="xp-mlops-stage-code">APROBAR</em></span>
-                                <strong class="xp-mlops-stage-title">Registrar artefacto</strong>
-                                <small class="xp-mlops-stage-summary">Registry y decisión humana</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="deploy" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">07</b><em class="xp-mlops-stage-code">LIBERAR</em></span>
-                                <strong class="xp-mlops-stage-title">Desplegar seguro</strong>
-                                <small class="xp-mlops-stage-summary">Canary, smoke y rollback</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button type="button" class="xp-mlops-stage" data-mlops-stage data-stage-id="monitor" data-state="idle">
-                                <span class="xp-mlops-node-top xp-mlops-stage-head"><b class="xp-mlops-stage-index">08</b><em class="xp-mlops-stage-code">OPERAR</em></span>
-                                <strong class="xp-mlops-stage-title">Observar y aprender</strong>
-                                <small class="xp-mlops-stage-summary">Drift, KPI y feedback</small>
-                                <span class="xp-mlops-node-status xp-mlops-stage-status" data-mlops-node-state>Pendiente</span>
-                            </button>
-                        </li>
-                    </ol>
-                    </div>
-                    <div class="xp-mlops-feedback" data-mlops-feedback>
-                        <strong>Bucle de mejora</strong>
-                        <span>Producción devuelve incidentes, feedback y nuevos datos a Descubrir y Preparar datos.</span>
-                    </div>
-                </main>
-
-                <aside class="xp-mlops-inspector" data-mlops-inspector aria-live="polite">
-                    <div class="xp-mlops-inspector-head">
-                        <span class="xp-mlops-inspector-label">INSPECTOR DE ETAPA</span>
-                        <h3 class="xp-mlops-panel-title" data-mlops-detail-title>Definir problema</h3>
-                        <p data-mlops-detail-summary>Seleccioná una etapa para revisar cómo se controla y qué evidencia produce.</p>
-                    </div>
-                    <dl>
-                        <div class="xp-mlops-detail"><dt>Propósito</dt><dd data-mlops-detail-objective></dd></div>
-                        <div class="xp-mlops-detail"><dt>Entrada</dt><dd data-mlops-detail-input></dd></div>
-                        <div class="xp-mlops-detail"><dt>Orquestación</dt><dd data-mlops-detail-orchestration></dd></div>
-                        <div class="xp-mlops-detail"><dt>Quality gate</dt><dd data-mlops-detail-gate></dd></div>
-                        <div class="xp-mlops-detail"><dt>Evidencia</dt><dd data-mlops-detail-evidence></dd></div>
-                        <div class="xp-mlops-detail"><dt>Responsable</dt><dd data-mlops-detail-owner></dd></div>
-                    </dl>
-                </aside>
-
-                <section class="xp-mlops-log-panel" aria-labelledby="mlops-log-title">
-                    <div class="xp-mlops-log-heading xp-mlops-log-head">
-                        <h3 id="mlops-log-title">Registro de orquestación</h3>
-                        <span>SIMULACIÓN LOCAL · SIN DATOS REALES</span>
-                    </div>
-                    <ol class="xp-mlops-log" data-mlops-log role="log" aria-live="polite" aria-relevant="additions"></ol>
-                </section>
-
-                <footer class="xp-mlops-statusbar">
-                    <div class="xp-mlops-status">
-                        <span class="xp-mlops-status-dot" aria-hidden="true"></span>
-                        <span data-mlops-status role="status" aria-live="polite">Listo para ejecutar el ciclo.</span>
-                    </div>
-                    <label class="xp-mlops-progress-wrap">
-                        <span class="xp-mlops-progress-value" data-mlops-progress-label>0 de 8 etapas</span>
-                        <progress class="xp-mlops-progress" data-mlops-progress value="0" max="100" aria-label="Progreso del ciclo">0%</progress>
-                    </label>
-                </footer>
-            </div>
-        `;
-
-        return this._createSingleInstanceWindow({
-            id: 'n8n-flows',
-            title: 'n8n - Pipeline SDLC + MLOps',
-            icon: './assets/images/classic-icons/n8n.svg',
-            content,
-            width: 1120,
-            height: 690,
-            onReady: (appWindow) => {
-                this._loadScriptOnce('js/n8n-mlops.js?v=zaratexp-20260712-mlops1', 'initMLOpsLifecycleApp')
-                    .then(() => {
-                        if (!appWindow.isConnected) return;
-                        window.initMLOpsLifecycleApp?.(appWindow);
-                    })
-                    .catch((error) => {
-                        if (appWindow.isConnected) this.showError(`No se pudo iniciar el pipeline MLOps: ${error.message}`);
-                    });
-            },
-            onClose: (appWindow) => window.destroyMLOpsLifecycleApp?.(appWindow)
-        });
+        return this._loadAppMethods('n8n-flows', '_openN8nFlows');
     }
 
     _openControlPanel() {
@@ -3668,325 +2872,8 @@ export class AppManager {
         }
     }
 
-    async _openResume() {
-        // Prevenir que se abra más de una ventana de Resume
-        if (this.runningApps.has('resume')) {
-            debugLog('Resume is already running');
-            if (this.windowManager && this.windowManager.focusWindow) {
-                this.windowManager.focusWindow('resume');
-            }
-            return;
-        }
-
-        try {
-            const cv = this._getCvAsset();
-            // Verificar que WindowManager esté disponible
-            if (!this.windowManager) {
-                throw new Error('WindowManager no está disponible');
-            }
-
-            // Mostrar el PDF actualizado directamente con barra de herramientas XP
-            const content = `
-                <div id="resume-viewer" class="xp-resume-app">
-                    <div class="resume-toolbar">
-                        <button class="toolbar-button" id="save-cv-btn" type="button">
-                            <img src="./assets/images/xp-small-icons/save.png" alt="Guardar">
-                            <span>Guardar</span>
-                        </button>
-                        <button class="toolbar-button" id="print-cv-btn" type="button">
-                            <img src="./assets/images/xp-small-icons/print-to-file.png" alt="Imprimir">
-                            <span>Imprimir</span>
-                        </button>
-                        <button class="toolbar-button" id="pdf-studio-btn" type="button">
-                            <img src="./assets/images/hd-icons/pdf-studio.svg" alt="PDF Studio">
-                            <span>PDF Studio</span>
-                        </button>
-                        <div class="toolbar-separator"></div>
-                        <button class="toolbar-button" id="resume-projects-btn" type="button">
-                            <img src="./assets/images/classic-icons/projects.svg" alt="Proyectos">
-                            <span>Proyectos</span>
-                        </button>
-                        <button class="toolbar-button" id="resume-contact-btn" type="button">
-                            <img src="./assets/images/classic-icons/contact.svg" alt="Contacto">
-                            <span>Contacto</span>
-                        </button>
-                    </div>
-                    <div class="resume-layout">
-                        <aside class="resume-quick-pane">
-                            <section>
-                                <h3>Ruta rápida</h3>
-                                <button type="button" data-resume-open="projects">Ver evidencia en proyectos</button>
-                                <button type="button" data-resume-open="api-center">Probar APIs en vivo</button>
-                                <button type="button" data-resume-open="n8n-flows">Ver ciclo SDLC + MLOps</button>
-                                <button type="button" data-resume-open="contact">Contactar</button>
-                            </section>
-                            <section>
-                                <h3>Lo que demuestra</h3>
-                                <p>Descubrimiento con usuarios, plataformas productivas, MLOps, datos críticos, integración, capacitación y mejora continua.</p>
-                            </section>
-                        </aside>
-                        <div class="resume-content">
-                            <object class="resume-pdf" data-localized-cv-object data="${cv.viewerUrl}" type="application/pdf">
-                                <div class="resume-fallback">
-                                    <p>No se pudo mostrar el PDF en este navegador.</p>
-                                    <a data-localized-cv-link href="${cv.url}" target="_blank" rel="noopener">Abrir CV actualizado</a>
-                                </div>
-                            </object>
-                        </div>
-                    </div>
-                    <div class="xp-statusbar"><span data-localized-cv-name data-no-i18n>${cv.fileName}</span><span>PDF actualizado dentro de ZarateXP</span></div>
-                </div>
-                <style>
-                    #resume-viewer {
-                        display: flex;
-                        flex-direction: column;
-                        height: 100%;
-                        min-height: 0;
-                        font-family: 'Tahoma', sans-serif;
-                        font-size: 11px;
-                    }
-                    
-                    .resume-toolbar {
-                        background: linear-gradient(to bottom, #fefefe 0%, #e3e3e3 100%);
-                        border-bottom: 1px solid #8e8f8f;
-                        padding: 3px;
-                        display: flex;
-                        align-items: center;
-                        min-height: 26px;
-                    }
-                    
-                    .toolbar-button {
-                        background: transparent;
-                        border: 1px solid transparent;
-                        padding: 2px 4px;
-                        margin: 0 1px;
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        cursor: default;
-                        font-family: 'Tahoma', sans-serif;
-                        font-size: 11px;
-                        color: #000;
-                        border-radius: 3px;
-                        transition: none;
-                    }
-                    
-                    .toolbar-button:hover {
-                        border: 1px solid #0078d7;
-                        background: linear-gradient(to bottom, #e5f1fb 0%, #cfe8fc 100%);
-                    }
-                    
-                    .toolbar-button:active {
-                        background: linear-gradient(to bottom, #cfe8fc 0%, #b5d3f0 100%);
-                        border: 1px solid #0078d7;
-                    }
-                    
-                    .toolbar-button img {
-                        width: 16px;
-                        height: 16px;
-                    }
-                    
-                    .toolbar-separator {
-                        width: 1px;
-                        height: 20px;
-                        background: #8e8f8f;
-                        margin: 0 4px;
-                    }
-                    
-                    .resume-layout {
-                        flex: 1;
-                        min-height: 0;
-                        display: grid;
-                        grid-template-columns: 190px minmax(0, 1fr);
-                    }
-
-                    .resume-quick-pane {
-                        background: linear-gradient(#7ba0e6, #f7f9ff 42%, #d8e8ff);
-                        border-right: 1px solid #7f9db9;
-                        padding: 10px;
-                        overflow: auto;
-                    }
-
-                    .resume-quick-pane section {
-                        border: 1px solid #b7c9ee;
-                        background: rgba(255,255,255,0.86);
-                        margin-bottom: 10px;
-                        padding: 9px;
-                        border-radius: 4px;
-                    }
-
-                    .resume-quick-pane h3 {
-                        margin: 0 0 8px;
-                        color: #0b3d91;
-                        font-size: 12px;
-                    }
-
-                    .resume-quick-pane p {
-                        margin: 0;
-                        line-height: 1.35;
-                    }
-
-                    .resume-quick-pane button {
-                        width: 100%;
-                        margin: 4px 0;
-                        text-align: left;
-                        font: 11px Tahoma, sans-serif;
-                    }
-
-                    .resume-content {
-                        background: #f3f4f6;
-                        padding: 0;
-                        overflow: hidden;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-
-                    .resume-pdf {
-                        width: 100%;
-                        height: 100%;
-                        border: 0;
-                        background: white;
-                    }
-
-                    .resume-fallback {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 10px;
-                        height: 100%;
-                        color: #1f2937;
-                    }
-
-                    .resume-fallback a {
-                        color: #003399;
-                        font-weight: bold;
-                    }
-
-                    @media (max-width: 760px) {
-                        .resume-layout {
-                            grid-template-columns: 1fr;
-                        }
-                        .resume-quick-pane {
-                            display: none;
-                        }
-                    }
-                </style>
-            `;
-
-            // Crear la ventana usando el WindowManager
-            const resumeWindow = this.windowManager.createWindow({
-                id: 'resume',
-                title: 'Mi Curriculum Vitae',
-                icon: './assets/images/classic-icons/cv.svg',
-                content: content,
-                width: 700,
-                height: 600,
-                resizable: true,
-                maximizable: true
-            });
-
-            // Marcar como aplicación en ejecución
-            this.runningApps.set('resume', 'resume');
-            
-            // Configurar eventos de los botones
-            setTimeout(() => {
-                const saveBtn = resumeWindow.querySelector('#save-cv-btn');
-                const printBtn = resumeWindow.querySelector('#print-cv-btn');
-                const pdfStudioBtn = resumeWindow.querySelector('#pdf-studio-btn');
-                const projectsBtn = resumeWindow.querySelector('#resume-projects-btn');
-                const contactBtn = resumeWindow.querySelector('#resume-contact-btn');
-                
-                if (saveBtn) {
-                    saveBtn.addEventListener('click', () => {
-                        // Crear un enlace temporal para descargar el PDF
-                        const link = document.createElement('a');
-                        // Usar ruta relativa al archivo PDF en la carpeta del proyecto
-                        const currentCv = this._getCvAsset();
-                        link.href = currentCv.url;
-                        link.download = currentCv.fileName;
-                        
-                        // Simular clic para descargar
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        
-                        // Reproducir sonido de clic si está disponible
-                        if (this.soundManager) {
-                            this.soundManager.play('click');
-                        }
-                    });
-                }
-                
-                if (printBtn) {
-                    printBtn.addEventListener('click', () => {
-                        // Abrir diálogo de impresión
-                        window.print();
-                        
-                        // Reproducir sonido de clic si está disponible
-                        if (this.soundManager) {
-                            this.soundManager.play('click');
-                        }
-                    });
-                }
-
-                pdfStudioBtn?.addEventListener('click', () => this.openApp('pdf-studio'));
-                projectsBtn?.addEventListener('click', () => this.openApp('projects'));
-                contactBtn?.addEventListener('click', () => this.openApp('contact'));
-                resumeWindow.querySelectorAll('[data-resume-open]').forEach((button) => {
-                    button.addEventListener('click', () => this.openApp(button.dataset.resumeOpen));
-                });
-            }, 100);
-
-            // Configurar cleanup cuando se cierre la ventana
-            const observer = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.removedNodes.length > 0) {
-                        mutation.removedNodes.forEach((node) => {
-                            if (node === resumeWindow) {
-                                debugLog('Resume window removed, cleaning up...');
-                                this.closeApp('resume');
-                                observer.disconnect();
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Observar cambios en el contenedor de ventanas
-            if (resumeWindow.parentNode) {
-                observer.observe(resumeWindow.parentNode, { childList: true });
-            }
-
-            debugLog('Resume image viewer window created successfully');
-            return resumeWindow;
-
-        } catch (error) {
-            console.error("No se pudo abrir el CV:", error);
-            
-            // Mostrar una ventana de error al usuario
-            if (this.windowManager) {
-                this.windowManager.createWindow({
-                    id: 'error-resume',
-                    title: 'Error',
-                    icon: './assets/images/xp-small-icons/critical.png',
-                    content: `
-                        <div style="padding: 20px; text-align: center;">
-                            <img src="./assets/images/xp-small-icons/critical.png" alt="Error" width="48" height="48" style="margin-bottom: 10px;">
-                            <div style="margin-bottom: 10px;"><strong>No se pudo cargar el CV</strong></div>
-                            <div style="margin-bottom: 20px; color: #666;">${this._escapeHtml(error.message)}</div>
-                            <button type="button" data-window-close>Aceptar</button>
-                        </div>
-                    `,
-                    width: 400,
-                    height: 200,
-                    resizable: false
-                });
-            } else {
-                alert(`Error: No se pudo abrir el CV. ${error.message}`);
-            }
-        }
+    _openResume() {
+        return this._loadAppMethods('resume', '_openResume');
     }
 
     closeApp(appId) {

@@ -1,4 +1,5 @@
 // Boot Manager Module
+import { resolveDeepLink } from './deep-links.js?v=zaratexp-20261020-deeplinks1';
 const debugLog = (...args) => {
     if (window.ZARATEXP_DEBUG) console.log(...args);
 };
@@ -21,7 +22,8 @@ export class BootManager {
         debugLog('Login screen element:', this.loginScreen);
         
         // Verificar si ya hay una sesión activa
-        const hasActiveSession = localStorage.getItem('zarateXP_session') === 'active';
+        // Un link directo (#cv, #proyectos...) también va derecho al escritorio.
+        const hasActiveSession = localStorage.getItem('zarateXP_session') === 'active' || Boolean(resolveDeepLink());
         
         if (hasActiveSession) {
             debugLog('Sesión activa detectada, saltando directamente al escritorio...');
@@ -112,7 +114,8 @@ export class BootManager {
         if (userSection) {
             userSection.setAttribute('role', 'button');
             userSection.setAttribute('tabindex', '0');
-            userSection.setAttribute('aria-label', 'Iniciar sesion como Ivan Agustin Zarate');
+            // El nombre accesible incluye el texto visible (nombre y rol) además de la acción.
+            userSection.setAttribute('aria-label', 'Ivan Agustin Zarate, AI Solution Architect en ACSYS | Software, Data & AI Solutions. Iniciar sesión');
 
             let isStartingSession = false;
             const startSession = async () => {

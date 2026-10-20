@@ -436,6 +436,8 @@
 .user img {
     width: 56px;
     height: 56px;
+    flex-shrink: 0;
+    object-fit: cover;
     border-radius: 4px;
     border: 2px solid #ffd27a;
     background: white;

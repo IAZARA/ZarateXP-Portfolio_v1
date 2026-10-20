@@ -123,6 +123,23 @@ export class WindowManager {
         this.compactViewport = compactViewport;
     }
     
+    fitWindowToContent(windowElement, { minHeight = 0, center = true } = {}) {
+        const body = windowElement.querySelector('.window-body');
+        if (!body) return;
+        const titleBar = windowElement.querySelector('.title-bar');
+        const frameStyle = getComputedStyle(windowElement);
+        const bodyStyle = getComputedStyle(body);
+        const sum = (style, ...props) => props.reduce((total, prop) => total + (Number.parseFloat(style[prop]) || 0), 0);
+        const frame = sum(frameStyle, 'borderTopWidth', 'borderBottomWidth', 'paddingTop', 'paddingBottom');
+        const needed = Math.ceil((titleBar?.offsetHeight || 0) + body.scrollHeight + sum(bodyStyle, 'marginTop', 'marginBottom') + frame);
+        const availableHeight = Math.max(150, globalThis.innerHeight - this.getTaskbarHeight() - 16);
+        const height = Math.min(Math.max(needed, minHeight), availableHeight);
+        windowElement.style.height = `${height}px`;
+        if (center) {
+            windowElement.style.top = `${Math.max(8, (globalThis.innerHeight - height - this.getTaskbarHeight()) / 2)}px`;
+        }
+    }
+
     createWindow(options) {
         const {
             id,
@@ -136,6 +153,7 @@ export class WindowManager {
             minimizable = true,
             closable = true,
             draggable = true,
+            autoHeight = false,
             x = null,
             y = null
         } = options;
@@ -192,6 +210,15 @@ export class WindowManager {
         
         // Add to container
         this.windowsContainer.appendChild(windowElement);
+        if (autoHeight) {
+            // Los diálogos toman el alto de su contenido: un texto más largo o una
+            // traducción no pueden dejar el botón de acción fuera de la vista.
+            const center = x === null || y === null;
+            this.fitWindowToContent(windowElement, { minHeight: renderedHeight, center });
+            document.fonts?.ready?.then(() => {
+                if (windowElement.isConnected) this.fitWindowToContent(windowElement, { minHeight: renderedHeight, center });
+            });
+        }
         
         // Store window data
         this.windows.set(id, {

@@ -19,6 +19,12 @@ const source = [
   'js/taskbar.js',
   'js/startMenu.js',
   'js/sounds.js',
+  'js/apps/about-me.js',
+  'js/apps/certificates.js',
+  'js/apps/documents.js',
+  'js/apps/n8n-flows.js',
+  'js/apps/recruiter-route.js',
+  'js/apps/resume.js',
   'js/apps.js',
   'js/my-computer.js',
   'js/github-activity.js',
@@ -51,7 +57,7 @@ const source = [
 
 const checks = [
   ['boot/login XP flow', /boot-screen/],
-  ['keyboard login', /Iniciar sesion como Ivan Agustin Zarate/],
+  ['keyboard login', /userSection\.setAttribute\('role', 'button'\)[\s\S]{0,400}Ivan Agustin Zarate, AI Solution Architect en ACSYS[^']*Iniciar sesión/],
   ['desktop icons', /desktop-icon/],
   ['recruiter-first desktop order', /data-program-name="recruiter-route"[\s\S]{0,500}data-program-name="resume"[\s\S]{0,500}data-program-name="projects"[\s\S]{0,500}data-program-name="contact"/],
   ['single tap mobile launch', /touchend[\s\S]{0,500}openIcon\(icon\)/],
