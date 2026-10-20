@@ -1044,7 +1044,7 @@ export class AppManager {
                     </div>
                 `,
                 width: 350,
-                height: 150,
+                height: 210,
                 resizable: false,
                 maximizable: false
             });
@@ -1937,7 +1937,7 @@ export class AppManager {
                     </div>
                 `,
                 width: 350,
-                height: 200,
+                height: 260,
                 resizable: false,
                 maximizable: false
             });
@@ -1997,7 +1997,7 @@ export class AppManager {
 	                    </div>
 	                `,
                 width: 350,
-                height: 200,
+                height: 260,
                 resizable: false,
 	                maximizable: false
 	            });
@@ -2029,7 +2029,7 @@ export class AppManager {
                     </div>
                 `,
                 width: 400,
-                height: 220,
+                height: 260,
                 resizable: false,
                 maximizable: false
             });

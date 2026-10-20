@@ -17,7 +17,16 @@
 - Success criterion: Accept is fully visible on opening at 1440×900, 390×844 and 844×390; keyboard dismissal and reopening pass twice, alongside existing close/cancel/retry/restore tests and desktop/mobile smoke. External submissions remain blocked and EmailJS mocked.
 - Verification uses CI because local Chromium cannot launch (`socket() failed: Operation not permitted`). Static checks pass locally. Independent code review found no blocking defects in the final functional diff; exact-head CI is required before integration; Pages and public asset parity required afterward. See [PR #3](https://github.com/IAZARA/ZarateXP-Portfolio_v1/pull/3).
 
+## 2026-10-20: Contact feedback action visibility
+
+- Baseline: main `5c78e5964c70ad65a3599d0ccd5888eb50dc1e6f`; no open PRs or in-flight runs. Pages run `39415996782` succeeded for that SHA. The cloud checkout matches every remote blob hash. Static checks pass.
+- Reproduction: regression-only head `8eb2e389855166d93af9716ae671ee52a6809c3e`, [baseline CI](https://github.com/IAZARA/ZarateXP-Portfolio_v1/actions/runs/39426760326). All 14 existing cases pass; 10 of 12 new cases fail because validation, confirmation and error actions are clipped (up to 23.19 px), as is the mail-client fallback action on portrait mobile (1.56 px).
+- Bounded correction: increase only the four feedback dialogs' preferred heights (validation 210 px; confirmation, error and fallback 260 px). Preserve existing viewport clamping, body scrolling, keyboard close behavior, XP styling and all content. No dependencies, services or permissions changed.
+- Success criterion: all feedback actions are initially visible at 1440×900, 390×844 and 844×390, with repeated keyboard dismissal/reopening; contact retry/interruption and all static/browser smoke checks remain green. EmailJS and mail clients are mocked; external submissions are blocked.
+- Local Chromium remains socket-restricted, so browser evidence comes from CI. Final independent review, exact-head green CI, merge/Pages SHA checks and public verification are required; see [PR #4](https://github.com/IAZARA/ZarateXP-Portfolio_v1/pull/4) for final evidence.
+
 ## Backlog
 
-- Information/address-book dialog clipping: reproduced and corrected in PR #3; awaiting final CI/review/publication verification. Other contact dialog layouts remain a separate, low-priority reproduction task.
-- Next audit: short-viewport dialog usability and visible keyboard focus in app content. Preserve the XP aesthetic and validate interrupted/repeated flows.
+- Information dialog and Winamp compact controls: published in PR #3 (`00ba042f70feb725bbe5e9a549fdba61706d4fa9`); verified present in the current baseline and its successful Pages deployment.
+- Contact feedback actions: reproduced and corrected in PR #4; final CI/review/publication gate recorded on the PR.
+- Next rotation: visible keyboard focus in app content and long/dynamic error text. Keep contact sends mocked and check critical journeys on every run.
