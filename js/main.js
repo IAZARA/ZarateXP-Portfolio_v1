@@ -6,7 +6,7 @@ import { WindowManager } from './windows.js?v=zaratexp-20261013-keyboard-focus1'
 import { TaskbarManager } from './taskbar.js?v=zaratexp-20260904-icons-pinball1';
 import { StartMenuManager } from './startMenu.js?v=zaratexp-20260904-icons-pinball1';
 import { SoundManager } from './sounds.js?v=zaratexp-20260712-i18n2';
-import { AppManager } from './apps.js?v=zaratexp-20261020-contact-feedback1';
+import { AppManager } from './apps.js?v=zaratexp-20261020-pinball4';
 import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260904-icons-pinball1';
 
 class ZarateXP {
