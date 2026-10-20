@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
-const ignoredDirs = new Set(['.git', 'node_modules', 'output']);
+const ignoredDirs = new Set(['.git', 'node_modules', 'output', 'dist']);
 
 function listJavaScriptFiles(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });

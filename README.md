@@ -17,6 +17,21 @@ Portfolio interactivo de Ivan Agustin Zarate, **AI Solution Architect en ACSYS**
 - LinkedIn: [ivan-agustin-zarate](https://www.linkedin.com/in/ivan-agustin-zarate/)
 - ForzaTech: [forzatech.com.ar](https://forzatech.com.ar/)
 
+### Links directos
+
+Agregando un `#` a la URL se abre esa ventana directamente, sin introducción ni login. Sirve para compartir en LinkedIn o en un CV:
+
+| Link | Abre |
+| --- | --- |
+| [`#perfil`](https://iazara.github.io/ZarateXP-Portfolio_v1/#perfil) | Perfil profesional |
+| [`#cv`](https://iazara.github.io/ZarateXP-Portfolio_v1/#cv) | CV en PDF |
+| [`#proyectos`](https://iazara.github.io/ZarateXP-Portfolio_v1/#proyectos) | Explorador de proyectos |
+| [`#certificados`](https://iazara.github.io/ZarateXP-Portfolio_v1/#certificados) | Certificados |
+| [`#contacto`](https://iazara.github.io/ZarateXP-Portfolio_v1/#contacto) | Formulario de contacto |
+| [`#pinball`](https://iazara.github.io/ZarateXP-Portfolio_v1/#pinball) | Pinball XP |
+
+También funcionan `#documentos`, `#sobre-mi`, `#github`, `#api`, `#n8n`, `#winamp`, `#buscaminas`, `#solitario`, `#paint` y sus equivalentes en inglés (`#resume`, `#projects`, `#contact`, `#certificates`, `#about`, `#profile`). Sin JavaScript, la página muestra una versión en texto del perfil con links al CV.
+
 ## Etiquetas
 
 `ai-solution-architecture` `acsys` `rag` `discovery` `presales` `mlops` `platforms` `data-privacy` `portfolio` `windows-xp` `java` `spring-boot` `react` `oracle` `automation`

@@ -8,6 +8,31 @@ import { StartMenuManager } from './startMenu.js?v=zaratexp-20260904-icons-pinba
 import { SoundManager } from './sounds.js?v=zaratexp-20260712-i18n2';
 import { AppManager } from './apps.js?v=zaratexp-20261020-pinball4';
 import { ClippyManager } from './clippy/ClippyManager.js?v=zaratexp-20260904-icons-pinball1';
+import { resolveDeepLink } from './deep-links.js?v=zaratexp-20261020-deeplinks1';
+
+// Las hojas de las apps llegan con media="print" para no bloquear el primer
+// render; acá se activan apenas terminan de descargarse.
+function enableDeferredStyles(timeoutMs = 4000) {
+    const links = [...document.querySelectorAll('link[data-deferred-style]')];
+    const ready = links.map((link) => new Promise((resolve) => {
+        const apply = () => {
+            link.media = 'all';
+            resolve();
+        };
+        if (link.sheet) apply();
+        else {
+            link.addEventListener('load', apply, { once: true });
+            link.addEventListener('error', apply, { once: true });
+        }
+    }));
+    const timeout = new Promise((resolve) => setTimeout(() => {
+        links.forEach((link) => { link.media = 'all'; });
+        resolve();
+    }, timeoutMs));
+    return Promise.race([Promise.all(ready), timeout]);
+}
+
+const deferredStylesReady = enableDeferredStyles();
 
 class ZarateXP {
     constructor() {
@@ -38,8 +63,9 @@ class ZarateXP {
         window.addEventListener('orientationchange', () => this.queueViewportHeightUpdate(), { passive: true });
         window.visualViewport?.addEventListener('resize', () => this.queueViewportHeightUpdate(), { passive: true });
         
-        // Initialize boot sequence
-        this.bootManager.startBoot().then(() => {
+        // Initialize boot sequence. Las ventanas de apps necesitan sus estilos:
+        // el sistema se habilita cuando ambos están listos.
+        Promise.all([this.bootManager.startBoot(), deferredStylesReady]).then(() => {
             this.initializeSystem();
         }).catch(error => {
             console.error('Boot error:', error);
@@ -66,7 +92,9 @@ class ZarateXP {
     
     handleOrientation() {
         const landscapeBlock = document.getElementById('landscape-block');
-        if (window.innerWidth < 768 && window.innerHeight < window.innerWidth) {
+        // Sólo se bloquea en pantallas apaisadas muy bajas; desde 375 px de alto
+        // el escritorio y las ventanas se adaptan.
+        if (window.innerHeight < 320 && window.innerHeight < window.innerWidth) {
             landscapeBlock.style.display = 'flex';
         } else {
             landscapeBlock.style.display = 'none';
@@ -89,6 +117,7 @@ class ZarateXP {
         
         // Set up global event listeners
         this.setupGlobalListeners();
+        this.setupDeepLinks();
         
         // Update clock
         this.updateClock();
@@ -109,6 +138,15 @@ class ZarateXP {
         }
     }
     
+    setupDeepLinks() {
+        const openFromHash = () => {
+            const appId = resolveDeepLink();
+            if (appId) this.appManager.openApp(appId);
+        };
+        window.addEventListener('hashchange', openFromHash);
+        openFromHash();
+    }
+
     setupGlobalListeners() {
         // Close start menu when clicking outside
         document.addEventListener('click', (e) => {

@@ -9,7 +9,7 @@ export const CORE_TRANSLATIONS = Object.freeze({
     "Para comenzar, haz clic en Ivan Agustin Zarate para iniciar sesión": "To begin, click Ivan Agustin Zarate to log in",
     "Para comenzar, haz clic en": "To begin, click",
     "para iniciar sesión": "to log in",
-    "Iniciar sesion como Ivan Agustin Zarate": "Log in as Ivan Agustin Zarate",
+    "Ivan Agustin Zarate, AI Solution Architect en ACSYS | Software, Data & AI Solutions. Iniciar sesión": "Ivan Agustin Zarate, AI Solution Architect at ACSYS | Software, Data & AI Solutions. Log in",
     "Reiniciar ZarateXP": "Restart ZarateXP",
     "Discovery, arquitectura de IA, seguridad y soluciones listas para operar.": "Discovery, AI architecture, security, and solutions ready to operate.",
     "AI Solution Architect en ACSYS | Software, Data & AI Solutions.": "AI Solution Architect at ACSYS | Software, Data & AI Solutions.",

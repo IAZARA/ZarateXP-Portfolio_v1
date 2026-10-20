@@ -491,7 +491,8 @@ export class I18nManager {
         const trigger = document.querySelector('[data-language-trigger]');
         if (code) code.textContent = this.locale.toUpperCase();
         if (trigger) {
-            trigger.setAttribute('aria-label', this.locale === 'en' ? 'Language: English' : 'Idioma: Español');
+            // Empieza con el código visible (ES/EN) para que el nombre coincida con lo que se ve.
+            trigger.setAttribute('aria-label', this.locale === 'en' ? 'EN, language: English' : 'ES, idioma: español');
             trigger.dataset.tooltip = this.locale === 'en' ? 'Select language' : 'Seleccionar idioma';
         }
         document.querySelectorAll('[data-language-option]').forEach((option) => {

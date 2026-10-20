@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="es" style="--real-vh: 7.2px;">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta name="description" content="Portfolio de Ivan Agustin Zarate, AI Solution Architect en ACSYS. Discovery, arquitectura de IA, RAG, seguridad, datos e implementación de soluciones empresariales.">
     <meta name="keywords" content="Ivan Zarate, AI Solution Architect, ACSYS, arquitectura de soluciones, inteligencia artificial, RAG, discovery, preventa, seguridad, datos, MLOps, Java, React, Oracle">
     <meta name="author" content="Ivan Agustin Zarate">
@@ -139,7 +138,8 @@
     <!-- XP.css Framework -->
     <link rel="stylesheet" href="assets/vendor/xp.css">
     
-    <!-- Estilos personalizados -->
+    <!-- Estilos personalizados. Los de cada app (media="print" + data-deferred-style)
+         se descargan sin bloquear el arranque y se activan desde js/main.js. -->
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/boot.css?v=zaratexp-20260712-release">
@@ -147,17 +147,75 @@
     <link rel="stylesheet" href="css/taskbar.css?v=zaratexp-20260904-icons-pinball1">
     <link rel="stylesheet" href="css/startMenu.css?v=zaratexp-20260904-icons-pinball1">
     <link rel="stylesheet" href="css/windows.css">
-    <link rel="stylesheet" href="css/mipc.css?v=zaratexp-20260822-xp-drive1">
-    <link rel="stylesheet" href="css/minesweeper.css?v=zaratexp-20260712-release">
-    <link rel="stylesheet" href="css/about-me.css">
-    <link rel="stylesheet" href="css/contacto.css">
-    <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260822-xp-drive1">
-    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260926-pinball3">
+    <link rel="stylesheet" href="css/mipc.css?v=zaratexp-20260822-xp-drive1" media="print" data-deferred-style>
+    <link rel="stylesheet" href="css/minesweeper.css?v=zaratexp-20260712-release" media="print" data-deferred-style>
+    <link rel="stylesheet" href="css/about-me.css" media="print" data-deferred-style>
+    <link rel="stylesheet" href="css/contacto.css" media="print" data-deferred-style>
+    <link rel="stylesheet" href="css/proyectos-explorer.css?v=zaratexp-20260822-xp-drive1" media="print" data-deferred-style>
+    <link rel="stylesheet" href="css/xp-apps.css?v=zaratexp-20260926-pinball3" media="print" data-deferred-style>
+    <link rel="stylesheet" href="css/personalization.css">
     <link rel="stylesheet" href="css/clippy.css?v=zaratexp-20260712-clippy-mobile1">
     <link rel="stylesheet" href="css/crtEffect.css">
-    
+    <noscript>
+        <style>
+            #zaratexp-shell, #landscape-block { display: none !important; }
+            .zaratexp-static { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; font: 15px/1.55 Tahoma, Verdana, sans-serif; color: #10203a; background: #fff; }
+            .zaratexp-static h1 { margin: 0; font-size: 26px; color: #0a3fb8; }
+            .zaratexp-static h2 { margin: 28px 0 8px; font-size: 18px; color: #0a3fb8; border-bottom: 2px solid #c9d8f5; }
+            .zaratexp-static p { margin: 0 0 10px; }
+            .zaratexp-static ul { padding-left: 20px; list-style: disc; }
+            .zaratexp-static li { margin-bottom: 6px; }
+            .zaratexp-static a { color: #0a3fb8; }
+        </style>
+    </noscript>
 </head>
 <body>
+    <noscript>
+        <article class="zaratexp-static" lang="es">
+            <header>
+                <h1>Ivan Agustin Zarate</h1>
+                <p><strong>AI Solution Architect en ACSYS</strong>, dentro de Business Engineering &amp; Innovation. Discovery, arquitectura de IA empresarial, RAG, identidad, seguridad, PoC y acompañamiento a preventa y delivery.</p>
+                <p>Este portfolio es un escritorio interactivo estilo Windows XP y necesita JavaScript. Esta es la versión en texto.</p>
+                <p><a href="Ivan_Zarate_CV.pdf">CV en PDF (español)</a> · <a href="Ivan_Zarate_CV_EN.pdf">CV in PDF (English)</a> · <a href="https://www.linkedin.com/in/ivan-agustin-zarate/">LinkedIn</a> · <a href="https://github.com/IAZARA">GitHub</a></p>
+            </header>
+            <section>
+                <h2>Experiencia</h2>
+                <ul>
+                    <li><strong>2026 - actualidad · AI Solution Architect</strong>, ACSYS. Discovery, arquitectura de IA empresarial, RAG, identidad, seguridad y PoC.</li>
+                    <li><strong>2024 - 2026 · Analista en Sistemas / Project Manager de Plataformas Digitales</strong>, Dirección Nacional de Gestión de Bases de Datos de Seguridad, Ministerio de Seguridad Nacional. Plataformas, ciclo de vida de modelos, MLOps y datos críticos.</li>
+                    <li><strong>2018 - 2024 · Analista de Datos, Control y Gestión de Información</strong>, Policía Federal Argentina. Bases de datos, privacidad y resguardo de información.</li>
+                    <li><strong>2016 - 2018 · Coordinador de Equipo</strong>, Policía Federal Argentina.</li>
+                    <li><strong>2013 - 2015 · Auxiliar de Recursos Humanos</strong>, COTO Digital.</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Casos relevantes</h2>
+                <ul>
+                    <li><strong>CUFRE:</strong> gestión y priorización de casos con Java, Spring Boot, React, Maven y Oracle.</li>
+                    <li><strong>SIFEBU:</strong> sistema federal con JavaScript, TypeScript, React y Oracle.</li>
+                    <li><strong>CRIACO:</strong> plataforma de análisis territorial con GIS, mapas y visualización de datos.</li>
+                    <li><strong>OSINTArgy:</strong> investigación digital, capacitación, tratamiento de datos y privacidad.</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Capacidades</h2>
+                <ul>
+                    <li>Discovery y arquitectura: requerimientos, alcance, NFR, decisiones, riesgos y criterios de aceptación.</li>
+                    <li>IA empresarial y RAG: LLM, recuperación con evidencia, agentes, evaluación, observabilidad y MLOps.</li>
+                    <li>Datos, identidad y seguridad: ACL, privacidad, trazabilidad y auditoría.</li>
+                    <li>Implementación: Java, Spring Boot, React, TypeScript, APIs, Oracle y SQL.</li>
+                </ul>
+            </section>
+            <section>
+                <h2>Formación</h2>
+                <ul>
+                    <li>Analista de Sistemas, Instituto Superior ORT Argentina (2024-2026).</li>
+                    <li>Licenciatura en Seguridad, orientación en Investigación Criminal (2020-2025).</li>
+                    <li>Google AI y Google Data Analytics Professional Certificates; NVIDIA-Certified Associate: AI Infrastructure and Operations; Claude Academy; SAP Learning; ArcGIS; ASIS International y UNODC.</li>
+                </ul>
+            </section>
+        </article>
+    </noscript>
     <main id="zaratexp-shell" aria-label="ZarateXP Portfolio">
     <!-- Boot Screen -->
     <div id="boot-screen" class="boot-screen" style="display: flex; opacity: 1;">
@@ -316,7 +374,7 @@
             <img src="./assets/images/xp-small-icons/volume.png" alt="" class="system-tray-bg" aria-hidden="true">
             <div class="tray-content">
                 <div class="taskbar-language" data-language-switcher>
-                    <button class="taskbar-language-trigger" type="button" data-language-trigger data-no-i18n aria-label="Idioma: Español" aria-haspopup="menu" aria-expanded="false" data-tooltip="Seleccionar idioma">
+                    <button class="taskbar-language-trigger" type="button" data-language-trigger data-no-i18n aria-label="ES, idioma: español" aria-haspopup="menu" aria-expanded="false" data-tooltip="Seleccionar idioma">
                         <span data-language-code data-no-i18n>ES</span>
                     </button>
                     <div class="taskbar-language-menu" data-language-menu role="menu" aria-label="Idioma" hidden>

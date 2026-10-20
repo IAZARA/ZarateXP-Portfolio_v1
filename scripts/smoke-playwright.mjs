@@ -2700,6 +2700,24 @@ async function exerciseMobileClippyAndPinball(browser, baseUrl) {
   return `Movil real: Clippy deshabilitado y Pinball completo en ${auditedViewports.join(', ')}, con dos paletas simultáneas, resorte arrastrable y cancelación táctil`;
 }
 
+async function exerciseDeepLinks(browser, baseUrl) {
+  const context = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  try {
+    await page.goto(`${baseUrl}/#cv`, { waitUntil: 'domcontentloaded' });
+    await page.locator('#windows-container .window[data-window-id="resume"]').waitFor({ state: 'visible', timeout: 12000 });
+    ensure(await page.locator('#boot-screen').isHidden(), 'El link directo #cv mostró la introducción');
+    await page.evaluate(() => { window.location.hash = '#proyectos'; });
+    await page.locator('#windows-container .window[data-window-id="projects"]').waitFor({ state: 'visible', timeout: 12000 });
+    ensure(errors.length === 0, `Los links directos produjeron errores (${errors.join(' | ')})`);
+    return 'Links directos: #cv abre el CV sin introducción y #proyectos abre su ventana al cambiar el hash';
+  } finally {
+    await context.close();
+  }
+}
+
 async function main() {
   const server = await createStaticServer();
   const { port } = server.address();
@@ -2745,6 +2763,7 @@ async function main() {
     exercised.push(await exerciseResponsiveDesktop(browser, baseUrl));
     exercised.push(await exerciseDesktopActions(browser, baseUrl));
     exercised.push(await exerciseBootSkip(browser, baseUrl));
+    exercised.push(await exerciseDeepLinks(browser, baseUrl));
 
     const positioning = await page.evaluate(() => {
       const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent || '{}');
