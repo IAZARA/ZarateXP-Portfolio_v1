@@ -330,6 +330,53 @@ const cases = [
       assert.equal(await page.evaluate(() => window.__contactTest.calls.length), 0);
     }
   ]),
+  ...[desktopViewport, { width: 390, height: 844 }, { width: 844, height: 390 }].flatMap((viewport) =>
+    ['validation-error', 'contact-confirmation', 'email-error', 'mailto-fallback'].map((id) => [
+      `contact-action-visible-${id}-${viewport.width}x${viewport.height}`, async (page) => {
+        await resize(page, viewport);
+        await openContact(page);
+        if (id === 'mailto-fallback') {
+          await page.evaluate(() => { window.zarateXP.appManager._canUseEmailJs = () => false; });
+        }
+        for (let iteration = 0; iteration < 2; iteration += 1) {
+          await fillContact(page, `${id} ${iteration}`);
+          if (id === 'validation-error') {
+            await page.evaluate(() => localStorage.setItem('zarateXP.contactLastSent', String(Date.now())));
+          } else {
+            await allowNextSend(page);
+          }
+          await page.locator(sendSelector).click();
+          if (id === 'contact-confirmation' || id === 'email-error') {
+            await waitForSend(page, iteration + 1);
+            await page.evaluate((fail) => fail ? window.__contactTest.rejectNext() : window.__contactTest.resolveNext(), id === 'email-error');
+          }
+          await assertRegistered(page, id);
+          const geometry = await page.locator(`${windowSelector(id)} .window-body`).evaluate((body) => {
+            const bounds = body.getBoundingClientRect();
+            return {
+              bodyTop: bounds.top, bodyBottom: bounds.bottom, bodyLeft: bounds.left, bodyRight: bounds.right,
+              scrollTop: body.scrollTop,
+              actions: [...body.querySelectorAll('button')].map((button) => {
+                const rect = button.getBoundingClientRect();
+                return { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right };
+              })
+            };
+          });
+          console.log('CONTACT_ACTION_VISIBILITY', JSON.stringify({ id, viewport, ...geometry }));
+          assert.equal(geometry.scrollTop, 0, 'Contact feedback must not open scrolled');
+          assert.ok(geometry.actions.length > 0);
+          assert.ok(geometry.actions.every((rect) => rect.top >= geometry.bodyTop && rect.bottom <= geometry.bodyBottom + 1
+            && rect.left >= geometry.bodyLeft && rect.right <= geometry.bodyRight + 1),
+          `Every contact action must be visible without scrolling: ${JSON.stringify(geometry)}`);
+          const action = page.locator(`${windowSelector(id)} [data-window-close]`);
+          await action.focus();
+          await page.keyboard.press('Enter');
+          await assertGone(page, id);
+          await assertSendAvailable(page);
+        }
+      }
+    ])
+  ),
   ['info-validation-dialog-lifecycle', async (page) => {
     await openContact(page);
     for (let iteration = 0; iteration < 2; iteration += 1) {
