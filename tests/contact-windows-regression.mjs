@@ -7,7 +7,8 @@ import http from 'node:http';
 import path from 'node:path';
 import { chromium } from 'playwright';
 
-const root = path.resolve(import.meta.dirname, '..');
+// SMOKE_SITE_ROOT permite probar el sitio armado (dist/) en lugar del código fuente.
+const root = path.resolve(import.meta.dirname, '..', process.env.SMOKE_SITE_ROOT || '.');
 const output = path.join(root, 'output', 'contact-windows-regression');
 const types = {
   '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript',

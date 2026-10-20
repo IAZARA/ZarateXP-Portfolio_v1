@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Página no encontrada | ZarateXP</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            font: 13px Tahoma, Verdana, "Segoe UI", sans-serif;
+            color: #000;
+            background: linear-gradient(180deg, #2b5fc7 0%, #3a7be0 55%, #5aa1f2 100%);
+        }
+        .window {
+            width: min(420px, 100%);
+            border: 3px solid #0831d9;
+            border-radius: 8px 8px 0 0;
+            background: #ece9d8;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+        .title {
+            padding: 6px 10px;
+            color: #fff;
+            font-weight: 700;
+            background: linear-gradient(180deg, #0a5fe8 0%, #0c4fd0 60%, #0a3fb8 100%);
+            border-radius: 5px 5px 0 0;
+        }
+        .body { display: flex; gap: 14px; padding: 18px 16px 8px; }
+        .icon {
+            flex: 0 0 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 20px;
+            background: radial-gradient(circle at 35% 30%, #ff8a7a, #d81e05 70%);
+        }
+        h1 { margin: 0 0 6px; font-size: 14px; }
+        p { margin: 0 0 6px; line-height: 1.45; }
+        .actions { display: flex; justify-content: flex-end; padding: 10px 16px 16px; }
+        a.button {
+            min-width: 120px;
+            padding: 6px 14px;
+            text-align: center;
+            color: #000;
+            text-decoration: none;
+            border: 1px solid #003c74;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #fff 0%, #ece9d8 100%);
+        }
+        a.button:focus-visible { outline: 2px dotted #000; outline-offset: -5px; }
+    </style>
+</head>
+<body>
+    <main class="window" role="alertdialog" aria-labelledby="error-title" aria-describedby="error-text">
+        <div class="title">ZarateXP</div>
+        <div class="body">
+            <div class="icon" aria-hidden="true">×</div>
+            <div>
+                <h1 id="error-title">No se encuentra la página</h1>
+                <p id="error-text">La dirección no existe o cambió. Volvé al escritorio para ver el perfil, el CV y los proyectos de Ivan Agustin Zarate.</p>
+            </div>
+        </div>
+        <div class="actions">
+            <a class="button" id="home-link" href="https://iazara.github.io/ZarateXP-Portfolio_v1/">Ir al escritorio</a>
+        </div>
+    </main>
+    <script>
+        // El mismo 404 se sirve en cualquier ruta: el enlace apunta a la raíz del sitio publicado.
+        (function () {
+            var base = location.pathname.indexOf('/ZarateXP-Portfolio_v1/') === 0 ? '/ZarateXP-Portfolio_v1/' : '/';
+            document.getElementById('home-link').href = base;
+        })();
+    </script>
+</body>
+</html>

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "serve": "python3 -m http.server 8080",
+    "build": "node scripts/build-site.mjs",
     "check:syntax": "node scripts/check-js-syntax.mjs",
     "check:assets": "node scripts/check-assets.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",
