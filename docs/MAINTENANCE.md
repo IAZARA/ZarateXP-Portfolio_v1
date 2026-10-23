@@ -25,8 +25,18 @@
 - Success criterion: all feedback actions are initially visible at 1440×900, 390×844 and 844×390, with repeated keyboard dismissal/reopening; contact retry/interruption and all static/browser smoke checks remain green. EmailJS and mail clients are mocked; external submissions are blocked.
 - Local Chromium remains socket-restricted, so browser evidence comes from CI. Final independent review, exact-head green CI, merge/Pages SHA checks and public verification are required; see [PR #4](https://github.com/IAZARA/ZarateXP-Portfolio_v1/pull/4) for final evidence.
 
+## 2026-10-23: Malformed direct-link recovery
+
+- Baseline: main `0e6ea5ca1bd1c313a45a92f155cf6cb85f9ef27e`; no open PRs. Pages run `39947397961` passed its static, browser and deploy steps for that SHA. Public version `f13f834d33d1` matches the local build. PRs #5–#7 are preserved.
+- Reproduction: the new direct-link resolver throws `URIError` for `#%`, `#%E0%A4%A` and invalid UTF-8. `BootManager.startBoot()` invokes it before normal boot, so a malformed incoming fragment rejects initialization. The new Node regression fails on unchanged baseline (1 passed / 1 failed).
+- Bounded correction: treat undecodable fragments like unknown links (return null), preserving all existing aliases and normal boot. No content, styles, dependencies or permissions change.
+- Success criterion: both resolver tests pass; fresh desktop/mobile visits with a malformed fragment reach login, keyboard entry succeeds, and later malformed hash changes do not prevent valid `#cv` navigation. Existing contact/window and full smoke regressions must stay green; EmailJS remains mocked and external submissions blocked.
+- Local static checks and build pass. Local Chromium is socket-restricted (`Operation not permitted`); browser validation uses authorized CI, not a sandbox workaround. Exact-head green CI and independent review remain required before merge; Pages SHA and public asset parity afterward.
+
 ## Backlog
 
 - Information dialog and Winamp compact controls: published in PR #3 (`00ba042f70feb725bbe5e9a549fdba61706d4fa9`); verified present in the current baseline and its successful Pages deployment.
 - Contact feedback actions: reproduced and corrected in PR #4; final CI/review/publication gate recorded on the PR.
 - Next rotation: visible keyboard focus in app content and long/dynamic error text. Keep contact sends mocked and check critical journeys on every run.
+
+- Malformed direct links: reproduced and corrected in this batch; awaiting exact-head CI/review and publication verification.

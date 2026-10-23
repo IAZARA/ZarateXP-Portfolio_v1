@@ -2718,6 +2718,41 @@ async function exerciseDeepLinks(browser, baseUrl) {
   }
 }
 
+async function exerciseMalformedDeepLinks(browser, baseUrl) {
+  for (const viewport of [{ width: 1366, height: 768 }, { width: 390, height: 844 }]) {
+    const context = await browser.newContext({ viewport, reducedMotion: 'reduce', serviceWorkers: 'block' });
+    // This journey never submits contact forms; block all external traffic anyway.
+    await context.route('**/*', (route) => new URL(route.request().url()).origin === baseUrl
+      ? route.continue() : route.abort('blockedbyclient'));
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('console', (message) => {
+      if (message.type() === 'error' && message.text().includes('Boot error')) errors.push(message.text());
+    });
+    try {
+      await page.goto(`${baseUrl}/#%E0%A4%A`, { waitUntil: 'domcontentloaded' });
+      const login = page.locator('#login-screen .right .back-gradient');
+      await login.waitFor({ state: 'visible', timeout: 12000 });
+      await login.focus();
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(() => Boolean(window.zarateXP?.appManager?.windowManager), null, { timeout: 12000 });
+      await page.locator('.desktop').waitFor({ state: 'visible', timeout: 12000 });
+      for (const invalid of ['#%', '#%FF']) {
+        await page.evaluate((hash) => { window.location.hash = hash; }, invalid);
+        // Wait for the hashchange task before testing a subsequent valid link.
+        await page.waitForTimeout(100);
+        await page.evaluate(() => { window.location.hash = '#cv'; });
+        await page.locator('#windows-container .window[data-window-id="resume"]').waitFor({ state: 'visible', timeout: 12000 });
+      }
+      ensure(errors.length === 0, `El hash malformado interrumpió el arranque o la navegación (${errors.join(' | ')})`);
+    } finally {
+      await context.close();
+    }
+  }
+  return 'Links malformados: arranque, entrada con teclado y recuperación a #cv en escritorio y móvil';
+}
+
 async function main() {
   const server = await createStaticServer();
   const { port } = server.address();
@@ -2764,6 +2799,7 @@ async function main() {
     exercised.push(await exerciseDesktopActions(browser, baseUrl));
     exercised.push(await exerciseBootSkip(browser, baseUrl));
     exercised.push(await exerciseDeepLinks(browser, baseUrl));
+    exercised.push(await exerciseMalformedDeepLinks(browser, baseUrl));
 
     const positioning = await page.evaluate(() => {
       const schema = JSON.parse(document.querySelector('script[type="application/ld+json"]')?.textContent || '{}');
