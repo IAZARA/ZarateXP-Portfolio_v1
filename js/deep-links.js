@@ -42,7 +42,13 @@ const DEEP_LINK_APP_IDS = new Set(Object.values(DEEP_LINK_ALIASES).concat([
 ]));
 
 export function resolveDeepLink(hash = window.location.hash) {
-    const key = decodeURIComponent(String(hash || '').replace(/^#\/?/, '')).trim().toLowerCase();
+    let key;
+    try {
+        key = decodeURIComponent(String(hash || '').replace(/^#\/?/, '')).trim().toLowerCase();
+    } catch {
+        // Un fragmento mal codificado se ignora, igual que un enlace desconocido.
+        return null;
+    }
     if (!key) return null;
     if (Object.hasOwn(DEEP_LINK_ALIASES, key)) return DEEP_LINK_ALIASES[key];
     return DEEP_LINK_APP_IDS.has(key) ? key : null;
