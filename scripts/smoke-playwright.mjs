@@ -2743,7 +2743,11 @@ async function exerciseMalformedDeepLinks(browser, baseUrl) {
         // Wait for the hashchange task before testing a subsequent valid link.
         await page.waitForTimeout(100);
         await page.evaluate(() => { window.location.hash = '#cv'; });
-        await page.locator('#windows-container .window[data-window-id="resume"]').waitFor({ state: 'visible', timeout: 12000 });
+        const resume = page.locator('#windows-container .window[data-window-id="resume"]');
+        await resume.waitFor({ state: 'visible', timeout: 12000 });
+        await resume.locator('.close-btn').focus();
+        await page.keyboard.press('Enter');
+        await resume.waitFor({ state: 'detached', timeout: 12000 });
       }
       ensure(errors.length === 0, `El hash malformado interrumpió el arranque o la navegación (${errors.join(' | ')})`);
     } finally {
