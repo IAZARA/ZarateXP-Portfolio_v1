@@ -33,6 +33,14 @@
 - Success criterion: both resolver tests pass; fresh desktop/mobile visits with a malformed fragment reach login, keyboard entry succeeds, and later malformed hash changes do not prevent valid `#cv` navigation. Existing contact/window and full smoke regressions must stay green; EmailJS remains mocked and external submissions blocked.
 - Local static checks and build pass. Local Chromium is socket-restricted (`Operation not permitted`); browser validation uses authorized CI, not a sandbox workaround. Exact-head green CI and independent review remain required before merge; Pages SHA and public asset parity afterward.
 
+## 2026-10-24: Early login input race
+
+- Baseline: main `c128fb469ffadfa04f5864407feab741071b0519`, only activity data changed after PR #8; no open PRs. Pages run `40088032076` failed at malformed-link smoke waiting for desktop after Enter, while 26 contact regressions and static/build checks passed. The previous published version remains available.
+- Deterministic reproduction: `showLoginScreen()` exposed a visible, non-inert login before a 100 ms await, registering input handlers afterward. Three new Node cases hold that reveal delay, then dispatch immediate Enter, Space or two clicks: baseline fails all three with zero session starts. This explains timing sensitivity without assuming a general outage or a data-related regression.
+- Correction: register the existing guarded handlers before exposing login. No extra delay, retry, timeout increase or weakened smoke assertion; existing animation, input behavior and duplicate-session protection remain.
+- Success criterion: all three early-input cases start exactly once and reach desktop, including repeated activation and repeated login setup. Existing desktop/mobile malformed-link smoke and all contact/window regressions must remain green. No real email submissions.
+- Exact-SHA independent review and green CI required before integration; main/Pages SHA and public bytes must be verified afterward. Local browser restrictions, if present, are not bypassed. Final verification is recorded on the PR.
+
 ## Backlog
 
 - Information dialog and Winamp compact controls: published in PR #3 (`00ba042f70feb725bbe5e9a549fdba61706d4fa9`); verified present in the current baseline and its successful Pages deployment.
@@ -40,3 +48,5 @@
 - Next rotation: visible keyboard focus in app content and long/dynamic error text. Keep contact sends mocked and check critical journeys on every run.
 
 - Malformed direct links: reproduced and corrected in this batch; awaiting exact-head CI/review and publication verification.
+
+- Early login input: reproducible race corrected in this batch; final CI/review/publication evidence on its PR.

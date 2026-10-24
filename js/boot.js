@@ -88,6 +88,13 @@ export class BootManager {
         debugLog('showLoginScreen called');
         debugLog('Login screen element:', this.loginScreen);
         
+        // Bind controls before exposing login: early keyboard/click input must work.
+        // Only set up event listeners if they haven't been set up already
+        if (!this.loginHandlersSet) {
+            this.setupLoginHandlers();
+            this.loginHandlersSet = true;
+        }
+
         this.loginScreen.style.display = 'flex';
         this.loginScreen.removeAttribute('aria-hidden');
         this.loginScreen.inert = false;
@@ -95,12 +102,6 @@ export class BootManager {
         this.loginScreen.style.opacity = '1';
         
         debugLog('Login screen displayed');
-        
-        // Only set up event listeners if they haven't been set up already
-        if (!this.loginHandlersSet) {
-            this.setupLoginHandlers();
-            this.loginHandlersSet = true;
-        }
     }
     
     setupLoginHandlers() {
