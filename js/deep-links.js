@@ -2,9 +2,6 @@
 // Se aceptan alias en español e inglés y también el id interno de cada app.
 const DEEP_LINK_ALIASES = {
     perfil: 'recruiter-route',
-    video: 'presentation',
-    presentacion: 'presentation',
-    presentation: 'presentation',
     profile: 'recruiter-route',
     cv: 'resume',
     resume: 'resume',

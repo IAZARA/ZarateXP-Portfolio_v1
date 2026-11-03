@@ -12,7 +12,6 @@ export default function createMethods({ initGitHubActivitySummary }) {
                         </section>
                         <section>
                             <h3>Accesos directos</h3>
-                            <button type="button" data-route-app="presentation">Ver video de presentación</button>
                             <button type="button" data-route-app="resume">Abrir CV PDF</button>
                             <button type="button" data-route-app="certificates">Revisar certificados</button>
                             <button type="button" data-route-app="projects">Explorar proyectos</button>
