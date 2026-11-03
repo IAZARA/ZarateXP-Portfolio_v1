@@ -25,7 +25,6 @@ Agregando un `#` a la URL se abre esa ventana directamente, sin introducción ni
 | --- | --- |
 | [`#perfil`](https://iazara.github.io/ZarateXP-Portfolio_v1/#perfil) | Perfil profesional |
 | [`#cv`](https://iazara.github.io/ZarateXP-Portfolio_v1/#cv) | CV en PDF |
-| [`#video`](https://iazara.github.io/ZarateXP-Portfolio_v1/#video) | Video de presentación "Mi PC" (37 s, español o inglés según el idioma) |
 | [`#proyectos`](https://iazara.github.io/ZarateXP-Portfolio_v1/#proyectos) | Explorador de proyectos |
 | [`#certificados`](https://iazara.github.io/ZarateXP-Portfolio_v1/#certificados) | Certificados |
 | [`#contacto`](https://iazara.github.io/ZarateXP-Portfolio_v1/#contacto) | Formulario de contacto |
@@ -48,7 +47,6 @@ También funcionan `#documentos`, `#sobre-mi`, `#github`, `#api`, `#n8n`, `#wina
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Iconos clásicos Tango con siluetas diferenciadas para perfil, CV, certificados y utilidades, conservando la interfaz Windows XP.
 - Visor de CV actualizado en PDF.
-- Video de presentación "Mi PC": un zoom infinito por carpetas XP que recorre la carrera hasta Atlas Urbano. Se arma con HyperFrames en `video/mi-pc` (`python3 build.py`, ver su `SPEC.md`) y se publica en `assets/video/`.
 - Explorador bilingüe de certificados con 19 credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de NVIDIA, Credly, Simplilearn, Claude Academy, Coursera y SAP Learning.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.
