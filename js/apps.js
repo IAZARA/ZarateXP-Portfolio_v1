@@ -155,6 +155,15 @@ export class AppManager {
         });
 
         this.registerApp({
+            id: 'presentation',
+            name: 'Mi presentación',
+            icon: `${hd}/presentation.svg`,
+            category: 'documents',
+            description: 'Video de 37 segundos sobre mi carrera, en formato XP',
+            handler: () => this._openPresentation()
+        });
+
+        this.registerApp({
             id: 'documents',
             name: 'Mis Documentos',
             icon: `${classic}/documents.svg`,
@@ -2132,6 +2141,10 @@ export class AppManager {
 
     _openRecruiterRoute() {
         return this._loadAppMethods('recruiter-route', '_openRecruiterRoute');
+    }
+
+    _openPresentation() {
+        return this._loadAppMethods('presentation', '_openPresentation');
     }
 
     _openGitHubActivity() {
