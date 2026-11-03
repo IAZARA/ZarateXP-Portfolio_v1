@@ -271,6 +271,7 @@ async function openApp(page, appId) {
 
 const MOBILE_HOME_IDS = [
   'recruiter-route',
+  'media-player',
   'resume',
   'projects',
   'contact',
@@ -348,7 +349,7 @@ async function auditMobileDesktopViewport(browser, baseUrl, viewport) {
       };
     }, { expectedHome: MOBILE_HOME_IDS, expectedGrouped: MOBILE_GROUPED_IDS });
 
-    ensure(desktopAudit.visibleIds.join(',') === MOBILE_HOME_IDS.join(','), `La portada móvil no respetó los 9 accesos y su orden (${JSON.stringify(desktopAudit)})`);
+    ensure(desktopAudit.visibleIds.join(',') === MOBILE_HOME_IDS.join(','), `La portada móvil no respetó los 10 accesos y su orden (${JSON.stringify(desktopAudit)})`);
     ensure(desktopAudit.groupedHidden && desktopAudit.declarativeOrder, `La portada móvil mostró accesos agrupados o perdió su contrato declarativo (${JSON.stringify(desktopAudit)})`);
     ensure(desktopAudit.twoColumns && desktopAudit.contained && desktopAudit.overlapPairs.length === 0, `Los iconos móviles se superponen, desbordan o no forman dos columnas (${JSON.stringify(desktopAudit)})`);
 
@@ -475,7 +476,7 @@ async function auditDesktopPositionPreservation(browser, baseUrl) {
       top: Number.parseFloat(icon.style.top)
     }));
     ensure(restored.left > 310 && restored.top > 120, `La posición desktop no se adaptó proporcionalmente al viewport mayor (${JSON.stringify(restored)})`);
-    ensure(await page.locator('.desktop-icons > .desktop-icon:visible').count() === 16, 'El escritorio grande no restauró sus 16 accesos');
+    ensure(await page.locator('.desktop-icons > .desktop-icon:visible').count() === 17, 'El escritorio grande no restauró sus 17 accesos');
   } finally {
     await context.close();
   }
@@ -524,7 +525,7 @@ async function auditDesktopIconDensity(browser, baseUrl, viewport) {
       };
     });
 
-    ensure(audit.count === 16 && audit.contained && audit.overlaps.length === 0, `El escritorio ${viewport.width}x${viewport.height} perdió iconos, contención o separación (${JSON.stringify(audit)})`);
+    ensure(audit.count === 17 && audit.contained && audit.overlaps.length === 0, `El escritorio ${viewport.width}x${viewport.height} perdió iconos, contención o separación (${JSON.stringify(audit)})`);
     ensure(audit.gap >= 8 && audit.gap <= 64, `El escritorio ${viewport.width}x${viewport.height} dejó un margen inferior incorrecto (${JSON.stringify(audit)})`);
     return `${viewport.width}x${viewport.height}`;
   } finally {
@@ -542,7 +543,7 @@ async function exerciseResponsiveDesktop(browser, baseUrl) {
   for (const viewport of [{ width: 1044, height: 1294 }, { width: 1366, height: 768 }, { width: 1440, height: 900 }]) {
     desktopViewports.push(await auditDesktopIconDensity(browser, baseUrl, viewport));
   }
-  return `Escritorio responsive: 9 accesos en ${viewports.join(', ')}, densidad XP en ${desktopViewports.join(', ')} y posiciones desktop adaptativas`;
+  return `Escritorio responsive: 10 accesos en ${viewports.join(', ')}, densidad XP en ${desktopViewports.join(', ')} y posiciones desktop adaptativas`;
 }
 
 async function exerciseDesktopActions(browser, baseUrl) {
@@ -2818,7 +2819,7 @@ async function main() {
     ensure(positioning.jobTitle === 'AI Solution Architect', 'El Schema.org no refleja el rol actual');
     ensure(/enterprise AI architecture/i.test(positioning.description || ''), 'El perfil no describe el foco actual de arquitectura de IA');
     const defaultDesktopOrder = await page.locator('.desktop-icons > .desktop-icon').evaluateAll((icons) => icons.slice(0, 6).map((icon) => icon.dataset.programName));
-    ensure(defaultDesktopOrder.join(',') === 'recruiter-route,resume,projects,contact,documents,certificates', `El escritorio inicial no priorizó el recorrido recruiter (${defaultDesktopOrder.join(',')})`);
+    ensure(defaultDesktopOrder.join(',') === 'recruiter-route,media-player,resume,projects,contact,documents', `El escritorio inicial no priorizó el recorrido recruiter (${defaultDesktopOrder.join(',')})`);
 
     const expectedWindows = new Set(['my-computer', 'about-me', 'projects', 'pdf-studio', 'contact', 'certificates', 'recruiter-route', 'github-activity', 'api-center', 'n8n-flows', 'winamp', 'solitaire', 'minesweeper', 'pinball', 'paint']);
     exercised.push(await exerciseMyComputer(page));

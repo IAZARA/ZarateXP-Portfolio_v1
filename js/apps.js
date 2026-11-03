@@ -155,6 +155,15 @@ export class AppManager {
         });
 
         this.registerApp({
+            id: 'media-player',
+            name: 'Mi historia',
+            icon: `${hd}/media-player.svg`,
+            category: 'documents',
+            description: 'Video autobiográfico de 47 segundos en el Reproductor de Windows Media',
+            handler: () => this._openMediaPlayer()
+        });
+
+        this.registerApp({
             id: 'documents',
             name: 'Mis Documentos',
             icon: `${classic}/documents.svg`,
@@ -2132,6 +2141,10 @@ export class AppManager {
 
     _openRecruiterRoute() {
         return this._loadAppMethods('recruiter-route', '_openRecruiterRoute');
+    }
+
+    _openMediaPlayer() {
+        return this._loadAppMethods('media-player', '_openMediaPlayer');
     }
 
     _openGitHubActivity() {

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es" data-composition-variables='[{"id":"lang","type":"enum","label":"Idioma","default":"es","options":[{"value":"es","label":"Español"},{"value":"en","label":"English"}]}]'>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+@font-face { font-family: "Anton"; src: url("assets/fonts/Anton-Regular.ttf") format("truetype"); font-weight: 400; }
+:root {
+  --navy: #0B1220; --ink: #F3F1EA; --amber: #E6BB68; --teal: #61D4C6; --red: #E5484D;
+  --atlas-bg: #061012; --atlas-panel: #0B1719; --atlas-text: #F3FBFA; --atlas-muted: #8FA8A8;
+  --display: "Anton", "League Gothic", sans-serif; --ui: "Inter", sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--navy); }
+html.lang-es .en, html.lang-en .es { display: none; }
+#root { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--navy); font-family: var(--ui); color: var(--ink); }
+.scene { position: absolute; inset: 0; overflow: hidden; }
+.cam-a, .cam-b { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.plate { position: absolute; left: 0; top: -100px; width: 1920px; height: 1280px; }
+
+/* Escenario de inicio y cierre */
+.stage { position: absolute; inset: 0; background: radial-gradient(circle at 50% 36%, rgba(230,187,104,.24) 0%, rgba(230,187,104,.08) 26%, rgba(11,18,32,0) 48%), var(--navy); }
+.av { position: absolute; left: 550px; top: 70px; width: 820px; height: 1230px; }
+.av img { position: absolute; display: block; }
+.av-base { left: 0; top: 0; width: 820px; height: 1230px; }
+.av-p { left: 304.3px; top: 240.2px; width: 256.3px; height: 272.3px; opacity: 0; }
+.name { position: absolute; top: 255px; font-family: var(--display); font-size: 236px; line-height: 1; letter-spacing: .01em; color: var(--ink); white-space: nowrap; }
+.name-l { right: 1150px; text-align: right; }
+.name-r { left: 1150px; }
+.name .lt { display: inline-block; opacity: .14; }
+#h-yl, #h-yr, #tag-inv { opacity: 0; }
+.year { position: absolute; top: 255px; font-family: var(--display); font-size: 236px; line-height: 1; color: var(--amber); }
+.role { position: absolute; left: 0; width: 1920px; top: 905px; text-align: center; font-size: 44px; font-weight: 700; letter-spacing: -.01em; }
+.role .w { display: inline-block; }
+.url { position: absolute; left: 0; width: 1920px; top: 975px; text-align: center; font-size: 30px; font-weight: 500; color: #AFC0C8; }
+
+/* Rótulo de etapa */
+.lower { position: absolute; left: 96px; top: 742px; z-index: 1; isolation: isolate; }
+.lt-years { font-family: var(--display); font-size: 84px; line-height: 1; color: var(--amber); }
+.lt-title { margin-top: 10px; font-size: 46px; font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
+.lower.light .lt-title { color: var(--navy); }
+.lower::before { content: ""; position: absolute; left: -40px; top: -30px; right: -60px; bottom: -34px; background: radial-gradient(ellipse at 30% 50%, rgba(5,9,16,.72), rgba(5,9,16,0) 72%); z-index: -1; }
+.lock { position: absolute; left: 1205px; top: 560px; width: 150px; height: 150px; }
+.lock path, .lock rect { fill: none; stroke: var(--amber); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Tabla de registros */
+.db-world { position: absolute; inset: 0; background: #071116; }
+.db-cam { position: absolute; inset: 0; }
+.db-head, .row { position: absolute; left: 150px; width: 1620px; height: 78px; display: flex; align-items: center; font-size: 30px; }
+.db-head { top: 96px; color: #7FA3A8; font-weight: 700; font-size: 24px; letter-spacing: .08em; text-transform: uppercase; border-bottom: 2px solid rgba(97,212,198,.35); z-index: 2; background: #071116; }
+.rows { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.row { border-bottom: 1px solid rgba(97,212,198,.14); color: #CFE3E4; font-family: "IBM Plex Mono", monospace; }
+.row i { display: inline-block; height: 18px; border-radius: 4px; background: rgba(207,227,228,.28); vertical-align: middle; }
+.c-id { width: 210px; padding-left: 24px; } .c-name { width: 430px; } .c-doc { width: 300px; }
+.c-jur { width: 240px; } .c-state { width: 260px; font-family: var(--ui); font-weight: 700; } .c-upd { width: 180px; }
+.ok { color: var(--teal); } .bad { color: var(--red); display: none; }
+.row.err .err-bg { position: absolute; inset: 0; }
+#db-flash { position: absolute; left: 150px; width: 1620px; height: 78px; background: var(--red); opacity: 0; }
+#db-white { position: absolute; left: 150px; width: 1620px; height: 78px; background: #FFFFFF; opacity: 0; transform-origin: 50% 50%; }
+.big { position: absolute; left: 0; width: 1920px; text-align: center; font-family: var(--display); line-height: 1; }
+#bug { font-size: 330px; color: var(--ink); }
+#bug-strike { position: absolute; left: 715px; top: 205px; width: 490px; height: 26px; background: var(--red); transform-origin: 0 50%; }
+#persona { font-size: 330px; color: var(--amber); }
+.bigwrap { position: absolute; left: 0; top: 300px; width: 1920px; height: 400px; overflow: hidden; }
+.bigwrap .big { top: 20px; }
+.scrim { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 48%, rgba(4,8,12,.86) 0%, rgba(4,8,12,.55) 45%, rgba(4,8,12,0) 75%); opacity: 0; }
+
+/* Pizarra ACSYS */
+.board { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.b-title { position: absolute; left: 730px; top: 150px; font-size: 46px; font-weight: 800; color: var(--navy); letter-spacing: -.015em; }
+.b-logo { position: absolute; left: 1520px; top: 136px; width: 200px; height: 72px; }
+.node { position: absolute; width: 250px; height: 92px; display: flex; align-items: center; justify-content: center; border: 4px solid var(--navy); border-radius: 18px; background: #FFFFFF; font-size: 32px; font-weight: 700; color: var(--navy); white-space: nowrap; }
+.node.hl { background: var(--navy); color: #FFFFFF; }
+.wire { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.wire path { fill: none; stroke: var(--navy); stroke-width: 5; stroke-linecap: round; }
+
+/* Chat */
+.chat { position: absolute; left: 96px; top: 96px; width: 880px; padding: 40px 44px 44px; border-radius: 26px; background: rgba(9,17,22,.94); border: 2px solid rgba(97,212,198,.22); transform-origin: 40% 100%; }
+.q { margin-left: auto; width: fit-content; max-width: 680px; padding: 22px 28px; border-radius: 22px 22px 6px 22px; background: #1D2B33; font-size: 34px; font-weight: 500; line-height: 1.3; color: #E6F0F0; }
+.a { margin-top: 30px; display: flex; gap: 20px; align-items: flex-start; font-size: 40px; font-weight: 600; line-height: 1.3; color: var(--ink); }
+.a .dot { flex: none; width: 46px; height: 46px; margin-top: 3px; border-radius: 50%; background: var(--teal); }
+.typed .ch { opacity: 0; }
+#n-38 { display: inline-block; padding: 0 6px; border-radius: 8px; }
+.tag { display: inline-block; margin-top: 22px; margin-left: 66px; padding: 10px 22px; border-radius: 12px; font-size: 30px; font-weight: 700; }
+.tag.red { background: rgba(229,72,77,.18); color: #FF8A8E; border: 2px solid var(--red); }
+
+/* Atlas */
+.map-dim { position: absolute; inset: 0; background: rgba(6,16,18,.62); opacity: 0; }
+.lockup { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+.lk { position: absolute; left: 520px; top: 400px; display: flex; align-items: center; gap: 40px; transform-origin: 0 0; }
+.lk img { width: 150px; height: 150px; border-radius: 34px; }
+.lk-name { font-size: 124px; font-weight: 700; letter-spacing: -.03em; color: var(--atlas-text); }
+.lk-url { position: absolute; left: 0; top: 600px; width: 1920px; text-align: center; font-size: 36px; font-weight: 500; color: var(--atlas-muted); }
+.panel { position: absolute; left: 300px; top: 150px; width: 1320px; height: 620px; border-radius: 30px; background: var(--atlas-panel); border: 2px solid rgba(179,233,225,.16); }
+.p-q { position: absolute; right: 56px; top: 150px; padding: 24px 32px; border-radius: 24px 24px 6px 24px; background: #15262A; font-size: 36px; font-weight: 500; color: #E2F2F0; }
+.p-a { position: absolute; left: 56px; top: 290px; width: 1200px; font-size: 46px; font-weight: 600; color: var(--atlas-text); }
+.p-a .lab { color: var(--atlas-muted); font-weight: 500; }
+#p-38 { position: relative; display: inline-block; }
+#p-38-strike { position: absolute; left: -6px; right: -6px; top: 50%; height: 7px; margin-top: -3px; background: var(--red); transform-origin: 0 50%; }
+.chip { position: absolute; left: 56px; top: 400px; display: flex; align-items: center; gap: 18px; padding: 18px 28px; border-radius: 16px; background: rgba(230,187,104,.14); border: 2px solid var(--amber); font-size: 36px; font-weight: 700; color: var(--amber); }
+.chip svg { width: 40px; height: 40px; }
+.chip svg path, .chip svg circle { fill: none; stroke: var(--amber); stroke-width: 3.5; stroke-linecap: round; }
+.p-src { position: absolute; left: 56px; top: 530px; font-size: 30px; font-weight: 500; color: var(--atlas-muted); }
+.scan { position: absolute; left: 0; width: 1320px; height: 4px; top: 0; background: var(--teal); opacity: 0; }
+.scan-lab { position: absolute; right: 24px; top: -54px; padding: 8px 18px; border-radius: 10px; background: var(--teal); color: var(--atlas-bg); font-size: 26px; font-weight: 800; white-space: nowrap; }
+.grid { position: absolute; left: 150px; top: 300px; width: 680px; display: flex; flex-wrap: wrap; gap: 18px; }
+.tile { width: 96px; height: 96px; border-radius: 18px; border: 3px solid rgba(179,233,225,.32); background: rgba(11,23,25,.9); position: relative; }
+.tile svg { position: absolute; inset: 18px; width: 54px; height: 54px; opacity: 0; }
+.tile svg path { fill: none; stroke: var(--atlas-bg); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.tile .fill { position: absolute; inset: -3px; border-radius: 18px; background: var(--teal); opacity: 0; }
+.count { position: absolute; left: 930px; top: 250px; font-family: var(--display); line-height: 1; white-space: nowrap; }
+#c-num { display: inline-block; width: 420px; text-align: right; font-size: 400px; color: var(--teal); }
+#c-den { font-size: 210px; color: var(--atlas-text); }
+.c-lab { position: absolute; left: 960px; top: 700px; width: 880px; font-size: 40px; font-weight: 600; line-height: 1.25; color: var(--atlas-text); }
+
+/* Transiciones y subtítulos */
+#dip { position: absolute; inset: 0; background: var(--navy); opacity: 0; z-index: 90; }
+#captions { position: absolute; inset: 0; z-index: 100; pointer-events: none; }
+html.lang-es #captions { display: none; }
+.cap { position: absolute; left: 0; bottom: 70px; width: 1920px; text-align: center; opacity: 0; visibility: hidden; }
+.cap span { display: inline-block; max-width: 1500px; padding: 10px 26px 12px; border-radius: 12px; background: rgba(4,8,12,.62); font-size: 46px; font-weight: 600; line-height: 1.25; color: #FFFFFF; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="47.6" data-width="1920" data-height="1080" data-motion-blur="on">
+
+<div id="home" class="clip scene" data-start="0.0" data-duration="4.75" data-track-index="1" style="z-index:10" >
+<div class="cam-a" id="home-cam"><div class="stage"></div>
+<div class="name name-l" id="h-nl"><span class="lt">I</span><span class="lt">V</span><span class="lt">Á</span><span class="lt">N</span></div>
+<div class="name name-r" id="h-nr"><span class="lt">Z</span><span class="lt">Á</span><span class="lt">R</span><span class="lt">A</span><span class="lt">T</span><span class="lt">E</span></div>
+<div class="year name-l" id="h-yl">20</div>
+<div class="year name-r" id="h-yr">16</div>
+<div class="av" id="h-av">
+  <img class="av-base" src="assets/img/avatar.png" alt="">
+  <img class="av-p" id="h-ma" src="assets/img/boca_a.png" alt="">
+  <img class="av-p" id="h-me" src="assets/img/boca_e.png" alt="">
+  <img class="av-p" id="h-mo" src="assets/img/boca_o.png" alt="">
+  <img class="av-p" id="h-eyes" src="assets/img/ojos.png" alt="">
+</div>
+</div>
+</div>
+
+<div id="pfa" class="clip scene" data-start="4.75" data-duration="3.6" data-track-index="1" style="z-index:11" >
+<div class="cam-a"><div class="cam-b">
+  <img class="plate" src="assets/img/pfa.webp" alt="">
+  <svg class="lock" id="lock" viewBox="0 0 100 100"><rect x="22" y="44" width="56" height="44" rx="8"/><path d="M34 44V32a16 16 0 0 1 32 0v12"/><path d="M50 60v12"/></svg>
+</div></div><div class="lower">
+  <div class="lt-years">2016 — 2024</div>
+  <div class="lt-title"><span class="es">Policía Federal Argentina</span><span class="en">Argentine Federal Police</span></div>
+</div>
+</div>
+
+<div id="min" class="clip scene" data-start="8.35" data-duration="5.55" data-track-index="1" style="z-index:12" >
+<div class="cam-a"><div class="cam-b">
+  <img class="plate" src="assets/img/ministerio.webp" alt="">
+
+</div></div><div class="lower">
+  <div class="lt-years">2024 — 2026</div>
+  <div class="lt-title"><span class="es">Ministerio de Seguridad Nacional</span><span class="en">Ministry of National Security</span></div>
+</div>
+</div>
+
+<div id="db" class="clip scene" data-start="13.9" data-duration="4.4" data-track-index="1" style="z-index:13" >
+<div class="db-world"></div><div class="db-cam" id="db-cam">
+<div class="rows" id="db-rows">
+<div id="db-flash"></div>
+<div class="row" id="db-r0"><span class="c-id">048213</span><span class="c-name"><i style="width:220px"></i></span><span class="c-doc"><i style="width:150px"></i></span><span class="c-jur">CABA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">01/01</span></div>
+<div class="row" id="db-r1"><span class="c-id">048350</span><span class="c-name"><i style="width:273px"></i></span><span class="c-doc"><i style="width:181px"></i></span><span class="c-jur">BA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">08/02</span></div>
+<div class="row" id="db-r2"><span class="c-id">048487</span><span class="c-name"><i style="width:326px"></i></span><span class="c-doc"><i style="width:212px"></i></span><span class="c-jur">CBA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">15/03</span></div>
+<div class="row" id="db-r3"><span class="c-id">048624</span><span class="c-name"><i style="width:379px"></i></span><span class="c-doc"><i style="width:173px"></i></span><span class="c-jur">SFE</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">22/04</span></div>
+<div class="row" id="db-r4"><span class="c-id">048761</span><span class="c-name"><i style="width:272px"></i></span><span class="c-doc"><i style="width:204px"></i></span><span class="c-jur">MZA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">01/05</span></div>
+<div class="row" id="db-r5"><span class="c-id">048898</span><span class="c-name"><i style="width:325px"></i></span><span class="c-doc"><i style="width:165px"></i></span><span class="c-jur">TUC</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">08/06</span></div>
+<div class="row err" id="db-err"><span class="c-id">049035</span><span class="c-name"><i style="width:378px"></i></span><span class="c-doc"><i style="width:196px"></i></span><span class="c-jur">CABA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span><span class="bad">ERROR</span></span><span class="c-upd">15/07</span></div>
+<div class="row" id="db-r7"><span class="c-id">049172</span><span class="c-name"><i style="width:271px"></i></span><span class="c-doc"><i style="width:157px"></i></span><span class="c-jur">BA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">22/08</span></div>
+<div class="row" id="db-r8"><span class="c-id">049309</span><span class="c-name"><i style="width:324px"></i></span><span class="c-doc"><i style="width:188px"></i></span><span class="c-jur">CBA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">01/09</span></div>
+<div class="row" id="db-r9"><span class="c-id">049446</span><span class="c-name"><i style="width:377px"></i></span><span class="c-doc"><i style="width:219px"></i></span><span class="c-jur">SFE</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">08/01</span></div>
+<div class="row" id="db-r10"><span class="c-id">049583</span><span class="c-name"><i style="width:270px"></i></span><span class="c-doc"><i style="width:180px"></i></span><span class="c-jur">MZA</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">15/02</span></div>
+<div class="row" id="db-r11"><span class="c-id">049720</span><span class="c-name"><i style="width:323px"></i></span><span class="c-doc"><i style="width:211px"></i></span><span class="c-jur">TUC</span><span class="c-state"><span class="ok"><span class="es">Activo</span><span class="en">Active</span></span></span><span class="c-upd">22/03</span></div>
+</div>
+<div class="db-head" data-layout-ignore><span class="c-id">ID</span><span class="c-name"><span class="es">Nombre</span><span class="en">Name</span></span><span class="c-doc"><span class="es">Documento</span><span class="en">ID number</span></span><span class="c-jur"><span class="es">Jurisdicción</span><span class="en">Region</span></span><span class="c-state"><span class="es">Estado</span><span class="en">Status</span></span><span class="c-upd"><span class="es">Actualizado</span><span class="en">Updated</span></span></div>
+</div>
+<div class="scrim" id="db-scrim"></div>
+<div class="bigwrap" data-layout-allow-overflow><div class="big" id="bug" data-layout-allow-overlap>BUG</div><div class="big" id="persona" data-layout-allow-overlap><span class="es">PERSONA</span><span class="en">PERSON</span></div><div id="bug-strike"></div></div>
+<div id="db-white"></div>
+</div>
+
+<div id="acs" class="clip scene" data-start="18.3" data-duration="3.25" data-track-index="1" style="z-index:14" >
+<div class="cam-a"><div class="cam-b">
+  <img class="plate" src="assets/img/acsys.webp" alt="">
+  <div class="board">
+  <div class="b-title" id="b-title">AI Solution Architect</div>
+  <img class="b-logo" id="b-logo" src="assets/img/acsys-logo.svg" alt="ACSYS">
+  <svg class="wire" viewBox="0 0 1920 1080"><path id="w1" d="M1010 356 H1120"/><path id="w2" d="M1010 586 H1120"/><path id="w3" d="M1350 356 C1420 356 1420 470 1470 470"/><path id="w4" d="M1350 586 C1420 586 1420 470 1470 470"/></svg>
+  <div class="node" id="nd1" style="left:760px;top:310px"><span class="es">Datos</span><span class="en">Data</span></div>
+  <div class="node" id="nd2" style="left:760px;top:540px"><span class="es">Identidad</span><span class="en">Identity</span></div>
+  <div class="node" id="nd3" style="left:1120px;top:310px;width:230px">RAG</div>
+  <div class="node" id="nd4" style="left:1120px;top:540px;width:230px"><span class="es">Seguridad</span><span class="en">Security</span></div>
+  <div class="node hl" id="nd5" style="left:1470px;top:424px;width:230px"><span class="es">Modelo</span><span class="en">Model</span></div>
+</div>
+</div></div>
+</div>
+
+<div id="noc" class="clip scene" data-start="21.55" data-duration="5.2" data-track-index="1" style="z-index:15" >
+<div class="cam-a" id="noc-z"><div class="cam-a"><div class="cam-b">
+  <img class="plate" src="assets/img/noche.webp" alt="">
+
+</div></div><div class="chat" id="chat">
+  <div class="q" id="chat-q"><span class="es">¿Cuál es la altura máxima permitida en Av. de Mayo 1200?</span><span class="en">What's the height limit at Av. de Mayo 1200?</span></div>
+  <div class="a"><span class="dot"></span><span class="typed" id="typed"><span class="es"><span class="ch">L</span><span class="ch">a</span><span class="ch"> </span><span class="ch">a</span><span class="ch">l</span><span class="ch">t</span><span class="ch">u</span><span class="ch">r</span><span class="ch">a</span><span class="ch"> </span><span class="ch">m</span><span class="ch">á</span><span class="ch">x</span><span class="ch">i</span><span class="ch">m</span><span class="ch">a</span><span class="ch"> </span><span class="ch">e</span><span class="ch">s</span><span class="ch"> </span><span class="ch">d</span><span class="ch">e</span><span class="ch"> </span></span><span class="en"><span class="ch">T</span><span class="ch">h</span><span class="ch">e</span><span class="ch"> </span><span class="ch">h</span><span class="ch">e</span><span class="ch">i</span><span class="ch">g</span><span class="ch">h</span><span class="ch">t</span><span class="ch"> </span><span class="ch">l</span><span class="ch">i</span><span class="ch">m</span><span class="ch">i</span><span class="ch">t</span><span class="ch"> </span><span class="ch">i</span><span class="ch">s</span><span class="ch"> </span></span><span id="n-38"><span class="ch">3</span><span class="ch">8</span><span class="ch"> </span><span class="ch">m</span></span><span class="ch">.</span></span></div>
+  <div class="tag red" id="tag-inv"><span class="es">inventado</span><span class="en">made up</span></div>
+</div></div>
+</div>
+
+<div id="atl" class="clip scene" data-start="26.75" data-duration="11.55" data-track-index="1" style="z-index:16" >
+<div class="cam-a"><div class="cam-b">
+  <img class="plate" src="assets/img/mapa.webp" alt="">
+
+</div></div><div class="map-dim" id="map-dim"></div>
+<div class="panel" id="panel">
+  <div class="p-q" id="p-q"><span class="es">¿Cuál es la altura máxima permitida en Av. de Mayo 1200?</span><span class="en">What's the height limit at Av. de Mayo 1200?</span></div>
+  <div class="p-a" id="p-a"><span class="lab"><span class="es">Altura máxima:</span><span class="en">Height limit:</span></span> <span id="p-38">38 m<span id="p-38-strike"></span></span></div>
+  <div class="chip" id="chip"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><path d="M20 11v11M20 28v1"/></svg><span class="es">Dato faltante · no tengo ese dato</span><span class="en">Missing data · I don't have that data</span></div>
+  <div class="p-src" id="p-src"><span class="es">Fuentes consultadas: Código Urbanístico · Parcelario CABA</span><span class="en">Sources checked: Buenos Aires zoning code · city parcel registry</span></div>
+  <div class="scan" id="scan"><div class="scan-lab"><span class="es">Revisor · segundo modelo</span><span class="en">Reviewer · second model</span></div></div>
+</div>
+<div class="lockup"><div class="lk" id="lk"><img src="assets/img/atlas-urbano-icon.webp" alt=""><div class="lk-name">Atlas Urbano</div></div>
+<div class="lk-url" id="lk-url">atlas.iazarate.com</div></div>
+<div class="grid" id="grid"><div class="tile" id="tile0"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile1"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile2"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile3"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile4"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile5"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile6"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile7"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile8"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile9"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile10"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile11"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile12"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile13"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile14"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile15"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile16"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile17"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile18"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile19"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile20"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div>
+<div class="tile" id="tile21"><svg viewBox="0 0 40 40"><path d="M11 21l6 6 12-14"/></svg></div></div>
+<div class="count" id="count"><span id="c-num">0</span><span id="c-den"> / 22</span></div>
+<div class="c-lab" id="c-lab"><span class="es">consultas difíciles corregidas por el revisor</span><span class="en">hard queries fixed by the reviewer</span></div>
+</div>
+
+<div id="ter" class="clip scene" data-start="38.3" data-duration="4.6" data-track-index="1" style="z-index:17" >
+<div class="cam-a"><div class="cam-b">
+  <img class="plate" src="assets/img/terraza.webp" alt="">
+
+</div></div>
+</div>
+
+<div id="end" class="clip scene" data-start="42.9" data-duration="4.7" data-track-index="1" style="z-index:18" >
+<div class="cam-a" id="end-cam"><div class="stage"></div>
+<div class="name name-l" id="e-nl"><span class="lt">I</span><span class="lt">V</span><span class="lt">Á</span><span class="lt">N</span></div>
+<div class="name name-r" id="e-nr"><span class="lt">Z</span><span class="lt">Á</span><span class="lt">R</span><span class="lt">A</span><span class="lt">T</span><span class="lt">E</span></div>
+<div class="av" id="e-av">
+  <img class="av-base" src="assets/img/avatar.png" alt="">
+  <img class="av-p" id="e-ma" src="assets/img/boca_a.png" alt="">
+  <img class="av-p" id="e-me" src="assets/img/boca_e.png" alt="">
+  <img class="av-p" id="e-mo" src="assets/img/boca_o.png" alt="">
+  <img class="av-p" id="e-eyes" src="assets/img/ojos.png" alt="">
+</div>
+</div>
+<div class="role" id="role"><span class="es"><span class="w">AI</span> <span class="w">Solution</span> <span class="w">Architect</span> <span class="w">·</span> <span class="w">Investigación</span> <span class="w">en</span> <span class="w">seguridad</span> <span class="w">de</span> <span class="w">IA</span></span><span class="en"><span class="w">AI</span> <span class="w">Solution</span> <span class="w">Architect</span> <span class="w">·</span> <span class="w">AI</span> <span class="w">safety</span> <span class="w">research</span></span></div>
+<div class="url" id="url">iazara.github.io/ZarateXP-Portfolio_v1</div>
+</div>
+
+<div id="dip" class="clip" data-start="0" data-duration="47.6" data-track-index="2" data-layout-ignore></div>
+<div id="captions" class="clip" data-start="0" data-duration="47.6" data-track-index="3" data-track-kind="captions">
+<div class="cap" id="cap0"><span>I'm Iván Zárate.</span></div>
+<div class="cap" id="cap1"><span>Ten years ago I joined Argentina's Federal Police.</span></div>
+<div class="cap" id="cap2"><span>That's where I learned to treat data as if it were my own.</span></div>
+<div class="cap" id="cap3"><span>Then, at the Ministry of National Security,</span></div>
+<div class="cap" id="cap4"><span>I built systems on critical databases,</span></div>
+<div class="cap" id="cap5"><span>where an error isn't a bug: it's a person.</span></div>
+<div class="cap" id="cap6"><span>Today I'm an AI Solution Architect at ACSYS.</span></div>
+<div class="cap" id="cap7"><span>And there's one question I can't let go of:</span></div>
+<div class="cap" id="cap8"><span>what happens when an AI doesn't know something… and makes it up?</span></div>
+<div class="cap" id="cap9"><span>That's why I built Atlas Urbano:</span></div>
+<div class="cap" id="cap10"><span>an agent that says “I don't have that data” instead of guessing.</span></div>
+<div class="cap" id="cap11"><span>A second model reviews its answers.</span></div>
+<div class="cap" id="cap12"><span>Out of 22 hard queries, it fixed 14.</span></div>
+<div class="cap" id="cap13"><span>I want AI to be trustworthy where it matters most.</span></div>
+<div class="cap" id="cap14"><span>I'm Iván Zárate.</span></div>
+</div>
+
+<audio id="voz" class="clip" src="assets/audio/voz.flac" data-start="0.5" data-duration="45.3" data-track-index="20" data-volume="1"></audio>
+<audio id="musica" class="clip" src="assets/audio/musica.flac" data-start="0" data-duration="47.6" data-track-index="21" data-volume="1" data-automation="{&quot;version&quot;: 1, &quot;lanes&quot;: [{&quot;target&quot;: &quot;volume&quot;, &quot;points&quot;: [{&quot;t&quot;: 0, &quot;v&quot;: 0.6}, {&quot;t&quot;: 0.45, &quot;v&quot;: 0.24}, {&quot;t&quot;: 21.0, &quot;v&quot;: 0.22}, {&quot;t&quot;: 21.6, &quot;v&quot;: 0.17}, {&quot;t&quot;: 26.8, &quot;v&quot;: 0.13}, {&quot;t&quot;: 37.2, &quot;v&quot;: 0.13}, {&quot;t&quot;: 37.5, &quot;v&quot;: 0.2}, {&quot;t&quot;: 38.1, &quot;v&quot;: 0.14}, {&quot;t&quot;: 41.7, &quot;v&quot;: 0.14}, {&quot;t&quot;: 42.2, &quot;v&quot;: 0.36}, {&quot;t&quot;: 43.1, &quot;v&quot;: 0.2}, {&quot;t&quot;: 44.9, &quot;v&quot;: 0.2}, {&quot;t&quot;: 45.5, &quot;v&quot;: 0.55}]}]}"></audio>
+<audio id="sfx0" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="4.44" data-track-index="22" data-volume="0.45"></audio>
+<audio id="sfx1" class="clip" src="assets/sfx/pop.mp3" data-start="5.9" data-track-index="23" data-volume="0.35"></audio>
+<audio id="sfx2" class="clip" src="assets/sfx/whoosh.mp3" data-start="8.17" data-track-index="24" data-volume="0.5"></audio>
+<audio id="sfx3" class="clip" src="assets/sfx/whoosh-cinematic.mp3" data-start="11.38" data-track-index="25" data-volume="0.45"></audio>
+<audio id="sfx4" class="clip" src="assets/sfx/glitch-1.mp3" data-start="15.0" data-track-index="22" data-volume="0.22"></audio>
+<audio id="sfx5" class="clip" src="assets/sfx/pop.mp3" data-start="16.12" data-track-index="23" data-volume="0.45"></audio>
+<audio id="sfx6" class="clip" src="assets/sfx/whoosh.mp3" data-start="18.09" data-track-index="24" data-volume="0.45"></audio>
+<audio id="sfx7" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="21.34" data-track-index="25" data-volume="0.5"></audio>
+<audio id="sfx8" class="clip" src="assets/sfx/typing.mp3" data-start="23.99" data-track-index="22" data-volume="0.3"></audio>
+<audio id="sfx9" class="clip" src="assets/sfx/glitch-1.mp3" data-start="25.5" data-track-index="23" data-volume="0.25"></audio>
+<audio id="sfx10" class="clip" src="assets/sfx/whoosh.mp3" data-start="26.56" data-track-index="24" data-volume="0.5"></audio>
+<audio id="sfx11" class="clip" src="assets/sfx/pop.mp3" data-start="29.48" data-track-index="25" data-volume="0.45"></audio>
+<audio id="sfx12" class="clip" src="assets/sfx/whoosh-short.mp3" data-start="32.37" data-track-index="22" data-volume="0.35"></audio>
+<audio id="sfx13" class="clip" src="assets/sfx/riser.mp3" data-start="33.89" data-track-index="23" data-volume="0.4"></audio>
+<audio id="sfx14" class="clip" src="assets/sfx/impact-bass-1.mp3" data-start="37.29" data-track-index="24" data-volume="0.45"></audio>
+<audio id="sfx15" class="clip" src="assets/sfx/whoosh.mp3" data-start="38.12" data-track-index="25" data-volume="0.5"></audio>
+</div>
+
+<script>
+(function () {
+  const vars = (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {};
+  const lang = vars.lang === "en" || vars.lang === "es" ? vars.lang : "es";
+  document.documentElement.classList.add("lang-" + lang);
+  document.documentElement.lang = lang;
+
+  const tl = gsap.timeline({ paused: true });
+  const q = (s) => document.querySelectorAll(s);
+  const other = lang === "es" ? ".en" : ".es";
+  const vis = (s) => [...q(s)].filter((el) => !el.closest(other));
+  const LIPS = [["o", 0.2, 0.4], ["e", 0.4, 0.5], ["e", 0.56, 0.66], ["a", 0.7, 0.88], ["e", 0.88, 0.96], ["e", 0.96, 1.02], ["a", 1.02, 1.16], ["e", 1.16, 1.22], ["a", 1.22, 1.3], ["e", 1.3, 1.42], ["o", 42.83, 43.05], ["e", 43.05, 43.12], ["e", 43.14, 43.26], ["a", 43.32, 43.56], ["e", 43.56, 43.68], ["e", 43.7, 43.78], ["a", 43.78, 43.96], ["e", 43.96, 44.02], ["a", 44.02, 44.1], ["e", 44.1, 44.24]];
+  const V = 0.5;
+  const BLINKS = [3.3, 46.3];
+  const CAPS = [[0.6, 1.98], [2.16, 4.56], [4.98, 7.98], [8.32, 10.84], [11.1, 14.08], [14.5, 17.5], [18.02, 21.14], [21.32, 23.24], [23.38, 26.2], [26.2, 28.16], [28.24, 31.76], [32.53, 35.12], [35.22, 37.82], [38.2, 42.08], [42.84, 44.8]];
+
+  // ---------- Boca y parpadeo ----------
+  ["h", "e"].forEach((p) => ["a", "e", "o"].forEach((m) => tl.set("#" + p + "-m" + m, { opacity: 0 }, 0)));
+  LIPS.forEach(([m, a, b]) => {
+    const p = a < 20 ? "h" : "e";
+    tl.set("#" + p + "-m" + m, { opacity: 1 }, a + V);
+    tl.set("#" + p + "-m" + m, { opacity: 0 }, b + V);
+  });
+  BLINKS.forEach((t) => {
+    const p = t < 20 ? "h" : "e";
+    tl.set("#" + p + "-eyes", { opacity: 1 }, t);
+    tl.set("#" + p + "-eyes", { opacity: 0 }, t + 0.12);
+  });
+
+  // ---------- 1. Inicio: "Soy Iván Zárate" ----------
+  const lit = (sel, t0, gap) => q(sel).forEach((el, i) =>
+    tl.fromTo(el, { opacity: 0.14, filter: "blur(3px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.16, ease: "power2.out" }, t0 + i * gap));
+  lit("#h-nl .lt", 1.02, 0.09);
+  lit("#h-nr .lt", 1.48, 0.075);
+  tl.to(["#h-nl", "#h-nr"], { opacity: 0, filter: "blur(10px)", duration: 0.2, ease: "power2.in" }, 2.14);
+  tl.fromTo("#h-yl", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 2.38);
+  tl.fromTo("#h-yr", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 2.46);
+  tl.fromTo("#home-cam", { scale: 1, transformOrigin: "975px 380px" }, { scale: 1.9, duration: 0.45, ease: "power3.in" }, 4.3);
+
+  // ---------- 2. Policía Federal ----------
+  tl.fromTo("#pfa .cam-a", { scale: 1.9, transformOrigin: "784px 216px" }, { scale: 1, duration: 0.8, ease: "expo.out" }, 4.75);
+  tl.fromTo("#pfa .cam-b", { scale: 1, transformOrigin: "1270px 330px" }, { scale: 1.05, duration: 2.4, ease: "power1.inOut" }, 5.4);
+  tl.to("#pfa .cam-b", { scale: 9, duration: 0.55, ease: "power3.in" }, 7.8);
+  tl.fromTo("#pfa .lower", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 4.98);
+  tl.to("#pfa .lower", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power2.in" }, 7.62);
+  tl.fromTo("#lock", { opacity: 0, scale: 0.6, transformOrigin: "50% 60%" }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.6)" }, 5.98);
+  q("#lock rect, #lock path").forEach((p, i) => {
+    const len = p.getTotalLength ? (p.getTotalLength() || 200) : 200;
+    tl.fromTo(p, { strokeDasharray: len, strokeDashoffset: len }, { strokeDashoffset: 0, duration: 0.4, ease: "power2.out" }, 5.98 + i * 0.08);
+  });
+
+  // ---------- 3. Ministerio ----------
+  tl.fromTo("#min .cam-a", { scale: 3.2, transformOrigin: "1175px 541px" }, { scale: 1, duration: 0.95, ease: "expo.out" }, 8.35);
+  tl.fromTo("#min .cam-b", { scale: 1, transformOrigin: "1175px 541px" }, { scale: 1.06, duration: 3.9, ease: "power1.inOut" }, 9.3);
+  tl.to("#min .cam-b", { scale: 7, duration: 0.55, ease: "power3.in" }, 13.35);
+  tl.fromTo("#min .lower", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 9.26);
+  tl.to("#min .lower", { opacity: 0, filter: "blur(6px)", duration: 0.15, ease: "power2.in" }, 13.2);
+
+  // ---------- 4. Un error no es un bug ----------
+  const ROWH = 78, ROW0 = 190;
+  q("#db-rows .row").forEach((r, i) => gsap.set(r, { top: ROW0 + i * ROWH }));
+  gsap.set("#db-flash", { top: ROW0 + 6 * ROWH });
+  tl.fromTo("#db-cam", { scale: 1.3, transformOrigin: "960px 540px" }, { scale: 1, duration: 0.8, ease: "expo.out" }, 13.9);
+  tl.fromTo("#db-rows", { y: 40 }, { y: -60, duration: 3.5, ease: "none" }, 13.9);
+  tl.set("#db-err .bad", { display: "inline" }, 15.2);
+  tl.set("#db-err .ok", { display: "none" }, 15.2);
+  tl.fromTo("#db-flash", { opacity: 0 }, { opacity: 0.32, duration: 0.12, ease: "power2.out" }, 15.2);
+  tl.fromTo("#db-err", { x: 0 }, { x: 8, duration: 0.05, yoyo: true, repeat: 3, ease: "none" }, 15.2);
+  tl.to("#db-rows .row:not(.err)", { opacity: 0.3, duration: 0.25, ease: "power2.out" }, 15.2);
+  tl.fromTo("#db-scrim", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, 16.1);
+  tl.fromTo("#bug", { opacity: 0, scale: 1.25, filter: "blur(12px)" }, { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.16, ease: "power4.out" }, 16.24);
+  tl.fromTo("#bug-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.18, ease: "power3.out" }, 16.56);
+  tl.fromTo(["#bug", "#bug-strike"], { y: 0 }, { y: -400, duration: 0.14, ease: "power3.in" }, 16.92);
+  tl.set("#bug-strike", { opacity: 0 }, 17.06);
+  tl.fromTo("#persona", { y: 400 }, { y: 0, duration: 0.18, ease: "power3.out" }, 16.98);
+  tl.to(["#persona", "#db-scrim"], { opacity: 0, filter: "blur(8px)", duration: 0.18, ease: "power2.in" }, 17.75);
+  gsap.set("#db-white", { top: ROW0 + 6 * ROWH - 60 });
+  tl.fromTo("#db-white", { opacity: 0, scaleY: 1, scaleX: 1 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, 17.78);
+  tl.to("#db-white", { scaleY: 30, scaleX: 1.25, duration: 0.5, ease: "power2.inOut" }, 17.8);
+
+  // ---------- 5. ACSYS ----------
+  tl.fromTo("#acs .cam-a", { scale: 2.1, transformOrigin: "1233px 454px" }, { scale: 1, duration: 1.05, ease: "expo.out" }, 18.3);
+  tl.fromTo("#b-title", { opacity: 0, filter: "blur(8px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 18.82);
+  ["#nd1", "#nd2", "#nd3", "#nd4", "#nd5"].forEach((n, i) =>
+    tl.fromTo(n, { opacity: 0, scale: 0.85, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.4)" }, 19.05 + [0, 0.08, 0.42, 0.5, 0.86][i]));
+  ["#w1", "#w2", "#w3", "#w4"].forEach((w, i) =>
+    tl.fromTo(w, { strokeDasharray: 200, strokeDashoffset: 200 }, { strokeDashoffset: 0, duration: 0.3, ease: "power2.out" }, 19.3 + [0, 0.08, 0.42, 0.5][i]));
+  tl.fromTo("#b-logo", { opacity: 0, scale: 0.8, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 20.68);
+  tl.to("#acs .cam-b", { x: -700, duration: 0.22, ease: "power3.in" }, 21.33);
+
+  // ---------- 6. La pregunta ----------
+  tl.fromTo("#noc-z > .cam-a", { x: 700 }, { x: 0, duration: 0.45, ease: "expo.out" }, 21.55);
+  tl.fromTo("#noc-z .cam-b", { x: 0 }, { x: -36, duration: 4.4, ease: "power1.inOut" }, 22.0);
+  tl.fromTo("#chat", { opacity: 0, scale: 0.7, y: 120 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: "expo.out" }, 22.1);
+  tl.fromTo("#chat-q", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 22.4);
+  const typeIn = (els, t0, step) => els.forEach((c, i) => tl.set(c, { opacity: 1 }, t0 + i * step));
+  typeIn(vis("#typed .ch"), 24.44, 0.032);
+  tl.to("#n-38", { color: "#FF8A8E", backgroundColor: "rgba(229,72,77,.22)", duration: 0.08 }, 25.7);
+  tl.fromTo("#n-38", { x: 0 }, { x: 6, duration: 0.04, yoyo: true, repeat: 5, ease: "none" }, 25.7);
+  tl.fromTo("#tag-inv", { opacity: 0, scale: 0.7, transformOrigin: "0 50%" }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(1.6)" }, 25.76);
+  tl.to("#noc-z", { scale: 8, transformOrigin: "690px 330px", duration: 0.45, ease: "power3.in" }, 26.3);
+
+  // ---------- 7. Atlas Urbano ----------
+  tl.fromTo("#atl .cam-a", { scale: 1.35, transformOrigin: "960px 540px" }, { scale: 1, duration: 0.9, ease: "expo.out" }, 26.75);
+  tl.fromTo("#atl .cam-b", { rotation: 0, scale: 1, transformOrigin: "960px 540px" }, { rotation: 3, scale: 1.07, duration: 11.6, ease: "none" }, 26.75);
+  tl.fromTo("#map-dim", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power2.out" }, 27.2);
+  tl.fromTo("#lk", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.22, ease: "power4.out" }, 27.42);
+  tl.fromTo("#lk-url", { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power2.out" }, 27.7);
+  tl.to("#lk-url", { opacity: 0, duration: 0.12, ease: "power2.in" }, 28.25);
+  tl.to("#lk", { x: -150, y: -216, scale: 0.42, duration: 0.55, ease: "power3.inOut" }, 28.3);
+  tl.fromTo("#panel", { opacity: 0, scale: 0.96, transformOrigin: "50% 50%" }, { opacity: 1, scale: 1, duration: 0.45, ease: "power3.out" }, 28.42);
+  tl.fromTo("#p-q", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 28.62);
+  tl.fromTo("#p-a", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.18, ease: "power4.out" }, 28.9);
+  tl.fromTo("#p-38-strike", { scaleX: 0 }, { scaleX: 1, duration: 0.18, ease: "power3.out" }, 29.54);
+  tl.to("#p-38", { color: "#6E8586", duration: 0.18 }, 29.6);
+  tl.fromTo("#chip", { opacity: 0, scale: 0.8, transformOrigin: "0 50%" }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(1.5)" }, 29.6);
+  tl.fromTo("#p-src", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 30.8);
+  tl.fromTo("#scan", { opacity: 0, y: 110 }, { opacity: 1, y: 110, duration: 0.15 }, 32.53);
+  tl.to("#scan", { y: 580, duration: 1.1, ease: "power1.inOut" }, 32.7);
+  tl.to("#scan", { y: 160, duration: 0.9, ease: "power1.inOut" }, 33.8);
+  tl.to(["#panel", "#lk"], { x: "-=2000", filter: "blur(14px)", duration: 0.32, ease: "power3.in" }, 35.0);
+  tl.set(["#panel", "#lk"], { opacity: 0 }, 35.33);
+  q("#grid .tile").forEach((t, i) =>
+    tl.fromTo(t, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.24, ease: "back.out(1.5)" }, 35.3 + i * 0.025));
+  tl.fromTo("#count", { opacity: 0, filter: "blur(10px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 35.32);
+  tl.fromTo("#c-lab", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" }, 35.5);
+  const FIX = [0, 2, 3, 5, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21];
+  FIX.forEach((n, i) => {
+    const t = 35.95 + i * 0.1;
+    const tile = document.getElementById("tile" + n);
+    const fill = document.createElement("div"); fill.className = "fill"; tile.insertBefore(fill, tile.firstChild);
+    tl.fromTo(fill, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, t);
+    tl.fromTo(tile.querySelector("svg"), { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.2, ease: "back.out(2)" }, t + 0.04);
+  });
+  const counter = { v: 0 };
+  tl.fromTo(counter, { v: 0 }, { v: 14, duration: 1.41, ease: "power2.out",
+    onUpdate: () => { document.getElementById("c-num").textContent = String(Math.floor(counter.v + 1e-6)); } }, 35.95);
+  tl.fromTo("#c-num", { scale: 1.12, transformOrigin: "100% 80%" }, { scale: 1, duration: 0.35, ease: "expo.out" }, 37.36);
+  tl.to(["#atl .cam-a", "#grid", "#count", "#c-lab"], { y: 800, filter: "blur(16px)", duration: 0.24, ease: "power3.in" }, 38.06);
+
+  // ---------- 8. Terraza ----------
+  tl.fromTo("#ter .cam-a", { y: -800 }, { y: 0, duration: 0.5, ease: "expo.out" }, 38.3);
+  tl.fromTo("#ter .cam-b", { scale: 1, transformOrigin: "1318px 490px" }, { scale: 1.07, duration: 4.4, ease: "power1.inOut" }, 38.5);
+  tl.fromTo("#dip", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.in" }, 42.6);
+  tl.to("#dip", { opacity: 0, duration: 0.35, ease: "power2.out" }, 42.9);
+
+  // ---------- 9. Cierre ----------
+  tl.fromTo("#end-cam", { scale: 1.05, transformOrigin: "975px 380px" }, { scale: 1, duration: 1.0, ease: "expo.out" }, 42.9);
+  lit("#e-nl .lt", 43.62, 0.09);
+  lit("#e-nr .lt", 44.2, 0.075);
+  vis("#role .w").forEach((w, i) =>
+    tl.fromTo(w, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.14, ease: "power2.out" }, 45.0 + i * 0.07));
+  tl.fromTo("#url", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 45.3);
+
+  // ---------- Subtítulos ----------
+  CAPS.forEach(([a, b], i) => {
+    const el = "#cap" + i;
+    tl.set(el, { visibility: "visible" }, a);
+    tl.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, a);
+    tl.to(el, { opacity: 0, duration: 0.12, ease: "power2.in" }, b - 0.12);
+    tl.set(el, { opacity: 0, visibility: "hidden" }, b);
+  });
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = tl;
+})();
+</script>
+</body>
+</html>

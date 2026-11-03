@@ -25,6 +25,7 @@ Agregando un `#` a la URL se abre esa ventana directamente, sin introducción ni
 | --- | --- |
 | [`#perfil`](https://iazara.github.io/ZarateXP-Portfolio_v1/#perfil) | Perfil profesional |
 | [`#cv`](https://iazara.github.io/ZarateXP-Portfolio_v1/#cv) | CV en PDF |
+| [`#video`](https://iazara.github.io/ZarateXP-Portfolio_v1/#video) | "Mi historia": video autobiográfico de 47 s en el reproductor estilo Windows Media (voz de Ivan; versión con subtítulos en inglés) |
 | [`#proyectos`](https://iazara.github.io/ZarateXP-Portfolio_v1/#proyectos) | Explorador de proyectos |
 | [`#certificados`](https://iazara.github.io/ZarateXP-Portfolio_v1/#certificados) | Certificados |
 | [`#contacto`](https://iazara.github.io/ZarateXP-Portfolio_v1/#contacto) | Formulario de contacto |
@@ -47,6 +48,7 @@ También funcionan `#documentos`, `#sobre-mi`, `#github`, `#api`, `#n8n`, `#wina
 - Wallpaper HD original e iconos SVG nítidos para escritorio, taskbar y ventanas.
 - Iconos clásicos Tango con siluetas diferenciadas para perfil, CV, certificados y utilidades, conservando la interfaz Windows XP.
 - Visor de CV actualizado en PDF.
+- "Mi historia": video autobiográfico con la voz de Ivan y un avatar ilustrado (Policía Federal, Ministerio, ACSYS, Atlas Urbano), en un reproductor estilo Windows Media que se abre desde el escritorio. Se arma con HyperFrames en `video/mi-historia` (`python3 build.py`, ver su `REVIEW.md`) y se publica en `assets/video/`.
 - Explorador bilingüe de certificados con 19 credenciales, filtros temáticos, vistas previas optimizadas, documentos originales y verificación pública de NVIDIA, Credly, Simplilearn, Claude Academy, Coursera y SAP Learning.
 - Carpeta Mis Documentos con CV, perfil profesional, notas y accesos a proyectos.
 - Explorador de proyectos con vista de iconos/lista y detalle embebido.

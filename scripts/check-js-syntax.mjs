@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
-const ignoredDirs = new Set(['.git', 'node_modules', 'output', 'dist']);
+const ignoredDirs = new Set(['.git', 'node_modules', 'output', 'dist', 'video']); // video/: fuente HyperFrames, no se publica
 
 function listJavaScriptFiles(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
