@@ -3239,6 +3239,7 @@
 .xp-paint-commandbar {
     display: flex;
     flex: 0 0 auto;
+    height: auto; /* .xp-menu-strip fixes 22px; Paint's buttons are taller */
     gap: 3px;
     padding: 4px;
     overflow-x: auto;
@@ -4619,6 +4620,11 @@
 }
 
 .xp-solitaire-app {
+    --sol-card-w: 82px;
+    --sol-card-h: 114px;
+    --sol-gap: 14px;
+    --sol-overlap: -74px;
+    --sol-suit-size: 32px;
     height: 100%;
     display: grid;
     grid-template-rows: auto 1fr;
@@ -4678,26 +4684,26 @@
 
 .xp-solitaire-top {
     display: grid;
-    grid-template-columns: 82px 82px 1fr;
-    gap: 14px;
+    grid-template-columns: var(--sol-card-w) var(--sol-card-w) 1fr;
+    gap: var(--sol-gap);
     align-items: start;
-    min-width: 690px;
+    min-width: calc(7 * var(--sol-card-w) + 6 * var(--sol-gap));
     margin-bottom: 24px;
 }
 
 .xp-foundations {
     display: grid;
-    grid-template-columns: repeat(4, 82px);
-    gap: 14px;
+    grid-template-columns: repeat(4, var(--sol-card-w));
+    gap: var(--sol-gap);
     justify-content: end;
 }
 
 .xp-tableau {
     display: grid;
-    grid-template-columns: repeat(7, 82px);
-    gap: 14px;
+    grid-template-columns: repeat(7, var(--sol-card-w));
+    gap: var(--sol-gap);
     align-items: start;
-    min-width: 690px;
+    min-width: calc(7 * var(--sol-card-w) + 6 * var(--sol-gap));
 }
 
 .xp-tableau-column {
@@ -4724,8 +4730,9 @@
 .xp-card-pile,
 .xp-playing-card {
     box-sizing: border-box;
-    width: 82px;
-    height: 114px;
+    width: var(--sol-card-w);
+    min-width: 0; /* xp.css gives every button min-width: 75px */
+    height: var(--sol-card-h);
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.58);
     font: 700 14px Tahoma, sans-serif;
@@ -4742,7 +4749,7 @@
 .xp-playing-card {
     position: relative;
     display: block;
-    margin-bottom: -74px;
+    margin-bottom: var(--sol-overlap);
     background: #fff;
     box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.34);
     padding: 6px;
@@ -4802,7 +4809,7 @@
     inset: 0;
     display: grid;
     place-items: center;
-    font-size: 32px;
+    font-size: var(--sol-suit-size);
     pointer-events: none;
 }
 
@@ -5638,6 +5645,54 @@
 }
 
 @media (max-width: 460px) {
+    /* Phones have room below the canvas: wrap Paint's bars instead of hiding buttons off to the side. */
+    .xp-paint-commandbar,
+    .xp-paint-tools {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+
+    .xp-solitaire-app {
+        /* 7 x 42 + 6 x 4 = 318px: fits a 360px-wide phone */
+        --sol-card-w: 42px;
+        --sol-card-h: 59px;
+        --sol-gap: 4px;
+        --sol-overlap: -42px;
+        --sol-suit-size: 20px;
+    }
+
+    .xp-solitaire-board {
+        padding: 10px 8px;
+    }
+
+    .xp-solitaire-top {
+        margin-bottom: 14px;
+    }
+
+    .xp-solitaire-app .xp-card-pile,
+    .xp-solitaire-app .xp-playing-card {
+        border-radius: 5px;
+        padding: 3px;
+        font-size: 10px;
+    }
+
+    .xp-solitaire-app .xp-playing-card small {
+        right: 3px;
+        bottom: 2px;
+    }
+
+    .xp-solitaire-app .xp-foundation-suit {
+        font-size: 18px;
+    }
+
+    .xp-solitaire-app .xp-card-empty {
+        font-size: 8px;
+    }
+
+    .xp-solitaire-app .xp-tableau-column {
+        min-height: 220px;
+    }
+
     .xp-pinball-panel .xp-pinball-stats {
         grid-template-columns:
             auto minmax(0, 1fr)

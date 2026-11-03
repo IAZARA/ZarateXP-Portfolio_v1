@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the English CV distributed with the portfolio."""
+"""Generate the Spanish and English CVs distributed with the portfolio (one page each)."""
 
 from pathlib import Path
 
@@ -11,10 +11,10 @@ from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.fonts import addMapping
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "Ivan_Zarate_CV_EN.pdf"
 
 
 def register_fonts() -> tuple[str, str]:
@@ -28,11 +28,14 @@ def register_fonts() -> tuple[str, str]:
         if regular.exists() and bold.exists():
             pdfmetrics.registerFont(TTFont("CVSans", str(regular)))
             pdfmetrics.registerFont(TTFont("CVSans-Bold", str(bold)))
+            # Without this mapping, <b> inside a paragraph falls back to the regular face.
+            addMapping("CVSans", 0, 0, "CVSans")
+            addMapping("CVSans", 1, 0, "CVSans-Bold")
             return "CVSans", "CVSans-Bold"
     return "Helvetica", "Helvetica-Bold"
 
 
-def build_pdf() -> None:
+def build_pdf(output: Path, story_fn, pdf_title: str, subject: str) -> None:
     regular, bold = register_fonts()
     styles = getSampleStyleSheet()
     body = ParagraphStyle(
@@ -110,7 +113,27 @@ def build_pdf() -> None:
     def b(text: str) -> Paragraph:
         return Paragraph(text, bullet, bulletText="•")
 
-    story = [
+    story = story_fn(p, h, b, {"name": name, "title": title, "contact": contact, "role": role})
+
+    doc = SimpleDocTemplate(
+        str(output),
+        pagesize=A4,
+        leftMargin=15 * mm,
+        rightMargin=15 * mm,
+        topMargin=10.5 * mm,
+        bottomMargin=10.5 * mm,
+        title=pdf_title,
+        author="Ivan Agustin Zarate",
+        subject=subject,
+        creator="ZarateXP Portfolio",
+        pageCompression=1,
+    )
+    doc.build(story)
+
+
+def english_story(p, h, b, st) -> list:
+    name, title, contact, role = st["name"], st["title"], st["contact"], st["role"]
+    return [
         p("IVÁN AGUSTÍN ZARATE", name),
         p(
             "AI Solution Architect | Applied AI, Agent Evaluation &amp; Data Privacy | "
@@ -274,21 +297,164 @@ def build_pdf() -> None:
         ),
     ]
 
-    doc = SimpleDocTemplate(
-        str(OUTPUT),
-        pagesize=A4,
-        leftMargin=15 * mm,
-        rightMargin=15 * mm,
-        topMargin=10.5 * mm,
-        bottomMargin=10.5 * mm,
-        title="Ivan Agustin Zarate - AI Solution Architect",
-        author="Ivan Agustin Zarate",
-        subject="English curriculum vitae",
-        creator="ZarateXP Portfolio",
-        pageCompression=1,
-    )
-    doc.build(story)
+
+def spanish_story(p, h, b, st) -> list:
+    name, title, contact, role = st["name"], st["title"], st["contact"], st["role"]
+    return [
+        p("IVÁN AGUSTÍN ZARATE", name),
+        p(
+            "AI Solution Architect | IA aplicada, evaluación de agentes y privacidad de datos | "
+            "Java, Spring Boot, React, Oracle",
+            title,
+        ),
+        p(
+            "Monserrat, Ciudad Autónoma de Buenos Aires, Argentina | "
+            "ivan.agustin.95@gmail.com | 11 4097 3159 | "
+            '<a href="https://www.linkedin.com/in/ivan-agustin-zarate/" color="#0057b8"><u>LinkedIn</u></a> | '
+            '<a href="https://github.com/IAZARA" color="#0057b8"><u>GitHub</u></a>',
+            contact,
+        ),
+        h("PERFIL PROFESIONAL"),
+        p(
+            "AI Solution Architect en ACSYS, con diez años en seguridad pública: plataformas sobre bases de datos "
+            "críticas, resguardo de información e investigación digital. Llevo sistemas de IA del relevamiento a "
+            "producción, con foco en evaluación, supervisión humana, privacidad y trazabilidad. Mi próximo paso es "
+            "la investigación empírica en seguridad de IA."
+        ),
+        h("EXPERIENCIA PROFESIONAL"),
+        p(
+            "<b>AI Solution Architect</b> | ACSYS - Business Engineering &amp; Innovation | 2026 - Actualidad | "
+            "Argentina",
+            role,
+        ),
+        b(
+            "Discovery, arquitectura de IA empresarial, RAG, identidad, seguridad y pruebas de concepto, "
+            "acompañando a preventa y delivery."
+        ),
+        b(
+            "Traducción de necesidades de negocio en requerimientos, alcance, arquitectura, decisiones y criterios "
+            "de aceptación, conectando preventa, especialistas y equipos de delivery."
+        ),
+        p(
+            "<b>Analista en Sistemas / Project Manager de Plataformas Digitales</b> | Dirección Nacional de Gestión "
+            "de Bases de Datos de Seguridad, Ministerio de Seguridad Nacional | 2024 - 2026 | Argentina",
+            role,
+        ),
+        b(
+            "Desarrollo e implementación de plataformas institucionales, desde el relevamiento con usuarios y la "
+            "definición funcional hasta la puesta en producción."
+        ),
+        b(
+            "Integración de IA y MLOps en el ciclo de vida de modelos de texto e imagen: validación de datos, "
+            "experimentación, versionado, evaluación, despliegue y monitoreo."
+        ),
+        b(
+            "Trabajo con bases de datos críticas, cuidando privacidad, control de accesos, trazabilidad y calidad "
+            "del dato en cada etapa."
+        ),
+        b(
+            "Coordinación con usuarios, proveedores, equipos técnicos y ciberseguridad; capacitación en datos, IA "
+            "responsable y seguridad."
+        ),
+        p(
+            "<b>Analista de Datos, Control y Gestión de Información</b> | Policía Federal Argentina - Oficina de "
+            "Bases de Datos Públicas | 2018 - 2024 | Buenos Aires",
+            role,
+        ),
+        b(
+            "Funciones técnicas sobre bases de datos públicas, privacidad, resguardo de información, control y uso "
+            "responsable de sistemas."
+        ),
+        p(
+            "<b>Coordinador de Equipo</b> | Policía Federal Argentina - Área operativa | 2016 - 2018 | Buenos Aires",
+            role,
+        ),
+        b("Coordinación de equipos, planificación de tareas, comunicación bajo presión y toma de decisiones."),
+        p(
+            "<b>Auxiliar de Recursos Humanos y Administración de Personal</b> | COTO Digital - Sucursal 184 | "
+            "2013 - 2015 | Buenos Aires",
+            role,
+        ),
+        b(
+            "Liquidaciones, asistencia, novedades de personal y gestión confidencial de documentación."
+        ),
+        h("PROYECTOS RELEVANTES"),
+        p(
+            "<b>Atlas Urbano - Agente de IA con herramientas para análisis urbanístico</b> | Proyecto propio | "
+            "2026 - Actualidad<br/>En producción en atlas.iazarate.com. Consulta APIs públicas de GIS y normativa "
+            "y declara los datos faltantes en lugar de inferirlos. Un segundo modelo revisa cada borrador contra "
+            "las herramientas (corrigió 14 de 22 consultas complejas); telemetría por etapa y 129 suites de pruebas."
+        ),
+        p(
+            "<b>Herramientas de IA con revisión humana</b> | Código abierto | 2026<br/>Auto-Inbox, Agente para "
+            "Redmine y Araña Web: IA con validación humana obligatoria y auditoría. github.com/IAZARA"
+        ),
+        p(
+            "<b>CUFRE - Plataforma de gestión y priorización de casos</b> | Ministerio de Seguridad Nacional | "
+            "2024 - 2026<br/>Plataforma CRUD con Java, Spring Boot, React, Maven y Oracle para priorizar y dar "
+            "seguimiento a registros críticos, con foco en trazabilidad y coordinación entre áreas."
+        ),
+        p(
+            "<b>SIFEBU - Sistema Federal de Búsqueda de Personas</b> | Ministerio de Seguridad Nacional | "
+            "2024 - 2026<br/>Desarrollo de un sistema federal con JavaScript, TypeScript, React y Oracle, orientado "
+            "a disponibilidad, resguardo y calidad de la información."
+        ),
+        p(
+            "<b>CRIACO - Plataforma de análisis territorial y GIS</b> | Ministerio de Seguridad Nacional | "
+            "2024 - 2026<br/>Desarrollo de una plataforma de análisis territorial con componentes GIS, mapas, capas "
+            "de información y visualización de datos."
+        ),
+        p(
+            "<b>OSINTARGY</b> | Proyecto privado | 2024 - Actualidad<br/>Capacitación en herramientas OSINT, "
+            "investigación digital, tratamiento de datos y privacidad para pequeñas empresas."
+        ),
+        h("FORMACIÓN"),
+        p("<b>Analista de Sistemas</b> | Instituto Superior ORT Argentina | 2024 - 2026 | Título obtenido."),
+        p(
+            "<b>Licenciatura en Seguridad, orientación en Investigación Criminal</b> | Instituto Universitario "
+            "de la Policía Federal Argentina | 2020 - 2025"
+        ),
+        p(
+            "<b>Google AI y Google Data Analytics Professional Certificates</b> | Google / Coursera | "
+            "2024 - 2026 | SQL, Tableau, R e IA aplicada."
+        ),
+        p("<b>Anthropic Academy</b> | 2026 | Claude Code 101 y AI Capabilities and Limitations."),
+        h("COMPETENCIAS CLAVE"),
+        p(
+            "<b>Intereses en seguridad de IA:</b> evaluación de agentes, fidelidad a la evidencia, supervisión "
+            "humana y entre modelos, privacidad y red-teaming."
+        ),
+        p(
+            "<b>Arquitectura de soluciones:</b> descubrimiento con usuarios, requerimientos, traducción "
+            "funcional-técnica, integración y puesta en producción."
+        ),
+        p(
+            "<b>IA y MLOps:</b> ciclo de vida de modelos, evaluación, versionado, despliegue y monitoreo; Hugging "
+            "Face, QLoRA, redes neuronales y modelos de texto e imagen."
+        ),
+        p(
+            "<b>Desarrollo de sistemas:</b> Java, Spring Boot, React, JavaScript, TypeScript, Maven, APIs, Git, "
+            "Oracle, SQL y plataformas CRUD en producción."
+        ),
+        p(
+            "<b>Datos, privacidad y seguridad:</b> calidad del dato, información sensible, trazabilidad, "
+            "control de accesos, auditoría, OSINT, GIS y ciberseguridad."
+        ),
+        p(
+            "<b>Herramientas de IA:</b> modelos locales abiertos, agentes de programación, Claude, Codex y "
+            "OpenCode."
+        ),
+        h("IDIOMAS"),
+        p("<b>Español:</b> nativo."),
+        p("<b>Inglés:</b> intermedio. Buena lectura técnica; reuniones de trabajo con proveedores de tecnología."),
+        Spacer(1, 0.6),
+        p(
+            "<b>Datos personales:</b> fecha de nacimiento: 17 de agosto de 1995; residencia actual: Monserrat, "
+            "Ciudad Autónoma de Buenos Aires."
+        ),
+    ]
 
 
 if __name__ == "__main__":
-    build_pdf()
+    build_pdf(ROOT / "Ivan_Zarate_CV.pdf", spanish_story, "CV Ivan Agustin Zarate - AI Solution Architect", "Curriculum vitae en español")
+    build_pdf(ROOT / "Ivan_Zarate_CV_EN.pdf", english_story, "Ivan Agustin Zarate - AI Solution Architect", "English curriculum vitae")
