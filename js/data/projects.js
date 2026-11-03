@@ -14,6 +14,23 @@ const projects = [
         details: 'Portfolio personal desarrollado como una simulación completa de Windows XP, con escritorio interactivo, ventanas funcionales, aplicaciones integradas y contenido profesional explorable.'
     },
     {
+        id: 'atlas-urbano',
+        name: 'Atlas Urbano',
+        type: 'project',
+        icon: './assets/images/project-icons/atlas-urbano-icon.webp',
+        detailImage: './assets/images/project-icons/atlas-urbano-icon.webp',
+        showcaseImage: './assets/images/project-icons/atlas-urbano-banner.webp',
+        showcaseAlt: 'Vista general de Atlas Urbano',
+        showcaseWidth: 1200,
+        showcaseHeight: 630,
+        description: 'Agente con herramientas GIS que declara los datos faltantes',
+        url: 'https://atlas.iazarate.com',
+        technologies: ['React 19', 'TypeScript', 'Node.js', 'Express', 'SQLite', 'Leaflet', 'LLM con herramientas'],
+        category: 'IA aplicada / Evaluación de agentes',
+        status: 'En producción',
+        details: 'Plataforma de inteligencia inmobiliaria para la Ciudad de Buenos Aires que combina un chat con un mapa parcelario. El modelo resuelve direcciones, consulta APIs públicas de normativa y GIS y devuelve un análisis con fuentes, fecha y cobertura. Su regla central: si un dato no está disponible, se declara como faltante y no se completa por inferencia. Una revisión con un segundo modelo contrasta cada borrador con los resultados de las herramientas, y la telemetría por etapa permite medir calidad, latencia y costo.'
+    },
+    {
         id: 'osintargy',
         name: 'OSINTArgy',
         type: 'project',
@@ -311,6 +328,13 @@ const projectEvidence = {
         solution: { es: 'Construí un portfolio explorable inspirado en Windows XP, con aplicaciones reales, estado persistente, accesibilidad, responsive design y despliegue continuo.', en: 'I built an explorable Windows XP-inspired portfolio with real applications, persistent state, accessibility, responsive design and continuous deployment.' },
         evidence: { es: ['Repositorio público y GitHub Pages', 'Pruebas automatizadas y smoke tests con Playwright', 'Aplicaciones Canvas, File API, Web Audio y APIs públicas'], en: ['Public repository and GitHub Pages', 'Automated checks and Playwright smoke tests', 'Canvas, File API, Web Audio and public API applications'] }
     },
+    'atlas-urbano': {
+        featured: true,
+        role: { es: 'Diseño de producto, arquitectura del agente y sus herramientas, evaluación, telemetría y operación.', en: 'Product design, agent and tool architecture, evaluation, telemetry and operations.' },
+        problem: { es: 'Un modelo con buenas herramientas igual completa con confianza los datos que faltan, y en una consulta urbanística ese error tiene costo real.', en: 'A model with good tools still confidently fills in missing data, and in a zoning query that mistake has a real cost.' },
+        solution: { es: 'Construí un pipeline de interpretación, herramientas, redacción y revisión, donde un segundo modelo contrasta el borrador con la evidencia y cada etapa queda medida.', en: 'I built an interpret, tools, draft and review pipeline where a second model checks the draft against the evidence and every stage is measured.' },
+        evidence: { es: ['Aplicación pública en producción', 'La revisión corrigió el borrador en 14 de 22 consultas complejas medidas', 'Telemetría por llamada y 129 suites de pruebas automatizadas'], en: ['Public application in production', 'The review corrected the draft in 14 of 22 measured complex queries', 'Per-call telemetry and 129 automated test suites'] }
+    },
     osintargy: {
         featured: true,
         role: { es: 'Producto, experiencia de usuario, frontend, backend y despliegue de la plataforma.', en: 'Product, user experience, frontend, backend and platform deployment.' },
@@ -445,8 +469,9 @@ for (const project of projects) {
 }
 
 const folderProjectIds = {
-    featured: ['zaratexp', 'osintargy', 'forzatask', 'arana-web', 'auto-inbox', 'art-redmine', 'workflow-black-box', 'cufre'],
+    featured: ['atlas-urbano', 'zaratexp', 'osintargy', 'forzatask', 'arana-web', 'auto-inbox', 'art-redmine', 'workflow-black-box', 'cufre'],
     web: [
+        'atlas-urbano',
         'forzatech',
         'estudio-luttini',
         'cap21',
@@ -464,6 +489,7 @@ const folderProjectIds = {
         'workflow-black-box'
     ],
     ai: [
+        'atlas-urbano',
         'auto-inbox',
         'art-redmine',
         'arana-web',

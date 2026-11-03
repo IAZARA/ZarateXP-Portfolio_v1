@@ -18,12 +18,17 @@ OUTPUT = ROOT / "Ivan_Zarate_CV_EN.pdf"
 
 
 def register_fonts() -> tuple[str, str]:
-    regular = Path("/System/Library/Fonts/Supplemental/Arial.ttf")
-    bold = Path("/System/Library/Fonts/Supplemental/Arial Bold.ttf")
-    if regular.exists() and bold.exists():
-        pdfmetrics.registerFont(TTFont("CVSans", str(regular)))
-        pdfmetrics.registerFont(TTFont("CVSans-Bold", str(bold)))
-        return "CVSans", "CVSans-Bold"
+    candidates = [
+        ("/System/Library/Fonts/Supplemental/Arial.ttf", "/System/Library/Fonts/Supplemental/Arial Bold.ttf"),
+        # Linux: Liberation Sans has the same metrics as Arial.
+        ("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"),
+    ]
+    for regular, bold in map(lambda pair: (Path(pair[0]), Path(pair[1])), candidates):
+        if regular.exists() and bold.exists():
+            pdfmetrics.registerFont(TTFont("CVSans", str(regular)))
+            pdfmetrics.registerFont(TTFont("CVSans-Bold", str(bold)))
+            return "CVSans", "CVSans-Bold"
     return "Helvetica", "Helvetica-Bold"
 
 
@@ -108,7 +113,7 @@ def build_pdf() -> None:
     story = [
         p("IVÁN AGUSTÍN ZARATE", name),
         p(
-            "Software Analyst &amp; Project Manager | Software, Data &amp; AI Solutions | "
+            "AI Solution Architect | Applied AI, Agent Evaluation &amp; Data Privacy | "
             "Java, Spring Boot, React, Oracle",
             title,
         ),
@@ -121,19 +126,29 @@ def build_pdf() -> None:
         ),
         h("PROFESSIONAL PROFILE"),
         p(
-            "Software Analyst with experience developing and implementing platforms, managing sensitive data, "
-            "and coordinating projects in institutional environments. I gather user needs, translate them into "
-            "technical solutions, and support integration and production rollout. My career target is a Forward "
-            "Deployed Engineer role, building on this hands-on, user-facing delivery experience."
-        ),
-        p(
-            "Experience applying MLOps concepts and AI model lifecycle practices within platforms, with a focus "
-            "on data quality, privacy, traceability, deployment, and continuous improvement."
+            "AI Solution Architect at ACSYS with ten years in public security, where I built institutional "
+            "platforms on critical databases and worked on data protection and digital investigations. I take AI "
+            "systems from user discovery to production, with a focus on evaluation, human oversight, privacy, and "
+            "traceability. My next step is full-time empirical AI safety research: agent evaluation, scalable "
+            "oversight, and privacy safeguards."
         ),
         h("PROFESSIONAL EXPERIENCE"),
         p(
+            "<b>AI Solution Architect</b> | ACSYS - Business Engineering &amp; Innovation | 2026 - Present | "
+            "Argentina",
+            role,
+        ),
+        b(
+            "Discovery, enterprise AI architecture, RAG, identity, security, and proofs of concept, supporting "
+            "presales and delivery."
+        ),
+        b(
+            "Translation of business needs into requirements, scope, architecture, decisions, and acceptance "
+            "criteria, connecting presales, specialists, and delivery teams."
+        ),
+        p(
             "<b>Software Analyst / Digital Platforms Project Manager</b> | National Directorate for Security "
-            "Database Management, Ministry of National Security | 2024 - Present | Argentina",
+            "Database Management, Ministry of National Security | 2024 - 2026 | Argentina",
             role,
         ),
         b(
@@ -141,12 +156,9 @@ def build_pdf() -> None:
             "definition through production rollout."
         ),
         b(
-            "Integration of AI capabilities into platforms and participation in the model lifecycle: data "
-            "preparation and validation, experimentation, deployment, monitoring, and iterative improvement."
-        ),
-        b(
-            "Application of MLOps practices to organize model versions, traceability, evaluation, and operation, "
-            "including neural networks and text and image models."
+            "Integration of AI capabilities and MLOps across the model lifecycle: data preparation and validation, "
+            "experimentation, versioning, evaluation, deployment, and monitoring of neural networks and text and "
+            "image models."
         ),
         b(
             "Work with critical databases, safeguarding privacy, access control, traceability, and data quality "
@@ -181,18 +193,28 @@ def build_pdf() -> None:
         ),
         h("SELECTED PROJECTS"),
         p(
+            "<b>Atlas Urbano - Tool-using AI agent for zoning analysis</b> | Personal project | 2026 - Present"
+            "<br/>Live at atlas.iazarate.com. An agent that calls public GIS and zoning APIs and must declare "
+            "missing data instead of inferring it. A second-model review checks each draft against tool outputs "
+            "(it corrected 14 of 22 measured complex queries); per-stage telemetry and 129 test suites."
+        ),
+        p(
+            "<b>Human-in-the-loop AI tools</b> | Open source | 2026<br/>Auto-Inbox, Redmine Agent, and Araña "
+            "Web: AI drafting that requires human validation before acting, with auditing. github.com/IAZARA"
+        ),
+        p(
             "<b>CUFRE - Case Management and Prioritization Platform</b> | Ministry of National Security | "
-            "2024 - Present<br/>CRUD platform built with Java, Spring Boot, React, Maven, and Oracle to prioritize "
+            "2024 - 2026<br/>CRUD platform built with Java, Spring Boot, React, Maven, and Oracle to prioritize "
             "and track critical records, with a focus on traceability and cross-team coordination."
         ),
         p(
             "<b>SIFEBU - Federal Missing Persons Search System</b> | Ministry of National Security | "
-            "2024 - Present<br/>Development of a federal system with JavaScript, TypeScript, React, and Oracle, "
+            "2024 - 2026<br/>Development of a federal system with JavaScript, TypeScript, React, and Oracle, "
             "focused on information availability, protection, and quality."
         ),
         p(
             "<b>CRIACO - Territorial Analysis and GIS Platform</b> | Ministry of National Security | "
-            "2024 - Present<br/>Development of a territorial analysis platform with GIS components, maps, "
+            "2024 - 2026<br/>Development of a territorial analysis platform with GIS components, maps, "
             "information layers, and data visualization."
         ),
         p(
@@ -201,26 +223,31 @@ def build_pdf() -> None:
         ),
         h("EDUCATION"),
         p(
-            "<b>Systems Analyst</b> | ORT Argentina Higher Institute | 2024 - 2026<br/>Degree awarded."
+            "<b>Systems Analyst</b> | ORT Argentina Higher Institute | 2024 - 2026 | Degree awarded."
         ),
         p(
             "<b>Bachelor's Degree in Security, focus on Criminal Investigation</b> | University Institute of the "
-            "Argentine Federal Police | 2020 - 2025<br/>Training in investigation, information analysis, work "
-            "methodologies, and the study of complex security-related phenomena."
+            "Argentine Federal Police | 2020 - 2025 | Investigation and information analysis."
         ),
         p(
-            "<b>Google Data Analytics Professional Certificate</b> | Google / Coursera | 2024<br/>Eight-course "
-            "certificate covering data preparation, cleaning, analysis, and communication using SQL, Tableau, "
-            "R, and spreadsheets."
+            "<b>Google AI and Google Data Analytics Professional Certificates</b> | Google / Coursera | "
+            "2024 - 2026 | SQL, Tableau, R, and applied AI."
+        ),
+        p(
+            "<b>Anthropic Academy</b> | 2026 | Claude Code 101 and AI Capabilities and Limitations."
         ),
         h("CORE SKILLS"),
         p(
-            "<b>Forward Deployed Engineering target:</b> user discovery, requirements gathering, "
-            "functional-to-technical translation, integration, documentation, training, and production rollout."
+            "<b>AI safety interests:</b> agent evaluation, faithfulness to tool outputs, human and model "
+            "oversight, privacy harms from web-search agents, and red-teaming."
         ),
         p(
-            "<b>AI and MLOps:</b> model lifecycle, data preparation and validation, experimentation, versioning, "
-            "deployment, monitoring, and continuous improvement; neural networks, Hugging Face, QLoRA, and text "
+            "<b>Solution architecture:</b> user discovery, requirements, functional-to-technical translation, "
+            "integration, and production rollout."
+        ),
+        p(
+            "<b>AI and MLOps:</b> model lifecycle, evaluation, versioning, deployment, and monitoring; Hugging Face, "
+            "QLoRA, neural networks, and text "
             "and image models."
         ),
         p(
@@ -238,8 +265,7 @@ def build_pdf() -> None:
         h("LANGUAGES"),
         p("<b>Spanish:</b> Native."),
         p(
-            "<b>English:</b> Intermediate. Strong technical reading comprehension; experience in meetings and "
-            "vendor interviews to coordinate technology acquisitions."
+            "<b>English:</b> Intermediate. Strong technical reading; working meetings with technology vendors."
         ),
         Spacer(1, 0.6),
         p(
@@ -255,7 +281,7 @@ def build_pdf() -> None:
         rightMargin=15 * mm,
         topMargin=10.5 * mm,
         bottomMargin=10.5 * mm,
-        title="Ivan Agustin Zarate - Software Analyst and Project Manager",
+        title="Ivan Agustin Zarate - AI Solution Architect",
         author="Ivan Agustin Zarate",
         subject="English curriculum vitae",
         creator="ZarateXP Portfolio",

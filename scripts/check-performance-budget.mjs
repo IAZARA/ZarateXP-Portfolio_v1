@@ -112,6 +112,8 @@ const sizeBudgets = [
   ['images/sobremi/forzatech-founder.webp', 40 * 1024],
   ['images/sobremi/privacy-data-products.webp', 40 * 1024],
   ['images/sobremi/shipping-projects.webp', 40 * 1024],
+  ['assets/images/project-icons/atlas-urbano-icon.webp', 50 * 1024],
+  ['assets/images/project-icons/atlas-urbano-banner.webp', 300 * 1024],
   ['assets/images/project-icons/art-redmine-icon.webp', 50 * 1024],
   ['assets/images/project-icons/art-redmine-banner.webp', 300 * 1024],
   ['assets/images/project-icons/forzatask-icon.webp', 50 * 1024],

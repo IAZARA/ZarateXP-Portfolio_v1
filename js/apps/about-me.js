@@ -89,6 +89,13 @@ export default function createMethods({ debugLog }) {
                                     </div>
                                 </article>
 
+                                <article class="about-section about-section-research">
+                                    <div class="about-text">
+                                        <h3>Hacia la investigación en seguridad de IA</h3>
+                                        <p>Mi próximo paso es la investigación empírica en seguridad de IA. Me interesa medir cuándo un agente con herramientas inventa datos en lugar de declarar que faltan, cómo diseñar supervisión humana y entre modelos que escale, y cómo evaluar el riesgo de que agentes con búsqueda web faciliten daños a la privacidad. Llego desde la práctica: IA en producción sobre datos sensibles, OSINT e investigación digital, y proyectos propios como Atlas Urbano, donde cada respuesta se contrasta con la evidencia.</p>
+                                    </div>
+                                </article>
+
                                 <article class="about-section about-section-education">
                                     <div class="about-text">
                                         <h3>Formación e idiomas</h3>
