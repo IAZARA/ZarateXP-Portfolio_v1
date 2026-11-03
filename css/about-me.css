@@ -206,6 +206,13 @@
 .about-section:nth-child(4) { animation-delay: 0.12s; }
 .about-section:nth-child(5) { animation-delay: 0.15s; }
 .about-section:nth-child(6) { animation-delay: 0.18s; }
+.about-section:nth-child(7) { animation-delay: 0.21s; }
+
+.about-section-research {
+    min-height: 150px;
+    border-left: 6px solid #2f8a5e;
+    background: linear-gradient(135deg, #ecf8f1, #ffffff 62%);
+}
 
 .about-section-education {
     min-height: 150px;

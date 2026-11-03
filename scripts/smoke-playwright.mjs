@@ -749,7 +749,7 @@ async function exerciseProjectExplorer(page) {
   const originalViewport = page.viewportSize();
   const appWindow = await openApp(page, 'projects');
   await appWindow.locator('#explorer-content .project-item').first().waitFor({ state: 'visible' });
-  ensure(await appWindow.locator('#explorer-content .project-item').count() === 21, 'El Explorador no abrió con los 21 proyectos');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 22, 'El Explorador no abrió con los 22 proyectos');
 
   const locationSelect = appWindow.locator('#project-location');
   const addressBeforeHover = await locationSelect.evaluate((select) => {
@@ -775,18 +775,18 @@ async function exerciseProjectExplorer(page) {
 
   await appWindow.locator('[data-view-trigger]').click();
   await appWindow.locator('[data-view-choice="list"]').click();
-  ensure(await appWindow.locator('#explorer-content .list-row').count() === 21, 'La vista Lista no mostró los 21 proyectos');
+  ensure(await appWindow.locator('#explorer-content .list-row').count() === 22, 'La vista Lista no mostró los 22 proyectos');
   await appWindow.locator('[data-view-trigger]').click();
   await appWindow.locator('[data-view-choice="details"]').click();
-  ensure(await appWindow.locator('#explorer-content .details-row').count() === 21, 'La vista Detalles no mostró los 21 proyectos');
+  ensure(await appWindow.locator('#explorer-content .details-row').count() === 22, 'La vista Detalles no mostró los 22 proyectos');
   ensure(await page.evaluate(() => localStorage.getItem('zarateXP.projects.viewMode')) === 'details', 'El Explorador no guardó la vista elegida');
   await appWindow.locator('[data-view-trigger]').click();
   await appWindow.locator('[data-view-choice="icons"]').click();
 
   await appWindow.locator('#project-location').selectOption('featured');
   await appWindow.locator('#address-go').click();
-  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '8 elementos');
-  ensure(await appWindow.locator('#explorer-content .project-item').count() === 8, 'Destacados no mostró los ocho proyectos curados');
+  await page.waitForFunction(() => document.querySelector('.window[data-window-id="projects"] #items-count')?.textContent === '9 elementos');
+  ensure(await appWindow.locator('#explorer-content .project-item').count() === 9, 'Destacados no mostró los nueve proyectos curados');
   ensure(!(await appWindow.locator('#btn-back').isDisabled()) && !(await appWindow.locator('#btn-up').isDisabled()), 'La navegación no habilitó Atrás y Arriba');
 
   await appWindow.locator('#btn-back').click();

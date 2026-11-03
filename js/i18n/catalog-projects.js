@@ -75,5 +75,10 @@ export const PROJECT_TRANSLATIONS = Object.freeze({
     "Visualización": "Visualization",
     "Sistema Enterprise Java": "Enterprise Java System",
     "Workflows n8n - Atención al Cliente": "n8n Workflows - Customer Support",
+    "Agente con herramientas GIS que declara los datos faltantes": "Tool-using GIS agent that declares missing data",
+    "Plataforma de inteligencia inmobiliaria para la Ciudad de Buenos Aires que combina un chat con un mapa parcelario. El modelo resuelve direcciones, consulta APIs públicas de normativa y GIS y devuelve un análisis con fuentes, fecha y cobertura. Su regla central: si un dato no está disponible, se declara como faltante y no se completa por inferencia. Una revisión con un segundo modelo contrasta cada borrador con los resultados de las herramientas, y la telemetría por etapa permite medir calidad, latencia y costo.": "Real estate intelligence platform for the City of Buenos Aires that combines a chat with a parcel map. The model resolves addresses, queries public zoning and GIS APIs and returns an analysis with sources, dates and coverage. Its core rule: when a data point is unavailable, it is declared missing instead of being inferred. A second model reviews each draft against the tool results, and per-stage telemetry measures quality, latency and cost.",
+    "IA aplicada / Evaluación de agentes": "Applied AI / Agent Evaluation",
+    "Vista general de Atlas Urbano": "Atlas Urbano overview",
+    "LLM con herramientas": "Tool-using LLM",
     "El sitio externo está publicado en español. Puedes abrirlo en una pestaña nueva para explorar su contenido original.": "The external site is published in Spanish. Open it in a new tab to explore its original content."
 });

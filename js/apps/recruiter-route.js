@@ -21,6 +21,10 @@ export default function createMethods({ initGitHubActivitySummary }) {
                             <h3>Rol actual</h3>
                             <p>AI Solution Architect en ACSYS, dentro de Business Engineering &amp; Innovation.</p>
                         </section>
+                        <section>
+                            <h3>Interés de investigación</h3>
+                            <p>Seguridad de IA empírica: evaluación de agentes, supervisión y privacidad.</p>
+                        </section>
                     </aside>
                     <main class="xp-fde-brief">
                         <header class="xp-fde-hero">
@@ -44,6 +48,22 @@ export default function createMethods({ initGitHubActivitySummary }) {
                                 <div><strong>Diseñar</strong><span>Alcance, arquitectura, integraciones y trade-offs.</span></div>
                                 <div><strong>Validar</strong><span>PoC, riesgos, seguridad y criterios de éxito.</span></div>
                                 <div><strong>Acompañar</strong><span>Handoff, implementación, operación y mejora.</span></div>
+                            </div>
+                        </section>
+
+                        <section class="xp-fde-section xp-fde-capabilities xp-fde-research">
+                            <div class="xp-fde-section-heading">
+                                <div>
+                                    <h3>Investigación en seguridad de IA</h3>
+                                    <p>Quiero llevar lo que aprendí poniendo IA en producción con datos sensibles a la investigación empírica en seguridad de IA.</p>
+                                </div>
+                                <button type="button" data-route-app="projects">Explorar proyectos</button>
+                            </div>
+                            <div class="xp-fde-capability-grid">
+                                <article><h4>Fidelidad a la evidencia</h4><p>Cuándo un agente con herramientas completa datos que faltan en lugar de declararlos. En Atlas Urbano, una revisión con un segundo modelo corrigió el borrador en 14 de 22 consultas complejas medidas.</p></article>
+                                <article><h4>Supervisión humana y entre modelos</h4><p>Auto-Inbox, Agente para Redmine y Araña Web exigen validación humana antes de actuar, con auditoría y trazabilidad de cada decisión.</p></article>
+                                <article><h4>Privacidad y OSINT</h4><p>Diez años en seguridad pública con datos sensibles e investigación digital, una base para evaluar cómo los agentes con búsqueda web pueden facilitar daños a la privacidad.</p></article>
+                                <article><h4>Medición en producción</h4><p>Telemetría por etapa, tasas de corrección y pruebas automatizadas para medir calidad, latencia y costo de cada llamada a un modelo.</p></article>
                             </div>
                         </section>
 
