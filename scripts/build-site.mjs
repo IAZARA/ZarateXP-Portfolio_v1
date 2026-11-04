@@ -10,7 +10,7 @@ const root = path.resolve(import.meta.dirname, '..');
 const outDir = path.join(root, process.env.SITE_OUT_DIR || 'dist');
 
 // Rutas que existen para desarrollar o documentar el repo, no para el sitio.
-const excludedPrefixes = ['.github/', 'docs/', 'scripts/', 'tests/', 'assets/readme/'];
+const excludedPrefixes = ['.github/', 'docs/', 'scripts/', 'tests/', 'assets/readme/', 'video/'];
 const excludedFiles = new Set(['.gitignore', 'AGENTS.md', 'README.md', 'package.json', 'package-lock.json']);
 // La imagen social sí se publica: la leen LinkedIn, WhatsApp y otros al compartir el link.
 const includedExceptions = new Set(['assets/readme/zaratexp-social-ai-architect.jpg']);

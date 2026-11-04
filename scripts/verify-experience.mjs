@@ -59,7 +59,7 @@ const checks = [
   ['boot/login XP flow', /boot-screen/],
   ['keyboard login', /userSection\.setAttribute\('role', 'button'\)[\s\S]{0,400}Ivan Agustin Zarate, AI Solution Architect en ACSYS[^']*Iniciar sesión/],
   ['desktop icons', /desktop-icon/],
-  ['recruiter-first desktop order', /data-program-name="recruiter-route"[\s\S]{0,500}data-program-name="resume"[\s\S]{0,500}data-program-name="projects"[\s\S]{0,500}data-program-name="contact"/],
+  ['recruiter-first desktop order', /data-program-name="recruiter-route"[\s\S]{0,500}data-program-name="media-player"[\s\S]{0,500}data-program-name="resume"[\s\S]{0,500}data-program-name="projects"[\s\S]{0,500}data-program-name="contact"/],
   ['single tap mobile launch', /touchend[\s\S]{0,500}openIcon\(icon\)/],
   ['desktop keyboard access', /Shift\+F10|ContextMenu/],
   ['desktop context menu', /data-context-action="properties"/],
