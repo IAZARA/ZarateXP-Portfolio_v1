@@ -22,6 +22,9 @@ export class AppManager {
     constructor() {
         this.apps = new Map();
         this.runningApps = new Map();
+        // Apps cuyo handler asíncrono todavía no terminó (p. ej. esperando un fetch).
+        // Evita que un doble toque lance dos aperturas en paralelo.
+        this.launchingApps = new Set();
         this.scriptPromises = new Map();
         this.appModulePromises = new Map();
         this.contactSendInFlight = false;
@@ -336,6 +339,11 @@ export class AppManager {
             return;
         }
         
+        if (this.launchingApps.has(appId) && !app.multiInstance) {
+            debugLog(`App ${appId} is still launching`);
+            return;
+        }
+
         // Play launch sound
         if (window.zarateXP?.soundManager) {
             window.zarateXP.soundManager.play('click');
@@ -346,7 +354,15 @@ export class AppManager {
         // Execute app handler
         try {
             const result = app.handler();
-            if (result && result.windowId) {
+            if (result && typeof result.then === 'function') {
+                if (!app.multiInstance) this.launchingApps.add(appId);
+                Promise.resolve(result)
+                    .catch((error) => {
+                        console.error(`Failed to launch app ${appId}:`, error);
+                        this.showError(`Failed to launch "${app.name}"`);
+                    })
+                    .finally(() => this.launchingApps.delete(appId));
+            } else if (result && result.windowId) {
                 this.runningApps.set(appId, result.windowId);
             }
         } catch (error) {
@@ -399,6 +415,9 @@ export class AppManager {
             if (!this.windowManager) {
                 throw new Error('WindowManager no está disponible');
             }
+
+            // Otra apertura pudo crear la ventana mientras esperábamos el fetch.
+            if (this._focusIfWindowExists('my-computer')) return;
 
             // 3. Una vez que el contenido está listo, crear la ventana
             debugLog('Creating Mi PC window with WindowManager...');
@@ -617,6 +636,9 @@ export class AppManager {
                 throw new Error(`Error al cargar contacto.html: ${response.statusText} (${response.status})`);
             }
             const htmlContent = await response.text();
+
+            // Otra apertura pudo crear la ventana mientras esperábamos el fetch.
+            if (this._focusIfWindowExists('contact')) return;
 
             // Crear la ventana usando el WindowManager
             const contactWindow = this.windowManager.createWindow({
@@ -1070,6 +1092,9 @@ export class AppManager {
                 throw new Error(`Error al cargar proyectos-explorer.html: ${response.statusText} (${response.status})`);
             }
             const htmlContent = await response.text();
+
+            // Otra apertura pudo crear la ventana mientras esperábamos el fetch.
+            if (this._focusIfWindowExists('projects')) return;
 
             // Crear la ventana usando el WindowManager
             const projectsWindow = this.windowManager.createWindow({
@@ -1920,6 +1945,12 @@ export class AppManager {
     
     // --- Métodos auxiliares ---
 
+    _focusIfWindowExists(windowId) {
+        if (!this.windowManager?.windows?.has(windowId)) return false;
+        this.windowManager.focusWindow?.(windowId);
+        return true;
+    }
+
     _focusIfRunning(appId) {
         if (!this.runningApps.has(appId)) return false;
         if (this.windowManager?.focusWindow) {
@@ -1944,6 +1975,8 @@ export class AppManager {
             resizable,
             maximizable
         });
+        // createWindow no devuelve nada si la ventana ya existe: la enfocó.
+        if (!appWindow) return null;
 
         this.runningApps.set(id, id);
         this._observeWindowClose(appWindow, id, onClose);
