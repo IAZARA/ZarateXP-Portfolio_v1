@@ -209,6 +209,25 @@ async function resize(page, viewport) {
 }
 
 const cases = [
+  ['double-open-async-apps', async (page) => {
+    // Un doble toque en el celular lanzaba dos aperturas antes de que terminara el
+    // fetch del componente; la segunda mostraba "No se pudo cargar 'Mi Contacto'".
+    await resize(page, { width: 390, height: 844 });
+    for (const id of ['contact', 'my-computer', 'projects']) {
+      await page.evaluate((appId) => {
+        const apps = window.zarateXP.appManager;
+        apps.openApp(appId);
+        apps.openApp(appId);
+      }, id);
+      await assertRegistered(page, id);
+      await page.waitForFunction((appId) => !window.zarateXP.appManager.launchingApps.has(appId), id);
+      await page.waitForTimeout(400);
+      const windows = await page.evaluate(() => [...document.querySelectorAll('.window')].map((w) => w.dataset.windowId));
+      assert.deepEqual(windows, [id], `Opening ${id} twice must leave one window and no error dialog`);
+      await page.locator(`${windowSelector(id)} .close-btn`).click();
+      await assertGone(page, id);
+    }
+  }],
   ...[desktopViewport, { width: 390, height: 844 }].map((viewport) => [
     `keyboard-window-activation-${viewport.width}`, async (page) => {
       await resize(page, viewport);
